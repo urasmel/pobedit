@@ -10,7 +10,7 @@ import { addAccount, deleteAccount, editAccount, fetchAccounts, loginAccount } f
 import styles from './Accounts.module.css';
 import { Account } from '../../models/account';
 import Box from '@mui/material/Box';
-import CustomNoRowsOverlay from '../../ui/CustomNoRowsOverlay/CustomNoRowsOverlay';
+import CustomNoRowsOverlay from '../ui/CustomNoRowsOverlay/CustomNoRowsOverlay';
 import { useMainStore } from '../../store/MainStore';
 
 const theme = createTheme({
