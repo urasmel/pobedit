@@ -1,0 +1,68 @@
+.badge {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+    box-shadow: none;
+    transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    padding: 0.675rem 0.8rem 0.675rem 1rem;
+    margin: 0 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    font-size: 1.25rem;
+    line-height: 1.625;
+    letter-spacing: 0.00938em;
+    background: transparent;
+    color: #67748e;
+}
+
+.badge--active {
+    background: #fff;
+    box-shadow: 0rem 1.25rem 1.6875rem 0rem rgba(0, 0, 0, 0.05);
+}
+
+.badge__icon {
+    background: #fff;
+    flex-shrink: 0;
+    min-width: 2rem;
+    min-height: 2rem;
+    border-radius: 0.5rem;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    color: rgba(0, 0, 0, 0.54);
+    box-shadow: 0rem 0.25rem 0.375rem -0.0625rem rgba(20, 20, 20, 0.12), 0rem 0.125rem 0.25rem -0.0625rem rgba(20, 20, 20, 0.07);
+    transition: margin 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+}
+
+.badge__icon--active {
+    background: #17c1e8;
+}
+
+.badge__title {
+    opacity: 1;
+    max-width: 100%;
+    margin-left: 0.8rem;
+    transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, margin 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    flex: 1 1 auto;
+    min-width: 0;
+    cursor: pointer;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: 400;
+    font-size: 0.875rem;
+    line-height: 0;
+    letter-spacing: 0.00938em;
+    display: block;
+    color: #67748e;
+}
+
+.badge__title--active {
+    font-weight: 500 !important;
+    color: #344767;
+}

@@ -1,0 +1,41 @@
+version: "3.8"
+name: pobedit
+services:
+
+  db:
+    image: postgres:13-alpine
+    container_name: user_db_server
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./db/scripts:/docker-entrypoint-initdb.d
+    ports:
+      # - 6543:5432
+      - 5432:5432
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: users
+    restart: unless-stopped
+
+  gatherservice:
+   build: ./backend
+   container_name: gatherservice
+   environment:
+    DB_HOST: db
+    DB_PORT: 5432
+    DB_USER: postgres
+    DB_PASSWORD: postgres
+   ports:
+    - "8080:80"
+  #  depends_on:
+  #   - db
+
+  ui:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - 5000:3000
+
+volumes:
+  db-data:

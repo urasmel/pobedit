@@ -1,0 +1,28 @@
+.info {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    /* padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0rem 1.25rem 1.6875rem 0rem rgba(0, 0, 0, 0.05); */
+}
+
+.info__title {
+    display: flex;
+    column-gap: 10px;
+}
+
+.info__photo {
+    width: 100px;
+    height: 100px;
+}
+
+.info__about {
+    font-size: 14px;
+    font-weight: 400;
+    align-self: center;
+}
+
+.info__desc {
+    margin-top: 30px;
+}

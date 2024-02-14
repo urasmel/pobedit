@@ -1,0 +1,16 @@
+{
+  "name": "test_server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "json-server --watch ./data/data.json --routes routes.json -p 3333"
+  },
+  "keywords": [
+    "telegramm",
+    "api",
+    "emulation"
+  ],
+  "author": "dockem",
+  "license": "ISC"
+}
