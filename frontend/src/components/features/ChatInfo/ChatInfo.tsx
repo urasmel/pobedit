@@ -1,5 +1,5 @@
 import styles from './ChatInfo.module.css';
-import { ChatFullInfo } from '../../types/ChatFullInfo';
+import { ChatFullInfo } from 'types/ChatFullInfo';
 
 export const ChatInfo = (chatFullInfo: ChatFullInfo) => {
     return (

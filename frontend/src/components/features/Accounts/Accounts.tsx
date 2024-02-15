@@ -8,10 +8,10 @@ import { Button } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { addAccount, deleteAccount, editAccount, fetchAccounts, loginAccount } from '../../../api/accounts';
 import styles from './Accounts.module.css';
-import { Account } from '../../../models/account';
+import { Account } from '@/models/account';
 import Box from '@mui/material/Box';
-import CustomNoRowsOverlay from '../../ui/CustomNoRowsOverlay/CustomNoRowsOverlay';
-import { useMainStore } from '../../../store/MainStore';
+import CustomNoRowsOverlay from '@/components/ui/CustomNoRowsOverlay/CustomNoRowsOverlay';
+import { useMainStore } from '@/store/MainStore';
 
 const theme = createTheme({
     typography: {

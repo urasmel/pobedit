@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './Badge.module.css';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
-import { BadgeProps } from '../../types/badgeprops';
+import { BadgeProps } from 'types/badgeprops';
 
 const Badge: React.FC<BadgeProps> = ({ title, active }) => {
 

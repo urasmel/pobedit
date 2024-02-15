@@ -2,9 +2,9 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, D
 import { DataGrid, GridCallbackDetails, GridColDef, GridRowParams, MuiEvent } from '@mui/x-data-grid';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './Chats.module.css';
-import { Chat } from '../../../models/chat';
-import CustomNoRowsOverlay from '../../ui/CustomNoRowsOverlay/CustomNoRowsOverlay';
-import { MainState, useMainStore } from '../../../store/MainStore';
+import { Chat } from '@/models/chat';
+import CustomNoRowsOverlay from '@/components/ui/CustomNoRowsOverlay/CustomNoRowsOverlay';
+import { MainState, useMainStore } from '@/store/MainStore';
 import { ChatInfo } from '../ChatInfo/ChatInfo';
 
 function DataGridTitle() {

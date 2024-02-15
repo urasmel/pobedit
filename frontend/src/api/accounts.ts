@@ -1,5 +1,5 @@
-import { Account, AddAccountDto, LoginAccountDto } from "../models/account";
-import { controlDomain, controlPort, controlProto } from "../constants/constants";
+import { Account, AddAccountDto, LoginAccountDto } from "@/models/account";
+import { controlDomain, controlPort, controlProto } from "@/constants/constants";
 
 export const fetchAccounts = async () => {
 

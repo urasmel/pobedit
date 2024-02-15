@@ -1,11 +1,11 @@
-import { Chat } from '../models/chat';
+import { Chat } from '@/models/chat';
 import { create } from 'zustand';
 import { chatDomain, chatPort, chatProto } from '../constants/constants';
 import { produce } from 'immer';
 import { immer } from 'zustand/middleware/immer';
 import { devtools } from 'zustand/middleware';
-import { ServiceResponse } from '../types/serviceResponse';
-import { ChatFullInfo } from '../types/ChatFullInfo';
+import { ServiceResponse } from 'types/serviceResponse';
+import { ChatFullInfo } from 'types/ChatFullInfo';
 
 export interface MainState {
     selectedAccount: string;
