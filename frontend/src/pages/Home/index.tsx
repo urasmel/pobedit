@@ -1,6 +1,6 @@
 import styles from './styles.module.scss';
-import { Aside } from '../../components/Aside/Aside';
-import { Main } from '../../components/Main/Main';
+import { Aside } from '../../components/blocks/Aside/Aside';
+import { Main } from '../../components/blocks/Main/Main';
 
 const Home = () => {
     return (
