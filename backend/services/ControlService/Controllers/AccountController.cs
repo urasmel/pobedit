@@ -2,6 +2,7 @@
 using ControlService.Models;
 using ControlService.Services.AccountService;
 using Microsoft.AspNetCore.Mvc;
+using SharedCore.Model;
 
 namespace ControlService.Controllers
 {
@@ -48,7 +49,7 @@ namespace ControlService.Controllers
         }
 
         [HttpPatch]
-        public async Task<ActionResult<ServiceResponse<GetAccountDto>>> Edit(Account account)
+        public async Task<ActionResult<ServiceResponse<GetAccountDto>>> Edit(SharedCore.Model.Account account)
         {
             var response = await _accountService.EditAccount(account);
 

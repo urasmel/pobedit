@@ -2,6 +2,7 @@
 using ControlService.Dtos.Account;
 using ControlService.Models;
 using Microsoft.AspNetCore.Mvc;
+using SharedCore.Model;
 
 namespace ControlService.Controllers
 {

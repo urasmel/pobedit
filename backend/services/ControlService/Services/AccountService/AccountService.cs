@@ -6,6 +6,7 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Security.Principal;
+using SharedCore.Model;
 
 namespace ControlService.Services.AccountService
 {

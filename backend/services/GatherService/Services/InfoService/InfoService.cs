@@ -13,7 +13,7 @@ namespace GatherMicroservice.Services.InfoService
         User? user;
         IConfigUtils _configUtils;
 
-        public InfoService(ILogger<GatherService> logger, IConfigUtils configUtils)
+        public InfoService(ILogger<InfoService> logger, IConfigUtils configUtils)
         {
             _logger = logger;
             _configUtils = configUtils;

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using ControlService.Dtos.Account;
-using ControlService.Models;
+using SharedCore.Model;
 
 namespace ControlService
 {

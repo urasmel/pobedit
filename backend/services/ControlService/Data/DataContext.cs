@@ -1,6 +1,6 @@
 ﻿
-using ControlService.Models;
 using Microsoft.EntityFrameworkCore;
+using SharedCore.Model;
 
 namespace ControlService.Data
 {
@@ -19,7 +19,8 @@ namespace ControlService.Data
         }
 
         public DbSet<Account> Accounts { get; set; }
-        public DbSet<Account> Channel { get; set; }
+        public DbSet<Account> Channels { get; set; }
+        public DbSet<Post> Posts { get; set; }
     }
 
 }

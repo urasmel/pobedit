@@ -1,16 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System;
-using System.Net.WebSockets;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using GatherMicroservice.Models;
-using GatherMicroservice.Dtos;
 using GatherMicroservice.Services;
-using TL;
 
 namespace GatherMicroservice.Controllers
 {
@@ -19,12 +8,39 @@ namespace GatherMicroservice.Controllers
     public class GatherController : ControllerBase
     {
         private readonly IGatherService _gatherService;
+        private readonly ILogger _logger;
 
-        public GatherController(IGatherService gatherService)
+        public GatherController(IGatherService gatherService, ILogger<GatherController> logger)
         {
             _gatherService = gatherService;
+            _logger = logger;
+        }
+
+        [HttpPut("/{username}/gatherall")]
+        public async Task<ActionResult<bool>> StartGatherAll(string username)
+        {
+            var response = await _gatherService.StartGatherAll(username);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("/{username}/gather_status")]
+        public async Task<ActionResult<bool>> GetGatherStatus(string username)
+        {
+            var response = await _gatherService.StartGatherAll(username);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
         }
     }
+
 }
 // TODO общие модели и дтошки в проект библиотеки классов
 // apiid and apihash хранить в конфиге
