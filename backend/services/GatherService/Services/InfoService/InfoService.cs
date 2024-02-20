@@ -78,7 +78,8 @@ namespace GatherMicroservice.Services.InfoService
                 var chatPeer = chat.ToInputPeer();
                 var chatInfo = await _client.GetFullChat(chatPeer);
 
-                ChatFullInfoDto chatFullInfoDto = new ChatFullInfoDto();
+                var chatFullInfoDto = new ChatFullInfoDto();
+                chatFullInfoDto.ChatId = chatInfo.full_chat.ID;
                 chatFullInfoDto.ParticipantsCount = chatInfo.full_chat.ParticipantsCount;
                 chatFullInfoDto.About = chatInfo.full_chat.About;
                 

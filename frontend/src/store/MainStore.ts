@@ -8,12 +8,14 @@ import { ServiceResponse } from 'types/serviceResponse';
 import { ChatFullInfo } from 'types/ChatFullInfo';
 
 export interface MainState {
+
     selectedAccount: string;
     chats: Chat[];
     isLoading: boolean;
     error: string;
     isError: boolean;
     chatsInfo: ChatFullInfo[];
+
     // Для отображения дополнительной информации о чате.
     selectedChatFullInfo: ChatFullInfo;
     setSelectedAccount: (username: string) => void;
@@ -99,16 +101,13 @@ export const useMainStore = create<MainState>()(
                         }
 
                         const json = (await response.json() as ServiceResponse<ChatFullInfo>).data;
-                        //set({ chatsInfo: chatsInfo.push(json) });
                         set((state) => ({
                             ...state,
                             chatsInfo: [...state.chatsInfo, json]
                         }));
                     }
 
-                    //await new Promise(() => setTimeout(() => { }, 100));
-                    //console.log(get().chatsInfo.filter(item => item.chatId === chatId)[0]);
-                    set({ selectedChatFullInfo: get().chatsInfo.filter(item => item.chatId === chatId)[0] });
+                    set({ selectedChatFullInfo: get().chatsInfo[0] });
                 }
             })
         )
