@@ -86,9 +86,7 @@ const Chats = ({ account }: ChatProps) => {
 
     const handleChatRowClick = async (
         params: GridRowParams,
-        event: MuiEvent<React.MouseEvent<HTMLElement>>,
-        details: GridCallbackDetails
-    ) => {
+        event: MuiEvent<React.MouseEvent<HTMLElement>>) => {
         await fetchchatFullInfo(account, params.row['id']);
         setOpenShowChatInfo(true);
     };
@@ -182,7 +180,6 @@ const Chats = ({ account }: ChatProps) => {
                     <Button onClick={onAddChatSave}>Add</Button>
                 </DialogActions>
             </Dialog>
-
 
             <Dialog open={openShowChatInfo} onClose={showChatInfoDialogClose_handler}>
                 <DialogTitle>

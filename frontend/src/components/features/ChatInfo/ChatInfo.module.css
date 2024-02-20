@@ -2,9 +2,8 @@
     display: flex;
     flex-direction: column;
     width: 400px;
-    /* padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0rem 1.25rem 1.6875rem 0rem rgba(0, 0, 0, 0.05); */
+    font-family: 'Roboto', sans-serif;
+    padding: 10px;
 }
 
 .info__title {
@@ -12,9 +11,8 @@
     column-gap: 10px;
 }
 
-.info__photo {
-    width: 100px;
-    height: 100px;
+img {
+    border-radius: 50%;
 }
 
 .info__about {
