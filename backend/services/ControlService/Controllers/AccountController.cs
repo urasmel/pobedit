@@ -1,4 +1,5 @@
-﻿using ControlService.Dtos.Account;
+﻿using ControlMicroservice.Filtering;
+using ControlService.Dtos.Account;
 using ControlService.Models;
 using ControlService.Services.AccountService;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +8,7 @@ using SharedCore.Model;
 namespace ControlService.Controllers
 {
     [ApiController]
-    [Route("account")]
+    [Route("accounts")]
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
@@ -17,14 +18,15 @@ namespace ControlService.Controllers
             _accountService = accountService;
         }
 
-        [HttpGet("all")]
+        [HttpGet]
         public async Task<ActionResult<ServiceResponse<List<GetAccountDto>>>> Get()
         {
             return Ok(await _accountService.GetAllAccounts());
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ServiceResponse<GetAccountDto>>> GetSingle(int id)
+        [ServiceFilter(typeof(IdNumberFilter))]
+        public async Task<ActionResult<ServiceResponse<GetAccountDto>>> GetSingle([FromRoute] int id)
         {
             return Ok(await _accountService.GetAccountById(id));
         }

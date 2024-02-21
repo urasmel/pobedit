@@ -1,3 +1,4 @@
+using GatherMicroservice.Client;
 using GatherMicroservice.Services;
 using GatherMicroservice.Services.InfoService;
 using GatherMicroservice.Utils;
@@ -15,15 +16,15 @@ builder.Services.AddCors(options =>
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<IConfigUtils, ConfigUtils>();
+builder.Services.AddSingleton<GatherClient>();
 builder.Services.AddScoped<ILoginService, LoginService>();
-//builder.Services.AddScoped<IGatherService, GatherService>();
 builder.Services.AddSingleton<IGatherService, GatherService>();
 builder.Services.AddSingleton<IInfoService, InfoService>();
-builder.Services.AddSingleton<IConfigUtils, ConfigUtils>();
 
 var app = builder.Build();
 

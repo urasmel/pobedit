@@ -1,23 +1,41 @@
-﻿using GatherMicroservice.Dtos;
+﻿using AutoMapper;
+using GatherMicroservice.Client;
+using GatherMicroservice.Dtos;
 using GatherMicroservice.Models;
 using GatherMicroservice.Utils;
 using TL;
-using TL.Methods;
 
 namespace GatherMicroservice.Services.InfoService
 {
     public class InfoService : IInfoService
     {
         ILogger _logger;
-        WTelegram.Client? _client;
+        //WTelegram.Client? _client;
+        GatherClient _client;
         User? user;
+        private readonly IMapper _mapper;
         IConfigUtils _configUtils;
 
-        public InfoService(ILogger<InfoService> logger, IConfigUtils configUtils)
+        //public InfoService(ILogger<InfoService> logger, IConfigUtils configUtils)
+        //{
+        //    _logger = logger;
+        //    _configUtils = configUtils;
+        //    _client = new WTelegram.Client(_configUtils.Config());
+        //    Init();
+        //}
+
+        //public InfoService(ILogger<InfoService> logger, WTelegram.Client client)
+        //{
+        //    _logger = logger;
+        //    _client = client;
+        //    Init();
+        //}
+
+        public InfoService(GatherClient client, IMapper mapper, ILogger<InfoService> logger)
         {
+            _client = client;
+            _mapper = mapper;
             _logger = logger;
-            _configUtils = configUtils;
-            _client = new WTelegram.Client(_configUtils.Config());
             Init();
         }
 
@@ -82,12 +100,53 @@ namespace GatherMicroservice.Services.InfoService
                 chatFullInfoDto.ChatId = chatInfo.full_chat.ID;
                 chatFullInfoDto.ParticipantsCount = chatInfo.full_chat.ParticipantsCount;
                 chatFullInfoDto.About = chatInfo.full_chat.About;
-                
+
                 MemoryStream ms = new MemoryStream(1000000);
                 Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chat, ms);
                 chatFullInfoDto.ChatPhoto = Convert.ToBase64String(ms.ToArray());
                 response.Data = chatFullInfoDto;
             }
+            return response;
+        }
+
+        public async Task<ServiceResponse<List<MessageDto>>> GetChatMessages(long chatId)
+        {
+            var response = new ServiceResponse<List<MessageDto>>();
+
+
+            var chats = await _client.Messages_GetAllChats();
+            InputPeer peer = chats.chats.First(chat => chat.Key == chatId).Value;
+
+
+            var messages = new List<MessageDto>();
+
+            for (int offset = 0; ;)
+            {
+                //var messagesBase = await _client.Messages_GetHistory(peer, 0, default, offset, 1000, 0, 0, 0);
+                var messagesBase = await _client.Messages_GetHistory(peer);
+                if (messagesBase is not Messages_ChannelMessages channelMessages) break;
+                foreach (var msgBase in channelMessages.messages)
+                {
+                    if (msgBase is TL.Message msg && !string.IsNullOrEmpty(msg.message))
+                    {
+                        //messages.Add(msgBase as Message);
+                        var messageDto = _mapper.Map<MessageDto>(msg);
+                        messages.Add(messageDto);
+                    }
+                    //
+                    break;
+                }
+                offset += channelMessages.messages.Length;
+                if (offset >= channelMessages.count) break;
+
+                //
+                break;
+            }
+
+
+
+
+            response.Data = messages;
             return response;
         }
     }

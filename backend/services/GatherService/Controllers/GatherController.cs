@@ -16,7 +16,7 @@ namespace GatherMicroservice.Controllers
             _logger = logger;
         }
 
-        [HttpPut("/{username}/gatherall")]
+        [HttpPut("/users/{username}/gatherall")]
         public async Task<ActionResult<bool>> StartGatherAll(string username)
         {
             var response = await _gatherService.StartGatherAll(username);
@@ -28,7 +28,7 @@ namespace GatherMicroservice.Controllers
             return Ok(response);
         }
 
-        [HttpGet("/{username}/gather_status")]
+        [HttpGet("/users/{username}/gather_status")]
         public async Task<ActionResult<bool>> GetGatherStatus(string username)
         {
             var response = await _gatherService.StartGatherAll(username);
