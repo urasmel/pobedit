@@ -10,6 +10,11 @@ namespace GatherMicroservice.Services
 
         Task<ServiceResponse<ChatFullInfoDto>> GetChatInfo(long chatId);
 
-        Task<ServiceResponse<List<MessageDto>>> GetChatMessages(long chatId);
+        Task<ServiceResponse<List<MessageInfoDto>>> GetChatMessages(long chatId);
+
+        Task<ServiceResponse<List<MessageInfoDto>>> GetChatMessages(long chatId, DateTime startTime);
+
+
+        Task<ServiceResponse<List<MessageInfoDto>>> GetChatMessages(long chatId, int startPostId);
     }
 }

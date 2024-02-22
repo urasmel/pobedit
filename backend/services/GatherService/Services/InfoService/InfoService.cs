@@ -109,16 +109,16 @@ namespace GatherMicroservice.Services.InfoService
             return response;
         }
 
-        public async Task<ServiceResponse<List<MessageDto>>> GetChatMessages(long chatId)
+        public async Task<ServiceResponse<List<MessageInfoDto>>> GetChatMessages(long chatId)
         {
-            var response = new ServiceResponse<List<MessageDto>>();
+            var response = new ServiceResponse<List<MessageInfoDto>>();
 
 
             var chats = await _client.Messages_GetAllChats();
             InputPeer peer = chats.chats.First(chat => chat.Key == chatId).Value;
 
 
-            var messages = new List<MessageDto>();
+            var messages = new List<MessageInfoDto>();
 
             for (int offset = 0; ;)
             {
@@ -130,11 +130,11 @@ namespace GatherMicroservice.Services.InfoService
                     if (msgBase is TL.Message msg && !string.IsNullOrEmpty(msg.message))
                     {
                         //messages.Add(msgBase as Message);
-                        var messageDto = _mapper.Map<MessageDto>(msg);
+                        var messageDto = _mapper.Map<MessageInfoDto>(msg);
                         messages.Add(messageDto);
                     }
                     //
-                    break;
+                    //break;
                 }
                 offset += channelMessages.messages.Length;
                 if (offset >= channelMessages.count) break;
@@ -148,6 +148,16 @@ namespace GatherMicroservice.Services.InfoService
 
             response.Data = messages;
             return response;
+        }
+
+        public Task<ServiceResponse<List<MessageInfoDto>>> GetChatMessages(long chatId, DateTime startTime)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ServiceResponse<List<MessageInfoDto>>> GetChatMessages(long chatId, int startPostId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

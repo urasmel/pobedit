@@ -32,7 +32,7 @@ namespace GatherMicroservice.Services
             user = await _client.LoginUserIfNeeded();
         }
 
-        public async Task<ServiceResponse<bool>> StartGatherAll(string username)
+        public async Task<ServiceResponse<bool>> StartGatherAllAsync(string username)
         {
             var response = new ServiceResponse<bool>();
             try
@@ -74,7 +74,7 @@ namespace GatherMicroservice.Services
             return response;
         }
 
-        public async Task<ServiceResponse<bool>> GetGatherStatus(string username)
+        public async Task<ServiceResponse<bool>> GetGatherStatusAsync(string username)
         {
             var response = new ServiceResponse<bool>();
 
@@ -91,7 +91,7 @@ namespace GatherMicroservice.Services
             return response;
         }
 
-        public async Task<ServiceResponse<bool>> StopGatherStatus(string username)
+        public async Task<ServiceResponse<bool>> StopGatherStatusAsync(string username)
         {
             var response = new ServiceResponse<bool>();
 

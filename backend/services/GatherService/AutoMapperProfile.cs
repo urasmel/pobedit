@@ -8,7 +8,7 @@ namespace GatherMicroservice
     {
         public AutoMapperProfile()
         {
-            CreateMap<Message, MessageDto>();
+            CreateMap<Message, MessageInfoDto>();
         }
     }
 }

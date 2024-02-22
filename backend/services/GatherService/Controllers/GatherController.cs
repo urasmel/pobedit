@@ -19,7 +19,7 @@ namespace GatherMicroservice.Controllers
         [HttpPut("/users/{username}/gatherall")]
         public async Task<ActionResult<bool>> StartGatherAll(string username)
         {
-            var response = await _gatherService.StartGatherAll(username);
+            var response = await _gatherService.StartGatherAllAsync(username);
             if (!response.Success)
             {
                 return BadRequest(response);
@@ -31,7 +31,7 @@ namespace GatherMicroservice.Controllers
         [HttpGet("/users/{username}/gather_status")]
         public async Task<ActionResult<bool>> GetGatherStatus(string username)
         {
-            var response = await _gatherService.StartGatherAll(username);
+            var response = await _gatherService.StartGatherAllAsync(username);
             if (!response.Success)
             {
                 return BadRequest(response);
