@@ -1,6 +1,6 @@
-﻿namespace ControlService.Dtos.Account
+﻿namespace SharedCore.Models
 {
-    public class GetAccountDto
+    public class User
     {
         public int Id { get; set; }
         public string? Username { get; set; }

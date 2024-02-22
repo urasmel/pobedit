@@ -1,4 +1,4 @@
-import { Chat } from '@/models/chat';
+import { Channel } from '@/models/chat';
 import { create } from 'zustand';
 import { chatDomain, chatPort, chatProto } from '../constants/constants';
 import { produce } from 'immer';
@@ -10,7 +10,7 @@ import { ChatFullInfo } from 'types/ChatFullInfo';
 export interface MainState {
 
     selectedAccount: string;
-    chats: Chat[];
+    chats: Channel[];
     isLoading: boolean;
     error: string;
     isError: boolean;
@@ -62,7 +62,7 @@ export const useMainStore = create<MainState>()(
                         return;
                     }
 
-                    const json = (await response.json() as ServiceResponse<Chat[]>).data;
+                    const json = (await response.json() as ServiceResponse<Channel[]>).data;
                     set({ chats: json });
                     // Попробовать.
                     // set(

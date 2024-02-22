@@ -2,6 +2,7 @@
 using GatherMicroservice.Models;
 using GatherMicroservice.Services;
 using Microsoft.AspNetCore.Mvc;
+using SharedCore.Dtos;
 using TL;
 
 namespace GatherMicroservice.Controllers

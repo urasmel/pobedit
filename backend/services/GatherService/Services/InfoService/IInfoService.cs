@@ -1,5 +1,5 @@
-﻿using GatherMicroservice.Dtos;
-using GatherMicroservice.Models;
+﻿using GatherMicroservice.Models;
+using SharedCore.Dtos;
 using TL;
 
 namespace GatherMicroservice.Services
@@ -10,11 +10,11 @@ namespace GatherMicroservice.Services
 
         Task<ServiceResponse<ChatFullInfoDto>> GetChatInfo(long chatId);
 
-        Task<ServiceResponse<List<MessageInfoDto>>> GetChatMessages(long chatId);
+        Task<ServiceResponse<List<PostDto>>> GetChatMessages(long chatId);
 
-        Task<ServiceResponse<List<MessageInfoDto>>> GetChatMessages(long chatId, DateTime startTime);
+        Task<ServiceResponse<List<PostDto>>> GetChatMessages(long chatId, DateTime startTime);
 
 
-        Task<ServiceResponse<List<MessageInfoDto>>> GetChatMessages(long chatId, int startPostId);
+        Task<ServiceResponse<List<PostDto>>> GetChatMessages(long chatId, int startPostId);
     }
 }

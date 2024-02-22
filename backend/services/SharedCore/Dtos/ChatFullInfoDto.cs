@@ -1,4 +1,4 @@
-﻿namespace GatherMicroservice.Dtos
+﻿namespace SharedCore.Dtos
 {
     public class ChatFullInfoDto
     {

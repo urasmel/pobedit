@@ -17,8 +17,8 @@ namespace ControlService.Controllers
             return Ok(response);
         }
 
-        [HttpGet("fromAccount/{id}")]
-        public ActionResult<ServiceResponse<bool>> GetChannelsByAccountId()
+        [HttpGet("fromUser/{id}")]
+        public ActionResult<ServiceResponse<bool>> GetChannelsByUserId()
         {
             var response = new ServiceResponse<bool>();
             response.Data = true;

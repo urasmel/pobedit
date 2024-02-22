@@ -3,6 +3,7 @@ using GatherMicroservice.Client;
 using GatherMicroservice.Dtos;
 using GatherMicroservice.Models;
 using GatherMicroservice.Utils;
+using SharedCore.Dtos;
 using TL;
 
 namespace GatherMicroservice.Services.InfoService
@@ -109,16 +110,16 @@ namespace GatherMicroservice.Services.InfoService
             return response;
         }
 
-        public async Task<ServiceResponse<List<MessageInfoDto>>> GetChatMessages(long chatId)
+        public async Task<ServiceResponse<List<PostDto>>> GetChatMessages(long chatId)
         {
-            var response = new ServiceResponse<List<MessageInfoDto>>();
+            var response = new ServiceResponse<List<PostDto>>();
 
 
             var chats = await _client.Messages_GetAllChats();
             InputPeer peer = chats.chats.First(chat => chat.Key == chatId).Value;
 
 
-            var messages = new List<MessageInfoDto>();
+            var messages = new List<PostDto>();
 
             for (int offset = 0; ;)
             {
@@ -130,7 +131,7 @@ namespace GatherMicroservice.Services.InfoService
                     if (msgBase is TL.Message msg && !string.IsNullOrEmpty(msg.message))
                     {
                         //messages.Add(msgBase as Message);
-                        var messageDto = _mapper.Map<MessageInfoDto>(msg);
+                        var messageDto = _mapper.Map<PostDto>(msg);
                         messages.Add(messageDto);
                     }
                     //
@@ -150,12 +151,12 @@ namespace GatherMicroservice.Services.InfoService
             return response;
         }
 
-        public Task<ServiceResponse<List<MessageInfoDto>>> GetChatMessages(long chatId, DateTime startTime)
+        public Task<ServiceResponse<List<PostDto>>> GetChatMessages(long chatId, DateTime startTime)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ServiceResponse<List<MessageInfoDto>>> GetChatMessages(long chatId, int startPostId)
+        public Task<ServiceResponse<List<PostDto>>> GetChatMessages(long chatId, int startPostId)
         {
             throw new NotImplementedException();
         }

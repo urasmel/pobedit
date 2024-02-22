@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using GatherMicroservice.Dtos;
+using SharedCore.Dtos;
 using TL;
 
 namespace GatherMicroservice
@@ -8,7 +8,7 @@ namespace GatherMicroservice
     {
         public AutoMapperProfile()
         {
-            CreateMap<Message, MessageInfoDto>();
+            CreateMap<Message, PostDto>();
         }
     }
 }

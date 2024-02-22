@@ -3,6 +3,7 @@ using System;
 using ControlService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ControlService.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240222082024_ChangeModels")]
+    partial class ChangeModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,13 +32,19 @@ namespace ControlService.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Bio")
-                        .HasColumnType("text");
-
                     b.Property<int?>("ChannelId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Name")
+                    b.Property<byte[]>("Icon")
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Info")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Password")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
                         .HasColumnType("text");
 
                     b.Property<string>("Username")
@@ -47,6 +55,15 @@ namespace ControlService.Migrations
                     b.HasIndex("ChannelId");
 
                     b.ToTable("Accounts");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Password = "pass",
+                            PhoneNumber = "+79123456789",
+                            Username = "firstUser"
+                        });
                 });
 
             modelBuilder.Entity("SharedCore.Models.Channel", b =>
@@ -57,17 +74,19 @@ namespace ControlService.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("IsChannel")
-                        .HasColumnType("boolean");
+                    b.Property<byte[]>("Icon")
+                        .IsRequired()
+                        .HasColumnType("bytea");
 
-                    b.Property<bool>("IsGroup")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("MainUsername")
+                    b.Property<string>("Info")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Title")
+                    b.Property<string>("InviteLink")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -97,37 +116,6 @@ namespace ControlService.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Posts");
-                });
-
-            modelBuilder.Entity("SharedCore.Models.User", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Password")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Username")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Password = "pass",
-                            PhoneNumber = "+79123456789",
-                            Username = "firstUser"
-                        });
                 });
 
             modelBuilder.Entity("SharedCore.Models.Account", b =>

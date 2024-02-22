@@ -1,4 +1,4 @@
-export type Chat = {
+export type Channel = {
     id: number;
     isChannel: boolean;
     isGroup: boolean;

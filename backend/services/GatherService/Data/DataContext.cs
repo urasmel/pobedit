@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SharedCore.Model;
+using SharedCore.Models;
 
 namespace GatherMicroservice.Data
 {
