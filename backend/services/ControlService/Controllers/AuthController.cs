@@ -1,8 +1,8 @@
 ﻿using ControlService.Data;
-using ControlService.Dtos.Account;
+using SharedCore.Dtos.User;
 using ControlService.Models;
 using Microsoft.AspNetCore.Mvc;
-using SharedCore.Model;
+using SharedCore.Models;
 
 namespace ControlService.Controllers
 {
@@ -18,7 +18,7 @@ namespace ControlService.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<ServiceResponse<int>>> Register(AccountRegisterDto request)
+        public async Task<ActionResult<ServiceResponse<int>>> Register(UserRegisterDto request)
         {
             var response = await _authRepo.Register(new Account { Username = request.Username }, request.Password);
             if (!response.Success)
@@ -29,7 +29,7 @@ namespace ControlService.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<ServiceResponse<string>>> Login(AccountLoginDto request)
+        public async Task<ActionResult<ServiceResponse<string>>> Login(UserLoginDto request)
         {
             var response = await _authRepo.Login(request.Username, request.Password);
             if (!response.Success)

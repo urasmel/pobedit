@@ -1,6 +1,6 @@
-export type ChatFullInfo = {
-    chatId: number;
+export type ChannelFullInfo = {
+    channelId: number;
     about: string;
     participantsCount: number;
-    chatPhoto: string;
+    channelPhoto: string;
 };

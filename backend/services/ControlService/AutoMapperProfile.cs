@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using ControlService.Dtos.Account;
-using SharedCore.Model;
+using SharedCore.Dtos.User;
+using SharedCore.Models;
 
 namespace ControlService
 {
@@ -8,8 +8,8 @@ namespace ControlService
     {
         public AutoMapperProfile()
         {
-            CreateMap<Account, GetAccountDto>();
-            CreateMap<AddAccountDto, Account>();
+            CreateMap<User, GetUserDto>();
+            CreateMap<AddUserDto, User>();
         }
     }
 }

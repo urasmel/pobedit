@@ -22,22 +22,93 @@ namespace ControlService.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SharedCore.Model.Account", b =>
+            modelBuilder.Entity("SharedCore.Models.Account", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<int?>("ChannelId")
-                        .HasColumnType("integer");
-
-                    b.Property<byte[]>("Icon")
-                        .HasColumnType("bytea");
-
-                    b.Property<string>("Info")
+                    b.Property<string>("Bio")
                         .HasColumnType("text");
+
+                    b.Property<long?>("ChannelId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChannelId");
+
+                    b.ToTable("Accounts");
+                });
+
+            modelBuilder.Entity("SharedCore.Models.Channel", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("IsChannel")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsGroup")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("MainUsername")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Channels");
+                });
+
+            modelBuilder.Entity("SharedCore.Models.Post", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("PeerId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("SharedCore.Models.User", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Password")
                         .HasColumnType("text");
@@ -50,93 +121,35 @@ namespace ControlService.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ChannelId");
-
-                    b.ToTable("Account");
+                    b.ToTable("Users");
 
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = 1L,
                             Password = "pass",
                             PhoneNumber = "+79123456789",
                             Username = "firstUser"
                         });
                 });
 
-            modelBuilder.Entity("SharedCore.Model.Channel", b =>
+            modelBuilder.Entity("SharedCore.Models.Account", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<byte[]>("Icon")
-                        .IsRequired()
-                        .HasColumnType("bytea");
-
-                    b.Property<string>("Info")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("InviteLink")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Channel");
-                });
-
-            modelBuilder.Entity("SharedCore.Model.Post", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChannelId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChannelId");
-
-                    b.ToTable("Posts");
-                });
-
-            modelBuilder.Entity("SharedCore.Model.Account", b =>
-                {
-                    b.HasOne("SharedCore.Model.Channel", null)
+                    b.HasOne("SharedCore.Models.Channel", null)
                         .WithMany("Members")
                         .HasForeignKey("ChannelId");
                 });
 
-            modelBuilder.Entity("SharedCore.Model.Post", b =>
+            modelBuilder.Entity("SharedCore.Models.Channel", b =>
                 {
-                    b.HasOne("SharedCore.Model.Channel", "Channel")
+                    b.HasOne("SharedCore.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("ChannelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
-                    b.Navigation("Channel");
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("SharedCore.Model.Channel", b =>
+            modelBuilder.Entity("SharedCore.Models.Channel", b =>
                 {
                     b.Navigation("Members");
                 });
