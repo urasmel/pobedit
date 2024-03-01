@@ -1,11 +1,12 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Typography } from '@mui/material';
 import { DataGrid, GridColDef, GridRowParams, MuiEvent } from '@mui/x-data-grid';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './Channels.module.css';
 import { Channel } from '@/models/channel';
 import CustomNoRowsOverlay from '@/components/ui/CustomNoRowsOverlay/CustomNoRowsOverlay';
 import { MainState, useMainStore } from '@/store/MainStore';
 import { ChannelInfo } from '../ChannelInfo/ChannelInfo';
+const Loading = React.lazy(() => import('@/components/common/Loading/Loading'));
 
 function DataGridTitle() {
     return (
@@ -30,12 +31,11 @@ const Channels = ({ user }: ChannelProps) => {
 
     const [openAddChannel, setOpenAddChannel] = useState(false);
     const [openShowChannelInfo, setOpenShowChannelInfo] = useState(false);
-
+    const [isLoading, setIsLoading] = useState(false);
 
     const showChannelInfoDialogClose_handler = () => {
         setOpenShowChannelInfo(false);
     };
-
 
     const channels = useMainStore((state: MainState) => state.channels);
     const fetchChannels = useMainStore((state: MainState) => state.fetchChannels);
@@ -49,8 +49,9 @@ const Channels = ({ user }: ChannelProps) => {
             if (typeof user !== 'string' || !user) {
                 return;
             }
-
-            fetchChannels(user);
+            setIsLoading(true);
+            await fetchChannels(user);
+            setIsLoading(false);
         };
 
         fetchData();
@@ -84,7 +85,9 @@ const Channels = ({ user }: ChannelProps) => {
                 return;
             }
 
-            fetchUpdatedChannels(user);
+            setIsLoading(true);
+            fetchUpdatedChannels(user);            
+            setIsLoading(false);
         };
 
         fetchData();
@@ -109,6 +112,8 @@ const Channels = ({ user }: ChannelProps) => {
 
             <div style={{ height: 400, width: '100%' }}>
 
+            <Suspense fallback={<Loading />}>
+
                 <DataGrid
                     sx={{
                         '--DataGrid-overlayHeight': '300px',
@@ -116,6 +121,7 @@ const Channels = ({ user }: ChannelProps) => {
                             cursor: 'pointer'
                         }
                     }}
+                    loading={isLoading}
 
                     onRowClick={handleChannelRowClick}
                     columnVisibilityModel={{
@@ -128,9 +134,11 @@ const Channels = ({ user }: ChannelProps) => {
                     rows={channels}
                     columns={columns}
                 />
+                
+            </Suspense>
+
 
             </div>
-
 
             <div className={styles.channels__buttons}>
 
