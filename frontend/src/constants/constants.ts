@@ -1,6 +1,6 @@
-export const chatProto = 'http://';
-export const chatDomain = 'localhost';
-export const chatPort = '5037';
+export const channelProto = 'http://';
+export const channelDomain = 'localhost';
+export const channelPort = '5037';
 
 export const controlProto = 'http://';
 export const controlDomain = 'localhost';

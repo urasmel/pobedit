@@ -16,6 +16,10 @@ namespace GatherMicroservice.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Запускает процесс сбора информации в БД.
+        /// </summary>
+        /// <param name="username">username пользователя, посты с подписок которого будут собираться.</param>
         [HttpPut("/users/{username}/gatherall")]
         public async Task<ActionResult<bool>> StartGatherAll(string username)
         {
@@ -28,6 +32,11 @@ namespace GatherMicroservice.Controllers
             return Ok(response);
         }
 
+
+        /// <summary>
+        /// Возвращает статус процесса сбора информации в БД.
+        /// </summary>
+        /// <param name="username">username пользователя, посты с подписок которого собираются.</param>
         [HttpGet("/users/{username}/gather_status")]
         public async Task<ActionResult<bool>> GetGatherStatus(string username)
         {

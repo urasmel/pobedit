@@ -1,8 +1,8 @@
-import { Account, AddAccountDto, LoginAccountDto } from "@/models/account";
+import { User, AddUserDto, LoginUserDto as LoginUserDto } from "@/models/user";
 import { controlDomain, controlPort, controlProto } from "@/constants/constants";
 
-export const fetchAccounts = async () => {
-    const request = new Request(`${controlProto}${controlDomain}:${controlPort}/accounts`,
+export const fetchUsers = async () => {
+    const request = new Request(`${controlProto}${controlDomain}:${controlPort}/users`,
         {
             method: 'GET',
             mode: 'cors',
@@ -26,8 +26,8 @@ export const fetchAccounts = async () => {
     return data;
 };
 
-export const addAccount = async (account: AddAccountDto) => {
-    const request = new Request(`${controlProto}${controlDomain}:${controlPort}/accounts`,
+export const addUser = async (user: AddUserDto) => {
+    const request = new Request(`${controlProto}${controlDomain}:${controlPort}/users`,
         {
             method: 'POST',
             mode: 'cors',
@@ -38,7 +38,7 @@ export const addAccount = async (account: AddAccountDto) => {
                 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
             },
             redirect: 'follow',
-            body: JSON.stringify(account),
+            body: JSON.stringify(user),
         });
 
 
@@ -52,8 +52,8 @@ export const addAccount = async (account: AddAccountDto) => {
     return data;
 };
 
-export const deleteAccount = async (id: number) => {
-    const request = new Request(`${controlProto}${controlDomain}:${controlPort}/accounts/${id}`,
+export const deleteUser = async (id: number) => {
+    const request = new Request(`${controlProto}${controlDomain}:${controlPort}/users/${id}`,
         {
             method: 'DELETE',
             mode: 'cors',
@@ -77,8 +77,8 @@ export const deleteAccount = async (id: number) => {
     return data;
 };
 
-export const editAccount = async (account: Account) => {
-    const request = new Request(`${controlProto}${controlDomain}:${controlPort}/accounts`,
+export const editUser = async (user: User) => {
+    const request = new Request(`${controlProto}${controlDomain}:${controlPort}/users`,
         {
             method: 'PATCH',
             mode: 'cors',
@@ -88,7 +88,7 @@ export const editAccount = async (account: Account) => {
                 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
             },
             redirect: 'follow',
-            body: JSON.stringify(account),
+            body: JSON.stringify(user),
         });
 
 
@@ -102,7 +102,7 @@ export const editAccount = async (account: Account) => {
     return data;
 };
 
-export const loginAccount = async (account: LoginAccountDto) => {
+export const loginUser = async (user: LoginUserDto) => {
     const request = new Request(`${controlProto}${controlDomain}:${controlPort}/auth/login`,
         {
             method: 'GET',
@@ -113,7 +113,7 @@ export const loginAccount = async (account: LoginAccountDto) => {
                 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
             },
             redirect: 'follow',
-            body: JSON.stringify(account),
+            body: JSON.stringify(user),
         });
 
     const response = await fetch(request);

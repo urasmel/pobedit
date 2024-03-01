@@ -1,8 +1,8 @@
 ﻿using ControlMicroservice.Filtering;
-using ControlService.Dtos.Account;
 using ControlService.Models;
 using ControlService.Services.UserService;
 using Microsoft.AspNetCore.Mvc;
+using SharedCore.Dtos.User;
 using SharedCore.Models;
 
 namespace ControlService.Controllers

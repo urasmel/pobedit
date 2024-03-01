@@ -1,4 +1,4 @@
-﻿using ControlService.Dtos.Account;
+﻿using SharedCore.Dtos.User;
 using ControlService.Models;
 using SharedCore.Models;
 

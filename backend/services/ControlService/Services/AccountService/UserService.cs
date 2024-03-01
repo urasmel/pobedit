@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using ControlService.Data;
-using ControlService.Dtos.Account;
+using SharedCore.Dtos.User;
 using ControlService.Models;
 using Microsoft.EntityFrameworkCore;
 using SharedCore.Models;

@@ -1,46 +1,49 @@
-import { Channel } from '@/models/chat';
+import { Channel } from '@/models/channel';
 import { create } from 'zustand';
-import { chatDomain, chatPort, chatProto } from '../constants/constants';
+import { channelDomain, channelPort, channelProto } from '../constants/constants';
 import { produce } from 'immer';
 import { immer } from 'zustand/middleware/immer';
 import { devtools } from 'zustand/middleware';
 import { ServiceResponse } from 'types/serviceResponse';
-import { ChatFullInfo } from 'types/ChatFullInfo';
+import { ChannelFullInfo } from 'types/ChatFullInfo';
 
 export interface MainState {
 
-    selectedAccount: string;
-    chats: Channel[];
+    selectedUser: string;
+    channels: Channel[];
     isLoading: boolean;
     error: string;
     isError: boolean;
-    chatsInfo: ChatFullInfo[];
+    channelsInfo: ChannelFullInfo[];
 
     // Для отображения дополнительной информации о чате.
-    selectedChatFullInfo: ChatFullInfo;
-    setSelectedAccount: (username: string) => void;
-    fetchChats: (username: string) => void;
-    fetchChatInfo: (username: string, chatId: number) => void;
-    updateSelectedAccount: (account: string) => void;
+    selectedChannelFullInfo: ChannelFullInfo;
+    setSelectedUser: (username: string) => void;
+    fetchChannels: (username: string) => void;
+    fetchUpdatedChannels: (username: string) => void;
+    fetchChannelInfo: (username: string, channelId: number) => void;
+    updateSelectedUser: (user: string) => void;
 }
 
 export const useMainStore = create<MainState>()(
     devtools(
         immer((set, get) => (
             {
-                selectedAccount: '',
-                chats: [],
-                chatsInfo: [],
-                selectedChatFullInfo: {} as ChatFullInfo,
+                selectedUser: '',
+                channels: [],
+                channelsInfo: [],
+                selectedChannelFullInfo: {} as ChannelFullInfo,
                 isLoading: false,
                 error: '',
                 isError: false,
-                setSelectedAccount: (username: string) => {
-                    set({ selectedAccount: username });
+                setSelectedUser: (username: string) => {
+                    set({ selectedUser: username });
                 },
 
-                fetchChats: async (username: string) => {
-                    const request = new Request(`${chatProto}${chatDomain}:${chatPort}/${username}/all_chats`,
+                fetchChannels: async (username: string) => {
+                    const url = `${channelProto}${channelDomain}:${channelPort}/users/${username}/channels`;
+                    console.log(url);
+                    const request = new Request(url,
                         {
                             method: 'GET',
                             mode: 'cors',
@@ -57,13 +60,13 @@ export const useMainStore = create<MainState>()(
                     const response = await fetch(request);
 
                     if (!response.ok) {
-                        console.log("Error fetching chats");
-                        set({ chats: [] });
+                        console.log("Error fetching channels");
+                        set({ channels: [] });
                         return;
                     }
 
                     const json = (await response.json() as ServiceResponse<Channel[]>).data;
-                    set({ chats: json });
+                    set({ channels: json });
                     // Попробовать.
                     // set(
                     //     produce((state) => {
@@ -72,15 +75,44 @@ export const useMainStore = create<MainState>()(
                     // )
                 },
 
-                updateSelectedAccount: async (account: string) => {
-                    set({ selectedAccount: account });
+                fetchUpdatedChannels: async (username: string) => {
+                    const url = `${channelProto}${channelDomain}:${channelPort}/users/${username}/updated_channels`;
+                    console.log(url);
+                    const request = new Request(url,
+                        {
+                            method: 'GET',
+                            mode: 'cors',
+                            headers: {
+                                'Access-Control-Request-Method': 'GET',
+                                'Access-Control-Allow-Origin': '*',
+                                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
+                            },
+                            redirect: 'follow',
+                            cache: 'no-store'
+                        }
+                    );
+
+                    const response = await fetch(request);
+
+                    if (!response.ok) {
+                        console.log("Error fetching channels");
+                        set({ channels: [] });
+                        return;
+                    }
+
+                    const json = (await response.json() as ServiceResponse<Channel[]>).data;
+                    set({ channels: json });
                 },
 
-                fetchChatInfo: async (username: string, chatId: number) => {
+                updateSelectedUser: async (user: string) => {
+                    set({ selectedUser: user });
+                },
 
-                    if (get().chatsInfo.filter(item => item.chatId === chatId).length === 0) {
+                fetchChannelInfo: async (username: string, channelId: number) => {
 
-                        const request = new Request(`${chatProto}${chatDomain}:${chatPort}/${username}/ChatInfo/${chatId}`,
+                    if (get().channelsInfo.filter(item => item.channelId === channelId).length === 0) {
+
+                        const request = new Request(`${channelProto}${channelDomain}:${channelPort}/${username}/ChannelInfo/${channelId}`,
                             {
                                 method: 'GET',
                                 mode: 'cors',
@@ -96,18 +128,18 @@ export const useMainStore = create<MainState>()(
                         const response = await fetch(request);
 
                         if (!response.ok) {
-                            console.log("Error requesting chatinfo");
+                            console.log("Error requesting channelinfo");
                             return;
                         }
 
-                        const json = (await response.json() as ServiceResponse<ChatFullInfo>).data;
+                        const json = (await response.json() as ServiceResponse<ChannelFullInfo>).data;
                         set((state) => ({
                             ...state,
-                            chatsInfo: [...state.chatsInfo, json]
+                            channelsInfo: [...state.channelsInfo, json]
                         }));
                     }
 
-                    set({ selectedChatFullInfo: get().chatsInfo[0] });
+                    set({ selectedChannelFullInfo: get().channelsInfo[0] });
                 }
             })
         )

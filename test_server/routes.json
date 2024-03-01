@@ -1,5 +1,5 @@
 {
-    "/account/all": "/accounts",
-    "/SivtsevV/all_chats": "/SivtsevV_all_chats",
-    "/SivtsevV/ChatInfo/1067797620": "/SivtsevV_ChatInfo_1067797620"
+    "/user/all": "/users",
+    "/SivtsevV/all_channels": "/SivtsevV_all_channels",
+    "/SivtsevV/ChannelInfo/1067797620": "/SivtsevV_ChannelInfo_1067797620"
 }

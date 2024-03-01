@@ -2,7 +2,7 @@
 using GatherMicroservice.Models;
 using GatherMicroservice.Services;
 using Microsoft.AspNetCore.Mvc;
-using SharedCore.Dtos;
+using SharedCore.Dtos.Channel;
 using TL;
 
 namespace GatherMicroservice.Controllers
@@ -18,10 +18,14 @@ namespace GatherMicroservice.Controllers
             _infoService = infoService;
         }
 
-        [HttpGet("/users/{username}/chats")]
-        public async Task<ActionResult<ServiceResponse<List<ChatBase>>>> GetAllChats(string username)
+        /// <summary>
+        /// Возвращает каналы пользователя по его username, которые есть в БД.
+        /// </summary>
+        /// <param name="username">username пользователя</param>
+        [HttpGet("/users/{username}/channels")]
+        public async Task<ActionResult<ServiceResponse<List<ChatBase>>>> GetAllChannels(string username)
         {
-            var response = await _infoService.GetAllChats(username);
+            var response = await _infoService.GetAllChannels(username);
             if (!response.Success)
             {
                 return BadRequest(response);
@@ -30,10 +34,14 @@ namespace GatherMicroservice.Controllers
             return Ok(response);
         }
 
-        [HttpGet("/users/{username}/chats/{chatId}/ChatInfo")]
-        public async Task<ActionResult<ChatFullInfoDto>> GetChatInfo(int chatId)
+        /// <summary>
+        /// Возвращает каналы пользователя по его username, запрашивая API телеграмма, одновляет их в БД и возвращает в ответе запроса.
+        /// </summary>
+        /// <param name="username">username пользователя</param>
+        [HttpGet("/users/{username}/updated_channels")]
+        public async Task<ActionResult<ServiceResponse<List<ChatBase>>>> GetAllUpdatedChannels(string username)
         {
-            var response = await _infoService.GetChatInfo(chatId);
+            var response = await _infoService.GetAllUpdatedChannels(username);
             if (!response.Success)
             {
                 return BadRequest(response);
@@ -42,11 +50,26 @@ namespace GatherMicroservice.Controllers
             return Ok(response);
         }
 
-
-        [HttpGet("/users/{username}/chats/{chatId}/messages")]
-        public async Task<ActionResult<ChatFullInfoDto>> GetChatMessages(int chatId)
+        /// <summary>
+        /// Возвращает информацию о канале пользователя.
+        /// </summary>
+        /// <param name="channelId">ID канала</param>
+        [HttpGet("/users/{username}/channels/{channelId}/ChannelInfo")]
+        public async Task<ActionResult<ChannelFullInfoDto>> GetChannelInfo(int channelId)
         {
-            var response = await _infoService.GetChatMessages(chatId);
+            var response = await _infoService.GetChannelInfo(channelId);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("/users/{username}/channels/{channelId}/messages")]
+        public async Task<ActionResult<ChannelFullInfoDto>> GetChannelMessages(int channelId)
+        {
+            var response = await _infoService.GetChannelPosts(channelId);
             if (!response.Success)
             {
                 return BadRequest(response);

@@ -6,9 +6,9 @@ import LoginIcon from '@mui/icons-material/Login';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, ThemeProvider, Typography, createTheme } from '@mui/material';
 import { Button } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { addAccount, deleteAccount, editAccount, fetchAccounts, loginAccount } from '@/api/accounts';
-import styles from './Accounts.module.css';
-import { Account } from '@/models/account';
+import { addUser, deleteUser, editUser, fetchUsers as fetchUsers, loginUser } from '@/api/users';
+import styles from './Users.module.css';
+import { User } from '@/models/user';
 import Box from '@mui/material/Box';
 import CustomNoRowsOverlay from '@/components/ui/CustomNoRowsOverlay/CustomNoRowsOverlay';
 import { useMainStore } from '@/store/MainStore';
@@ -38,7 +38,7 @@ function DataGridTitle() {
                 alignItems: "center",
             }}>
                 <Typography variant="h5">
-                    Accounts
+                    Users
                 </Typography>
             </Box>
         </ThemeProvider>
@@ -46,59 +46,61 @@ function DataGridTitle() {
     );
 }
 
-export const Accounts = () => {
+export const Users = () => {
 
-    const [accounts, setAccounts] = useState<Account[]>([]);
-    const [openAddAccount, setOpenAddAccount] = useState(false);
-    const [openEditAccount, setOpenEditAccount] = useState(false);
+    const [users, setUsers] = useState<User[]>([]);
+    const [openAddUser, setOpenAddUser] = useState(false);
+    const [openEditUser, setOpenEditUser] = useState(false);
     const [accId, setAccId] = useState(0);
     const [accUsername, setAccUsername] = useState('');
     const [accPhoneNumber, setAccPhoneNumber] = useState('');
     const [accPassword, setAccPassword] = useState('');
-    const { fetchChats, setSelectedAccount } = useMainStore();
+    const { fetchChannels: fetchChannels, setSelectedUser: setSelectedUser } = useMainStore();
 
 
     useEffect(() => {
         const fetchData = async () => {
-            const data = await fetchAccounts();
-            setAccounts(data);
+            const data = await fetchUsers();
+            if (data) {
+                setUsers(data);
+            }
         };
 
         fetchData();
     }, []);
 
 
-    const deleteAccountIcon_handler = useCallback(
+    const deleteUserIcon_handler = useCallback(
         (id: number) => () => {
             setTimeout(() => {
-                deleteAccount(id);
-                setAccounts((prevRows) => prevRows.filter((row) => row.id !== id));
+                deleteUser(id);
+                setUsers((prevRows) => prevRows.filter((row) => row.id !== id));
             });
         },
         [],
     );
 
 
-    const editAccountIcon_handler = useCallback(
+    const editUserIcon_handler = useCallback(
         (row: any): MouseEventHandler<HTMLLIElement> | undefined => {
             setAccId(_ => row.id);
             setAccUsername(_ => row.username);
             setAccPassword(_ => row.password);
             setAccPhoneNumber(_ => row.phoneNumber);
-            setOpenEditAccount(true);
+            setOpenEditUser(true);
             return;
         }, []);
 
 
-    const loginAccountIcon_handler = useCallback(
+    const loginUserIcon_handler = useCallback(
         async (row: any): Promise<MouseEventHandler<HTMLLIElement> | undefined> => {
             setAccId(_ => row.id);
             setAccUsername(_ => row.username);
             setAccPassword(_ => row.password);
             setAccPhoneNumber(_ => row.phoneNumber);
-            setOpenEditAccount(true);
+            setOpenEditUser(true);
 
-            let result = await loginAccount({
+            let result = await loginUser({
                 Username: row.username,
                 Password: row.password,
                 PhoneNumber: row.PhoneNumber
@@ -107,7 +109,7 @@ export const Accounts = () => {
         }, []);
 
 
-    const columns = useMemo<GridColDef<Account>[]>(
+    const columns = useMemo<GridColDef<User>[]>(
         () => [
             { field: 'id', headerName: 'ID', width: 50 },
             { field: 'username', headerName: 'Username', width: 100 },
@@ -123,59 +125,58 @@ export const Accounts = () => {
                         key={0}
                         icon={<DeleteIcon />}
                         label="Delete"
-                        onClick={() => deleteAccountIcon_handler(params.row.id)}
+                        onClick={() => deleteUserIcon_handler(params.row.id)}
                     />,
                     <GridActionsCellItem
                         key={1}
                         icon={<EditIcon />}
                         label="Edit"
-                        onClick={() => editAccountIcon_handler(params.row)}
+                        onClick={() => editUserIcon_handler(params.row)}
                         showInMenu
                     />,
                     <GridActionsCellItem
                         key={1}
                         icon={<LoginIcon />}
                         label="Login"
-                        //onClick={() => loginAccountIcon_handler(params.row)}
                         showInMenu
                     />
                 ],
             },
         ],
-        [deleteAccount]
+        [deleteUser]
     );
 
 
-    const loadAccounts = async () => {
-        const data = await fetchAccounts();
-        setAccounts(_ => data);
+    const loadUsers = async () => {
+        const data = await fetchUsers();
+        setUsers(_ => data);
     };
 
 
     const onClickBtnLoadAccaunts = async () => {
-        loadAccounts();
+        loadUsers();
     };
 
 
-    const handleClickOpenAddAccount = () => {
-        setOpenAddAccount(true);
+    const handleClickOpenAddUser = () => {
+        setOpenAddUser(true);
     };
 
 
-    const addAccountDialogClose_handler = () => {
-        setOpenAddAccount(false);
+    const addUserDialogClose_handler = () => {
+        setOpenAddUser(false);
     };
 
 
-    const editAccountDialogClose_handler = () => {
-        setOpenEditAccount(false);
+    const editUserDialogClose_handler = () => {
+        setOpenEditUser(false);
     };
 
 
-    const addAccountSave_handler = async () => {
-        await addAccount({ userName: accUsername, password: accPassword, phoneNumber: accPhoneNumber });
-        setOpenAddAccount(false);
-        loadAccounts();
+    const addUserSave_handler = async () => {
+        await addUser({ userName: accUsername, password: accPassword, phoneNumber: accPhoneNumber });
+        setOpenAddUser(false);
+        loadUsers();
         setAccId(0);
         setAccUsername('');
         setAccPassword('');
@@ -183,10 +184,10 @@ export const Accounts = () => {
     };
 
 
-    const editAccountSave_handler = async () => {
-        await editAccount({ id: accId, userName: accUsername, password: accPassword, phoneNumber: accPhoneNumber });
-        setOpenEditAccount(false);
-        loadAccounts();
+    const editUserSave_handler = async () => {
+        await editUser({ id: accId, userName: accUsername, password: accPassword, phoneNumber: accPhoneNumber });
+        setOpenEditUser(false);
+        loadUsers();
         setAccId(0);
         setAccUsername('');
         setAccPassword('');
@@ -198,12 +199,12 @@ export const Accounts = () => {
         event: MuiEvent<React.MouseEvent<HTMLElement>>,
         details: GridCallbackDetails
     ) => {
-        setSelectedAccount(params.row['username']);
-        fetchChats(params.row['username']);
+        setSelectedUser(params.row['username']);
+        fetchChannels(params.row['username']);
     };
 
     return (
-        <section className={styles.accounts}>
+        <section className={styles.users}>
 
             <div style={{ height: 400 }}>
 
@@ -223,13 +224,13 @@ export const Accounts = () => {
                         noRowsOverlay: CustomNoRowsOverlay,
                     }}
 
-                    rows={accounts}
+                    rows={users}
                     columns={columns}
                 />
 
             </div>
 
-            <div className={styles.accounts__buttons}>
+            <div className={styles.users__buttons}>
 
                 <Button
                     sx={{
@@ -246,20 +247,20 @@ export const Accounts = () => {
                         width: '100px'
                     }}
                     variant="contained"
-                    onClick={handleClickOpenAddAccount}
+                    onClick={handleClickOpenAddUser}
                 >
                     Add
                 </Button>
 
             </div>
 
-            <Dialog open={openAddAccount} onClose={addAccountDialogClose_handler}>
+            <Dialog open={openAddUser} onClose={addUserDialogClose_handler}>
                 <DialogTitle>
-                    Add account
+                    Add user
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Fill in an account details
+                        Fill in an user details
                     </DialogContentText>
                     <TextField
                         autoFocus
@@ -296,16 +297,16 @@ export const Accounts = () => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={addAccountDialogClose_handler}>Cancel</Button>
-                    <Button onClick={addAccountSave_handler}>Add</Button>
+                    <Button onClick={addUserDialogClose_handler}>Cancel</Button>
+                    <Button onClick={addUserSave_handler}>Add</Button>
                 </DialogActions>
             </Dialog>
 
-            <Dialog open={openEditAccount} onClose={editAccountDialogClose_handler}>
-                <DialogTitle>Edit account</DialogTitle>
+            <Dialog open={openEditUser} onClose={editUserDialogClose_handler}>
+                <DialogTitle>Edit user</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Fill in an account details
+                        Fill in an user details
                     </DialogContentText>
                     <TextField
                         autoFocus
@@ -342,8 +343,8 @@ export const Accounts = () => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={editAccountDialogClose_handler}>Cancel</Button>
-                    <Button onClick={editAccountSave_handler}>Save</Button>
+                    <Button onClick={editUserDialogClose_handler}>Cancel</Button>
+                    <Button onClick={editUserSave_handler}>Save</Button>
                 </DialogActions>
             </Dialog>
 

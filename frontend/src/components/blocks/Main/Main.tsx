@@ -1,14 +1,14 @@
 import styles from './Main.module.css';
-import { Accounts } from 'components/features/Accounts/Accounts';
+import { Users } from '@/components/features/Users/Users';
 import { Header } from 'components/blocks/Header/Header';
 import { Footer } from 'components/blocks/Footer/Footer';
-import Chats from 'components/features/Chats/Chats';
+import Channels from '@/components/features/Channels/Channels';
 import { MainState, useMainStore } from '@/store/MainStore';
 
 
 export const Main = () => {
 
-    const selectedAccount = useMainStore((state: MainState) => state.selectedAccount);
+    const selectedUser = useMainStore((state: MainState) => state.selectedUser);
 
     return (
         <main className={styles.main}>
@@ -17,9 +17,9 @@ export const Main = () => {
 
             <div className={styles.info}>
 
-                <Accounts />
+                <Users />
 
-                <Chats account={selectedAccount} />
+                <Channels user={selectedUser} />
 
             </div>
 

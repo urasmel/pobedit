@@ -1,6 +1,6 @@
-﻿namespace SharedCore.Dtos
+﻿namespace SharedCore.Dtos.Channel
 {
-    public class ChatFullInfoDto
+    public class ChannelFullInfoDto
     {
         public long ChatId { get; set; }
         public string About { get; set; } = string.Empty;

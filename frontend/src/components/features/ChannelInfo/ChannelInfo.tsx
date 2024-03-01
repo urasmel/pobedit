@@ -1,16 +1,16 @@
 import { useEffect } from 'react';
-import styles from './ChatInfo.module.css';
+import styles from './ChannelInfo.module.css';
 import { MainState, useMainStore } from '@/store/MainStore';
 
-export const ChatInfo = () => {
+export const ChannelInfo = () => {
 
-    const chatFullInfo = useMainStore((state: MainState) => state.selectedChatFullInfo);
+    const channelFullInfo = useMainStore((state: MainState) => state.selectedChannelFullInfo);
 
     useEffect(() => {
-        console.log(chatFullInfo);
+        console.log(channelFullInfo);
     }, []);
 
-    if (!chatFullInfo) {
+    if (!channelFullInfo) {
         return null;
     }
 
@@ -19,15 +19,15 @@ export const ChatInfo = () => {
 
             <div className={styles.info__title}>
                 <div className={styles.info__photo}>
-                    <img src={`data:image/jpeg;base64,${chatFullInfo.chatPhoto}`} />
+                    <img src={`data:image/jpeg;base64,${channelFullInfo.channelPhoto}`} />
                 </div>
                 <div className={styles.info__about}>
-                    {chatFullInfo.about}
+                    {channelFullInfo.about}
                 </div>
             </div>
 
             <div className={styles.info__desc}>
-                Participants count: {chatFullInfo.participantsCount}
+                Participants count: {channelFullInfo.participantsCount}
             </div>
 
         </div>

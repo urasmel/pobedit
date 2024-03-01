@@ -1,4 +1,4 @@
-﻿namespace ControlService.Dtos.Account
+﻿namespace SharedCore.Dtos.User
 {
     public class GetUserDto
     {

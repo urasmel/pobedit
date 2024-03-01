@@ -2,10 +2,10 @@
 {
     public class Post
     {
-        public int Id { get; set; }
-        public int PeerId { get; set; }
+        public long Id { get; set; }
+        public long PeerId { get; set; }
         public string Message { get; set; }
         public DateTime Date { get; set; }
-        public User User { get; }
+        public Account Account { get; }
     }
 }
