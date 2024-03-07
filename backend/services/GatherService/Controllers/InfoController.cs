@@ -66,10 +66,30 @@ namespace GatherMicroservice.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Возвращает посты канала, которые есть в БД, по его id.
+        /// </summary>
+        /// <param name="channelId">Идентификатор канала</param>
         [HttpGet("/users/{username}/channels/{channelId}/messages")]
-        public async Task<ActionResult<ChannelFullInfoDto>> GetChannelMessages(int channelId)
+        public async Task<ActionResult<ChannelFullInfoDto>> GetAllChannelMessages(int channelId)
         {
-            var response = await _infoService.GetChannelPosts(channelId);
+            var response = await _infoService.GetAllChannelPosts(channelId);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Возвращает посты канала, которые есть в БД, по его id.
+        /// </summary>
+        /// <param name="channelId">Идентификатор канала</param>
+        [HttpGet("/users/{username}/channels/{channelId}/updated_messages")]
+        public async Task<ActionResult<ChannelFullInfoDto>> GetAllUpdatedChannelMessages(int channelId)
+        {
+            var response = await _infoService.GetAllUpdatedChannelPosts(channelId);
             if (!response.Success)
             {
                 return BadRequest(response);

@@ -1,14 +1,12 @@
 ﻿using AutoMapper;
 using GatherMicroservice.Client;
 using GatherMicroservice.Data;
-using GatherMicroservice.Dtos;
 using GatherMicroservice.Models;
 using GatherMicroservice.Utils;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
+using SharedCore.Models;
+using System.Globalization;
 using TL;
 
 namespace GatherMicroservice.Services.InfoService
@@ -17,7 +15,7 @@ namespace GatherMicroservice.Services.InfoService
     {
         ILogger _logger;
         GatherClient _client;
-        User? user;
+        TL.User? user;
         private readonly IMapper _mapper;
         IConfigUtils _configUtils;
         private readonly DataContext _context;
@@ -245,44 +243,132 @@ namespace GatherMicroservice.Services.InfoService
             return response;
         }
 
-        public async Task<ServiceResponse<List<PostDto>>> GetChannelPosts(long chatId)
+        public async Task<ServiceResponse<List<PostDto>>> GetAllChannelPosts(long chatId)
         {
             var response = new ServiceResponse<List<PostDto>>();
 
-
-            var chats = await _client.Messages_GetAllChats();
-            InputPeer peer = chats.chats.First(chat => chat.Key == chatId).Value;
-
-
-            var messages = new List<PostDto>();
-
-            for (int offset = 0; ;)
+            try
             {
-                //var messagesBase = await _client.Messages_GetHistory(peer, 0, default, offset, 1000, 0, 0, 0);
-                var messagesBase = await _client.Messages_GetHistory(peer);
-                if (messagesBase is not Messages_ChannelMessages channelMessages) break;
-                foreach (var msgBase in channelMessages.messages)
-                {
-                    if (msgBase is TL.Message msg && !string.IsNullOrEmpty(msg.message))
-                    {
-                        //messages.Add(msgBase as Message);
-                        var messageDto = _mapper.Map<PostDto>(msg);
-                        messages.Add(messageDto);
-                    }
-                    //
-                    //break;
-                }
-                offset += channelMessages.messages.Length;
-                if (offset >= channelMessages.count) break;
+                var posts = _context.Posts.AsEnumerable().Where(p => p.PeerId == chatId).TakeLast(10);
+                response.Data = _mapper.Map<List<PostDto>>(posts);
+                response.Success = true;
+                return response;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception.ToString());
+                response.Success = false;
+                response.Data = null;
+                response.Message = exception.Message;
+                return response;
+            }
+        }
 
-                //
-                break;
+        public async Task<ServiceResponse<List<PostDto>>> GetAllUpdatedChannelPosts(long chatId)
+        {
+            var response = new ServiceResponse<List<PostDto>>();
+
+            try
+            {
+                var dbChannelPeer = _context.Channels.First(chat => chat.Id == chatId);
+                if (dbChannelPeer == null)
+                {
+                    response.Success = false;
+                    response.Data = null;
+                    response.Message = "Channel not found in DB. Try to update db info";
+                    return response;
+                }
+
+                var chats = await _client.Messages_GetAllChats();
+                InputPeer peer = chats.chats.First(chat => chat.Key == chatId).Value;
+
+                // Получаем из БД последнее сообщение, канала.
+                var postFromDb = _context.Posts.OrderBy(p => p.PeerId).LastOrDefault();
+                int offset_id = 0;
+
+                // Если пусто, запрашиваем у телеграмма один пост на 31.12.2023.
+                // Его id используем для запроса новых постов канала как смещение.
+                if (postFromDb == null)
+                {
+                    var lastMessagesBase = await _client.Messages_GetHistory(peer, 0, DateTime.Parse("Dec 31, 2023"), 0, 1);
+                    if (lastMessagesBase is not Messages_ChannelMessages channelMessages)
+                    {
+                        response.Data = null;
+                        response.Success = false;
+                        response.Message = "Channel peer is not ChannelMessages";
+                        return response;
+                    }
+
+                    if (channelMessages.count == 0)
+                    {
+                        response.Data = null;
+                        response.Success = false;
+                        response.Message = "No data";
+                        return response;
+                    }
+
+                    var msgBase = channelMessages.messages[0];
+                    offset_id = msgBase.ID;
+                }
+
+                // Если не пусто, то
+                // его id используем для запроса новых постов канала как смещение.
+                else
+                {
+                    offset_id = (int)postFromDb.Id;
+                }
+
+                var messages = new List<PostDto>();
+                bool needStop = false;
+
+                for (int offset = 0; ;)
+                {
+                    //var messagesBase = await _client.Messages_GetHistory(peer, 0, default, offset, 1000, 0, 0, 0);
+                    //var messagesBase = await _client.Messages_GetHistory(peer, offset_id, default, offset, 100);
+                    var messagesBase = await _client.Messages_GetHistory(
+                        peer,
+                        0,
+                        DateTime.Now,
+                        offset,
+                        100);
+                    if (messagesBase is not Messages_ChannelMessages channelMessages) break;
+
+                    foreach (var msgBase in channelMessages.messages)
+                    {
+                        if (msgBase.ID <= offset_id)
+                        {
+                            needStop = true;
+                            break;
+                        }
+
+                        if (msgBase is TL.Message msg && !string.IsNullOrEmpty(msg.message))
+                        {
+                            var postDto = _mapper.Map<PostDto>(msg);
+                            var postToDb = _mapper.Map<Post>(msg);
+
+                            await _context.Posts.AddAsync(postToDb);
+                            messages.Add(postDto);
+                        }
+                    }
+                    offset += channelMessages.messages.Length;
+                    if (offset >= channelMessages.count) break;
+
+                    if (needStop)
+                    {
+                        break;
+                    }
+                }
+                await _context.SaveChangesAsync();
+                response.Data = messages;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception.Message, exception);
+                response.Success = false;
+                response.Data = null;
+                response.Message = exception.Message;
             }
 
-
-
-
-            response.Data = messages;
             return response;
         }
 
