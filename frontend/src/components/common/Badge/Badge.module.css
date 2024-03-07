@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i');
+/* @import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i'); */
+@import url('../../../assets/fonts/roboto.css');
 
 .badge {
     font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;

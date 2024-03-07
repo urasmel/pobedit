@@ -1,0 +1,82 @@
+/* @import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i'); */
+@import url("../../../assets/fonts/roboto.css");
+
+.widget {
+    font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0rem 1.25rem 1.6875rem 0rem rgba(0, 0, 0, 0.15);
+
+
+
+
+    /* align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+    padding: 0.675rem 0.8rem 0.675rem 1rem;
+    margin: 0 1rem;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    line-height: 1.625;
+    letter-spacing: 0.00938em;
+    background: transparent;
+    color: #67748e; */
+}
+
+.widget__header {
+    max-width: 100%;
+    display: flex;
+    height: 20px;
+    background: rgb(255, 255, 255);
+    color: rgb(52, 71, 103);
+    padding-top: 16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    /* margin-left: 0.8rem;
+    transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
+        margin 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    min-width: 0;
+    cursor: pointer;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: 400;
+    font-size: 0.875rem;
+    line-height: 0;
+    letter-spacing: 0.00938em;
+    display: block;
+    color: #67748e; */
+}
+
+.widget__message-container {
+    padding: 8px 16px 16px;
+}
+
+.widget__message {
+    min-height: 60px;
+    background: #333;
+    padding: 24px;
+    background: rgb(248, 249, 250);
+    color: rgb(52, 71, 103);
+    border-radius: 0.75rem;
+    /* opacity: 1;
+    max-width: 100%;
+    margin-left: 0.8rem;
+    transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
+        margin 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    flex: 1 1 auto;
+    min-width: 0;
+    cursor: pointer;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: 400;
+    font-size: 0.875rem;
+    line-height: 0;
+    letter-spacing: 0.00938em;
+    display: block;
+    color: #67748e; */
+}

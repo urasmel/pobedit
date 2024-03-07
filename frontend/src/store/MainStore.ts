@@ -4,8 +4,8 @@ import { channelDomain, channelPort, channelProto } from '../constants/constants
 import { produce } from 'immer';
 import { immer } from 'zustand/middleware/immer';
 import { devtools } from 'zustand/middleware';
-import { ServiceResponse } from 'types/serviceResponse';
-import { ChannelFullInfo } from 'types/ChatFullInfo';
+import { ServiceResponse } from '@/types/ServiceResponse';
+import { ChannelFullInfo } from '@/types/ChannelFullInfo';
 
 export interface MainState {
 
@@ -15,6 +15,7 @@ export interface MainState {
     error: string;
     isError: boolean;
     channelsInfo: ChannelFullInfo[];
+
 
     // Для отображения дополнительной информации о чате.
     selectedChannelFullInfo: ChannelFullInfo;
