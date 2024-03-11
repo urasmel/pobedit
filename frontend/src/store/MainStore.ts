@@ -6,6 +6,7 @@ import { immer } from 'zustand/middleware/immer';
 import { devtools } from 'zustand/middleware';
 import { ServiceResponse } from '@/types/ServiceResponse';
 import { ChannelFullInfo } from '@/types/ChannelFullInfo';
+import { Post } from '@/types/Post';
 
 export interface MainState {
 
@@ -15,14 +16,19 @@ export interface MainState {
     error: string;
     isError: boolean;
     channelsInfo: ChannelFullInfo[];
-
-
+    //channelPostsDict: Record<number, Post[]>[];
+    channelPostsDict: {
+        channelId: number;
+        posts: Post[];
+    };
     // Для отображения дополнительной информации о чате.
     selectedChannelFullInfo: ChannelFullInfo;
+
     setSelectedUser: (username: string) => void;
     fetchChannels: (username: string) => void;
     fetchUpdatedChannels: (username: string) => void;
     fetchChannelInfo: (username: string, channelId: number) => void;
+    fetchChannelPosts: (username: string, channelId: number) => void;
     updateSelectedUser: (user: string) => void;
 }
 
@@ -33,6 +39,10 @@ export const useMainStore = create<MainState>()(
                 selectedUser: '',
                 channels: [],
                 channelsInfo: [],
+                channelPostsDict: {
+                    channelId: 0,
+                    posts: []
+                },
                 selectedChannelFullInfo: {} as ChannelFullInfo,
                 isLoading: false,
                 error: '',
@@ -141,7 +151,40 @@ export const useMainStore = create<MainState>()(
                     }
 
                     set({ selectedChannelFullInfo: get().channelsInfo[0] });
+                },
+
+                fetchChannelPosts: async (username: string, channelId: number) => {
+
+                    const request = new Request(`${channelProto}${channelDomain}:${channelPort}/users/${username}/channels/${channelId}/messages`,
+                        {
+                            method: 'GET',
+                            mode: 'cors',
+                            headers: {
+                                'Access-Control-Request-Method': 'GET',
+                                'Access-Control-Allow-Origin': '*',
+                                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
+                            },
+                            redirect: 'follow',
+                            cache: 'no-store'
+                        });
+
+                    const response = await fetch(request);
+
+                    if (!response.ok) {
+                        console.log("Error requesting channel's posts");
+                        return;
+                    }
+
+                    const json = (await response.json() as ServiceResponse<Post[]>).data;
+                    console.log(channelId);
+                    set((state) => ({
+                        ...state,
+                        //channelsInfo: [...state.channelsInfo, json]
+                        //channelPostsDict: { ...state.channelPostsDict, channelId: [...state.channelPostsDict[channelId], ...json] }
+                        channelPostsDict: { channelId: channelId, posts: [...json] }
+                    }));
                 }
+
             })
         )
     )

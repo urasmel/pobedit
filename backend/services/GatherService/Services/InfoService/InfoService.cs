@@ -264,9 +264,9 @@ namespace GatherMicroservice.Services.InfoService
             }
         }
 
-        public async Task<ServiceResponse<List<PostDto>>> GetAllUpdatedChannelPosts(long chatId)
+        public async Task<ServiceResponse<string>> LoadNewChannelPosts(long chatId)
         {
-            var response = new ServiceResponse<List<PostDto>>();
+            var response = new ServiceResponse<string>();
 
             try
             {
@@ -359,13 +359,15 @@ namespace GatherMicroservice.Services.InfoService
                     }
                 }
                 await _context.SaveChangesAsync();
-                response.Data = messages;
+                response.Success = true;
+
+                response.Data = "Добавлено "+messages.Count +" сообщений";
             }
             catch (Exception exception)
             {
                 _logger.LogError(exception.Message, exception);
                 response.Success = false;
-                response.Data = null;
+                response.Data = "";
                 response.Message = exception.Message;
             }
 

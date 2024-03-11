@@ -2,6 +2,7 @@
 using GatherMicroservice.Models;
 using GatherMicroservice.Services;
 using Microsoft.AspNetCore.Mvc;
+using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
 using TL;
 
@@ -71,7 +72,7 @@ namespace GatherMicroservice.Controllers
         /// </summary>
         /// <param name="channelId">Идентификатор канала</param>
         [HttpGet("/users/{username}/channels/{channelId}/messages")]
-        public async Task<ActionResult<ChannelFullInfoDto>> GetAllChannelMessages(int channelId)
+        public async Task<ActionResult<List<PostDto>>> GetAllChannelMessages(int channelId)
         {
             var response = await _infoService.GetAllChannelPosts(channelId);
             if (!response.Success)
@@ -87,9 +88,9 @@ namespace GatherMicroservice.Controllers
         /// </summary>
         /// <param name="channelId">Идентификатор канала</param>
         [HttpGet("/users/{username}/channels/{channelId}/updated_messages")]
-        public async Task<ActionResult<ChannelFullInfoDto>> GetAllUpdatedChannelMessages(int channelId)
+        public async Task<ActionResult<string>> LoadNewChannelPosts(int channelId)
         {
-            var response = await _infoService.GetAllUpdatedChannelPosts(channelId);
+            var response = await _infoService.LoadNewChannelPosts(channelId);
             if (!response.Success)
             {
                 return BadRequest(response);

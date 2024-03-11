@@ -15,7 +15,7 @@ namespace GatherMicroservice.Services
 
         Task<ServiceResponse<List<PostDto>>> GetAllChannelPosts(long chatId);
 
-        Task<ServiceResponse<List<PostDto>>> GetAllUpdatedChannelPosts(long chatId);
+        Task<ServiceResponse<string>> LoadNewChannelPosts(long chatId);
 
         Task<ServiceResponse<List<PostDto>>> GetChannelPosts(long chatId, DateTime startTime);
 

@@ -1,25 +1,44 @@
 import styles from "./styles.module.scss";
-import { Aside } from "components/blocks/Aside/Aside";
-import { Main } from "components/blocks/Main/Main";
-import { PostsProps } from "@/types/Props/PostsProps";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { MainState, useMainStore } from "@/store/MainStore";
+import { useParams } from "react-router-dom";
+import PostWidget from "@/components/features/PostWidget/PostWidget";
 
-const Posts = ({ user, chatId }: PostsProps) => {
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         const data = await fetchUsers();
-    //         if (data) {
-    //             setUsers(data);
-    //         }
-    //     };
+//const Posts = ({ user, chatId }: PostsProps) => {
+const Posts = () => {
+    const { user, channelId } = useParams();
+    const [isLoading, setIsLoading] = useState(false);
 
-    //     fetchData();
-    // }, []);
+    const channelPostsDict = useMainStore(
+        (state: MainState) => state.channelPostsDict
+    );
+    const fetchChannelPosts = useMainStore(
+        (state: MainState) => state.fetchChannelPosts
+    );
+
+    useEffect(() => {
+        const fetchPosts = async () => {
+            if (typeof user !== "string" || !user) {
+                return;
+            }
+
+            setIsLoading(true);
+            if (channelId) {
+                await fetchChannelPosts(user, parseInt(channelId));
+            }
+            setIsLoading(false);
+        };
+
+        console.log("user " + user);
+        console.log("channelId " + channelId);
+        fetchPosts();
+    }, []);
 
     return (
         <div className={styles["main_container"]}>
-            <Aside></Aside>
-            <Main></Main>
+            {channelPostsDict.posts.map((post) => (
+                <PostWidget {...post} />
+            ))}
         </div>
     );
 };

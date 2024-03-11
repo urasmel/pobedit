@@ -13,9 +13,9 @@ type Story = StoryObj<PostWidget>;
 
 export const Default: Story = {
     args: {
-        Id: 1,
-        PeerId: 2,
-        MessageDate: new Date(),
-        Message: "Some a very short text"
+        id: 1,
+        peerId: 2,
+        date: new Date("3.3.2024"),
+        message: "Some a very short text"
     }
 };

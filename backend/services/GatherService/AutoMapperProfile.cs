@@ -17,6 +17,7 @@ namespace GatherMicroservice
             CreateMap<ChatBase, SharedCore.Models.Channel>();
             CreateMap<SharedCore.Models.Channel, ChannelDto>();
             CreateMap<Message, Post>();
+            CreateMap<Post, PostDto>();
             CreateMap<SharedCore.Models.Channel, InputPeer>();
         }
     }
