@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using ControlService.Data;
 using SharedCore.Dtos.User;
-using ControlService.Models;
 using Microsoft.EntityFrameworkCore;
 using SharedCore.Models;
 
@@ -22,7 +21,7 @@ namespace ControlService.Services.UserService
         {
             var serviceResponse = new ServiceResponse<GetUserDto>();
             var dbUser = await _context.Users
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.UserId == id);
             serviceResponse.Data = _mapper.Map<GetUserDto>(dbUser);
             return serviceResponse;
         }
@@ -67,7 +66,7 @@ namespace ControlService.Services.UserService
             try
             {
                 User? user = await _context.Users
-                    .FirstOrDefaultAsync(c => c.Id == id);
+                    .FirstOrDefaultAsync(c => c.UserId == id);
                 if (user != null)
                 {
                     _context.Users.Remove(user);
@@ -96,14 +95,14 @@ namespace ControlService.Services.UserService
             try
             {
                 User? userInDb = await _context.Users
-                    .FirstOrDefaultAsync(a => a.Id == userParam.Id);
+                    .FirstOrDefaultAsync(a => a.UserId == userParam.UserId);
 
-                if (_context.Users.Any(a => a.Username == userParam.Username && userInDb.Id!=userParam.Id))
+                if (_context.Users.Any(a => a.Username == userParam.Username && userInDb.UserId!=userParam.UserId))
                 {
                     response.Success = false;
                     response.Message = " with this username already exists";
                 }
-                else if (_context.Users.Any(a => a.PhoneNumber == userParam.PhoneNumber && userInDb.Id != userParam.Id))
+                else if (_context.Users.Any(a => a.PhoneNumber == userParam.PhoneNumber && userInDb.UserId != userParam.UserId))
                 {
                     response.Success = false;
                     response.Message = "User with this phone number already exists";

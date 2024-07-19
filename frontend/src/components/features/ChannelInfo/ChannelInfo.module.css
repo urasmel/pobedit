@@ -19,6 +19,7 @@ img {
     font-size: 14px;
     font-weight: 400;
     align-self: center;
+    white-space: pre-wrap;
 }
 
 .info__desc {

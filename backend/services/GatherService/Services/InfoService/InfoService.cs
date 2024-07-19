@@ -3,10 +3,11 @@ using GatherMicroservice.Client;
 using GatherMicroservice.Data;
 using GatherMicroservice.Models;
 using GatherMicroservice.Utils;
+using Microsoft.EntityFrameworkCore;
 using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
 using SharedCore.Models;
-using System.Globalization;
+using System;
 using TL;
 
 namespace GatherMicroservice.Services.InfoService
@@ -17,7 +18,6 @@ namespace GatherMicroservice.Services.InfoService
         GatherClient _client;
         TL.User? user;
         private readonly IMapper _mapper;
-        IConfigUtils _configUtils;
         private readonly DataContext _context;
 
 
@@ -35,7 +35,7 @@ namespace GatherMicroservice.Services.InfoService
             user = await _client.LoginUserIfNeeded();
         }
 
-        public async Task<ServiceResponse<List<ChannelDto>>?> GetAllChannels(string username)
+        public async Task<ServiceResponse<List<ChannelDto>>> GetAllChannels(string username)
         {
             var response = new ServiceResponse<List<ChannelDto>>();
 
@@ -49,12 +49,13 @@ namespace GatherMicroservice.Services.InfoService
                 }
                 else
                 {
-                    var user = _context.Users.Where(u => u.Username == username).FirstOrDefault();
+                    var user = await _context.Users.Where(u => u.Username == username).FirstOrDefaultAsync();
 
                     if (user == null)
                     {
                         response.Success = false;
                         response.Data = null;
+                        response.Message = "User not found";
                         return response;
                     }
 
@@ -224,21 +225,31 @@ namespace GatherMicroservice.Services.InfoService
             }
             else
             {
-                var chats = await _client.Messages_GetAllChats();
-                var chat = chats.chats.Where(chat => chat.Key == chatId).FirstOrDefault().Value;
+                try
+                {
+                    var chats = await _client.Messages_GetAllChats();
+                    var chat = chats.chats.Where(item => item.Key == chatId).FirstOrDefault().Value;
 
-                var chatPeer = chat.ToInputPeer();
-                var chatInfo = await _client.GetFullChat(chatPeer);
+                    var chatPeer = chat.ToInputPeer();
+                    var chatInfo = await _client.GetFullChat(chatPeer);
 
-                var chatFullInfoDto = new ChannelFullInfoDto();
-                chatFullInfoDto.ChatId = chatInfo.full_chat.ID;
-                chatFullInfoDto.ParticipantsCount = chatInfo.full_chat.ParticipantsCount;
-                chatFullInfoDto.About = chatInfo.full_chat.About;
+                    var channelFullInfoDto = new ChannelFullInfoDto();
+                    channelFullInfoDto.ChannelId = chatInfo.full_chat.ID;
+                    channelFullInfoDto.ParticipantsCount = chatInfo.full_chat.ParticipantsCount;
+                    channelFullInfoDto.About = chatInfo.full_chat.About;
 
-                MemoryStream ms = new MemoryStream(1000000);
-                Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chat, ms);
-                chatFullInfoDto.ChatPhoto = Convert.ToBase64String(ms.ToArray());
-                response.Data = chatFullInfoDto;
+                    MemoryStream ms = new MemoryStream(1000000);
+                    Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chat, ms);
+                    channelFullInfoDto.ChannelPhoto = Convert.ToBase64String(ms.ToArray());
+                    response.Data = channelFullInfoDto;
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(exception.Message, exception);
+                    response.Success = false;
+                    response.Data = null;
+                    response.Message = exception.Message;
+                }
             }
             return response;
         }
@@ -315,7 +326,7 @@ namespace GatherMicroservice.Services.InfoService
                 // его id используем для запроса новых постов канала как смещение.
                 else
                 {
-                    offset_id = (int)postFromDb.Id;
+                    offset_id = (int)postFromDb.PostId;
                 }
 
                 var messages = new List<PostDto>();
@@ -361,7 +372,7 @@ namespace GatherMicroservice.Services.InfoService
                 await _context.SaveChangesAsync();
                 response.Success = true;
 
-                response.Data = "Добавлено "+messages.Count +" сообщений";
+                response.Data = "Добавлено " + messages.Count + " сообщений";
             }
             catch (Exception exception)
             {

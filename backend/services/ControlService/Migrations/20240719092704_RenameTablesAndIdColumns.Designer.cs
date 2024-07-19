@@ -3,6 +3,7 @@ using System;
 using ControlService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ControlService.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240719092704_RenameTablesAndIdColumns")]
+    partial class RenameTablesAndIdColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,11 +53,11 @@ namespace ControlService.Migrations
 
             modelBuilder.Entity("SharedCore.Models.Channel", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<long>("ChannelId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ChannelId"));
 
                     b.Property<bool>("IsChannel")
                         .HasColumnType("boolean");
@@ -72,7 +74,7 @@ namespace ControlService.Migrations
                     b.Property<long?>("UserId")
                         .HasColumnType("bigint");
 
-                    b.HasKey("Id");
+                    b.HasKey("ChannelId");
 
                     b.HasIndex("UserId");
 

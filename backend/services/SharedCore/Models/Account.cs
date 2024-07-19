@@ -2,10 +2,8 @@
 {
     public class Account
     {
-        public long Id { get; set; }
-        // @something
-        public string? Username { get; set; }
-        // Something not unique
+        public long AccountId { get; set; }
+        public string? AccountName { get; set; }
         public string? Name { get; set; }
         public string? Bio { get; set; }
     }

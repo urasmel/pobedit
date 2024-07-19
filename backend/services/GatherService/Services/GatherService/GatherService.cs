@@ -1,11 +1,8 @@
 ﻿using GatherMicroservice.Collecting;
-using GatherMicroservice.Dtos;
-using GatherMicroservice.Models;
 using GatherMicroservice.Utils;
 using SharedCore.Extentions;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using SharedCore.Models;
 using TL;
-using TL.Methods;
 
 namespace GatherMicroservice.Services
 {
@@ -13,7 +10,7 @@ namespace GatherMicroservice.Services
     {
         ILogger _logger;
         WTelegram.Client? _client;
-        User? user;
+        TL.User? user;
         IConfigUtils _configUtils;
         private Dictionary<string, ICollector> _collectors;
 
@@ -29,7 +26,21 @@ namespace GatherMicroservice.Services
 
         private async void Init()
         {
-            user = await _client.LoginUserIfNeeded();
+            if (_client == null)
+            {
+                _logger.Log(LogLevel.Error, "Error to init telegram client. Client is not initialized.");
+                return;
+            }
+
+            try
+            {
+                user = await _client.LoginUserIfNeeded();
+            }
+            catch (Exception)
+            {
+                _logger.Log(LogLevel.Error, "Error to login user.");
+                System.Environment.Exit(1);
+            }
         }
 
         public async Task<ServiceResponse<bool>> StartGatherAllAsync(string username)

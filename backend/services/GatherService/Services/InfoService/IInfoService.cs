@@ -1,6 +1,7 @@
 ﻿using GatherMicroservice.Models;
 using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
+using SharedCore.Models;
 using TL;
 
 namespace GatherMicroservice.Services

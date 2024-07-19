@@ -54,6 +54,9 @@ export const Users = () => {
             const data = await fetchUsers();
             if (data) {
                 setUsers(data);
+            } else {
+                setUsers([]);
+                // TODO добавить обработку ошибок
             }
         };
 
@@ -72,10 +75,10 @@ export const Users = () => {
 
     const editUserIcon_handler = useCallback(
         (row: any): MouseEventHandler<HTMLLIElement> | undefined => {
-            setAccId((_) => row.id);
-            setAccUsername((_) => row.username);
-            setAccPassword((_) => row.password);
-            setAccPhoneNumber((_) => row.phoneNumber);
+            setAccId(() => row.id);
+            setAccUsername(() => row.username);
+            setAccPassword(() => row.password);
+            setAccPhoneNumber(() => row.phoneNumber);
             setOpenEditUser(true);
             return;
         },

@@ -4,12 +4,13 @@ using GatherMicroservice.Services;
 using Microsoft.AspNetCore.Mvc;
 using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
+using SharedCore.Models;
 using TL;
 
 namespace GatherMicroservice.Controllers
 {
     [ApiController]
-    [Route("gather")]
+    [Route("info")]
     public class InfoController : ControllerBase
     {
         private readonly IInfoService _infoService;
@@ -55,7 +56,7 @@ namespace GatherMicroservice.Controllers
         /// Возвращает информацию о канале пользователя.
         /// </summary>
         /// <param name="channelId">ID канала</param>
-        [HttpGet("/users/{username}/channels/{channelId}/ChannelInfo")]
+        [HttpGet("/users/{username}/channels/{channelId}/info")]
         public async Task<ActionResult<ChannelFullInfoDto>> GetChannelInfo(int channelId)
         {
             var response = await _infoService.GetChannelInfo(channelId);

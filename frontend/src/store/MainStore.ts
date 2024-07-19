@@ -123,7 +123,7 @@ export const useMainStore = create<MainState>()(
 
                     if (get().channelsInfo.filter(item => item.channelId === channelId).length === 0) {
 
-                        const request = new Request(`${channelProto}${channelDomain}:${channelPort}/${username}/ChannelInfo/${channelId}`,
+                        const request = new Request(`${channelProto}${channelDomain}:${channelPort}/users/${username}/channels/${channelId}/info`,
                             {
                                 method: 'GET',
                                 mode: 'cors',
