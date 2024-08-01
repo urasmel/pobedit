@@ -1,5 +1,5 @@
 export type Post = {
-    id: number;
+    postId: number;
     peerId: number;
     date: Date;
     message: string;

@@ -12,6 +12,7 @@ import {
     GridColDef,
     GridRowParams,
     MuiEvent,
+    GridActionsCellItem,
 } from "@mui/x-data-grid";
 import React, {
     Suspense,
@@ -28,8 +29,12 @@ import { ChannelInfo } from "../ChannelInfo/ChannelInfo";
 import { ChannelProps } from "@/types/Props/ChannelProps";
 import DataGridTitle from "@/components/ui/DataGridTitle/DataGridTitle";
 const Loading = React.lazy(() => import("@/components/common/Loading/Loading"));
+import InfoIcon from "@mui/icons-material/Info";
+import { useNavigate } from "react-router-dom";
 
-const Channels = ({ user }: ChannelProps) => {
+//const Channels = ({ user }: ChannelProps) => {
+const Channels = () => {
+    const navigate = useNavigate();
     const [openAddChannel, setOpenAddChannel] = useState(false);
     const [openShowChannelInfo, setOpenShowChannelInfo] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -39,31 +44,36 @@ const Channels = ({ user }: ChannelProps) => {
     };
 
     const channels = useMainStore((state: MainState) => state.channels);
+
     const fetchChannels = useMainStore(
         (state: MainState) => state.fetchChannels
     );
+
     const selectedChannelFullInfo = useMainStore(
         (state: MainState) => state.selectedChannelFullInfo
     );
+
     const fetchchannelFullInfo = useMainStore(
         (state: MainState) => state.fetchChannelInfo
     );
+
     const fetchUpdatedChannels = useMainStore(
         (state: MainState) => state.fetchUpdatedChannels
     );
 
+    let user = useMainStore((state: MainState) => state.selectedUser);
+
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchData = async (username: string) => {
             if (typeof user !== "string" || !user) {
                 return;
             }
             setIsLoading(true);
-            await fetchChannels(user);
-            console.log(channels);
+            await fetchChannels(username);
             setIsLoading(false);
         };
 
-        fetchData();
+        fetchData(user);
     }, [user]);
 
     const onDeleteChannel = useCallback(
@@ -89,6 +99,22 @@ const Channels = ({ user }: ChannelProps) => {
                 headerName: "Is group",
                 type: "boolean",
                 width: 100,
+            },
+            {
+                field: "actions",
+                type: "actions",
+                flex: 1,
+                headerName: "Actions",
+                getActions: (params: GridRowParams) => [
+                    <GridActionsCellItem
+                        key={0}
+                        icon={<InfoIcon />}
+                        label="Show info"
+                        onClick={() =>
+                            handleChannelInfoIconClick(params.row.id)
+                        }
+                    />,
+                ],
             },
         ],
         []
@@ -116,12 +142,19 @@ const Channels = ({ user }: ChannelProps) => {
 
     const onAddChannelSave = async () => {};
 
+    const handleChannelInfoIconClick = async (channelId: number) => {
+        console.log("channelId " + channelId + " and user is " + user);
+        await fetchchannelFullInfo(user, channelId);
+        setOpenShowChannelInfo(true);
+    };
+
     const handleChannelRowClick = async (
         params: GridRowParams,
         event: MuiEvent<React.MouseEvent<HTMLElement>>
     ) => {
-        await fetchchannelFullInfo(user, params.row["id"]);
-        setOpenShowChannelInfo(true);
+        // await fetchchannelFullInfo(user, params.row['id']);
+        // setOpenShowChannelInfo(true);
+        navigate(`/posts/${user}/channels/${params.row["id"]}`);
     };
 
     return (

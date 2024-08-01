@@ -43,7 +43,7 @@ namespace GatherMicroservice.Controllers
         [HttpGet("/users/{username}/updated_channels")]
         public async Task<ActionResult<ServiceResponse<List<ChatBase>>>> GetAllUpdatedChannels(string username)
         {
-            var response = await _infoService.GetAllUpdatedChannels(username);
+            var response = await _infoService.UpdateChannels(username);
             if (!response.Success)
             {
                 return BadRequest(response);
@@ -55,11 +55,12 @@ namespace GatherMicroservice.Controllers
         /// <summary>
         /// Возвращает информацию о канале пользователя.
         /// </summary>
+        /// <param name="username">Имя пользователя, от имени которого работает сессия данного запроса и который подписан на канал</param>
         /// <param name="channelId">ID канала</param>
         [HttpGet("/users/{username}/channels/{channelId}/info")]
-        public async Task<ActionResult<ChannelFullInfoDto>> GetChannelInfo(int channelId)
+        public async Task<ActionResult<ChannelInfoDto>> GetChannelInfo(string username, int channelId)
         {
-            var response = await _infoService.GetChannelInfo(channelId);
+            var response = await _infoService.GetChannelInfo(username, channelId);
             if (!response.Success)
             {
                 return BadRequest(response);
@@ -71,11 +72,15 @@ namespace GatherMicroservice.Controllers
         /// <summary>
         /// Возвращает посты канала, которые есть в БД, по его id.
         /// </summary>
+        /// <param name="username">Имя пользователя, от имени которого работает сессия данного запроса и который подписан на канал</param>
         /// <param name="channelId">Идентификатор канала</param>
+        /// <param name="offset">Смещение относительно последнего сообщения данного канала, находящегося в базе</param>
+        /// <param name="count">Количество записей, которые необходимо вернуть</param>
+        //[HttpGet("/users/{username}/channels/{channelId}/messages?offset={offset}&count={count}")]
         [HttpGet("/users/{username}/channels/{channelId}/messages")]
-        public async Task<ActionResult<List<PostDto>>> GetAllChannelMessages(int channelId)
+        public async Task<ActionResult<List<PostDto>>> GetAllChannelMessages(string username, int channelId, int offset = 0, int count = 20)
         {
-            var response = await _infoService.GetAllChannelPosts(channelId);
+            var response = await _infoService.GetChannelPosts(username, channelId, offset, count);
             if (!response.Success)
             {
                 return BadRequest(response);
@@ -85,13 +90,14 @@ namespace GatherMicroservice.Controllers
         }
 
         /// <summary>
-        /// Возвращает посты канала, которые есть в БД, по его id.
+        /// Скачивает в базу данных новые сообщения канала, которые появились после последнего сообщения канала, содержащегося в базе данных.
         /// </summary>
+        /// <param name="username">Имя пользователя, от имени которого работает сессия данного запроса и который подписан на канал</param>
         /// <param name="channelId">Идентификатор канала</param>
         [HttpGet("/users/{username}/channels/{channelId}/updated_messages")]
-        public async Task<ActionResult<string>> LoadNewChannelPosts(int channelId)
+        public async Task<ActionResult<List<PostDto>>> UpdateAndFetchChannelPosts(string username, int channelId)
         {
-            var response = await _infoService.LoadNewChannelPosts(channelId);
+            var response = await _infoService.DownloadChannelUpdates(username, channelId);
             if (!response.Success)
             {
                 return BadRequest(response);

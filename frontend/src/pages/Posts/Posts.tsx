@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { MainState, useMainStore } from "@/store/MainStore";
 import { useParams } from "react-router-dom";
 import PostWidget from "@/components/features/PostWidget/PostWidget";
+import { Button } from "@mui/material";
 
 //const Posts = ({ user, chatId }: PostsProps) => {
 const Posts = () => {
@@ -14,6 +15,9 @@ const Posts = () => {
     );
     const fetchChannelPosts = useMainStore(
         (state: MainState) => state.fetchChannelPosts
+    );
+    const updateAndFetchChannelPosts = useMainStore(
+        (state: MainState) => state.updateAndFetchChannelPosts
     );
 
     useEffect(() => {
@@ -34,11 +38,29 @@ const Posts = () => {
         fetchPosts();
     }, []);
 
+    const UpdtePosts = async () => {
+        if (typeof user !== "string" || !user) {
+            return;
+        }
+        setIsLoading(true);
+        if (channelId) {
+            await updateAndFetchChannelPosts(user, parseInt(channelId));
+        }
+        setIsLoading(false);
+    };
+
     return (
         <div className={styles["main_container"]}>
-            {channelPostsDict.posts.map((post) => (
-                <PostWidget {...post} />
-            ))}
+            {channelPostsDict.posts.length == 0 ? (
+                <>Пока в базе данных нет записей из этого канала</>
+            ) : (
+                channelPostsDict.posts.map((post) => (
+                    <PostWidget key={post.postId} {...post} />
+                ))
+            )}
+            <Button onClick={UpdtePosts} variant="contained">
+                Обновить данные
+            </Button>
         </div>
     );
 };

@@ -35,7 +35,7 @@ import {
 import styles from "./Users.module.css";
 import { User } from "@/models/user";
 import CustomNoRowsOverlay from "@/components/ui/CustomNoRowsOverlay/CustomNoRowsOverlay";
-import { useMainStore } from "@/store/MainStore";
+import { MainState, useMainStore } from "@/store/MainStore";
 import DataGridTitle from "@/components/ui/DataGridTitle/DataGridTitle";
 
 export const Users = () => {
@@ -46,8 +46,15 @@ export const Users = () => {
     const [accUsername, setAccUsername] = useState("");
     const [accPhoneNumber, setAccPhoneNumber] = useState("");
     const [accPassword, setAccPassword] = useState("");
-    const { fetchChannels: fetchChannels, setSelectedUser: setSelectedUser } =
-        useMainStore();
+    //const { fetchChannels: fetchChannels, setSelectedUser: setSelectedUser } = useMainStore();
+
+    const fetchChannels = useMainStore(
+        (state: MainState) => state.fetchChannels
+    );
+
+    const setSelectedUser = useMainStore(
+        (state: MainState) => state.setSelectedUser
+    );
 
     useEffect(() => {
         const fetchData = async () => {

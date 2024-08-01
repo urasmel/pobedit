@@ -8,18 +8,18 @@ namespace GatherMicroservice.Services
 {
     public interface IInfoService
     {
-        Task<ServiceResponse<List<ChannelDto>>> GetAllChannels(string username);
+        Task<ServiceResponse<IEnumerable<ChannelDto>>> GetAllChannels(string username);
 
-        Task<ServiceResponse<List<ChannelDto>>> GetAllUpdatedChannels(string username);
+        Task<ServiceResponse<IEnumerable<long>>> UpdateChannels(string username);
 
-        Task<ServiceResponse<ChannelFullInfoDto>> GetChannelInfo(long chatId);
+        Task<ServiceResponse<int>> DownloadChannelUpdates(string username, long chatId);
 
-        Task<ServiceResponse<List<PostDto>>> GetAllChannelPosts(long chatId);
+        Task<ServiceResponse<ChannelInfoDto>> UpdateChannelInfo(string username, long chatId);
 
-        Task<ServiceResponse<string>> LoadNewChannelPosts(long chatId);
+        Task<ServiceResponse<ChannelInfoDto>> GetChannelInfo(string username, long chatId);
 
-        Task<ServiceResponse<List<PostDto>>> GetChannelPosts(long chatId, DateTime startTime);
+        Task<ServiceResponse<IEnumerable<PostDto>>> GetChannelPosts(string username, long chatId, int offset, int count);
 
-        Task<ServiceResponse<List<PostDto>>> GetChannelPosts(long chatId, int startPostId);
+        ServiceResponse<IEnumerable<PostDto>> GetChannelPosts(string username, long chatId, DateTime startTime);
     }
 }

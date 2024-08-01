@@ -7,9 +7,7 @@ export const ChannelInfo = () => {
         (state: MainState) => state.selectedChannelFullInfo
     );
 
-    useEffect(() => {
-        console.log(channelFullInfo);
-    }, []);
+    useEffect(() => {}, []);
 
     if (!channelFullInfo) {
         return null;
@@ -23,9 +21,9 @@ export const ChannelInfo = () => {
                         src={`data:image/jpeg;base64,${channelFullInfo.channelPhoto}`}
                     />
                 </div>
-                <text className={styles.info__about}>
+                <div className={styles.info__about}>
                     {channelFullInfo.about}
-                </text>
+                </div>
             </div>
 
             <div className={styles.info__desc}>
