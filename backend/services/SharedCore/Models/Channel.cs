@@ -16,7 +16,6 @@ namespace SharedCore.Models
         public Account[]? Members { get; set; }
         public string? Image {  get; set; }
         public string? About { get; set; } = string.Empty;
-        public string? Photo { get; set; }
         public int ParticipantsCount { get; set; } = 0;
     }
 }

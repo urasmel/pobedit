@@ -88,9 +88,9 @@ namespace GatherMicroservice.Services.InfoService
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "GetAllUpdatedChannels");
+                _logger.LogError(exception, "GetAllChannels");
                 response.Success = false;
-                response.Message = "The error has occurred while getting all channels."+Environment.NewLine+exception.Message;
+                response.Message = "The error has occurred while getting all channels." + Environment.NewLine + exception.Message;
                 response.Data = Enumerable.Empty<ChannelDto>();
                 return response;
             }
@@ -137,6 +137,14 @@ namespace GatherMicroservice.Services.InfoService
                         {
                             var addedChat = _mapper.Map<SharedCore.Models.Channel>(chat);
                             addedChat.User = user;
+
+                            if (chat.Photo != null)
+                            {
+                                MemoryStream ms = new MemoryStream(1000000);
+                                Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chat, ms);
+                                addedChat.Image = Convert.ToBase64String(ms.ToArray());
+                            }
+
                             _context.Channels.Add(addedChat);
                         }
                     }
@@ -157,9 +165,9 @@ namespace GatherMicroservice.Services.InfoService
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "GetAllUpdatedChannels");
+                _logger.LogError(exception, "UpdateChannels");
                 response.Success = false;
-                response.Message = "The error while getting all updated channels occurred.";
+                response.Message = "The error while getting all updated channels occurred." + Environment.NewLine + exception.Message;
                 response.Data = Enumerable.Empty<long>();
                 return response;
             }
@@ -238,7 +246,7 @@ namespace GatherMicroservice.Services.InfoService
                     channelFullInfoDto.About = chatInfo.full_chat.About;
                     MemoryStream ms = new MemoryStream(1000000);
                     Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chat, ms);
-                    channelFullInfoDto.Photo = Convert.ToBase64String(ms.ToArray());
+                    channelFullInfoDto.Image = Convert.ToBase64String(ms.ToArray());
 
                     var channelDB = _context.Channels.Where(channel => channel.Id == chatId).FirstOrDefault();
                     if (channelDB == null)
@@ -251,7 +259,7 @@ namespace GatherMicroservice.Services.InfoService
 
                     // Сохраняем в БД.
                     channelDB.About = channelFullInfoDto.About;
-                    channelDB.Photo = channelFullInfoDto.Photo;
+                    channelDB.Image = channelFullInfoDto.Image;
                     channelDB.ParticipantsCount = channelFullInfoDto.ParticipantsCount;
                     await _context.SaveChangesAsync();
 
