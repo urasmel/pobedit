@@ -15,12 +15,15 @@ import React, {
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import LoginIcon from "@mui/icons-material/Login";
+import CloseIcon from "@mui/icons-material/Close";
 import {
     Dialog,
     DialogActions,
     DialogContent,
     DialogContentText,
     DialogTitle,
+    IconButton,
+    Snackbar,
     TextField,
 } from "@mui/material";
 import { Button } from "@mui/material";
@@ -46,6 +49,8 @@ export const Users = () => {
     const [accUsername, setAccUsername] = useState("");
     const [accPhoneNumber, setAccPhoneNumber] = useState("");
     const [accPassword, setAccPassword] = useState("");
+    const [openErrorMessage, setOpenErrorMessage] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     //const { fetchChannels: fetchChannels, setSelectedUser: setSelectedUser } = useMainStore();
 
     const fetchChannels = useMainStore(
@@ -59,10 +64,12 @@ export const Users = () => {
     useEffect(() => {
         const fetchData = async () => {
             const data = await fetchUsers();
-            if (data) {
+            if (data.length != 0) {
                 setUsers(data);
             } else {
                 setUsers([]);
+                setOpenErrorMessage(true);
+                setErrorMessage("Error loading users");
                 // TODO добавить обработку ошибок
             }
         };
@@ -208,6 +215,23 @@ export const Users = () => {
         fetchChannels(params.row["username"]);
     };
 
+    const handleErrorClose = () => {
+        setOpenErrorMessage(false);
+    };
+
+    const errorAction = (
+        <React.Fragment>
+            <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleErrorClose}
+            >
+                <CloseIcon fontSize="small" />
+            </IconButton>
+        </React.Fragment>
+    );
+
     return (
         <section className={styles.users}>
             <div style={{ height: 400 }}>
@@ -346,6 +370,14 @@ export const Users = () => {
                     <Button onClick={editUserSave_handler}>Save</Button>
                 </DialogActions>
             </Dialog>
+
+            <Snackbar
+                open={openErrorMessage}
+                autoHideDuration={6000}
+                onClose={handleErrorClose}
+                message={errorMessage}
+                action={errorAction}
+            />
         </section>
     );
 };

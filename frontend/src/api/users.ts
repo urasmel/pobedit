@@ -17,7 +17,7 @@ export const fetchUsers = async () => {
     const response = await fetch(request);
 
     if (!response.ok) {
-        return null;
+        return [];
     }
 
     const { data = [] } = await response.json();
