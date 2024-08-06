@@ -28,7 +28,7 @@ export interface MainState {
     fetchChannels: (username: string) => void;
     fetchUpdatedChannels: (username: string) => void;
     fetchChannelInfo: (username: string, channelId: number) => void;
-    fetchChannelPosts: (username: string, channelId: number) => void;
+    fetchChannelPosts: (username: string, channelId: number, offset: number, count: number) => Promise<boolean>;
     updateAndFetchChannelPosts: (username: string, channelId: number) => void;
     updateSelectedUser: (user: string) => void;
 }
@@ -171,35 +171,40 @@ export const useMainStore = create<MainState>()(
                     console.log(get().channelsInfos);
                 },
 
-                fetchChannelPosts: async (username: string, channelId: number) => {
+                fetchChannelPosts: async (username: string, channelId: number, offset = 0, count = 20) => {
 
-                    const request = new Request(`${channelProto}${channelDomain}:${channelPort}/users/${username}/channels/${channelId}/messages`,
-                        {
-                            method: 'GET',
-                            mode: 'cors',
-                            headers: {
-                                'Access-Control-Request-Method': 'GET',
-                                'Access-Control-Allow-Origin': '*',
-                                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
-                            },
-                            redirect: 'follow',
-                            cache: 'no-store'
-                        });
+                    try {
+                        const request = new Request(`${channelProto}${channelDomain}:${channelPort}/users/${username}/channels/${channelId}/messages?offset=${offset}&count=${count}`,
+                            {
+                                method: 'GET',
+                                mode: 'cors',
+                                headers: {
+                                    'Access-Control-Request-Method': 'GET',
+                                    'Access-Control-Allow-Origin': '*',
+                                    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
+                                },
+                                redirect: 'follow',
+                                cache: 'no-store'
+                            });
 
-                    const response = await fetch(request);
+                        const response = await fetch(request);
 
-                    if (!response.ok) {
-                        console.log("Error requesting channel's posts");
-                        return;
+                        if (!response.ok) {
+                            console.log("Error requesting channel's posts");
+                            return false;
+                        }
+
+                        const json = (await response.json() as ServiceResponse<Post[]>).data;
+                        set((state) => ({
+                            ...state,
+                            //channelsInfo: [...state.channelsInfo, json]
+                            //channelPostsDict: { ...state.channelPostsDict, channelId: [...state.channelPostsDict[channelId], ...json] }
+                            channelPostsDict: { channelId: channelId, posts: [...json] }
+                        }));
+                        return true;
+                    } catch (error) {
+                        return false;
                     }
-
-                    const json = (await response.json() as ServiceResponse<Post[]>).data;
-                    set((state) => ({
-                        ...state,
-                        //channelsInfo: [...state.channelsInfo, json]
-                        //channelPostsDict: { ...state.channelPostsDict, channelId: [...state.channelPostsDict[channelId], ...json] }
-                        channelPostsDict: { channelId: channelId, posts: [...json] }
-                    }));
                 },
 
                 updateAndFetchChannelPosts: async (username: string, channelId: number) => {
