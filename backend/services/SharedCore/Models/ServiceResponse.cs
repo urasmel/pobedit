@@ -1,4 +1,4 @@
-﻿namespace ControlService.Models
+﻿namespace SharedCore.Models
 {
     public class ServiceResponse<T>
     {

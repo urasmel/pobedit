@@ -1,5 +1,4 @@
 ﻿using ControlMicroservice.Filtering;
-using ControlService.Models;
 using ControlService.Services.UserService;
 using Microsoft.AspNetCore.Mvc;
 using SharedCore.Dtos.User;

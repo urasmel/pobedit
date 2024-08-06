@@ -1,5 +1,4 @@
-﻿using ControlService.Models;
-using SharedCore.Models;
+﻿using SharedCore.Models;
 
 namespace ControlService.Data
 {

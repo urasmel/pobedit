@@ -1,14 +1,13 @@
-import { useEffect } from 'react';
-import styles from './ChannelInfo.module.css';
-import { MainState, useMainStore } from '@/store/MainStore';
+import { useEffect } from "react";
+import styles from "./ChannelInfo.module.css";
+import { MainState, useMainStore } from "@/store/MainStore";
 
 export const ChannelInfo = () => {
+    const channelFullInfo = useMainStore(
+        (state: MainState) => state.selectedChannelFullInfo
+    );
 
-    const channelFullInfo = useMainStore((state: MainState) => state.selectedChannelFullInfo);
-
-    useEffect(() => {
-        console.log(channelFullInfo);
-    }, []);
+    useEffect(() => {}, []);
 
     if (!channelFullInfo) {
         return null;
@@ -16,10 +15,11 @@ export const ChannelInfo = () => {
 
     return (
         <div className={styles.info}>
-
             <div className={styles.info__title}>
                 <div className={styles.info__photo}>
-                    <img src={`data:image/jpeg;base64,${channelFullInfo.channelPhoto}`} />
+                    <img
+                        src={`data:image/jpeg;base64,${channelFullInfo.image}`}
+                    />
                 </div>
                 <div className={styles.info__about}>
                     {channelFullInfo.about}
@@ -29,7 +29,6 @@ export const ChannelInfo = () => {
             <div className={styles.info__desc}>
                 Participants count: {channelFullInfo.participantsCount}
             </div>
-
         </div>
     );
 };

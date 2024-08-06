@@ -1,6 +1,9 @@
 User - учетная запись телеграмма в БД, от которой идет скачивание информации
 Account - учетная запись остальных пользвателей телеграмма.
 
+#Chat
+The term Chat is used to talk about small group chats
+
 #Channels
 Channels are a tool for broadcasting your messages to large audiences.
 

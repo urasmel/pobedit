@@ -1,4 +1,8 @@
+/* @import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i'); */
+@import url('../../../assets/fonts/roboto.css');
+
 .badge {
+    font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -13,7 +17,6 @@
     cursor: pointer;
     user-select: none;
     white-space: nowrap;
-    font-size: 1.25rem;
     line-height: 1.625;
     letter-spacing: 0.00938em;
     background: transparent;

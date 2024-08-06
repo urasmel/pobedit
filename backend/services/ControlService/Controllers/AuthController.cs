@@ -1,6 +1,5 @@
 ﻿using ControlService.Data;
 using SharedCore.Dtos.User;
-using ControlService.Models;
 using Microsoft.AspNetCore.Mvc;
 using SharedCore.Models;
 
@@ -20,7 +19,7 @@ namespace ControlService.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<ServiceResponse<int>>> Register(UserRegisterDto request)
         {
-            var response = await _authRepo.Register(new Account { Username = request.Username }, request.Password);
+            var response = await _authRepo.Register(new Account { AccountName = request.Username }, request.Password);
             if (!response.Success)
             {
                 return BadRequest(response);

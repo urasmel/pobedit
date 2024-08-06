@@ -13,6 +13,7 @@
 .info {
     display: flex;
     flex-wrap: wrap;
+    flex: 1 1 auto;
     gap: 1rem;
     justify-content: space-between;
     column-count: 1;

@@ -1,12 +1,8 @@
-import './index.scss';
-import AppRouter from 'pages/index';
+import "./index.scss";
+import AppRouter from "pages/index";
 
 function App() {
-    return (
-        <div className="app">
-            <AppRouter />
-        </div>
-    );
+    return <AppRouter />;
 }
 
 export default App;

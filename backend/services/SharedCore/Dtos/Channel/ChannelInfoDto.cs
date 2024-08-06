@@ -1,10 +1,10 @@
 ﻿namespace SharedCore.Dtos.Channel
 {
-    public class ChannelFullInfoDto
+    public class ChannelInfoDto
     {
-        public long ChatId { get; set; }
+        public long Id { get; set; }
         public string About { get; set; } = string.Empty;
         public int ParticipantsCount { get; set; } = 0;
-        public string ChatPhoto { get; set; } = string.Empty;
+        public string Image { get; set; } = string.Empty;
     }
 }

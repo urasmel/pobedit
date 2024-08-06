@@ -5,14 +5,15 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using TL;
 using GatherMicroservice.Dtos;
+using SharedCore.Models;
 
 namespace GatherMicroservice.Services
 {
     public class LoginService : ILoginService
     {
         ILogger _logger;
-        WTelegram.Client _client;
-        User user;
+        WTelegram.Client? _client;
+        TL.User? user;
 
         public LoginService(ILogger<LoginService> logger)
         {
@@ -21,36 +22,48 @@ namespace GatherMicroservice.Services
 
         public async Task<ServiceResponse<long>> Login(LoginDto loginDto)
         {
-            Func<string, string> Config = what =>
-            {
-                if (what == "api_id") return "15877832";
-                if (what == "api_hash") return "5286817305a3075d7157aa4cab822335";
-                if (what == "phone_number") return loginDto.PhoneNumber;
-                if (what == "verification_code") return null; // let WTelegramClient ask the user with a console prompt 
-                //if (what == "first_name") return loginDto.FirstName;      // if sign-up is required
-                //if (what == "last_name") return loginDto.LastName;        // if sign-up is required
-                if (what == "password") return loginDto.Password;     // if user has enabled 2FA
-                return null;
-            };
-
             var response = new ServiceResponse<long>();
-            _client = new WTelegram.Client(Config);
-            user = await _client.LoginUserIfNeeded();
 
-            if (user == null)
+            try
+            {
+                Func<string, string> Config = what =>
+                {
+                    if (what == "api_id") return "15877832";
+                    if (what == "api_hash") return "5286817305a3075d7157aa4cab822335";
+                    if (what == "phone_number") return loginDto.PhoneNumber;
+                    if (what == "verification_code") return null; // let WTelegramClient ask the user with a console prompt 
+                                                                  //if (what == "first_name") return loginDto.FirstName;      // if sign-up is required
+                                                                  //if (what == "last_name") return loginDto.LastName;        // if sign-up is required
+                    if (what == "password") return loginDto.Password;     // if user has enabled 2FA
+                    return string.Empty;
+                };
+
+                _client = new WTelegram.Client(Config);
+                user = await _client.LoginUserIfNeeded();
+
+                if (user == null)
+                {
+                    response.Success = false;
+                    response.Message = "Access denied";
+                }
+                else
+                {
+                    response.Success = true;
+                    response.Message = "Login successfully";
+                    response.Data = user.ID;
+                }
+
+                return response;
+            }
+            catch (Exception)
             {
                 response.Success = false;
                 response.Message = "Login error";
-            }
-            else
-            {
-                response.Success = true;
-                response.Message = "Login successfully";
-                response.Data = user.ID;
+                return response;
             }
 
-            return response;
 
+            #region 
             //_logger.LogDebug($"We are logged-in as {user.username ?? user.first_name + " " + user.last_name} (id {user.id})");
 
             //var chats = await _client.Messages_GetAllChats(); // chats = groups/channels (does not include users dialogs)
@@ -70,6 +83,7 @@ namespace GatherMicroservice.Services
             //    }
 
             //_logger.LogDebug("Type a chat ID to send a message: ");
+            #endregion
         }
     }
 }

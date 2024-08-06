@@ -1,5 +1,4 @@
 ﻿using SharedCore.Dtos.User;
-using ControlService.Models;
 using SharedCore.Models;
 
 namespace ControlService.Services.UserService

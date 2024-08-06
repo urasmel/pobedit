@@ -2,6 +2,7 @@
 using GatherMicroservice.Models;
 using GatherMicroservice.Dtos;
 using GatherMicroservice.Services;
+using SharedCore.Models;
 
 namespace GatherMicroservice.Controllers
 {
@@ -16,7 +17,7 @@ namespace GatherMicroservice.Controllers
             _loginService = loginService;
         }
 
-        [HttpGet("/login")]
+        [HttpPost("/login")]
         public async Task<ActionResult<ServiceResponse<int>>> Login(LoginDto loginDto)
         {
             var response = await _loginService.Login(loginDto);

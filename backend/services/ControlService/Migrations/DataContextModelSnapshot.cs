@@ -24,11 +24,14 @@ namespace ControlService.Migrations
 
             modelBuilder.Entity("SharedCore.Models.Account", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<long>("AccountId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("AccountId"));
+
+                    b.Property<string>("AccountName")
+                        .HasColumnType("text");
 
                     b.Property<string>("Bio")
                         .HasColumnType("text");
@@ -39,10 +42,7 @@ namespace ControlService.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<string>("Username")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
+                    b.HasKey("AccountId");
 
                     b.HasIndex("ChannelId");
 
@@ -81,11 +81,11 @@ namespace ControlService.Migrations
 
             modelBuilder.Entity("SharedCore.Models.Post", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<long>("PostId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("PostId"));
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
@@ -97,18 +97,18 @@ namespace ControlService.Migrations
                     b.Property<long>("PeerId")
                         .HasColumnType("bigint");
 
-                    b.HasKey("Id");
+                    b.HasKey("PostId");
 
                     b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("SharedCore.Models.User", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<long>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("UserId"));
 
                     b.Property<string>("Password")
                         .HasColumnType("text");
@@ -119,14 +119,14 @@ namespace ControlService.Migrations
                     b.Property<string>("Username")
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
                     b.ToTable("Users");
 
                     b.HasData(
                         new
                         {
-                            Id = 1L,
+                            UserId = 1L,
                             Password = "pass",
                             PhoneNumber = "+79123456789",
                             Username = "firstUser"

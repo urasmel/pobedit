@@ -1,4 +1,5 @@
 ﻿using GatherMicroservice.Models;
+using SharedCore.Models;
 
 namespace GatherMicroservice.Services
 {
