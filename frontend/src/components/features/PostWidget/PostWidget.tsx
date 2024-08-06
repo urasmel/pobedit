@@ -16,7 +16,7 @@ const PostWidget = (post: Post) => {
                 {new Date(post.date).toLocaleString("ru-RU")}
             </div>
             <div className={styles["widget__message-container"]}>
-                <div className={styles["widget__message"]}>{post.message}</div>
+                <pre className={styles["widget__message"]}>{post.message}</pre>
             </div>
         </div>
     );

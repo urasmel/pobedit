@@ -12,7 +12,7 @@ namespace GatherMicroservice.Services
 
         Task<ServiceResponse<IEnumerable<long>>> UpdateChannels(string username);
 
-        Task<ServiceResponse<int>> DownloadChannelUpdates(string username, long chatId);
+        Task<ServiceResponse<int>> UpdateChannelPosts(string username, long chatId);
 
         Task<ServiceResponse<ChannelInfoDto>> UpdateChannelInfo(string username, long chatId);
 

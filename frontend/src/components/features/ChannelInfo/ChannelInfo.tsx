@@ -18,7 +18,7 @@ export const ChannelInfo = () => {
             <div className={styles.info__title}>
                 <div className={styles.info__photo}>
                     <img
-                        src={`data:image/jpeg;base64,${channelFullInfo.channelPhoto}`}
+                        src={`data:image/jpeg;base64,${channelFullInfo.image}`}
                     />
                 </div>
                 <div className={styles.info__about}>

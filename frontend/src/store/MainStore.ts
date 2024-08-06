@@ -51,7 +51,15 @@ export const useMainStore = create<MainState>()(
 
                 setSelectedUser: (username: string) => {
                     console.log("set user: " + username);
-                    set({ selectedUser: username });
+                    // set({ selectedUser: username });
+
+                    set((state) => ({
+                        ...state,
+                        //channelsInfo: [...state.channelsInfo, json]
+                        //channelPostsDict: { ...state.channelPostsDict, channelId: [...state.channelPostsDict[channelId], ...json] }
+                        selectedUser: username
+                    }));
+                    console.log("user is: " + get().selectedUser);
                 },
 
                 fetchChannels: async (username: string) => {
@@ -124,7 +132,9 @@ export const useMainStore = create<MainState>()(
 
                 fetchChannelInfo: async (username: string, channelId: number) => {
 
-                    if (get().channelsInfos.filter(item => item.channelId === channelId).length === 0) {
+                    console.log("fetching user is: " + username);
+
+                    if (get().channelsInfos.filter(item => item.id === channelId).length === 0) {
 
                         const request = new Request(`${channelProto}${channelDomain}:${channelPort}/users/${username}/channels/${channelId}/info`,
                             {
@@ -157,7 +167,7 @@ export const useMainStore = create<MainState>()(
                     }
 
                     //set({ selectedChannelFullInfo: get().channelsInfos[0] });
-                    set({ selectedChannelFullInfo: get().channelsInfos.filter(item => item.channelId === channelId)[0] });
+                    set({ selectedChannelFullInfo: get().channelsInfos.filter(item => item.id === channelId)[0] });
                     console.log(get().channelsInfos);
                 },
 

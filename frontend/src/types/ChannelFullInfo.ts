@@ -1,6 +1,6 @@
 export type ChannelFullInfo = {
-    channelId: number;
+    id: number;
     about: string;
     participantsCount: number;
-    channelPhoto: string;
+    image: string;
 };

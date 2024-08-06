@@ -61,7 +61,7 @@ const Channels = () => {
         (state: MainState) => state.fetchUpdatedChannels
     );
 
-    let user = useMainStore((state: MainState) => state.selectedUser);
+    const user = useMainStore((state: MainState) => state.selectedUser);
 
     useEffect(() => {
         const fetchData = async (username: string) => {
@@ -83,42 +83,37 @@ const Channels = () => {
         []
     );
 
-    const columns = useMemo<GridColDef<Channel>[]>(
-        () => [
-            { field: "id", headerName: "ID", width: 100 },
-            { field: "title", headerName: "Title", flex: 1 },
-            { field: "mainUsername", headerName: "Owner", flex: 1 },
-            {
-                field: "isChannel",
-                headerName: "Is channel",
-                type: "boolean",
-                width: 100,
-            },
-            {
-                field: "isGroup",
-                headerName: "Is group",
-                type: "boolean",
-                width: 100,
-            },
-            {
-                field: "actions",
-                type: "actions",
-                flex: 1,
-                headerName: "Actions",
-                getActions: (params: GridRowParams) => [
-                    <GridActionsCellItem
-                        key={0}
-                        icon={<InfoIcon />}
-                        label="Show info"
-                        onClick={() =>
-                            handleChannelInfoIconClick(params.row.id)
-                        }
-                    />,
-                ],
-            },
-        ],
-        []
-    );
+    const columns = useMemo<GridColDef<Channel>[]>(() => [
+        { field: "id", headerName: "ID", width: 100 },
+        { field: "title", headerName: "Title", flex: 1 },
+        { field: "mainUsername", headerName: "Owner", flex: 1 },
+        {
+            field: "isChannel",
+            headerName: "Is channel",
+            type: "boolean",
+            width: 100,
+        },
+        {
+            field: "isGroup",
+            headerName: "Is group",
+            type: "boolean",
+            width: 100,
+        },
+        {
+            field: "actions",
+            type: "actions",
+            flex: 1,
+            headerName: "Actions",
+            getActions: (params: GridRowParams) => [
+                <GridActionsCellItem
+                    key={0}
+                    icon={<InfoIcon />}
+                    label="Show info"
+                    onClick={() => handleChannelInfoIconClick(params.row.id)}
+                />,
+            ],
+        },
+    ]);
 
     const onBtnClickOpenAddChannel = () => {};
 

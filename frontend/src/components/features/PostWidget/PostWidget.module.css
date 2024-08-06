@@ -28,7 +28,8 @@
 .widget__message {
     min-height: 60px;
     background: #333;
-    padding: 24px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
     background: rgb(248, 249, 250);
     color: rgb(52, 71, 103);
     border-radius: 0.75rem;

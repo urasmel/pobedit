@@ -8,6 +8,7 @@ using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
 using SharedCore.Models;
 using System;
+using System.Text.Json;
 using TL;
 
 namespace GatherMicroservice.Services.InfoService
@@ -133,19 +134,32 @@ namespace GatherMicroservice.Services.InfoService
                     // Добавляем новые в БД.
                     foreach (var chat in chatsFromTG)
                     {
-                        if (!_context.Channels.Any(channel => channel.Id == chat.ID))
+                        try
                         {
-                            var addedChat = _mapper.Map<SharedCore.Models.Channel>(chat);
-                            addedChat.User = user;
-
-                            if (chat.Photo != null)
+                            if (!_context.Channels.Any(channel => channel.Id == chat.ID))
                             {
-                                MemoryStream ms = new MemoryStream(1000000);
-                                Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chat, ms);
-                                addedChat.Image = Convert.ToBase64String(ms.ToArray());
-                            }
+                                var addedChat = _mapper.Map<SharedCore.Models.Channel>(chat);
+                                var channelFullInfo = await _client.GetFullChat(chat);
 
-                            _context.Channels.Add(addedChat);
+                                addedChat.User = user;
+                                addedChat.About = channelFullInfo.full_chat.About;
+                                addedChat.ParticipantsCount = channelFullInfo.full_chat.ParticipantsCount;
+
+                                if (chat.Photo != null)
+                                {
+                                    MemoryStream ms = new MemoryStream(1000000);
+                                    Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chat, ms);
+                                    addedChat.Image = Convert.ToBase64String(ms.ToArray());
+                                }
+                                _context.Channels.Add(addedChat);
+                            }
+                        }
+                        catch (Exception exception)
+                        {
+                            _logger.LogError(
+                                exception.Message + Environment.NewLine +
+                                exception.StackTrace + Environment.NewLine +
+                                $"channel is: {chat.Title}", "UpdateChannels");
                         }
                     }
 
@@ -578,7 +592,7 @@ namespace GatherMicroservice.Services.InfoService
             }
         }
 
-        public async Task<ServiceResponse<int>> DownloadChannelUpdates(string username, long chatId)
+        public async Task<ServiceResponse<int>> UpdateChannelPosts(string username, long chatId)
         {
             var response = new ServiceResponse<int>();
 
@@ -604,13 +618,15 @@ namespace GatherMicroservice.Services.InfoService
 
                 // Получаем из БД последнее сообщение, канала.
                 var postFromDb = _context.Posts.Where(post => post.PeerId == chatId).OrderBy(post => post.PostId).LastOrDefault();
-                int offset_id = 0;
+                int startOffsetId = 0;
+                int endOffsetId = 0;
+
 
                 // Если пусто, запрашиваем у телеграмма один пост на 31.12.2023.
                 // Его id используем для запроса новых постов канала как смещение.
                 if (postFromDb == null)
                 {
-                    var lastMessagesBase = await _client.Messages_GetHistory(peer, 0, startLoadingDate, 0, 1);
+                    var lastMessagesBase = await _client.Messages_GetHistory(peer, 0, DateTime.Now, 0, 1);
                     if (lastMessagesBase is not Messages_ChannelMessages channelMessages)
                     {
                         response.Success = false;
@@ -626,35 +642,57 @@ namespace GatherMicroservice.Services.InfoService
                     }
 
                     var msgBase = channelMessages.messages[0];
-                    offset_id = msgBase.ID;
+                    startOffsetId = msgBase.ID;
+
+
+
+                    lastMessagesBase = await _client.Messages_GetHistory(peer, 0, startLoadingDate, 0, 1);
+                    if (lastMessagesBase is not Messages_ChannelMessages end_channelMessages)
+                    {
+                        response.Success = false;
+                        response.Message = "Channel peer is not ChannelMessages";
+                        return response;
+                    }
+
+                    if (channelMessages.count == 0)
+                    {
+                        response.Success = false;
+                        response.Message = "No data";
+                        return response;
+                    }
+
+                    msgBase = end_channelMessages.messages[0];
+                    endOffsetId = msgBase.ID;
                 }
 
                 // Если не пусто, то его id используем для запроса новых постов канала как смещение.
                 else
                 {
-                    offset_id = (int)postFromDb.PostId;
+                    endOffsetId = (int)postFromDb.PostId;
                 }
 
                 // Возможно потом пригодится.
                 var messages = new List<PostDto>();
                 bool needStop = false;
 
-                for (int offset = 0; ;)
+                while (true)
                 {
                     var messagesBase = await _client.Messages_GetHistory(
                         peer,
-                        offset);
-                    if (messagesBase is not Messages_ChannelMessages channelMessages) break;
+                        startOffsetId);
 
-                    foreach (var msgBase in channelMessages.messages)
+                    if (messagesBase is not Messages_ChannelMessages channelMessages) break;
+                    //var msgBase in channelMessages.messages
+                    for (int index = 0; index < channelMessages.messages.Length; index++)
                     {
-                        if (msgBase.ID <= offset_id)
+                        if (channelMessages.messages[index].ID <= endOffsetId)
                         {
                             needStop = true;
                             break;
                         }
 
-                        if (msgBase is TL.Message msg && !string.IsNullOrEmpty(msg.message))
+                        // TODO Если текста нет, то отбрасываем. Исправить потом, чтобы все ел.
+                        if (channelMessages.messages[index] is TL.Message msg && !string.IsNullOrEmpty(msg.message))
                         {
                             var postDto = _mapper.Map<PostDto>(msg);
                             var postToDb = _mapper.Map<Post>(msg);
@@ -662,10 +700,16 @@ namespace GatherMicroservice.Services.InfoService
                             await _context.Posts.AddAsync(postToDb);
                             messages.Add(postDto);
                         }
-                        if (needStop)
+
+                        if (index == channelMessages.messages.Length - 1)
                         {
-                            break;
+                            startOffsetId = channelMessages.messages[index].ID;
                         }
+                    }
+
+                    if (needStop)
+                    {
+                        break;
                     }
                 }
                 await _context.SaveChangesAsync();

@@ -97,7 +97,7 @@ namespace GatherMicroservice.Controllers
         [HttpGet("/users/{username}/channels/{channelId}/updated_messages")]
         public async Task<ActionResult<List<PostDto>>> UpdateAndFetchChannelPosts(string username, int channelId)
         {
-            var response = await _infoService.DownloadChannelUpdates(username, channelId);
+            var response = await _infoService.UpdateChannelPosts(username, channelId);
             if (!response.Success)
             {
                 return BadRequest(response);
