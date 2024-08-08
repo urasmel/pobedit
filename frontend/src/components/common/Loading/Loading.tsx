@@ -1,9 +1,16 @@
-import React from 'react'
+import { LoadingProps } from "@/types/Props/LoadingProps";
+import { Box, CircularProgress } from "@mui/material";
 
-const Loading = () => {
-  return (
-    <div>Loading...</div>
-  )
-}
+const Loading = (props: LoadingProps) => {
+    return (
+        props.IsLoading
+            ?
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 200, minWidth: 300, alignSelf: "center" }}>
+                <CircularProgress />
+            </Box>
+            :
+            <></>
+    );
+};
 
-export default Loading
+export default Loading;

@@ -301,8 +301,8 @@ namespace GatherMicroservice.Services.InfoService
                 //var count = await _context.Posts.Where(p => p.PeerId == chatId).Take(2).CountAsync();
                 //var isFirstQuery = count == 0;
 
-                var chats = await _client.Messages_GetAllChats();
-                InputPeer peer = chats.chats.First(chat => chat.Key == chatId).Value;
+                //var chats = await _client.Messages_GetAllChats();
+                //0InputPeer peer = chats.chats.First(chat => chat.Key == chatId).Value;
 
                 //if (isFirstQuery)
                 //{
@@ -381,7 +381,7 @@ namespace GatherMicroservice.Services.InfoService
                     return response;
                 }
 
-                var posts = _context.Posts.Where(post => post.PeerId == chatId).Skip(offset).Take(count);
+                var posts = _context.Posts.Where(post => post.PeerId == chatId).OrderByDescending(item => item.Id).Skip(offset).Take(count);
                 response.Data = _mapper.Map<List<PostDto>>(posts);
                 response.Success = true;
                 return response;
