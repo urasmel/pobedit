@@ -55,7 +55,7 @@ builder.Services.AddSingleton<IConfigUtils, ConfigUtils>();
 builder.Services.AddSingleton<GatherClient>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IGatherService, GatherService>();
-builder.Services.AddSingleton<IInfoService, InfoService>();
+builder.Services.AddScoped<IInfoService, InfoService>();
 
 var app = builder.Build();
 

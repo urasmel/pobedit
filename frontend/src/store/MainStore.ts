@@ -190,7 +190,7 @@ export const useMainStore = create<MainState>()(
                         const response = await fetch(request);
 
                         if (!response.ok) {
-                            console.log("Error requesting channel's posts");
+                            console.log("Error requesting channel's posts!!!!!!");
                             return false;
                         }
 
@@ -199,7 +199,7 @@ export const useMainStore = create<MainState>()(
                             ...state,
                             //channelsInfo: [...state.channelsInfo, json]
                             //channelPostsDict: { ...state.channelPostsDict, channelId: [...state.channelPostsDict[channelId], ...json] }
-                            channelPostsDict: { channelId: channelId, posts: [...json] }
+                            channelPostsDict: { channelId: channelId, posts: [...state.channelPostsDict.posts, ...json] }
                         }));
                         return true;
                     } catch (error) {
@@ -233,7 +233,7 @@ export const useMainStore = create<MainState>()(
                         ...state,
                         //channelsInfo: [...state.channelsInfo, json]
                         //channelPostsDict: { ...state.channelPostsDict, channelId: [...state.channelPostsDict[channelId], ...json] }
-                        channelPostsDict: { channelId: channelId, posts: [...json] }
+                        channelPostsDict: { channelId: channelId, posts: [...state.channelPostsDict.posts, ...json] }
                     }));
                 },
 
