@@ -15,5 +15,6 @@ namespace GatherMicroservice.Data
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Channel> Channels { get; set; }
         public DbSet<Post> Posts { get; set; }
+        public DbSet<Comment> Comments { get; set; }
     }
 }

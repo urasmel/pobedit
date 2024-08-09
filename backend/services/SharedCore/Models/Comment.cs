@@ -10,11 +10,18 @@ namespace SharedCore.Models
     public class Comment
     {
         public int Id { get; set; }
+
+        public int CommentId { get; set; }
+
+        public int ChannelId {  get; set; }
+
         [Required]
         public Account Author { get; set; }
-        public string Text { get; set; } = string.Empty;
-        public DateTime CreatedOrEdited;
-        public bool Edited { get; set; }
-        public int ReferenceToComment {  get; set; }
+
+        public string Message { get; set; } = string.Empty;
+
+        public DateTime Date;
+
+        public int ReplyTo {  get; set; }
     }
 }

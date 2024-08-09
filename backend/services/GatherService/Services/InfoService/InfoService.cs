@@ -10,6 +10,7 @@ using SharedCore.Models;
 using System;
 using System.Text.Json;
 using TL;
+using WTelegram;
 
 namespace GatherMicroservice.Services.InfoService
 {
@@ -691,13 +692,43 @@ namespace GatherMicroservice.Services.InfoService
                             break;
                         }
 
+                        // TODO Тестируем этот код.
                         // TODO Если текста нет, то отбрасываем. Исправить потом, чтобы все ел.
                         if (channelMessages.messages[index] is TL.Message msg && !string.IsNullOrEmpty(msg.message))
                         {
                             var postDto = _mapper.Map<PostDto>(msg);
                             var postToDb = _mapper.Map<Post>(msg);
 
+                            // Получили комментарии.
+                            var replies = await _client.Messages_GetReplies(peer, msg.ID);
+                            var client_comments = replies.Messages;
+
+                            // Преобразовали их в класс типа из наших моделей.
+                            List<Comment> comments = _mapper.Map<List<Comment>>(client_comments);
+
+                            // Для кажддого комментария получили его автора.
+                            // Преобразровали в объект класса из наших моделей.
+                            // Добавили к комментариям.
+                            for (int commentIndex = 0; commentIndex < comments.Count; commentIndex++)
+                            {
+                                var userId = replies.Messages[commentIndex].From.ID;
+                                var inputUserFromMessage = new InputUserFromMessage
+                                {
+                                    // ???????
+                                    //msg_id = msg.id,
+                                    msg_id = replies.Messages[commentIndex].ID,
+                                    // ???????
+                                    peer = peer,
+                                    user_id = userId
+                                };
+                                var fullUser = await _client.Users_GetFullUser(inputUserFromMessage);
+                                var acc = _mapper.Map<Account>(fullUser);
+                                comments[commentIndex].Author = acc;
+                            }
+
+
                             await _context.Posts.AddAsync(postToDb);
+                            await _context.Comments.AddRangeAsync(comments);
                             messages.Add(postDto);
                         }
 
