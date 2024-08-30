@@ -1,7 +1,6 @@
 import { Channel } from '@/models/channel';
 import { create } from 'zustand';
-import { channelDomain, channelPort, channelProto } from '../constants/constants';
-import { produce } from 'immer';
+import { channelDomain, channelPort, channelProto, channelApiVersion } from '../constants/constants';
 import { immer } from 'zustand/middleware/immer';
 import { devtools } from 'zustand/middleware';
 import { ServiceResponse } from '@/types/ServiceResponse';
@@ -16,7 +15,6 @@ export interface MainState {
     error: string;
     isError: boolean;
     channelsInfos: ChannelFullInfo[];
-    //channelPostsDict: Record<number, Post[]>[];
     channelPostsDict: {
         channelId: number;
         posts: Post[];
@@ -55,15 +53,13 @@ export const useMainStore = create<MainState>()(
 
                     set((state) => ({
                         ...state,
-                        //channelsInfo: [...state.channelsInfo, json]
-                        //channelPostsDict: { ...state.channelPostsDict, channelId: [...state.channelPostsDict[channelId], ...json] }
                         selectedUser: username
                     }));
                     console.log("user is: " + get().selectedUser);
                 },
 
                 fetchChannels: async (username: string) => {
-                    const url = `${channelProto}${channelDomain}:${channelPort}/users/${username}/channels`;
+                    const url = `${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/users/${username}/channels`;
                     const request = new Request(url,
                         {
                             method: 'GET',
@@ -97,7 +93,7 @@ export const useMainStore = create<MainState>()(
                 },
 
                 fetchUpdatedChannels: async (username: string) => {
-                    const url = `${channelProto}${channelDomain}:${channelPort}/users/${username}/updated_channels`;
+                    const url = `${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/users/${username}/updated_channels`;
                     const request = new Request(url,
                         {
                             method: 'GET',
@@ -136,7 +132,7 @@ export const useMainStore = create<MainState>()(
 
                     if (get().channelsInfos.filter(item => item.id === channelId).length === 0) {
 
-                        const request = new Request(`${channelProto}${channelDomain}:${channelPort}/users/${username}/channels/${channelId}/info`,
+                        const request = new Request(`${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/users/${username}/channels/${channelId}/info`,
                             {
                                 method: 'GET',
                                 mode: 'cors',
@@ -174,7 +170,7 @@ export const useMainStore = create<MainState>()(
                 fetchChannelPosts: async (username: string, channelId: number, offset = 0, count = 20) => {
 
                     try {
-                        const request = new Request(`${channelProto}${channelDomain}:${channelPort}/users/${username}/channels/${channelId}/messages?offset=${offset}&count=${count}`,
+                        const request = new Request(`${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/info/users/${username}/channels/${channelId}/messages?offset=${offset}&count=${count}`,
                             {
                                 method: 'GET',
                                 mode: 'cors',
@@ -197,8 +193,6 @@ export const useMainStore = create<MainState>()(
                         const json = (await response.json() as ServiceResponse<Post[]>).data;
                         set((state) => ({
                             ...state,
-                            //channelsInfo: [...state.channelsInfo, json]
-                            //channelPostsDict: { ...state.channelPostsDict, channelId: [...state.channelPostsDict[channelId], ...json] }
                             channelPostsDict: { channelId: channelId, posts: [...state.channelPostsDict.posts, ...json] }
                         }));
                         return true;
@@ -208,7 +202,7 @@ export const useMainStore = create<MainState>()(
                 },
 
                 updateAndFetchChannelPosts: async (username: string, channelId: number) => {
-                    const request = new Request(`${channelProto}${channelDomain}:${channelPort}/users/${username}/channels/${channelId}/updated_messages`,
+                    const request = new Request(`${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/info/users/${username}/channels/${channelId}/updated_messages`,
                         {
                             method: 'GET',
                             mode: 'cors',

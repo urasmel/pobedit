@@ -3,35 +3,65 @@ using ControlService.Data;
 using SharedCore.Dtos.User;
 using Microsoft.EntityFrameworkCore;
 using SharedCore.Models;
+using System.Net;
+using System.Collections;
+using SharedCore.Dtos.Channel;
 
 namespace ControlService.Services.UserService
 {
     public class UserService : IUserService
     {
+        ILogger _logger;
         private readonly IMapper _mapper;
         private readonly DataContext _context;
 
-        public UserService(IMapper mapper, DataContext context)
+        public UserService(IMapper mapper, DataContext context, ILogger<UserService> logger)
         {
             _mapper = mapper;
             _context = context;
+            _logger = logger;
         }
 
         public async Task<ServiceResponse<GetUserDto>> GetUserIdAsync(int id)
         {
-            var serviceResponse = new ServiceResponse<GetUserDto>();
-            var dbUser = await _context.Users
-                .FirstOrDefaultAsync(c => c.UserId == id);
-            serviceResponse.Data = _mapper.Map<GetUserDto>(dbUser);
-            return serviceResponse;
+            var response = new ServiceResponse<GetUserDto>();
+            try
+            {
+                var dbUser = await _context.Users.FirstOrDefaultAsync(c => c.UserId == id);
+                if (dbUser == null)
+                {
+                    response.Message = "User not found";
+                }
+                else
+                {
+                    response.Data = _mapper.Map<GetUserDto>(dbUser);
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Message = "Server error";
+                response.Success = false;
+                _logger.Log(LogLevel.Error, ex.Message);
+            }
+            return response;
         }
 
-        public async Task<ServiceResponse<List<GetUserDto>>> GetAllUsersAsync()
+        public async Task<ServiceResponse<IEnumerable<GetUserDto>>> GetAllUsersAsync()
         {
-            var response = new ServiceResponse<List<GetUserDto>>();
-            var dbUsers = await _context.Users.ToListAsync();
-            response.Data = dbUsers.Select(a => _mapper.Map<GetUserDto>(a)).ToList();
-            return response;
+            var response = new ServiceResponse<IEnumerable<GetUserDto>>();
+            try
+            {
+                var dbUsers = await _context.Users.ToListAsync();
+                response.Data = dbUsers.Select(a => _mapper.Map<GetUserDto>(a)).ToList();
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Data = Enumerable.Empty<GetUserDto>();
+                response.Message = "Server error";
+                return response;
+            }
         }
 
         public async Task<ServiceResponse<int>> AddUserAsync(AddUserDto newUser)
@@ -43,8 +73,10 @@ namespace ControlService.Services.UserService
             {
                 response.Success = false;
                 response.Message = "User already exists";
+                return response;
             }
-            else
+
+            try
             {
                 User user = _mapper.Map<User>(newUser);
 
@@ -52,11 +84,17 @@ namespace ControlService.Services.UserService
                 await _context.SaveChangesAsync();
                 response.Data = _context.Users
                     .Where(a => a.Password == user.Password && a.Username == user.Username)
-                    .Select(a => _mapper.Map<GetUserDto>(a).Id).First();
+                    .Select(a => _mapper.Map<GetUserDto>(a).UserId).First();
                 response.Success = true;
+                return response;
             }
-
-            return response;
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = "An error occurred while creating the user";
+                _logger.Log(LogLevel.Error, ex.Message);
+                return response;
+            }
         }
 
         public async Task<ServiceResponse<GetUserDto>> DeleteUserAsync(int id)
@@ -78,14 +116,15 @@ namespace ControlService.Services.UserService
                     response.Success = false;
                     response.Message = "User not found";
                 }
+                return response;
             }
             catch (Exception ex)
             {
                 response.Success = false;
-                response.Message = ex.Message;
+                response.Message = "An error occurred while deleting the user";
+                _logger.Log(LogLevel.Error, ex.Message);
+                return response;
             }
-
-            return response;
         }
 
         public async Task<ServiceResponse<GetUserDto>> EditUserAsync(User userParam)
@@ -97,7 +136,7 @@ namespace ControlService.Services.UserService
                 User? userInDb = await _context.Users
                     .FirstOrDefaultAsync(a => a.UserId == userParam.UserId);
 
-                if (_context.Users.Any(a => a.Username == userParam.Username && userInDb.UserId!=userParam.UserId))
+                if (_context.Users.Any(a => a.Username == userParam.Username && userInDb.UserId != userParam.UserId))
                 {
                     response.Success = false;
                     response.Message = " with this username already exists";
@@ -126,7 +165,8 @@ namespace ControlService.Services.UserService
             catch (Exception ex)
             {
                 response.Success = false;
-                response.Message = ex.Message;
+                response.Message = "Фn error occurred while editing the user";
+                _logger.Log(LogLevel.Error, ex.Message);
             }
 
             return response;

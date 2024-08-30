@@ -1,4 +1,6 @@
-﻿namespace SharedCore.Models
+﻿using System.Net;
+
+namespace SharedCore.Models
 {
     public class ServiceResponse<T>
     {

@@ -1,11 +1,37 @@
 using ControlService.Data;
 using ControlService.Services.UserService;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
 using AutoMapper;
-using ControlMicroservice.Filtering;
+using Asp.Versioning;
+using SharedCore.Filtering;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1,0);
+    options.ReportApiVersions = true;
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(),
+        new HeaderApiVersionReader("X-Api-Version"));
+})
+.AddMvc() // This is needed for controllers
+.AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'V";
+    options.SubstituteApiVersionInUrl = true;
+});
+
+builder.Services.Configure<RouteOptions>(options =>
+{
+    options.LowercaseUrls = true;
+});
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddFile(@".\logs\{Date}_log.txt");
+
 var allowedOriginsForCors = "_myAllowSpecificOrigins";
 builder.Services.AddCors(options =>
 {
@@ -17,7 +43,8 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
-builder.Services.AddScoped<IdNumberFilter>();
+builder.Services.AddScoped<IdFilter>();
+builder.Services.AddScoped<UserFilter>();
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 {

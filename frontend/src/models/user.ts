@@ -1,18 +1,18 @@
 export interface User {
-    id: number;
-    userName: string;
+    userId: number;
+    username: string;
     password: string;
     phoneNumber: string;
 }
 
 export interface AddUserDto {
-    userName: string;
+    username: string;
     password: string;
     phoneNumber: string;
 }
 
 export interface LoginUserDto {
-    Username: string;
-    Password: string;
-    PhoneNumber: string;
+    username: string;
+    password: string;
+    phoneNumber: string;
 }

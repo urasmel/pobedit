@@ -24,7 +24,6 @@ namespace GatherMicroservice.Services.InfoService
         private readonly IMapper _mapper;
         private readonly DataContext _context;
 
-
         public InfoService(GatherClient client, DataContext context, IMapper mapper, ILogger<InfoService> logger)
         {
             _client = client;
@@ -45,56 +44,45 @@ namespace GatherMicroservice.Services.InfoService
 
             try
             {
-                if (string.IsNullOrEmpty(username))
+                var user = await _context.Users.Where(u => u.Username == username).FirstOrDefaultAsync();
+
+                if (user == null)
                 {
                     response.Success = false;
-                    response.Message = "User is not defined";
                     response.Data = Enumerable.Empty<ChannelDto>();
+                    response.Message = "User not found";
                     return response;
                 }
-                else
-                {
-                    var user = await _context.Users.Where(u => u.Username == username).FirstOrDefaultAsync();
 
-                    if (user == null)
-                    {
-                        response.Success = false;
-                        response.Data = Enumerable.Empty<ChannelDto>();
-                        response.Message = "User not found";
-                        return response;
-                    }
+                var chats = _context.Channels.Where(channel => channel.User == user).ToList();
+                var results = _mapper.Map<List<ChannelDto>>(chats);
+                response.Data = results;
 
-                    var chats = _context.Channels.Where(channel => channel.User == user).ToList();
-                    var results = _mapper.Map<List<ChannelDto>>(chats);
-                    response.Data = results;
+                //_logger.LogDebug($"We are logged-in as {user.Username ?? user.Username} (id {user.Id})");
 
-                    //_logger.LogDebug($"We are logged-in as {user.Username ?? user.Username} (id {user.Id})");
-
-                    //var chats = await _client.Messages_GetAllChats(); // chats = groups/channels (does not include users dialogs)
-                    //_logger.LogDebug("This user has joined the following:");
-                    //foreach (var (id, chat) in chats.chats)
-                    //    result.Add(chat);
-                    //switch (chat)
-                    //{
-                    //case Chat smallgroup when smallgroup.IsActive:
-                    //    _logger.LogDebug($"{id}:  Small group: {smallgroup.title} with {smallgroup.participants_count} members");
-                    //    break;
-                    //case Channel channel when channel.IsChannel:
-                    //    _logger.LogDebug($"{id}: Channel {channel.username}: {channel.title}");
-                    //    break;
-                    //case Channel group: // no broadcast flag => it's a big group, also called supergroup or megagroup
-                    //    _logger.LogDebug($"{id}: Group {group.username}: {group.title}");
-                    //    break;
-                    //}
-                }
+                //var chats = await _client.Messages_GetAllChats(); // chats = groups/channels (does not include users dialogs)
+                //_logger.LogDebug("This user has joined the following:");
+                //foreach (var (id, chat) in chats.chats)
+                //    result.Add(chat);
+                //switch (chat)
+                //{
+                //case Chat smallgroup when smallgroup.IsActive:
+                //    _logger.LogDebug($"{id}:  Small group: {smallgroup.title} with {smallgroup.participants_count} members");
+                //    break;
+                //case Channel channel when channel.IsChannel:
+                //    _logger.LogDebug($"{id}: Channel {channel.username}: {channel.title}");
+                //    break;
+                //case Channel group: // no broadcast flag => it's a big group, also called supergroup or megagroup
+                //    _logger.LogDebug($"{id}: Group {group.username}: {group.title}");
+                //    break;
+                //}
             }
             catch (Exception exception)
             {
                 _logger.LogError(exception, "GetAllChannels");
                 response.Success = false;
-                response.Message = "The error has occurred while getting all channels." + Environment.NewLine + exception.Message;
+                response.Message = "An error has occurred while getting all channels." + Environment.NewLine + exception.Message;
                 response.Data = Enumerable.Empty<ChannelDto>();
-                return response;
             }
 
             return response;
@@ -191,104 +179,84 @@ namespace GatherMicroservice.Services.InfoService
         public async Task<ServiceResponse<ChannelInfoDto>> GetChannelInfo(string username, long chatId)
         {
             var response = new ServiceResponse<ChannelInfoDto>();
-            if (string.IsNullOrEmpty(username))
+            try
             {
-                response.Success = false;
-                response.Message = "User is not defined";
-                response.Data = null;
+                var channel = await _context.Channels.Where(channel => channel.Id == chatId).FirstAsync();
+                if (channel == null)
+                {
+                    response.Success = false;
+                    response.Message = "Channel not found.";
+                    response.Data = null;
+                }
+
+                var channelInfoDto = _mapper.Map<ChannelInfoDto>(channel);
+                response.Success = true;
+                response.Data = channelInfoDto;
                 return response;
             }
-            else
+            catch (Exception exception)
             {
-                try
-                {
-                    var channel = await _context.Channels.Where(channel => channel.Id == chatId).FirstAsync();
-                    if (channel == null)
-                    {
-                        response.Success = false;
-                        response.Message = "Channel not found.";
-                        response.Data = null;
-                    }
-
-                    var channelInfoDto = _mapper.Map<ChannelInfoDto>(channel);
-                    response.Success = true;
-                    response.Data = channelInfoDto;
-                    return response;
-                }
-                catch (Exception exception)
-                {
-                    _logger.LogError(exception.Message, exception);
-                    response.Success = false;
-                    response.Data = null;
-                    response.Message = exception.Message;
-                    return response;
-                }
+                _logger.LogError(exception.Message, exception);
+                response.Success = false;
+                response.Data = null;
+                response.Message = exception.Message;
+                return response;
             }
         }
 
         public async Task<ServiceResponse<ChannelInfoDto>> UpdateChannelInfo(string username, long chatId)
         {
             var response = new ServiceResponse<ChannelInfoDto>();
-            if (string.IsNullOrEmpty(username))
+            try
             {
-                response.Success = false;
-                response.Message = "User is not defined";
-                response.Data = null;
-                return response;
-            }
-            else
-            {
-                try
+                var chats = await _client.Messages_GetAllChats();
+                var chat = chats.chats.Where(item => item.Key == chatId).FirstOrDefault().Value;
+
+                if (chat == null)
                 {
-                    var chats = await _client.Messages_GetAllChats();
-                    var chat = chats.chats.Where(item => item.Key == chatId).FirstOrDefault().Value;
-
-                    if (chat == null)
-                    {
-                        response.Success = false;
-                        response.Data = null;
-                        response.Message = "Channel info not found from telegramm API.";
-                        return response;
-                    }
-
-                    var chatPeer = chat.ToInputPeer();
-                    var chatInfo = await _client.GetFullChat(chatPeer);
-
-                    // Получаем инфо о канале.
-                    var channelFullInfoDto = new ChannelInfoDto();
-                    channelFullInfoDto.Id = chatInfo.full_chat.ID;
-                    channelFullInfoDto.ParticipantsCount = chatInfo.full_chat.ParticipantsCount;
-                    channelFullInfoDto.About = chatInfo.full_chat.About;
-                    MemoryStream ms = new MemoryStream(1000000);
-                    Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chat, ms);
-                    channelFullInfoDto.Image = Convert.ToBase64String(ms.ToArray());
-
-                    var channelDB = _context.Channels.Where(channel => channel.Id == chatId).FirstOrDefault();
-                    if (channelDB == null)
-                    {
-                        response.Success = false;
-                        response.Data = null;
-                        response.Message = "Channel not found in DB.";
-                        return response;
-                    }
-
-                    // Сохраняем в БД.
-                    channelDB.About = channelFullInfoDto.About;
-                    channelDB.Image = channelFullInfoDto.Image;
-                    channelDB.ParticipantsCount = channelFullInfoDto.ParticipantsCount;
-                    await _context.SaveChangesAsync();
-
-                    response.Data = channelFullInfoDto;
-                    return response;
-                }
-                catch (Exception exception)
-                {
-                    _logger.LogError(exception.Message, exception);
                     response.Success = false;
                     response.Data = null;
-                    response.Message = exception.Message;
+                    response.Message = "Channel not found";
                     return response;
                 }
+
+                var chatPeer = chat.ToInputPeer();
+                var chatInfo = await _client.GetFullChat(chatPeer);
+
+                // Получаем инфо о канале.
+                var channelFullInfoDto = new ChannelInfoDto();
+                channelFullInfoDto.Id = chatInfo.full_chat.ID;
+                channelFullInfoDto.ParticipantsCount = chatInfo.full_chat.ParticipantsCount;
+                channelFullInfoDto.About = chatInfo.full_chat.About;
+                MemoryStream ms = new MemoryStream(1000000);
+                Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chat, ms);
+                channelFullInfoDto.Image = Convert.ToBase64String(ms.ToArray());
+
+                var channelDB = _context.Channels.Where(channel => channel.Id == chatId).FirstOrDefault();
+                if (channelDB == null)
+                {
+                    response.Success = false;
+                    response.Data = null;
+                    response.Message = "Channel not found";
+                    return response;
+                }
+
+                // Сохраняем в БД.
+                channelDB.About = channelFullInfoDto.About;
+                channelDB.Image = channelFullInfoDto.Image;
+                channelDB.ParticipantsCount = channelFullInfoDto.ParticipantsCount;
+                await _context.SaveChangesAsync();
+
+                response.Data = channelFullInfoDto;
+                return response;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception.Message, exception);
+                response.Success = false;
+                response.Data = null;
+                response.Message = exception.Message;
+                return response;
             }
         }
 
@@ -374,14 +342,6 @@ namespace GatherMicroservice.Services.InfoService
                 //response.Success = true;
                 //return response;
 
-                if (string.IsNullOrEmpty(username))
-                {
-                    response.Success = false;
-                    response.Data = Enumerable.Empty<PostDto>();
-                    response.Message = "User not defined";
-                    return response;
-                }
-
                 var posts = _context.Posts.Where(post => post.PeerId == chatId).OrderByDescending(item => item.Id).Skip(offset).Take(count);
                 response.Data = _mapper.Map<List<PostDto>>(posts);
                 response.Success = true;
@@ -392,12 +352,11 @@ namespace GatherMicroservice.Services.InfoService
                 //response.Success = true;
                 //return response;
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                _logger.LogError(exception.ToString());
+                _logger.LogError(ex, "An error ocurred while getting channel posts");
                 response.Success = false;
                 response.Data = Enumerable.Empty<PostDto>();
-                response.Message = exception.Message;
                 return response;
             }
         }
@@ -597,20 +556,13 @@ namespace GatherMicroservice.Services.InfoService
         {
             var response = new ServiceResponse<int>();
 
-            if (string.IsNullOrEmpty(username))
-            {
-                response.Success = false;
-                response.Message = "User not defined.";
-                return response;
-            }
-
             try
             {
                 var dbChannelPeer = _context.Channels.First(chat => chat.Id == chatId && chat.User.Username.Equals(username));
                 if (dbChannelPeer == null)
                 {
                     response.Success = false;
-                    response.Message = "Channel not found in DB.";
+                    response.Message = "Channel not found";
                     return response;
                 }
 
@@ -747,12 +699,12 @@ namespace GatherMicroservice.Services.InfoService
                 response.Success = true;
                 response.Data = messages.Count;
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                _logger.LogError(exception.Message, exception);
+                _logger.LogError(ex.Message, "An error ocurred while updating channel's posts");
                 response.Success = false;
+                response.Message = "An error ocurred while updating channel's posts";
                 response.Data = 0;
-                response.Message = exception.Message;
             }
 
             return response;

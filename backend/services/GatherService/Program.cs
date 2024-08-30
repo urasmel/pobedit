@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using GatherMicroservice.Client;
 using GatherMicroservice.Data;
 using GatherMicroservice.Services;
@@ -5,36 +6,36 @@ using GatherMicroservice.Services.InfoService;
 using GatherMicroservice.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using SharedCore.Filtering;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddApiVersioning(options =>
+{
+    //options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new ApiVersion(1,0);
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(),
+        new HeaderApiVersionReader("X-Api-Version"));
+})
+.AddMvc()
+.AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'V";
+    options.SubstituteApiVersionInUrl = true;
+});
+
+builder.Services.Configure<RouteOptions>(options =>
+{
+    options.LowercaseUrls = true;
+});
+
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Singleton);
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Version = "v1",
-        Title = "GatherService API",
-        Description = "An ASP.NET Core Web API for gathering telegram info",
-        TermsOfService = new Uri("https://pobedit.ru"),
-        Contact = new OpenApiContact
-        {
-            Name = "Author Contact",
-            Url = new Uri("https://pobedit.ru/contact")
-        },
-        License = new OpenApiLicense
-        {
-            Name = "Pobedit License",
-            Url = new Uri("https://pobedit.ru/license")
-        }
-    });
-
-    // using System.Reflection;
-    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-});
+builder.Services.AddEndpointsApiExplorer(); 
+builder.Services.AddSwaggerGen();
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 var allowedOriginsForCors = "_myAllowSpecificOrigins";
@@ -47,6 +48,7 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddScoped<UserFilter>();
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddFile(@".\logs\{Date}_log.txt");
@@ -65,6 +67,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 var webSocketOptions = new WebSocketOptions
 {
     KeepAliveInterval = TimeSpan.FromMinutes(2)

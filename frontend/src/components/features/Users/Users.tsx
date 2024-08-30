@@ -1,9 +1,7 @@
 import {
     GridActionsCellItem,
-    GridCallbackDetails,
     GridColDef,
     GridRowParams,
-    MuiEvent,
 } from "@mui/x-data-grid";
 import React, {
     MouseEventHandler,
@@ -26,8 +24,8 @@ import {
     Snackbar,
     TextField,
 } from "@mui/material";
-import { Button } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import {Button} from "@mui/material";
+import {DataGrid} from "@mui/x-data-grid";
 import {
     addUser,
     deleteUser,
@@ -36,10 +34,11 @@ import {
     loginUser,
 } from "@/api/users";
 import styles from "./Users.module.css";
-import { User } from "@/models/user";
+import {User} from "@/models/user";
 import CustomNoRowsOverlay from "@/components/ui/CustomNoRowsOverlay/CustomNoRowsOverlay";
-import { MainState, useMainStore } from "@/store/MainStore";
+import {MainState, useMainStore} from "@/store/MainStore";
 import DataGridTitle from "@/components/ui/DataGridTitle/DataGridTitle";
+import {UserRow} from "types/UserRow.ts";
 
 export const Users = () => {
     const [users, setUsers] = useState<User[]>([]);
@@ -51,6 +50,8 @@ export const Users = () => {
     const [accPassword, setAccPassword] = useState("");
     const [openErrorMessage, setOpenErrorMessage] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+
+    const [isUsersLoading, setIsUsersLoading] = useState(false);
     //const { fetchChannels: fetchChannels, setSelectedUser: setSelectedUser } = useMainStore();
 
     const fetchChannels = useMainStore(
@@ -62,34 +63,41 @@ export const Users = () => {
     );
 
     useEffect(() => {
+
         const fetchData = async () => {
-            const data = await fetchUsers();
-            if (data.length != 0) {
-                setUsers(data);
-            } else {
+            setIsUsersLoading(true)
+
+            try {
+                const users: User[] = await fetchUsers();
+                setUsers(users);
+            } catch (e: unknown) {
                 setUsers([]);
                 setOpenErrorMessage(true);
                 setErrorMessage("Error loading users");
-                // TODO добавить обработку ошибок
+                console.log("Error loading users");
+                return;
+            } finally {
+                setIsUsersLoading(false);
             }
         };
 
-        fetchData();
+        fetchData().then();
     }, []);
 
     const deleteUserIcon_handler = useCallback(
         (id: number) => () => {
             setTimeout(() => {
-                deleteUser(id);
-                setUsers((prevRows) => prevRows.filter((row) => row.id !== id));
+                deleteUser(id).then(() => {
+                });
+                setUsers((prevRows) => prevRows.filter((row) => row.userId !== id));
             });
         },
         []
     );
 
     const editUserIcon_handler = useCallback(
-        (row: any): MouseEventHandler<HTMLLIElement> | undefined => {
-            setAccId(() => row.id);
+        (row: UserRow): MouseEventHandler<HTMLLIElement> | undefined => {
+            setAccId(() => row.userId);
             setAccUsername(() => row.username);
             setAccPassword(() => row.password);
             setAccPhoneNumber(() => row.phoneNumber);
@@ -101,18 +109,18 @@ export const Users = () => {
 
     const loginUserIcon_handler = useCallback(
         async (
-            row: any
+            row: UserRow
         ): Promise<MouseEventHandler<HTMLLIElement> | undefined> => {
-            setAccId((_) => row.id);
-            setAccUsername((_) => row.username);
-            setAccPassword((_) => row.password);
-            setAccPhoneNumber((_) => row.phoneNumber);
+            setAccId(() => row.userId);
+            setAccUsername(() => row.username);
+            setAccPassword(() => row.password);
+            setAccPhoneNumber(() => row.phoneNumber);
             setOpenEditUser(true);
 
-            let result = await loginUser({
-                Username: row.username,
-                Password: row.password,
-                PhoneNumber: row.PhoneNumber,
+            await loginUser({
+                username: row.username,
+                password: row.password,
+                phoneNumber: row.phoneNumber,
             });
             return;
         },
@@ -121,10 +129,10 @@ export const Users = () => {
 
     const columns = useMemo<GridColDef<User>[]>(
         () => [
-            { field: "id", headerName: "ID", width: 50 },
-            { field: "username", headerName: "Username", width: 100 },
-            { field: "password", headerName: "Password", flex: 1 },
-            { field: "phoneNumber", headerName: "Phone Number", width: 150 },
+            {field: "id", headerName: "ID", width: 50},
+            {field: "username", headerName: "Username", width: 100},
+            {field: "password", headerName: "Password", flex: 1},
+            {field: "phoneNumber", headerName: "Phone Number", width: 150},
             {
                 field: "actions",
                 type: "actions",
@@ -133,20 +141,20 @@ export const Users = () => {
                 getActions: (params: GridRowParams) => [
                     <GridActionsCellItem
                         key={0}
-                        icon={<DeleteIcon />}
+                        icon={<DeleteIcon/>}
                         label="Delete"
                         onClick={() => deleteUserIcon_handler(params.row.id)}
                     />,
                     <GridActionsCellItem
                         key={1}
-                        icon={<EditIcon />}
+                        icon={<EditIcon/>}
                         label="Edit"
                         onClick={() => editUserIcon_handler(params.row)}
                         showInMenu
                     />,
                     <GridActionsCellItem
                         key={1}
-                        icon={<LoginIcon />}
+                        icon={<LoginIcon/>}
                         label="Login"
                         showInMenu
                     />,
@@ -161,8 +169,8 @@ export const Users = () => {
         setUsers(() => data);
     };
 
-    const onClickBtnLoadAccaunts = async () => {
-        loadUsers();
+    const onClickBtnLoadAccounts = async () => {
+        await loadUsers();
     };
 
     const handleClickOpenAddUser = () => {
@@ -179,12 +187,12 @@ export const Users = () => {
 
     const addUserSave_handler = async () => {
         await addUser({
-            userName: accUsername,
+            username: accUsername,
             password: accPassword,
             phoneNumber: accPhoneNumber,
         });
         setOpenAddUser(false);
-        loadUsers();
+        await loadUsers();
         setAccId(0);
         setAccUsername("");
         setAccPassword("");
@@ -194,12 +202,12 @@ export const Users = () => {
     const editUserSave_handler = async () => {
         await editUser({
             id: accId,
-            userName: accUsername,
+            username: accUsername,
             password: accPassword,
             phoneNumber: accPhoneNumber,
         });
         setOpenEditUser(false);
-        loadUsers();
+        await loadUsers();
         setAccId(0);
         setAccUsername("");
         setAccPassword("");
@@ -207,11 +215,13 @@ export const Users = () => {
     };
 
     const handleRowClick = (
-        params: GridRowParams,
-        event: MuiEvent<React.MouseEvent<HTMLElement>>,
-        details: GridCallbackDetails
+        params: GridRowParams
     ) => {
         setSelectedUser(params.row["username"]);
+        // TODO
+        // Пользователи ничего не должны знать о таблице с каналами
+        // Загрузка и перерисовка каналов там должна происходить сама собой
+        // после выбора другого пользователя.
         fetchChannels(params.row["username"]);
     };
 
@@ -227,14 +237,14 @@ export const Users = () => {
                 color="inherit"
                 onClick={handleErrorClose}
             >
-                <CloseIcon fontSize="small" />
+                <CloseIcon fontSize="small"/>
             </IconButton>
         </React.Fragment>
     );
 
     return (
         <section className={styles.users}>
-            <div style={{ height: 400 }}>
+            <div style={{height: 400}}>
                 <DataGrid
                     sx={{
                         "--DataGrid-overlayHeight": "300px",
@@ -252,6 +262,8 @@ export const Users = () => {
                     }}
                     rows={users}
                     columns={columns}
+                    getRowId={(row: User) => row.userId}
+                    loading={isUsersLoading}
                 />
             </div>
 
@@ -261,7 +273,7 @@ export const Users = () => {
                         width: "100px",
                     }}
                     variant="contained"
-                    onClick={onClickBtnLoadAccaunts}
+                    onClick={onClickBtnLoadAccounts}
                 >
                     Reload
                 </Button>

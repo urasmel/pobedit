@@ -1,8 +1,8 @@
 import { User, AddUserDto, LoginUserDto as LoginUserDto } from "@/models/user";
-import { controlDomain, controlPort, controlProto } from "@/constants/constants";
+import {controlApiVersion, controlDomain, controlPort, controlProto} from "@/constants/constants";
 
 export const fetchUsers = async () => {
-    const request = new Request(`${controlProto}${controlDomain}:${controlPort}/users`,
+    const request = new Request(`${controlProto}${controlDomain}:${controlPort}/api/${controlApiVersion}/users`,
         {
             method: 'GET',
             mode: 'cors',
@@ -17,7 +17,7 @@ export const fetchUsers = async () => {
     const response = await fetch(request);
 
     if (!response.ok) {
-        return [];
+        throw new Error('Error to fetch users!');
     }
 
     const { data = [] } = await response.json();

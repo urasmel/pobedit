@@ -1,25 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using GatherMicroservice.Services;
+using Asp.Versioning;
 
 namespace GatherMicroservice.Controllers
 {
+    [ApiVersion(1)]
     [ApiController]
-    [Route("gather")]
+    [Produces("application/json")]
+    [Route("api/v{v:apiVersion}/[controller]")]
     public class GatherController : ControllerBase
     {
         private readonly IGatherService _gatherService;
-        private readonly ILogger _logger;
 
-        public GatherController(IGatherService gatherService, ILogger<GatherController> logger)
+        public GatherController(IGatherService gatherService)
         {
             _gatherService = gatherService;
-            _logger = logger;
         }
 
         /// <summary>
         /// Запускает процесс сбора информации в БД.
         /// </summary>
         /// <param name="username">username пользователя, посты с подписок которого будут собираться.</param>
+        [MapToApiVersion(1)]
         [HttpPut("/users/{username}/gatherall")]
         public async Task<ActionResult<bool>> StartGatherAll(string username)
         {
@@ -37,6 +39,7 @@ namespace GatherMicroservice.Controllers
         /// Возвращает статус процесса сбора информации в БД.
         /// </summary>
         /// <param name="username">username пользователя, посты с подписок которого собираются.</param>
+        [MapToApiVersion(1)]
         [HttpGet("/users/{username}/gather_status")]
         public async Task<ActionResult<bool>> GetGatherStatus(string username)
         {
