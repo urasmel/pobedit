@@ -3,4 +3,5 @@ export type ChannelFullInfo = {
     about: string;
     participantsCount: number;
     image: string;
+    title: string;
 };

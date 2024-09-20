@@ -5,6 +5,9 @@ using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
 using SharedCore.Filtering;
 using SharedCore.Models;
+using System.Net.WebSockets;
+using System.Text;
+using System.Threading.Channels;
 using TL;
 
 namespace GatherMicroservice.Controllers
@@ -33,7 +36,7 @@ namespace GatherMicroservice.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ServiceResponse<List<ChatBase>>>> GetAllChannels(string user)
+        public async Task<ActionResult<ServiceResponse<IEnumerable<ChannelDto>>>> GetAllChannels(string user)
         {
             var response = await _infoService.GetAllChannels(user);
 
@@ -136,31 +139,47 @@ namespace GatherMicroservice.Controllers
 
         /// <summary>
         /// Скачивает в базу данных новые сообщения канала, которые появились после последнего сообщения канала, содержащегося в базе данных.
+        /// Если в базе данных нет записей канала, то загружаются все записи начиная с 31.12.2023.
         /// </summary>
         /// <param name="user">Имя пользователя, от имени которого работает сессия данного запроса и который подписан на канал</param>
         /// <param name="channelId">Идентификатор канала</param>
-        [HttpGet]
-        [Route("users/{user}/channels/{channelId}/updated_messages")]
-        [MapToApiVersion(1.0)]
-        [ServiceFilter(typeof(UserFilter))]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<PostDto>>> UpdateAndFetchChannelPosts(string user, int channelId)
+        //[HttpGet]
+        //[Route("users/{user}/channels/{channelId}/updated_messages")]
+        //[MapToApiVersion(1.0)]
+        //[ServiceFilter(typeof(UserFilter))]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status404NotFound)]
+        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        //public async Task<ActionResult<List<PostDto>>> UpdateAndFetchChannelPosts(string user, int channelId)
+        //{
+        //    var response = await _infoService.UpdateChannelPosts(user, channelId);
+
+        //    if (response.Message == "User not found" || response.Message == "Channel not found")
+        //    {
+        //        return NotFound(response);
+        //    }
+
+        //    if (!response.Success)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError, response);
+        //    }
+
+        //    return Ok(response);
+        //}
+
+        [HttpGet()]
+        [Route("users/{user}/channels/{channelId}/update_messages")]
+        public async Task UpdateChannelPosts(string user, int channelId)
         {
-            var response = await _infoService.UpdateChannelPosts(user, channelId);
-
-            if (response.Message == "User not found" || response.Message == "Channel not found")
+            if (HttpContext.WebSockets.IsWebSocketRequest)
             {
-                return NotFound(response);
+                using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                await _infoService.UpdateChannelPosts(user, channelId, webSocket);
             }
-
-            if (!response.Success)
+            else
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
+                HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
             }
-
-            return Ok(response);
         }
     }
 }

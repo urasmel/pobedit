@@ -8,6 +8,9 @@ using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
 using SharedCore.Models;
 using System;
+using System.Diagnostics.Metrics;
+using System.Net.WebSockets;
+using System.Text;
 using System.Text.Json;
 using TL;
 using WTelegram;
@@ -552,18 +555,60 @@ namespace GatherMicroservice.Services.InfoService
             }
         }
 
-        public async Task<ServiceResponse<int>> UpdateChannelPosts(string username, long chatId)
+        public async Task UpdateChannelPosts(string username, long chatId, WebSocket webSocket)
         {
-            var response = new ServiceResponse<int>();
+            var buffer = new byte[1024 * 4];
+            var receiveResult = await webSocket.ReceiveAsync(
+                new ArraySegment<byte>(buffer), CancellationToken.None);
+
+
+
+            ////while (!receiveResult.CloseStatus.HasValue)
+            //int counter = 0;
+            //while (true)
+            //{
+            //    string time = DateTime.Now.ToString("HH:mm:ss");
+            //    byte[] bytes = Encoding.UTF8.GetBytes(time);
+            //    var arraySegment = new ArraySegment<byte>(bytes, 0, bytes.Length);
+
+            //    //await webSocket.SendAsync(
+            //    //    new ArraySegment<byte>(buffer, 0, receiveResult.Count),
+            //    //    receiveResult.MessageType,
+            //    //    receiveResult.EndOfMessage,
+            //    //    CancellationToken.None);
+
+            //    await webSocket.SendAsync(
+            //        arraySegment,
+            //        receiveResult.MessageType,
+            //        receiveResult.EndOfMessage,
+            //        CancellationToken.None);
+
+            //    //receiveResult = await webSocket.ReceiveAsync(
+            //    //    new ArraySegment<byte>(buffer), CancellationToken.None);
+
+            //    Thread.Sleep(1000);
+            //    counter += 100;
+
+            //    if (counter > 1000)
+            //    {
+            //        return;
+            //    }
+            //}
+
+            //await webSocket.CloseAsync(
+            //    receiveResult.CloseStatus.Value,
+            //    receiveResult.CloseStatusDescription,
+            //    CancellationToken.None);
 
             try
             {
                 var dbChannelPeer = _context.Channels.First(chat => chat.Id == chatId && chat.User.Username.Equals(username));
                 if (dbChannelPeer == null)
                 {
-                    response.Success = false;
-                    response.Message = "Channel not found";
-                    return response;
+                    //response.Success = false;
+                    //response.Message = "Channel not found";
+                    //return response;
+                    return;
                 }
 
                 var chats = await _client.Messages_GetAllChats();
@@ -582,16 +627,18 @@ namespace GatherMicroservice.Services.InfoService
                     var lastMessagesBase = await _client.Messages_GetHistory(peer, 0, DateTime.Now, 0, 1);
                     if (lastMessagesBase is not Messages_ChannelMessages channelMessages)
                     {
-                        response.Success = false;
-                        response.Message = "Channel peer is not ChannelMessages";
-                        return response;
+                        //response.Success = false;
+                        //response.Message = "Channel peer is not ChannelMessages";
+                        //return response;
+                        return;
                     }
 
                     if (channelMessages.count == 0)
                     {
-                        response.Success = false;
-                        response.Message = "No data";
-                        return response;
+                        //response.Success = false;
+                        //response.Message = "No data";
+                        //return response;
+                        return;
                     }
 
                     var msgBase = channelMessages.messages[0];
@@ -602,16 +649,18 @@ namespace GatherMicroservice.Services.InfoService
                     lastMessagesBase = await _client.Messages_GetHistory(peer, 0, startLoadingDate, 0, 1);
                     if (lastMessagesBase is not Messages_ChannelMessages end_channelMessages)
                     {
-                        response.Success = false;
-                        response.Message = "Channel peer is not ChannelMessages";
-                        return response;
+                        //response.Success = false;
+                        //response.Message = "Channel peer is not ChannelMessages";
+                        //return response;
+                        return;
                     }
 
                     if (channelMessages.count == 0)
                     {
-                        response.Success = false;
-                        response.Message = "No data";
-                        return response;
+                        //response.Success = false;
+                        //response.Message = "No data";
+                        //return response;
+                        return;
                     }
 
                     msgBase = end_channelMessages.messages[0];
@@ -652,36 +701,41 @@ namespace GatherMicroservice.Services.InfoService
                             var postToDb = _mapper.Map<Post>(msg);
 
                             // Получили комментарии.
-                            var replies = await _client.Messages_GetReplies(peer, msg.ID);
-                            var client_comments = replies.Messages;
+                            //var replies = await _client.Messages_GetReplies(peer, msg.ID);
+                            //var client_comments = replies.Messages;
 
-                            // Преобразовали их в класс типа из наших моделей.
-                            List<Comment> comments = _mapper.Map<List<Comment>>(client_comments);
+                            //// Преобразовали их в класс типа из наших моделей.
+                            //List<Comment> comments = _mapper.Map<List<Comment>>(client_comments);
 
-                            // Для кажддого комментария получили его автора.
-                            // Преобразровали в объект класса из наших моделей.
-                            // Добавили к комментариям.
-                            for (int commentIndex = 0; commentIndex < comments.Count; commentIndex++)
-                            {
-                                var userId = replies.Messages[commentIndex].From.ID;
-                                var inputUserFromMessage = new InputUserFromMessage
-                                {
-                                    // ???????
-                                    //msg_id = msg.id,
-                                    msg_id = replies.Messages[commentIndex].ID,
-                                    // ???????
-                                    peer = peer,
-                                    user_id = userId
-                                };
-                                var fullUser = await _client.Users_GetFullUser(inputUserFromMessage);
-                                var acc = _mapper.Map<Account>(fullUser);
-                                comments[commentIndex].Author = acc;
-                            }
+                            //// Для кажддого комментария получили его автора.
+                            //// Преобразровали в объект класса из наших моделей.
+                            //// Добавили к комментариям.
+                            //for (int commentIndex = 0; commentIndex < comments.Count; commentIndex++)
+                            //{
+                            //    var userId = replies.Messages[commentIndex].From.ID;
+                            //    var inputUserFromMessage = new InputUserFromMessage
+                            //    {
+                            //        // ???????
+                            //        //msg_id = msg.id,
+                            //        msg_id = replies.Messages[commentIndex].ID,
+                            //        // ???????
+                            //        peer = peer,
+                            //        user_id = userId
+                            //    };
+                            //    var fullUser = await _client.Users_GetFullUser(inputUserFromMessage);
+                            //    var acc = _mapper.Map<Account>(fullUser);
+                            //    comments[commentIndex].Author = acc;
+                            //}
 
 
                             await _context.Posts.AddAsync(postToDb);
-                            await _context.Comments.AddRangeAsync(comments);
+                            //await _context.Comments.AddRangeAsync(comments);
                             messages.Add(postDto);
+
+                            if (index % 20 == 0 || index == channelMessages.messages.Length - 1)
+                            {
+                                SendAsyncMessage(webSocket, postDto.Date.ToString("yyyy:MM:dd HH:mm:ss"));
+                            }
                         }
 
                         if (index == channelMessages.messages.Length - 1)
@@ -696,18 +750,222 @@ namespace GatherMicroservice.Services.InfoService
                     }
                 }
                 await _context.SaveChangesAsync();
-                response.Success = true;
-                response.Data = messages.Count;
+                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "The request was completed successfully", CancellationToken.None);
+                //response.Success = true;
+                //response.Data = messages.Count;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message, "An error ocurred while updating channel's posts");
-                response.Success = false;
-                response.Message = "An error ocurred while updating channel's posts";
-                response.Data = 0;
+                //response.Success = false;
+                //response.Message = "An error ocurred while updating channel's posts";
+                //response.Data = 0;
             }
-
-            return response;
         }
+
+        private async void SendAsyncMessage(WebSocket webSocket, string message)
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(message);
+            var arraySegment = new ArraySegment<byte>(bytes, 0, bytes.Length);
+
+            await webSocket.SendAsync(
+                arraySegment,
+                WebSocketMessageType.Text,
+                true,
+                CancellationToken.None);
+        }
+
+        //public async Task<ServiceResponse<int>> UpdateChannelPosts(string username, long chatId)
+        //{
+        //    var response = new ServiceResponse<int>();
+
+        //    try
+        //    {
+        //        var dbChannelPeer = _context.Channels.First(chat => chat.Id == chatId && chat.User.Username.Equals(username));
+        //        if (dbChannelPeer == null)
+        //        {
+        //            response.Success = false;
+        //            response.Message = "Channel not found";
+        //            return response;
+        //        }
+
+        //        var chats = await _client.Messages_GetAllChats();
+        //        InputPeer peer = chats.chats.First(chat => chat.Key == chatId).Value;
+
+        //        // Получаем из БД последнее сообщение, канала.
+        //        var postFromDb = _context.Posts.Where(post => post.PeerId == chatId).OrderBy(post => post.PostId).LastOrDefault();
+        //        int startOffsetId = 0;
+        //        int endOffsetId = 0;
+
+
+        //        // Если пусто, запрашиваем у телеграмма один пост на 31.12.2023.
+        //        // Его id используем для запроса новых постов канала как смещение.
+        //        if (postFromDb == null)
+        //        {
+        //            var lastMessagesBase = await _client.Messages_GetHistory(peer, 0, DateTime.Now, 0, 1);
+        //            if (lastMessagesBase is not Messages_ChannelMessages channelMessages)
+        //            {
+        //                response.Success = false;
+        //                response.Message = "Channel peer is not ChannelMessages";
+        //                return response;
+        //            }
+
+        //            if (channelMessages.count == 0)
+        //            {
+        //                response.Success = false;
+        //                response.Message = "No data";
+        //                return response;
+        //            }
+
+        //            var msgBase = channelMessages.messages[0];
+        //            startOffsetId = msgBase.ID;
+
+
+
+        //            lastMessagesBase = await _client.Messages_GetHistory(peer, 0, startLoadingDate, 0, 1);
+        //            if (lastMessagesBase is not Messages_ChannelMessages end_channelMessages)
+        //            {
+        //                response.Success = false;
+        //                response.Message = "Channel peer is not ChannelMessages";
+        //                return response;
+        //            }
+
+        //            if (channelMessages.count == 0)
+        //            {
+        //                response.Success = false;
+        //                response.Message = "No data";
+        //                return response;
+        //            }
+
+        //            msgBase = end_channelMessages.messages[0];
+        //            endOffsetId = msgBase.ID;
+        //        }
+
+        //        // Если не пусто, то его id используем для запроса новых постов канала как смещение.
+        //        else
+        //        {
+        //            endOffsetId = (int)postFromDb.PostId;
+        //        }
+
+        //        // Возможно потом пригодится.
+        //        var messages = new List<PostDto>();
+        //        bool needStop = false;
+
+        //        while (true)
+        //        {
+        //            var messagesBase = await _client.Messages_GetHistory(
+        //                peer,
+        //                startOffsetId);
+
+        //            if (messagesBase is not Messages_ChannelMessages channelMessages) break;
+        //            //var msgBase in channelMessages.messages
+        //            for (int index = 0; index < channelMessages.messages.Length; index++)
+        //            {
+        //                if (channelMessages.messages[index].ID <= endOffsetId)
+        //                {
+        //                    needStop = true;
+        //                    break;
+        //                }
+
+        //                // TODO Тестируем этот код.
+        //                // TODO Если текста нет, то отбрасываем. Исправить потом, чтобы все ел.
+        //                if (channelMessages.messages[index] is TL.Message msg && !string.IsNullOrEmpty(msg.message))
+        //                {
+        //                    var postDto = _mapper.Map<PostDto>(msg);
+        //                    var postToDb = _mapper.Map<Post>(msg);
+
+        //                    // Получили комментарии.
+        //                    var replies = await _client.Messages_GetReplies(peer, msg.ID);
+        //                    var client_comments = replies.Messages;
+
+        //                    // Преобразовали их в класс типа из наших моделей.
+        //                    List<Comment> comments = _mapper.Map<List<Comment>>(client_comments);
+
+        //                    // Для кажддого комментария получили его автора.
+        //                    // Преобразровали в объект класса из наших моделей.
+        //                    // Добавили к комментариям.
+        //                    for (int commentIndex = 0; commentIndex < comments.Count; commentIndex++)
+        //                    {
+        //                        var userId = replies.Messages[commentIndex].From.ID;
+        //                        var inputUserFromMessage = new InputUserFromMessage
+        //                        {
+        //                            // ???????
+        //                            //msg_id = msg.id,
+        //                            msg_id = replies.Messages[commentIndex].ID,
+        //                            // ???????
+        //                            peer = peer,
+        //                            user_id = userId
+        //                        };
+        //                        var fullUser = await _client.Users_GetFullUser(inputUserFromMessage);
+        //                        var acc = _mapper.Map<Account>(fullUser);
+        //                        comments[commentIndex].Author = acc;
+        //                    }
+
+
+        //                    await _context.Posts.AddAsync(postToDb);
+        //                    await _context.Comments.AddRangeAsync(comments);
+        //                    messages.Add(postDto);
+        //                }
+
+        //                if (index == channelMessages.messages.Length - 1)
+        //                {
+        //                    startOffsetId = channelMessages.messages[index].ID;
+        //                }
+        //            }
+
+        //            if (needStop)
+        //            {
+        //                break;
+        //            }
+        //        }
+        //        await _context.SaveChangesAsync();
+        //        response.Success = true;
+        //        response.Data = messages.Count;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex.Message, "An error ocurred while updating channel's posts");
+        //        response.Success = false;
+        //        response.Message = "An error ocurred while updating channel's posts";
+        //        response.Data = 0;
+        //    }
+
+        //return response;
+        //}
+
+        //private async Task UpdateChannelPosts_delete(string username, long chatId, WebSocket webSocket)
+        //{
+
+        //while (!receiveResult.CloseStatus.HasValue)
+        //while (true)
+        //{
+        //    string time = DateTime.Now.ToString("HH:mm:ss");
+        //    byte[] bytes = Encoding.UTF8.GetBytes(time);
+        //    var arraySegment = new ArraySegment<byte>(bytes, 0, bytes.Length);
+
+        //    //await webSocket.SendAsync(
+        //    //    new ArraySegment<byte>(buffer, 0, receiveResult.Count),
+        //    //    receiveResult.MessageType,
+        //    //    receiveResult.EndOfMessage,
+        //    //    CancellationToken.None);
+
+        //    await webSocket.SendAsync(
+        //        arraySegment,
+        //        receiveResult.MessageType,
+        //        receiveResult.EndOfMessage,
+        //        CancellationToken.None);
+        //    Console.WriteLine(time);
+
+        //    //receiveResult = await webSocket.ReceiveAsync(
+        //    //    new ArraySegment<byte>(buffer), CancellationToken.None);
+
+        //    Thread.Sleep(1000);
+        //}
+
+        //await webSocket.CloseAsync(
+        //    receiveResult.CloseStatus.Value,
+        //    receiveResult.CloseStatusDescription,
+        //    CancellationToken.None);
+        //}
     }
 }

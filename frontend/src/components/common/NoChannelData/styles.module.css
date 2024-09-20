@@ -1,0 +1,13 @@
+.block {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+    font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    border-radius: 1rem;
+    border: 1px solid black;
+    padding: 1rem
+}
+
+.block__text {
+    font-size: 1rem;
+}

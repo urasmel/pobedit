@@ -1,4 +1,4 @@
-import styles from "./PostWidget.module.css";
+import styles from "./styles.module.css";
 import type { Post } from "@/types/Post";
 
 const options = {

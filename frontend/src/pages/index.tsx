@@ -1,19 +1,34 @@
-import { lazy } from "react";
-import { Route, Routes } from "react-router-dom";
+import { lazy, Suspense } from "react";
+import { Route, Routes, useRouteError } from "react-router-dom";
 
-const Home = lazy(() => import("./Home/Home"));
-const Posts = lazy(() => import("./Posts/Posts"));
+const Home = lazy(() => import("./Home"));
+const Posts = lazy(() => import("./Posts"));
 
 const AppRouter = () => {
     return (
         <Routes>
-            <Route path="/" element={<Home />} />
+            <Route
+                path="/"
+                element={<Home />}
+                errorElement={<ErrorBoundary />}
+            />
             <Route
                 path="/posts/:user/channels/:channelId"
-                element={<Posts />}
+                element={
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <Posts />
+                    </Suspense>}
+                errorElement={<ErrorBoundary />}
             />
         </Routes>
     );
 };
+
+function ErrorBoundary() {
+    const error = useRouteError();
+    console.error(error);
+    // Uncaught ReferenceError: path is not defined
+    return <div>Dang!</div>;
+}
 
 export default AppRouter;

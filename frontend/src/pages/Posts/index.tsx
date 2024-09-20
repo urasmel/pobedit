@@ -1,22 +1,26 @@
 import styles from "./styles.module.scss";
 import { useEffect, useState } from "react";
 import { MainState, useMainStore } from "@/store/MainStore";
-import { useParams } from "react-router-dom";
-import PostWidget from "@/components/features/PostWidget/PostWidget";
+import { useNavigate, useParams } from "react-router-dom";
+import PostWidget from "@/components/features/PostWidget";
 import { Button, IconButton, Snackbar } from "@mui/material";
 import React from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { useInView } from "react-intersection-observer";
-import Loading from "@/components/common/Loading/Loading";
+import Loading from "@/components/common/Loading";
+import { NoChannelData } from "@/components/common/NoChannelData";
+import { fetchChannelNameById } from "@/api/channels";
 
-//const Posts = ({ user, chatId }: PostsProps) => {
+
+
 const Posts = () => {
     const { user, channelId } = useParams();
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [openErrorMessage, setOpenErrorMessage] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [offset, setOffset] = useState(0);
     const [count, setCount] = useState(20);
+    const [channelName, setChannelName] = useState("");
 
     const channelPostsDict = useMainStore(
         (state: MainState) => state.channelPostsDict
@@ -42,10 +46,21 @@ const Posts = () => {
         </React.Fragment>
     );
 
+    // For intersection-guard.
     const { ref, inView, entry } = useInView({
         /* Optional options */
         threshold: 0,
     });
+
+    useEffect(() => {
+        const fetchChannelName = async () => {
+
+            const channelName = await fetchChannelNameById(user, channelId ? +channelId : undefined);
+            setChannelName(channelName.title);
+        };
+
+        fetchChannelName();
+    }, []);
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -71,16 +86,18 @@ const Posts = () => {
             setIsLoading(false);
         };
 
-        console.log("useeffect fetch " + inView);
         fetchPosts();
     }, [inView]);
 
     return (
         <div className={styles["main_container"]}>
+
+            <div>{channelName}</div>
+
             {
                 channelPostsDict.posts.length == 0 && !isLoading
                     ?
-                    <>Пока в базе данных нет записей из этого канала</>
+                    <NoChannelData userName={user} channelId={channelId ? +channelId : undefined} />
                     :
                     <>
                         {
@@ -92,8 +109,11 @@ const Posts = () => {
                     </>
             }
 
-            <div className={styles['intersection-guard']} ref={ref} >{`Header inside viewport ${inView}.`}</div>
-            <Loading IsLoading={isLoading} />
+            <div className={styles['intersection-guard']} ref={ref} >
+                {`Header inside viewport ${inView}.`}
+            </div>
+
+            <Loading isLoading={isLoading} />
             <Snackbar
                 open={openErrorMessage}
                 autoHideDuration={6000}
@@ -101,7 +121,8 @@ const Posts = () => {
                 message={errorMessage}
                 action={errorAction}
             />
-        </div >
+
+        </div>
     );
 };
 

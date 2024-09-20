@@ -2,6 +2,7 @@
 using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
 using SharedCore.Models;
+using System.Net.WebSockets;
 using TL;
 
 namespace GatherMicroservice.Services
@@ -12,7 +13,6 @@ namespace GatherMicroservice.Services
 
         Task<ServiceResponse<IEnumerable<long>>> UpdateChannels(string username);
 
-        Task<ServiceResponse<int>> UpdateChannelPosts(string username, long chatId);
 
         Task<ServiceResponse<ChannelInfoDto>> UpdateChannelInfo(string username, long chatId);
 
@@ -21,5 +21,8 @@ namespace GatherMicroservice.Services
         Task<ServiceResponse<IEnumerable<PostDto>>> GetChannelPosts(string username, long chatId, int offset, int count);
 
         ServiceResponse<IEnumerable<PostDto>> GetChannelPosts(string username, long chatId, DateTime startTime);
+
+        //Task<ServiceResponse<int>> UpdateChannelPosts(string username, long chatId);
+        Task UpdateChannelPosts(string username, long chatId, WebSocket webSocket);
     }
 }

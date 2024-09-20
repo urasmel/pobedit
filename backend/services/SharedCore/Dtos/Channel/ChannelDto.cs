@@ -11,6 +11,5 @@ namespace SharedCore.Dtos.Channel
         public bool IsGroup { get; set; }
         public string? MainUsername { get; set; }
         public string? Title { get; set; }
-        public Account[]? Members { get; set; }
     }
 }

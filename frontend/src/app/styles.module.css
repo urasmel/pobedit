@@ -1,0 +1,30 @@
+.app {
+    display: flex;
+    column-gap: 1rem;
+    height: 100vh;
+}
+
+.aside {
+    flex: 1 1 15vw;
+    margin: 1rem 0 0 0;
+}
+
+.main_block {
+    display: flex;
+    flex-direction: column;
+    row-gap: 2rem;
+    padding: 1rem;
+    flex: 3 1 85vw;
+}
+
+.header {
+    flex: 1 1 10vh;
+}
+
+.footer {
+    flex: 1 1 10vh;
+}
+
+.main_content {
+    flex: 1 1 80vh
+}

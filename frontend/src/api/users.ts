@@ -1,5 +1,5 @@
 import { User, AddUserDto, LoginUserDto as LoginUserDto } from "@/models/user";
-import {controlApiVersion, controlDomain, controlPort, controlProto} from "@/constants/constants";
+import { controlApiVersion, controlDomain, controlPort, controlProto } from "@/constants";
 
 export const fetchUsers = async () => {
     const request = new Request(`${controlProto}${controlDomain}:${controlPort}/api/${controlApiVersion}/users`,

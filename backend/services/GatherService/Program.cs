@@ -7,6 +7,7 @@ using GatherMicroservice.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using SharedCore.Filtering;
+using System.Net.WebSockets;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,7 +36,18 @@ builder.Services.Configure<RouteOptions>(options =>
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Singleton);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer(); 
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "Pobedit gather API"
+    });
+
+    // using System.Reflection;
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+});
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 var allowedOriginsForCors = "_myAllowSpecificOrigins";
@@ -73,7 +85,6 @@ var webSocketOptions = new WebSocketOptions
     KeepAliveInterval = TimeSpan.FromMinutes(2)
 };
 app.UseWebSockets(webSocketOptions);
-
 app.UseCors(allowedOriginsForCors);
 app.UseAuthorization();
 app.MapControllers();

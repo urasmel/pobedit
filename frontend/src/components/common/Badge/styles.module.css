@@ -1,5 +1,5 @@
 /* @import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i'); */
-@import url('../../../assets/fonts/roboto.css');
+/* @import url('../../../assets/fonts/roboto.css'); */
 
 .badge {
     font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -12,7 +12,6 @@
     box-shadow: none;
     transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
     padding: 0.675rem 0.8rem 0.675rem 1rem;
-    margin: 0 1rem;
     border-radius: 0.5rem;
     cursor: pointer;
     user-select: none;

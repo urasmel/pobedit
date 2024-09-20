@@ -1,3 +1,3 @@
 export type ChannelProps = {
-    user: string;
+    userName: string | null;
 };

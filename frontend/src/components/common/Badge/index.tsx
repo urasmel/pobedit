@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./Badge.module.css";
+import styles from "./styles.module.css";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import { BadgeProps } from "@/types/Props/BadgeProps";
 

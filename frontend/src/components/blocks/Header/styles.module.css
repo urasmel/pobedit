@@ -1,12 +1,10 @@
 .header {
     font-family: 'Roboto', sans-serif;
-    height: 60px;
+    height: 3rem;
     box-shadow: 0rem 1.25rem 1.6875rem 0rem rgba(0, 0, 0, 0.05);
     position: sticky;
     backdrop-filter: none;
     color: rgba(0, 0, 0, 0.87);
-    top: 0.75rem;
-    min-height: 4.6875rem;
     border-radius: 1rem;
     border: 0 solid rgba(0, 0, 0, 0.125);
     padding: 1rem;

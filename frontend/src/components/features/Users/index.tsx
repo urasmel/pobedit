@@ -24,8 +24,8 @@ import {
     Snackbar,
     TextField,
 } from "@mui/material";
-import {Button} from "@mui/material";
-import {DataGrid} from "@mui/x-data-grid";
+import { Button } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import {
     addUser,
     deleteUser,
@@ -33,14 +33,15 @@ import {
     fetchUsers as fetchUsers,
     loginUser,
 } from "@/api/users";
-import styles from "./Users.module.css";
-import {User} from "@/models/user";
-import CustomNoRowsOverlay from "@/components/ui/CustomNoRowsOverlay/CustomNoRowsOverlay";
-import {MainState, useMainStore} from "@/store/MainStore";
-import DataGridTitle from "@/components/ui/DataGridTitle/DataGridTitle";
-import {UserRow} from "types/UserRow.ts";
+import styles from "./styles.module.css";
+import { User } from "@/models/user";
+import CustomNoRowsOverlay from "@/components/ui/CustomNoRowsOverlay";
+import { MainState, useMainStore } from "@/store/MainStore";
+import DataGridTitle from "@/components/ui/DataGridTitle";
+import { UserRow } from "types/UserRow.ts";
+import { UsersProps } from "@/types/Props/UsersProps";
 
-export const Users = () => {
+export const Users = ({ setSelectedUser }: UsersProps) => {
     const [users, setUsers] = useState<User[]>([]);
     const [openAddUser, setOpenAddUser] = useState(false);
     const [openEditUser, setOpenEditUser] = useState(false);
@@ -52,20 +53,15 @@ export const Users = () => {
     const [errorMessage, setErrorMessage] = useState("");
 
     const [isUsersLoading, setIsUsersLoading] = useState(false);
-    //const { fetchChannels: fetchChannels, setSelectedUser: setSelectedUser } = useMainStore();
 
-    const fetchChannels = useMainStore(
-        (state: MainState) => state.fetchChannels
-    );
-
-    const setSelectedUser = useMainStore(
-        (state: MainState) => state.setSelectedUser
-    );
+    // const fetchChannels = useMainStore(
+    //     (state: MainState) => state.fetchChannels
+    // );
 
     useEffect(() => {
 
         const fetchData = async () => {
-            setIsUsersLoading(true)
+            setIsUsersLoading(true);
 
             try {
                 const users: User[] = await fetchUsers();
@@ -129,10 +125,10 @@ export const Users = () => {
 
     const columns = useMemo<GridColDef<User>[]>(
         () => [
-            {field: "id", headerName: "ID", width: 50},
-            {field: "username", headerName: "Username", width: 100},
-            {field: "password", headerName: "Password", flex: 1},
-            {field: "phoneNumber", headerName: "Phone Number", width: 150},
+            { field: "id", headerName: "ID", width: 50 },
+            { field: "username", headerName: "Username", width: 100 },
+            { field: "password", headerName: "Password", flex: 1 },
+            { field: "phoneNumber", headerName: "Phone Number", width: 150 },
             {
                 field: "actions",
                 type: "actions",
@@ -141,20 +137,20 @@ export const Users = () => {
                 getActions: (params: GridRowParams) => [
                     <GridActionsCellItem
                         key={0}
-                        icon={<DeleteIcon/>}
+                        icon={<DeleteIcon />}
                         label="Delete"
                         onClick={() => deleteUserIcon_handler(params.row.id)}
                     />,
                     <GridActionsCellItem
                         key={1}
-                        icon={<EditIcon/>}
+                        icon={<EditIcon />}
                         label="Edit"
                         onClick={() => editUserIcon_handler(params.row)}
                         showInMenu
                     />,
                     <GridActionsCellItem
                         key={1}
-                        icon={<LoginIcon/>}
+                        icon={<LoginIcon />}
                         label="Login"
                         showInMenu
                     />,
@@ -222,7 +218,7 @@ export const Users = () => {
         // Пользователи ничего не должны знать о таблице с каналами
         // Загрузка и перерисовка каналов там должна происходить сама собой
         // после выбора другого пользователя.
-        fetchChannels(params.row["username"]);
+        // fetchChannels(params.row["username"]);
     };
 
     const handleErrorClose = () => {
@@ -237,14 +233,14 @@ export const Users = () => {
                 color="inherit"
                 onClick={handleErrorClose}
             >
-                <CloseIcon fontSize="small"/>
+                <CloseIcon fontSize="small" />
             </IconButton>
         </React.Fragment>
     );
 
     return (
         <section className={styles.users}>
-            <div style={{height: 400}}>
+            <div style={{ height: 400 }}>
                 <DataGrid
                     sx={{
                         "--DataGrid-overlayHeight": "300px",

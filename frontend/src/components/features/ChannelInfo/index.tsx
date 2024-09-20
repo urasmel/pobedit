@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import styles from "./ChannelInfo.module.css";
+import styles from "./styles.module.css";
 import { MainState, useMainStore } from "@/store/MainStore";
 
 export const ChannelInfo = () => {
@@ -7,7 +7,7 @@ export const ChannelInfo = () => {
         (state: MainState) => state.selectedChannelFullInfo
     );
 
-    useEffect(() => {}, []);
+    useEffect(() => { }, []);
 
     if (!channelFullInfo) {
         return null;

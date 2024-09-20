@@ -11,7 +11,6 @@ import {
     DataGrid,
     GridColDef,
     GridRowParams,
-    MuiEvent,
     GridActionsCellItem,
 } from "@mui/x-data-grid";
 import React, {
@@ -21,19 +20,20 @@ import React, {
     useMemo,
     useState,
 } from "react";
-import styles from "./Channels.module.css";
+import styles from "./styles.module.css";
 import { Channel } from "@/models/channel";
-import CustomNoRowsOverlay from "@/components/ui/CustomNoRowsOverlay/CustomNoRowsOverlay";
+import CustomNoRowsOverlay from "@/components/ui/CustomNoRowsOverlay";
 import { MainState, useMainStore } from "@/store/MainStore";
-import { ChannelInfo } from "../ChannelInfo/ChannelInfo";
+import { ChannelInfo } from "../ChannelInfo";
 import { ChannelProps } from "@/types/Props/ChannelProps";
-import DataGridTitle from "@/components/ui/DataGridTitle/DataGridTitle";
-const Loading = React.lazy(() => import("@/components/common/Loading/Loading"));
+import DataGridTitle from "@/components/ui/DataGridTitle";
+const Loading = React.lazy(() => import("@/components/common/Loading"));
 import InfoIcon from "@mui/icons-material/Info";
 import { useNavigate } from "react-router-dom";
+import { fetchChannels } from "@/api/channels";
 
-//const Channels = ({ user }: ChannelProps) => {
-const Channels = () => {
+const Channels = ({ userName }: ChannelProps) => {
+    // const Channels = () => {
     const navigate = useNavigate();
     const [openAddChannel, setOpenAddChannel] = useState(false);
     const [openShowChannelInfo, setOpenShowChannelInfo] = useState(false);
@@ -43,11 +43,8 @@ const Channels = () => {
         setOpenShowChannelInfo(false);
     };
 
-    const channels = useMainStore((state: MainState) => state.channels);
-
-    const fetchChannels = useMainStore(
-        (state: MainState) => state.fetchChannels
-    );
+    //const channels = useMainStore((state: MainState) => state.channels);
+    const [channels, setChannels] = useState<Channel[]>([]);
 
     const selectedChannelFullInfo = useMainStore(
         (state: MainState) => state.selectedChannelFullInfo
@@ -61,24 +58,33 @@ const Channels = () => {
         (state: MainState) => state.fetchUpdatedChannels
     );
 
-    const user = useMainStore((state: MainState) => state.selectedUser);
+    //const user = useMainStore((state: MainState) => state.selectedUser);
 
     useEffect(() => {
-        const fetchData = async (username: string) => {
+        const fetchData = async (user: string | null) => {
+
             if (typeof user !== "string" || !user) {
                 return;
             }
             setIsLoading(true);
-            await fetchChannels(username);
-            setIsLoading(false);
+
+            try {
+                const data = await fetchChannels(user);
+                setChannels(data);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setIsLoading(false);
+            }
+
         };
 
-        fetchData(user);
-    }, [user]);
+        fetchData(userName);
+    }, [userName]);
 
     const onDeleteChannel = useCallback(
         (id: number) => () => {
-            setTimeout(() => {});
+            setTimeout(() => { });
         },
         []
     );
@@ -115,16 +121,16 @@ const Channels = () => {
         },
     ]);
 
-    const onBtnClickOpenAddChannel = () => {};
+    const onBtnClickOpenAddChannel = () => { };
 
     const onBtnClickUpdateUserChannels = () => {
         const fetchData = async () => {
-            if (typeof user !== "string" || !user) {
+            if (typeof userName !== "string" || !userName) {
                 return;
             }
 
             setIsLoading(true);
-            fetchUpdatedChannels(user);
+            fetchUpdatedChannels(userName);
             setIsLoading(false);
         };
 
@@ -135,27 +141,24 @@ const Channels = () => {
         setOpenAddChannel(false);
     };
 
-    const onAddChannelSave = async () => {};
+    const onAddChannelSave = async () => { };
 
     const handleChannelInfoIconClick = async (channelId: number) => {
-        console.log("channelId " + channelId + " and user is " + user);
-        await fetchchannelFullInfo(user, channelId);
+        console.log("channelId " + channelId + " and user is " + userName);
+        await fetchchannelFullInfo(userName, channelId);
         setOpenShowChannelInfo(true);
     };
 
     const handleChannelRowClick = async (
-        params: GridRowParams,
-        event: MuiEvent<React.MouseEvent<HTMLElement>>
+        params: GridRowParams
     ) => {
-        // await fetchchannelFullInfo(user, params.row['id']);
-        // setOpenShowChannelInfo(true);
-        navigate(`/posts/${user}/channels/${params.row["id"]}`);
+        navigate(`/posts/${userName}/channels/${params.row["id"]}`);
     };
 
     return (
         <section className={styles.channels}>
             <div style={{ height: 400, width: "100%" }}>
-                <Suspense fallback={<Loading />}>
+                <Suspense fallback={<Loading isLoading />}>
                     <DataGrid
                         sx={{
                             "--DataGrid-overlayHeight": "300px",
@@ -214,8 +217,8 @@ const Channels = () => {
                         type="text"
                         fullWidth
                         variant="standard"
-                        //onChange={e => setAccUsername(e.target.value)}
-                        //value={accUsername}
+                    //onChange={e => setAccUsername(e.target.value)}
+                    //value={accUsername}
                     />
                     <TextField
                         autoFocus
@@ -225,8 +228,8 @@ const Channels = () => {
                         type="tel"
                         fullWidth
                         variant="standard"
-                        //onChange={e => setAccPhoneNumber(e.target.value)}
-                        //value={accPhoneNumber}
+                    //onChange={e => setAccPhoneNumber(e.target.value)}
+                    //value={accPhoneNumber}
                     />
                     <TextField
                         autoFocus
@@ -236,8 +239,8 @@ const Channels = () => {
                         type="password"
                         fullWidth
                         variant="standard"
-                        //onChange={e => setAccPassword(e.target.value)}
-                        //value={accPassword}
+                    //onChange={e => setAccPassword(e.target.value)}
+                    //value={accPassword}
                     />
                 </DialogContent>
                 <DialogActions>

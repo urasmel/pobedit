@@ -1,6 +1,6 @@
 import { Channel } from '@/models/channel';
 import { create } from 'zustand';
-import { channelDomain, channelPort, channelProto, channelApiVersion } from '../constants/constants';
+import { channelDomain, channelPort, channelProto, channelApiVersion } from '../constants';
 import { immer } from 'zustand/middleware/immer';
 import { devtools } from 'zustand/middleware';
 import { ServiceResponse } from '@/types/ServiceResponse';
@@ -9,7 +9,7 @@ import { Post } from '@/types/Post';
 
 export interface MainState {
 
-    selectedUser: string;
+    selectedUser: string | null;
     channels: Channel[];
     isLoading: boolean;
     error: string;
@@ -23,7 +23,6 @@ export interface MainState {
     selectedChannelFullInfo: ChannelFullInfo;
 
     setSelectedUser: (username: string) => void;
-    fetchChannels: (username: string) => void;
     fetchUpdatedChannels: (username: string) => void;
     fetchChannelInfo: (username: string, channelId: number) => void;
     fetchChannelPosts: (username: string, channelId: number, offset: number, count: number) => Promise<boolean>;
@@ -58,42 +57,8 @@ export const useMainStore = create<MainState>()(
                     console.log("user is: " + get().selectedUser);
                 },
 
-                fetchChannels: async (username: string) => {
-                    const url = `${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/users/${username}/channels`;
-                    const request = new Request(url,
-                        {
-                            method: 'GET',
-                            mode: 'cors',
-                            headers: {
-                                'Access-Control-Request-Method': 'GET',
-                                'Access-Control-Allow-Origin': '*',
-                                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
-                            },
-                            redirect: 'follow',
-                            cache: 'no-store'
-                        }
-                    );
-
-                    const response = await fetch(request);
-
-                    if (!response.ok) {
-                        console.log("Error fetching channels");
-                        set({ channels: [] });
-                        return;
-                    }
-
-                    const json = (await response.json() as ServiceResponse<Channel[]>).data;
-                    set({ channels: json });
-                    // Попробовать.
-                    // set(
-                    //     produce((state) => {
-                    //         state.chats = [];
-                    //     }),
-                    // )
-                },
-
                 fetchUpdatedChannels: async (username: string) => {
-                    const url = `${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/users/${username}/updated_channels`;
+                    const url = `${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/info/users/${username}/updated_channels`;
                     const request = new Request(url,
                         {
                             method: 'GET',
@@ -132,7 +97,7 @@ export const useMainStore = create<MainState>()(
 
                     if (get().channelsInfos.filter(item => item.id === channelId).length === 0) {
 
-                        const request = new Request(`${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/users/${username}/channels/${channelId}/info`,
+                        const request = new Request(`${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/info/users/${username}/channels/${channelId}/info`,
                             {
                                 method: 'GET',
                                 mode: 'cors',

@@ -1,5 +1,5 @@
-import styles from './Aside.module.css';
-import Badge from 'components/common/Badge/Badge';
+import styles from './styles.module.css';
+import Badge from '@/components/common/Badge';
 
 export const Aside = () => {
     return (
