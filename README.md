@@ -12,21 +12,30 @@
 -   Optimization
 -   SCSS
 -   Storybook
--   CI/CD
--   K8s
+-   Valibot
+-   Headless UI
+-   Vitest
+-   React Hook Form
 
 ### Backend
 
 -   Docker
--   k8s
 -   Postgres
--   MassTransit
 -   AutoMapper
 -   EF Core
 -   Nunit
+-   WebSocket
+-   MassTransit - provides a modern platform for creating distributed applications without complexity
+-   k8s
 -   Serilog
--   Quartz
--   Kubernetes, Temporal, Camunda, Zeebe, Camel, Kafka, RabbitMQ, Service Mesh.
+-   Quartz - open-source job scheduling system for .NET
+-   CI/CD
+-   Temporal - a distributed, scalable, durable, and highly available orchestration engine used to execute asynchronous, long-running business logic in a scalable and resilient way
+-   Camunda - Universal process orchestration
+-   Zeebe - Zeebe is a service orchestrator but it uses events internally
+-   Kafka, RabbitMQ
+-   Service Mesh
+-   Grafana
 
 Оператор вносит в базу несколько пользователей (users), с помощью разных сим-карт.
 Каждый пользователь подписан на различные группы, чаты и т. д., имеет возможность переписываться

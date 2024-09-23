@@ -1,0 +1,22 @@
+/* @import url("../../../assets/fonts/roboto.css"); */
+
+.widget {
+    font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: medium;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0.5rem 1.25rem 1.6875rem 1rem rgba(0, 0, 0, 0.15);
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    min-height: 3rem;
+}
+
+.widget__message {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background: rgb(248, 249, 250);
+    color: rgb(52, 71, 103);
+}

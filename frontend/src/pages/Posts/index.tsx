@@ -10,6 +10,7 @@ import { useInView } from "react-intersection-observer";
 import Loading from "@/components/common/Loading";
 import { NoChannelData } from "@/components/common/NoChannelData";
 import { fetchChannelNameById } from "@/api/channels";
+import { ChannelMainInfo } from "@/components/common/ChannelMainInfo";
 
 
 
@@ -20,7 +21,7 @@ const Posts = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [offset, setOffset] = useState(0);
     const [count, setCount] = useState(20);
-    const [channelName, setChannelName] = useState("");
+    const [channelTitle, setChannelName] = useState("");
 
     const channelPostsDict = useMainStore(
         (state: MainState) => state.channelPostsDict
@@ -92,7 +93,7 @@ const Posts = () => {
     return (
         <div className={styles["main_container"]}>
 
-            <div>{channelName}</div>
+            <ChannelMainInfo id={channelId} title={channelTitle} />
 
             {
                 channelPostsDict.posts.length == 0 && !isLoading
