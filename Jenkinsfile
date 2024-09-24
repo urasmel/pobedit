@@ -3,7 +3,9 @@ pipeline {
     stages {
         stage('Build') { 
             steps {
-                powershell 'npm install' 
+                dir('../frontend') {
+                    powershell 'npm install' 
+                }
             }
         }
     }
