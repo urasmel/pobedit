@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import Badge from '.';
+import Badge from './index';
 
 const meta: Meta<typeof Badge> = {
     title: 'Pobedit/Badge',
@@ -9,7 +9,7 @@ const meta: Meta<typeof Badge> = {
 
 export default meta;
 
-type Story = StoryObj<Badge>;
+type Story = StoryObj<typeof Badge>;
 
 export const Active: Story = {
     args: {

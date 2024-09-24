@@ -15,7 +15,6 @@ import {
 } from "@mui/x-data-grid";
 import React, {
     Suspense,
-    useCallback,
     useEffect,
     useMemo,
     useState,
@@ -46,9 +45,9 @@ const Channels = ({ userName }: ChannelProps) => {
     //const channels = useMainStore((state: MainState) => state.channels);
     const [channels, setChannels] = useState<Channel[]>([]);
 
-    const selectedChannelFullInfo = useMainStore(
-        (state: MainState) => state.selectedChannelFullInfo
-    );
+    // const selectedChannelFullInfo = useMainStore(
+    //     (state: MainState) => state.selectedChannelFullInfo
+    // );
 
     const fetchchannelFullInfo = useMainStore(
         (state: MainState) => state.fetchChannelInfo
@@ -82,12 +81,12 @@ const Channels = ({ userName }: ChannelProps) => {
         fetchData(userName);
     }, [userName]);
 
-    const onDeleteChannel = useCallback(
-        (id: number) => () => {
-            setTimeout(() => { });
-        },
-        []
-    );
+    // const onDeleteChannel = useCallback(
+    //     (id: number) => () => {
+    //         setTimeout(() => { });
+    //     },
+    //     []
+    // );
 
     const columns = useMemo<GridColDef<Channel>[]>(() => [
         { field: "id", headerName: "ID", width: 100 },
@@ -119,7 +118,7 @@ const Channels = ({ userName }: ChannelProps) => {
                 />,
             ],
         },
-    ]);
+    ], []);
 
     const onBtnClickOpenAddChannel = () => { };
 

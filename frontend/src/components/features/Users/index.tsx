@@ -31,12 +31,10 @@ import {
     deleteUser,
     editUser,
     fetchUsers as fetchUsers,
-    loginUser,
 } from "@/api/users";
 import styles from "./styles.module.css";
 import { User } from "@/models/user";
 import CustomNoRowsOverlay from "@/components/ui/CustomNoRowsOverlay";
-import { MainState, useMainStore } from "@/store/MainStore";
 import DataGridTitle from "@/components/ui/DataGridTitle";
 import { UserRow } from "types/UserRow.ts";
 import { UsersProps } from "@/types/Props/UsersProps";
@@ -103,25 +101,25 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
         []
     );
 
-    const loginUserIcon_handler = useCallback(
-        async (
-            row: UserRow
-        ): Promise<MouseEventHandler<HTMLLIElement> | undefined> => {
-            setAccId(() => row.userId);
-            setAccUsername(() => row.username);
-            setAccPassword(() => row.password);
-            setAccPhoneNumber(() => row.phoneNumber);
-            setOpenEditUser(true);
+    // const loginUserIcon_handler = useCallback(
+    //     async (
+    //         row: UserRow
+    //     ): Promise<MouseEventHandler<HTMLLIElement> | undefined> => {
+    //         setAccId(() => row.userId);
+    //         setAccUsername(() => row.username);
+    //         setAccPassword(() => row.password);
+    //         setAccPhoneNumber(() => row.phoneNumber);
+    //         setOpenEditUser(true);
 
-            await loginUser({
-                username: row.username,
-                password: row.password,
-                phoneNumber: row.phoneNumber,
-            });
-            return;
-        },
-        []
-    );
+    //         await loginUser({
+    //             username: row.username,
+    //             password: row.password,
+    //             phoneNumber: row.phoneNumber,
+    //         });
+    //         return;
+    //     },
+    //     []
+    // );
 
     const columns = useMemo<GridColDef<User>[]>(
         () => [
@@ -197,7 +195,7 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
 
     const editUserSave_handler = async () => {
         await editUser({
-            id: accId,
+            userId: accId,
             username: accUsername,
             password: accPassword,
             phoneNumber: accPhoneNumber,

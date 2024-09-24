@@ -1,4 +1,3 @@
-import { User, AddUserDto, LoginUserDto as LoginUserDto } from "@/models/user";
 import { gatherDomain, gatherPort, gatherProto, gatherApiVersion } from "@/constants";
 
 export const DownloadChannelPostsFromTelegram = async (userName: string, channelId: number) => {

@@ -1,7 +1,7 @@
 import { Button, Typography } from '@mui/material';
 import styles from './styles.module.css';
 import { NoChannelDataProps } from '@/types/Props/NoChannelDataProps';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import Loading from '../Loading';
 import { useNavigate } from 'react-router-dom';
 
@@ -45,9 +45,11 @@ export const NoChannelData = ({ userName, channelId }: NoChannelDataProps) => {
         };
     };
 
-    const closeWs = () => {
-        wsRef.current.close();
-    };
+    // const closeWs = () => {
+    //     if (wsRef != undefined && wsRef.current != undefined) {
+    //         wsRef.current.close();
+    //     }
+    // };
 
     const btnSendRequest_handler = () => {
         connectWs();

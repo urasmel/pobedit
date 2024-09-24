@@ -1,9 +1,9 @@
 import styles from "./styles.module.scss";
 import { useEffect, useState } from "react";
 import { MainState, useMainStore } from "@/store/MainStore";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import PostWidget from "@/components/features/PostWidget";
-import { Button, IconButton, Snackbar } from "@mui/material";
+import { IconButton, Snackbar } from "@mui/material";
 import React from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { useInView } from "react-intersection-observer";
@@ -20,7 +20,7 @@ const Posts = () => {
     const [openErrorMessage, setOpenErrorMessage] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [offset, setOffset] = useState(0);
-    const [count, setCount] = useState(20);
+    const [count] = useState(20);
     const [channelTitle, setChannelName] = useState("");
 
     const channelPostsDict = useMainStore(
@@ -48,7 +48,8 @@ const Posts = () => {
     );
 
     // For intersection-guard.
-    const { ref, inView, entry } = useInView({
+    // const { ref, inView, entry } = useInView({
+    const { ref, inView } = useInView({
         /* Optional options */
         threshold: 0,
     });
@@ -93,7 +94,15 @@ const Posts = () => {
     return (
         <div className={styles["main_container"]}>
 
-            <ChannelMainInfo id={channelId} title={channelTitle} />
+            {
+                channelId !== undefined ?
+
+                    <ChannelMainInfo id={+channelId} title={channelTitle} />
+                    :
+                    <></>
+            }
+
+
 
             {
                 channelPostsDict.posts.length == 0 && !isLoading

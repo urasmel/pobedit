@@ -1,13 +1,6 @@
 import styles from "./styles.module.css";
 import type { Post } from "@/types/Post";
 
-const options = {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-};
-
 const PostWidget = (post: Post) => {
     return (
         <div className={styles["widget"]}>
