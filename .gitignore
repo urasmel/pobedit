@@ -10,6 +10,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.bkp
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -529,4 +530,3 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-
