@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Build') { 
             steps {
-                dir('../frontend') {
+                dir('c://Users/protype/projects/pobedit/frontend/') {
                     powershell 'npm install' 
                 }
             }
