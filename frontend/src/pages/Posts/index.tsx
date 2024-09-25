@@ -92,12 +92,13 @@ const Posts = () => {
     }, [inView]);
 
     return (
-        <div className={styles["main_container"]}>
+        <div className={styles["posts"]}>
 
             {
                 channelId !== undefined ?
-
-                    <ChannelMainInfo id={+channelId} title={channelTitle} />
+                    <div className={styles['posts-channel']}>
+                        <ChannelMainInfo id={+channelId} title={channelTitle} />
+                    </div>
                     :
                     <></>
             }
