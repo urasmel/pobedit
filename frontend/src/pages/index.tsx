@@ -9,7 +9,11 @@ const AppRouter = () => {
         <Routes>
             <Route
                 path="/"
-                element={<Home />}
+                element={
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <Home />
+                    </Suspense>
+                }
                 errorElement={<ErrorBoundary />}
             />
             <Route
@@ -17,7 +21,8 @@ const AppRouter = () => {
                 element={
                     <Suspense fallback={<div>Loading...</div>}>
                         <Posts />
-                    </Suspense>}
+                    </Suspense>
+                }
                 errorElement={<ErrorBoundary />}
             />
         </Routes>

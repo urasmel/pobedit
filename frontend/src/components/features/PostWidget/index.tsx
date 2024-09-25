@@ -5,7 +5,7 @@ const PostWidget = (post: Post) => {
     return (
         <div className={styles["widget"]}>
             <div className={styles["widget__header"]}>
-                Ид. канала: {post.peerId}, ид. сообщения: {post.postId}, дата:{" "}
+                Ид. сообщения: {post.postId}, время:{" "}
                 {new Date(post.date).toLocaleString("ru-RU")}
             </div>
             <div className={styles["widget__message-container"]}>
