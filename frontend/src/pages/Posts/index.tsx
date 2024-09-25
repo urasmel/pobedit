@@ -11,6 +11,7 @@ import Loading from "@/components/common/Loading";
 import { NoChannelData } from "@/components/common/NoChannelData";
 import { fetchChannelNameById } from "@/api/channels";
 import { ChannelMainInfo } from "@/components/common/ChannelMainInfo";
+import ScrollToTopButton from "@/components/common/ScrollToTopButton";
 
 
 
@@ -123,6 +124,8 @@ const Posts = () => {
             <div className={styles['intersection-guard']} ref={ref} >
                 {`Header inside viewport ${inView}.`}
             </div>
+
+            <ScrollToTopButton />
 
             <Loading isLoading={isLoading} />
             <Snackbar
