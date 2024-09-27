@@ -14,7 +14,7 @@ pipeline {
                     // powershell '../deliver/deliver.ps1'
 
                     echo 'Starting build process...'
-                    powershell 'npm run build' - wait
+                    powershell 'npm run build'
                     echo 'Starting run process...'
                     powershell 'npm run dev'
 
