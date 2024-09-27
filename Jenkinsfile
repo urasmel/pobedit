@@ -11,12 +11,12 @@ pipeline {
         stage('Deliver') {
             steps {
                 dir('c://Users/protype/projects/pobedit/frontend/') {
-                    // powershell '../deliver/deliver.ps1'
+                    powershell '../deliver/deliver.ps1'
 
-                    echo 'Starting build process...'
-                    powershell 'npm run build'
-                    echo 'Starting run process...'
-                    powershell 'npm run dev'
+                    // echo 'Starting build process...'
+                    // powershell 'npm run build'
+                    // echo 'Starting run process...'
+                    // powershell 'npm run dev'
 
                     input message: 'Finished using the web site? (Click "Proceed" to continue)'
                 // powershell './jenkins/scripts/kill.ps1'
