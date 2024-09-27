@@ -1,5 +1,5 @@
 Write-Output "Current location is:"
-Write-Output Get-Location
+$PWD.Path
 Write-Output "Starting build process..."
 Start-Process npm -ArgumentList "run", "build" -wait
 Write-Output "Starting run process..."
