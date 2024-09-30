@@ -5,4 +5,4 @@ Write-Output "Starting build process..."
 npm run build
 Write-Output "Starting run process..."
 # Start-Process npm -ArgumentList "run", "dev"
-npm run dev
+# npm run dev
