@@ -9,13 +9,19 @@ pipeline {
     }
     stages {
         stage("Testing ControlService"){
-            echo "Testing ControlService"
+            steps{
+                echo "Testing ControlService"
+            }
         }
         stage("Testing GatherService"){
-            echo "Testing GatherService"
+            steps{
+                echo "Testing GatherService"
+            }
         }
         stage("Testing frontend"){
-            echo "Testing frontend"
+            steps{
+                echo "Testing frontend"
+            }
         }
         stage("Generating a database generation script"){
             steps{
