@@ -10,22 +10,23 @@ pipeline {
     stages {
         stage("Testing ControlService"){
             steps{
-                echo "Testing ControlService"
+                echo "Testing ControlService..."
             }
         }
         stage("Testing GatherService"){
             steps{
-                echo "Testing GatherService"
+                echo "Testing GatherService..."
             }
         }
         stage("Testing frontend"){
             steps{
-                echo "Testing frontend"
+                echo "Testing frontend..."
             }
         }
         stage("Generating a database generation script"){
             steps{
                 dir('./backend/services/ControlService/'){
+                    powershell 'Dir'
                     powershell 'dotnet ef migrations script --project "ControlMicroservice.csproj" --output "../../../db/scripts/create_db.sql"'
                     // powershell dotnet ef migrations script --verbose -i --project "c:\Users\protype\projects\pobedit\backend\services\ControlService\ControlMicroservice.csproj"
                 }
