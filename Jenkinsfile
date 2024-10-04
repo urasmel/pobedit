@@ -26,7 +26,7 @@ pipeline {
         stage("Generating a database generation script"){
             steps{
                 dir('./backend/services/ControlService/'){
-                    powershell dotnet ef migrations script --project "ControlMicroservice.csproj" --output "../../../db/scripts/create_db.sql"
+                    powershell 'dotnet ef migrations script --project "ControlMicroservice.csproj" --output "../../../db/scripts/create_db.sql"'
                     // powershell dotnet ef migrations script --verbose -i --project "c:\Users\protype\projects\pobedit\backend\services\ControlService\ControlMicroservice.csproj"
                 }
             }
