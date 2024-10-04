@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+*[sS]erviceResponse.ts
+./types/serviceResponse.ts
+./types/ServiceResponse.ts

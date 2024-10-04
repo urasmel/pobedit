@@ -16,7 +16,7 @@ ENV CI=true
 ENV PORT=3000
 
 FROM development AS build
-RUN npm run build
+RUN CI=false npm run build
 
 FROM nginx:alpine
 

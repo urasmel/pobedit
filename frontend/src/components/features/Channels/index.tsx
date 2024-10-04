@@ -24,7 +24,7 @@ import { Channel } from "@/models/channel";
 import CustomNoRowsOverlay from "@/components/ui/CustomNoRowsOverlay";
 import { MainState, useMainStore } from "@/store/MainStore";
 import { ChannelInfo } from "../ChannelInfo";
-import { ChannelProps } from "@/types/Props/ChannelProps";
+import { ChannelProps } from "types/Props";
 import DataGridTitle from "@/components/ui/DataGridTitle";
 const Loading = React.lazy(() => import("@/components/common/Loading"));
 import InfoIcon from "@mui/icons-material/Info";

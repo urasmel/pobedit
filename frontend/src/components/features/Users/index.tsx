@@ -36,8 +36,8 @@ import styles from "./styles.module.css";
 import { User } from "@/models/user";
 import CustomNoRowsOverlay from "@/components/ui/CustomNoRowsOverlay";
 import DataGridTitle from "@/components/ui/DataGridTitle";
-import { UserRow } from "types/UserRow.ts";
-import { UsersProps } from "@/types/Props/UsersProps";
+import { UserRow } from "@/types";
+import { UsersProps } from "types/Props";
 
 export const Users = ({ setSelectedUser }: UsersProps) => {
     const [users, setUsers] = useState<User[]>([]);
