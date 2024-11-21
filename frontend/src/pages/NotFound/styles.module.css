@@ -1,0 +1,12 @@
+.not_found {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Roboto', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #333;
+    gap: 1rem;
+}
