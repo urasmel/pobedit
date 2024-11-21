@@ -127,7 +127,14 @@ const Posts = () => {
 
             <ScrollToTopButton />
 
-            <Loading isLoading={isLoading} />
+            {
+                isLoading
+                    ?
+                    <Loading />
+                    :
+                    <></>
+            }
+
             <Snackbar
                 open={openErrorMessage}
                 autoHideDuration={6000}

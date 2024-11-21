@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes, useRouteError } from "react-router-dom";
 import NotFound from "./NotFound";
+import Loading from "@/components/common/Loading";
 
 const Home = lazy(() => import("./Home"));
 const Posts = lazy(() => import("./Posts"));
@@ -11,7 +12,7 @@ const AppRouter = () => {
             <Route
                 path="/"
                 element={
-                    <Suspense fallback={<div>Loading...</div>}>
+                    <Suspense fallback={<Loading />}>
                         <Home />
                     </Suspense>
                 }
@@ -20,7 +21,7 @@ const AppRouter = () => {
             <Route
                 path="/posts/:user/channels/:channelId"
                 element={
-                    <Suspense fallback={<div>Loading...</div>}>
+                    <Suspense fallback={<Loading />}>
                         <Posts />
                     </Suspense>
                 }

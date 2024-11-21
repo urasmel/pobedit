@@ -157,7 +157,7 @@ const Channels = ({ userName }: ChannelProps) => {
     return (
         <section className={styles.channels}>
             <div style={{ height: 400, width: "100%" }}>
-                <Suspense fallback={<Loading isLoading />}>
+                <Suspense fallback={<Loading />}>
                     <DataGrid
                         sx={{
                             "--DataGrid-overlayHeight": "300px",
