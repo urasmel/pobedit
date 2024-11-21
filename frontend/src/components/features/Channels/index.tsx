@@ -42,13 +42,7 @@ const Channels = ({ userName }: ChannelProps) => {
         setOpenShowChannelInfo(false);
     };
 
-    //const channels = useMainStore((state: MainState) => state.channels);
     const [channels, setChannels] = useState<Channel[]>([]);
-
-    // const selectedChannelFullInfo = useMainStore(
-    //     (state: MainState) => state.selectedChannelFullInfo
-    // );
-
     const fetchchannelFullInfo = useMainStore(
         (state: MainState) => state.fetchChannelInfo
     );
@@ -56,8 +50,6 @@ const Channels = ({ userName }: ChannelProps) => {
     const fetchUpdatedChannels = useMainStore(
         (state: MainState) => state.fetchUpdatedChannels
     );
-
-    //const user = useMainStore((state: MainState) => state.selectedUser);
 
     useEffect(() => {
         const fetchData = async (user: string | null) => {
@@ -75,7 +67,6 @@ const Channels = ({ userName }: ChannelProps) => {
             } finally {
                 setIsLoading(false);
             }
-
         };
 
         fetchData(userName);
@@ -123,7 +114,7 @@ const Channels = ({ userName }: ChannelProps) => {
     const onBtnClickOpenAddChannel = () => { };
 
     const onBtnClickUpdateUserChannels = () => {
-        const fetchData = async () => {
+        const fetchData = () => {
             if (typeof userName !== "string" || !userName) {
                 return;
             }
@@ -140,17 +131,15 @@ const Channels = ({ userName }: ChannelProps) => {
         setOpenAddChannel(false);
     };
 
-    const onAddChannelSave = async () => { };
+    const onAddChannelSave = () => { };
 
-    const handleChannelInfoIconClick = async (channelId: number) => {
+    const handleChannelInfoIconClick = (channelId: number) => {
         console.log("channelId " + channelId + " and user is " + userName);
-        await fetchchannelFullInfo(userName, channelId);
+        fetchchannelFullInfo(userName, channelId);
         setOpenShowChannelInfo(true);
     };
 
-    const handleChannelRowClick = async (
-        params: GridRowParams
-    ) => {
+    const handleChannelRowClick = (params: GridRowParams) => {
         navigate(`/posts/${userName}/channels/${params.row["id"]}`);
     };
 

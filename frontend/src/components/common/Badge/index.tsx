@@ -4,9 +4,9 @@ import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import { BadgeProps } from "types/Props";
 
 const Badge: React.FC<BadgeProps> = ({ title, active }) => {
-    let badgeActive: string = "";
-    let badgeIconActive: string = "";
-    let badgeTitleActive: string = "";
+    let badgeActive = "";
+    let badgeIconActive = "";
+    let badgeTitleActive = "";
 
     if (active) {
         badgeActive = "badge--active";
@@ -15,14 +15,14 @@ const Badge: React.FC<BadgeProps> = ({ title, active }) => {
     }
 
     return (
-        <div className={`${styles["badge"]} ${styles[badgeActive]}`}>
+        <div className={`${styles.badge} ${styles[badgeActive]}`}>
             <div
-                className={`${styles["badge__icon"]} ${styles[badgeIconActive]}`}
+                className={`${styles.badge__icon} ${styles[badgeIconActive]}`}
             >
                 <PeopleAltIcon sx={{ fontSize: 12, fill: "#344767" }} />
             </div>
             <div
-                className={`${styles["badge__title"]} ${styles[badgeTitleActive]}`}
+                className={`${styles.badge__title} ${styles[badgeTitleActive]}`}
             >
                 {title}
             </div>

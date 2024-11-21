@@ -23,10 +23,10 @@ export interface MainState {
     selectedChannelFullInfo: ChannelFullInfo;
 
     setSelectedUser: (username: string) => void;
-    fetchUpdatedChannels: (username: string) => void;
-    fetchChannelInfo: (username: string | null, channelId: number) => void;
+    fetchUpdatedChannels: (username: string) => Promise<void>;
+    fetchChannelInfo: (username: string | null, channelId: number) => Promise<void>;
     fetchChannelPosts: (username: string, channelId: number, offset: number, count: number) => Promise<boolean>;
-    updateAndFetchChannelPosts: (username: string, channelId: number) => void;
+    updateAndFetchChannelPosts: (username: string, channelId: number) => Promise<void>;
     updateSelectedUser: (user: string) => void;
 }
 
@@ -85,7 +85,7 @@ export const useMainStore = create<MainState>()(
                     set({ channels: json });
                 },
 
-                updateSelectedUser: async (username: string) => {
+                updateSelectedUser: (username: string) => {
                     //set({ selectedUser: username });
                     console.log("update user: " + username);
                     set({ selectedUser: username });

@@ -62,7 +62,7 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
             setIsUsersLoading(true);
 
             try {
-                const users: User[] = await fetchUsers();
+                const users: UserRow[] = await fetchUsers();
                 setUsers(users);
             } catch (e: unknown) {
                 setUsers([]);
@@ -75,14 +75,13 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
             }
         };
 
-        fetchData().then();
+        fetchData().catch(console.error);
     }, []);
 
     const deleteUserIcon_handler = useCallback(
         (id: number) => () => {
             setTimeout(() => {
-                deleteUser(id).then(() => {
-                });
+                deleteUser(id).then(() => { });
                 setUsers((prevRows) => prevRows.filter((row) => row.userId !== id));
             });
         },
@@ -208,10 +207,8 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
         setAccPhoneNumber("");
     };
 
-    const handleRowClick = (
-        params: GridRowParams
-    ) => {
-        setSelectedUser(params.row["username"]);
+    const handleRowClick = (params: GridRowParams<UserRow>) => {
+        setSelectedUser(params.row.username);
         // TODO
         // Пользователи ничего не должны знать о таблице с каналами
         // Загрузка и перерисовка каналов там должна происходить сама собой
@@ -297,7 +294,7 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
                         type="text"
                         fullWidth
                         variant="standard"
-                        onChange={(e) => setAccUsername(e.target.value)}
+                        onChange={(e) => { setAccUsername(e.target.value); }}
                         value={accUsername}
                     />
                     <TextField
@@ -308,7 +305,7 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
                         type="tel"
                         fullWidth
                         variant="standard"
-                        onChange={(e) => setAccPhoneNumber(e.target.value)}
+                        onChange={(e) => { setAccPhoneNumber(e.target.value); }}
                         value={accPhoneNumber}
                     />
                     <TextField
@@ -319,13 +316,13 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
                         type="password"
                         fullWidth
                         variant="standard"
-                        onChange={(e) => setAccPassword(e.target.value)}
+                        onChange={(e) => { setAccPassword(e.target.value); }}
                         value={accPassword}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={addUserDialogClose_handler}>Cancel</Button>
-                    <Button onClick={addUserSave_handler}>Add</Button>
+                    <Button onClick={() => addUserSave_handler}>Add</Button>
                 </DialogActions>
             </Dialog>
 
@@ -343,7 +340,7 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
                         type="text"
                         fullWidth
                         variant="standard"
-                        onChange={(e) => setAccUsername(e.target.value)}
+                        onChange={(e) => { setAccUsername(e.target.value); }}
                         value={accUsername}
                     />
                     <TextField
@@ -354,7 +351,7 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
                         type="tel"
                         fullWidth
                         variant="standard"
-                        onChange={(e) => setAccPhoneNumber(e.target.value)}
+                        onChange={(e) => { setAccPhoneNumber(e.target.value); }}
                         value={accPhoneNumber}
                     />
                     <TextField
@@ -365,7 +362,7 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
                         type="password"
                         fullWidth
                         variant="standard"
-                        onChange={(e) => setAccPassword(e.target.value)}
+                        onChange={(e) => { setAccPassword(e.target.value); }}
                         value={accPassword}
                     />
                 </DialogContent>
@@ -373,7 +370,7 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
                     <Button onClick={editUserDialogClose_handler}>
                         Cancel
                     </Button>
-                    <Button onClick={editUserSave_handler}>Save</Button>
+                    <Button onClick={() => editUserSave_handler}>Save</Button>
                 </DialogActions>
             </Dialog>
 
