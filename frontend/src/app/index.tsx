@@ -6,28 +6,29 @@ import "./index.scss";
 import styles from "./styles.module.css";
 
 function App() {
-    return <div className={styles.app}>
-
-        <div className={styles.aside}>
-            <Aside />
-        </div>
-
-        <div className={styles.main_block}>
+    return (
+        <div className={styles.app}>
 
             <div className={styles.header}>
                 <Header />
             </div>
 
+            <div className={styles.main_block}>
 
-            <div className={styles.main_content}>
-                <AppRouter />
+                <div className={styles.aside}>
+                    <Aside />
+                </div>
+
+                <div className={styles.main_content}>
+                    <AppRouter />
+                </div>
+
             </div>
-
             <div className={styles.footer}>
                 <Footer />
             </div>
         </div>
-    </div>;
+    );
 }
 
 export default App;

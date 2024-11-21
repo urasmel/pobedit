@@ -56,13 +56,13 @@ export const NoChannelData = ({ userName, channelId }: NoChannelDataProps) => {
     };
 
     return (
-        <div className={styles['block']}>
+        <div className={styles.block}>
             {
                 (userName !== undefined && channelId !== undefined)
                     ?
                     <>
-                        <div className={styles['block__text']}>Пока в базе данных нет записей канала с идентификатором <b>{channelId}</b></div>
-                        <div className={styles['block__button']}>
+                        <div className={styles.block__text}>Пока в базе данных нет записей канала с идентификатором <b>{channelId}</b></div>
+                        <div className={styles.block__button}>
                             <Button
                                 variant="contained"
                                 onClick={btnSendRequest_handler}>

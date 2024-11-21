@@ -1,4 +1,4 @@
-export type PostsProps = {
+export interface PostsProps {
     User: string;
     ChatId: number;
-};
+}

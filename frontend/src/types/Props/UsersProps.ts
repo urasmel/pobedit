@@ -1,3 +1,3 @@
-export type UsersProps = {
+export interface UsersProps {
     setSelectedUser: (userName: string) => void;
-};
+}

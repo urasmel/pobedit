@@ -1,4 +1,4 @@
-export type ChannelMainInfoProps = {
+export interface ChannelMainInfoProps {
     title: string;
     id: number;
-};
+}
