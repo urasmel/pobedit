@@ -1,5 +1,6 @@
 import { User, AddUserDto, LoginUserDto as LoginUserDto } from "@/models/user";
 import { controlApiVersion, controlDomain, controlPort, controlProto } from "@/constants";
+import { ServiceResponse, UserRow } from "@/types";
 
 export const fetchUsers = async () => {
     const request = new Request(`${controlProto}${controlDomain}:${controlPort}/api/${controlApiVersion}/users`,
@@ -20,8 +21,8 @@ export const fetchUsers = async () => {
         throw new Error('Error to fetch users!');
     }
 
-    const { data = [] } = await response.json();
-
+    const response_content = await response.json() as ServiceResponse<UserRow>;
+    const data = response_content.data;
     return data;
 };
 
