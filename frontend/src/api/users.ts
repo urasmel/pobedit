@@ -48,7 +48,8 @@ export const addUser = async (user: AddUserDto) => {
         return null;
     }
 
-    const { data = [] } = await response.json();
+    const response_content = await response.json() as ServiceResponse<UserRow>;
+    const data = response_content.data;
     return data;
 };
 
@@ -73,7 +74,8 @@ export const deleteUser = async (id: number) => {
         return null;
     }
 
-    const { data = [] } = await response.json();
+    const response_content = await response.json() as ServiceResponse<UserRow>;
+    const data = response_content.data;
     return data;
 };
 
@@ -98,7 +100,8 @@ export const editUser = async (user: User) => {
         return null;
     }
 
-    const { data = [] } = await response.json();
+    const response_content = await response.json() as ServiceResponse<UserRow>;
+    const data = response_content.data;
     return data;
 };
 
