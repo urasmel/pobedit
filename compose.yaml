@@ -1,0 +1,59 @@
+name: pobedit_cicd
+
+services:
+    db:
+        image: postgres:13-alpine
+        container_name: user_cicd_db_server
+        volumes:
+            - db-data:/var/lib/postgresql/data
+            - ./db/scripts:/docker-entrypoint-initdb.d
+        ports:
+            # - 6543:5432
+            - 5432:5432
+        environment:
+            POSTGRES_HOST_AUTH_METHOD: trust
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: users
+        restart: unless-stopped
+
+    gatherservice:
+        build:
+            context: ./backend/services
+            dockerfile: GatherService.Dockerfile
+        container_name: gatherservice
+        environment:
+            DB_HOST: db
+            DB_PORT: 5432
+            DB_USER: postgres
+            DB_PASSWORD: postgres
+        ports:
+            - "5038:5038"
+        depends_on:
+            - db
+
+    controlservice:
+        build:
+            context: ./backend/services
+            dockerfile: ControlService.Dockerfile
+        container_name: controlservice
+        environment:
+            DB_HOST: db
+            DB_PORT: 5432
+            DB_USER: postgres
+            DB_PASSWORD: postgres
+        ports:
+            - "5114:5114"
+        depends_on:
+            - db
+
+    frontend:
+        build:
+            context: ./frontend
+            dockerfile: Frontend.Dockerfile
+        container_name: frontend
+        ports:
+            - 80:80
+
+volumes:
+    db-data:

@@ -1,6 +1,6 @@
 import { channelApiVersion, channelDomain, channelPort, channelProto } from "@/constants";
 import { Channel } from "@/models/channel";
-import { ServiceResponse } from "@/types/ServiceResponse";
+import { ServiceResponse } from "@/types";
 
 export const fetchChannels = async (username: string) => {
     const url = `${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/info/users/${username}/channels`;

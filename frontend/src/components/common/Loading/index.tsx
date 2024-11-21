@@ -1,4 +1,4 @@
-import { LoadingProps } from "@/types/Props/LoadingProps";
+import { LoadingProps } from "types/Props";
 import { Box, CircularProgress } from "@mui/material";
 
 const Loading = (props: LoadingProps) => {

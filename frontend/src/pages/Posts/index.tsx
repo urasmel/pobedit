@@ -93,7 +93,7 @@ const Posts = () => {
     }, [inView]);
 
     return (
-        <div className={styles["posts"]}>
+        <div className={styles.posts}>
 
             {
                 channelId !== undefined ?

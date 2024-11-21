@@ -1,5 +1,5 @@
 import styles from "./styles.module.css";
-import type { Post } from "@/types/Post";
+import type { Post } from "types/Post";
 
 const PostWidget = (post: Post) => {
     return (

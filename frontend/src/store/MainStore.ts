@@ -3,9 +3,9 @@ import { create } from 'zustand';
 import { channelDomain, channelPort, channelProto, channelApiVersion } from '../constants';
 import { immer } from 'zustand/middleware/immer';
 import { devtools } from 'zustand/middleware';
-import { ServiceResponse } from '@/types/ServiceResponse';
-import { ChannelFullInfo } from '@/types/ChannelFullInfo';
-import { Post } from '@/types/Post';
+import { ServiceResponse } from '@/types';
+import { ChannelFullInfo } from '@/types';
+import { Post } from '@/types';
 
 export interface MainState {
 

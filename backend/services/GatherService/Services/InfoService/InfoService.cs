@@ -608,6 +608,10 @@ namespace GatherMicroservice.Services.InfoService
                     //response.Success = false;
                     //response.Message = "Channel not found";
                     //return response;
+                    await webSocket.CloseAsync(
+                        WebSocketCloseStatus.NormalClosure,
+                        "Channel not found", 
+                        CancellationToken.None);
                     return;
                 }
 
@@ -630,6 +634,10 @@ namespace GatherMicroservice.Services.InfoService
                         //response.Success = false;
                         //response.Message = "Channel peer is not ChannelMessages";
                         //return response;
+                        await webSocket.CloseAsync(
+                            WebSocketCloseStatus.NormalClosure,
+                            "Channel peer is not ChannelMessages",
+                            CancellationToken.None);
                         return;
                     }
 
@@ -638,6 +646,10 @@ namespace GatherMicroservice.Services.InfoService
                         //response.Success = false;
                         //response.Message = "No data";
                         //return response;
+                        await webSocket.CloseAsync(
+                            WebSocketCloseStatus.NormalClosure,
+                            "No data",
+                            CancellationToken.None);
                         return;
                     }
 
@@ -652,6 +664,10 @@ namespace GatherMicroservice.Services.InfoService
                         //response.Success = false;
                         //response.Message = "Channel peer is not ChannelMessages";
                         //return response;
+                        await webSocket.CloseAsync(
+                            WebSocketCloseStatus.NormalClosure,
+                            "Channel peer is not ChannelMessages",
+                            CancellationToken.None);
                         return;
                     }
 
@@ -660,6 +676,10 @@ namespace GatherMicroservice.Services.InfoService
                         //response.Success = false;
                         //response.Message = "No data";
                         //return response;
+                        await webSocket.CloseAsync(
+                            WebSocketCloseStatus.NormalClosure,
+                            "No data",
+                            CancellationToken.None);
                         return;
                     }
 
