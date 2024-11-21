@@ -6,24 +6,24 @@ import "./index.scss";
 import styles from "./styles.module.css";
 
 function App() {
-    return <div className={styles["app"]}>
+    return <div className={styles.app}>
 
-        <div className={styles["aside"]}>
+        <div className={styles.aside}>
             <Aside />
         </div>
 
-        <div className={styles["main_block"]}>
+        <div className={styles.main_block}>
 
-            <div className={styles["header"]}>
+            <div className={styles.header}>
                 <Header />
             </div>
 
 
-            <div className={styles["main_content"]}>
+            <div className={styles.main_content}>
                 <AppRouter />
             </div>
 
-            <div className={styles["footer"]}>
+            <div className={styles.footer}>
                 <Footer />
             </div>
         </div>
