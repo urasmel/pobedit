@@ -1,3 +1,3 @@
-export type ChannelProps = {
+export interface ChannelProps {
     userName: string | null;
-};
+}

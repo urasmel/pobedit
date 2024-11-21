@@ -1,4 +1,4 @@
-export type BadgeProps = {
+export interface BadgeProps {
     title: string;
     active: boolean;
-};
+}
