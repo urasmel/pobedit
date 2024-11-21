@@ -17,7 +17,6 @@ export const NoChannelData = ({ userName, channelId }: NoChannelDataProps) => {
 
     const wsRef = useRef<WebSocket>();
 
-
     const connectWs = () => {
 
         wsRef.current = new WebSocket(URL);
@@ -45,11 +44,11 @@ export const NoChannelData = ({ userName, channelId }: NoChannelDataProps) => {
         };
     };
 
-    // const closeWs = () => {
-    //     if (wsRef != undefined && wsRef.current != undefined) {
-    //         wsRef.current.close();
-    //     }
-    // };
+    const btnStopDownloading_handler = () => {
+        if (wsRef.current != undefined) {
+            wsRef.current.close();
+        }
+    };
 
     const btnSendRequest_handler = () => {
         connectWs();
@@ -74,10 +73,17 @@ export const NoChannelData = ({ userName, channelId }: NoChannelDataProps) => {
                         {
                             isLoading
                                 ?
-                                <Typography component="h6" variant="h6">
-                                    <Loading />
-                                    Время создания загружаемой записи: {response}
-                                </Typography>
+                                <>
+                                    <Typography component="h6" variant="h6">
+                                        <Loading />
+                                        Время создания загружаемой записи: {response}
+                                    </Typography>
+                                    <Button
+                                        variant="contained"
+                                        onClick={btnStopDownloading_handler}>
+                                        Прервать загрузку
+                                    </Button>
+                                </>
                                 :
                                 <></>
                         }

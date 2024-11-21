@@ -3,8 +3,8 @@ import { Main } from "@/components/blocks/Main";
 
 const Home = () => {
     return (
-        <div className={styles["main_container"]}>
-            <Main></Main>
+        <div className={styles.main_container}>
+            <Main />
         </div>
     );
 };

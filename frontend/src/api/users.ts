@@ -21,7 +21,7 @@ export const fetchUsers = async () => {
         throw new Error('Error to fetch users!');
     }
 
-    const response_content = await response.json() as ServiceResponse<UserRow>;
+    const response_content = await response.json() as ServiceResponse<UserRow[]>;
     const data = response_content.data;
     return data;
 };
