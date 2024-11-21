@@ -12,7 +12,7 @@ const AppRouter = () => {
             <Route
                 path="/"
                 element={
-                    <Suspense fallback={<Loading isLoading />}>
+                    <Suspense fallback={<Loading />}>
                         <Home />
                     </Suspense>
                 }
@@ -21,7 +21,7 @@ const AppRouter = () => {
             <Route
                 path="/posts/:user/channels/:channelId"
                 element={
-                    <Suspense fallback={<Loading isLoading />}>
+                    <Suspense fallback={<Loading />}>
                         <Posts />
                     </Suspense>
                 }

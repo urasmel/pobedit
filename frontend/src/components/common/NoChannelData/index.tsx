@@ -75,7 +75,7 @@ export const NoChannelData = ({ userName, channelId }: NoChannelDataProps) => {
                             isLoading
                                 ?
                                 <Typography component="h6" variant="h6">
-                                    <Loading isLoading />
+                                    <Loading />
                                     Время создания загружаемой записи: {response}
                                 </Typography>
                                 :
