@@ -29,7 +29,7 @@ const ScrollToTopButton = () => {
     }, []);
 
     return (
-        <div>
+        <>
             {isVisible && (
                 <div className={styles['button-up']}>
                     <Button onClick={scrollToTop} fullWidth >
@@ -38,7 +38,7 @@ const ScrollToTopButton = () => {
                 </div>
 
             )}
-        </div>
+        </>
     );
 };
 
