@@ -33,8 +33,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Controllers\" />
+    <Folder Include="Filtering\" />
     <Folder Include="logs\" />
     <Folder Include="Models\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

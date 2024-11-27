@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using GatherMicroservice.Services;
+using Gather.Services;
 using Asp.Versioning;
 
-namespace GatherMicroservice.Controllers
+namespace Gather.Controllers
 {
     [ApiVersion(1)]
     [ApiController]

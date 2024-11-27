@@ -1,19 +1,19 @@
-using GatherMicroservice.Controllers;
-using GatherMicroservice.Services;
+using Gather.Controllers;
+using Gather.Services;
 using SharedCore.Models;
 using SharedCore.Dtos.Channel;
 using Moq;
-using GatherMicroservice.Services.InfoService;
-using GatherMicroservice.Client;
-using GatherMicroservice.Data;
+using Gather.Services.InfoService;
+using Gather.Client;
+using Gather.Data;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
-using GatherMicroservice.Utils;
+using Gather.Utils;
 using Moq.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace GatherService.Tests
+namespace Gather.Tests
 {
     public class InfoServiceTests
     {

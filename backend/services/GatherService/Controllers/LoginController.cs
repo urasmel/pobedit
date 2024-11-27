@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using GatherMicroservice.Models;
-using GatherMicroservice.Dtos;
-using GatherMicroservice.Services;
+using Gather.Models;
+using Gather.Dtos;
+using Gather.Services;
 using SharedCore.Models;
 
-namespace GatherMicroservice.Controllers
+namespace Gather.Controllers
 {
     [ApiController]
     [Route("login")]

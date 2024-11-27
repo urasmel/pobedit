@@ -1,9 +1,9 @@
-﻿using ControlService.Data;
+﻿using Gather.Data;
 using SharedCore.Dtos.User;
 using Microsoft.AspNetCore.Mvc;
 using SharedCore.Models;
 
-namespace ControlService.Controllers
+namespace Gather.Controllers
 {
     [ApiController]
     [Route("auth")]

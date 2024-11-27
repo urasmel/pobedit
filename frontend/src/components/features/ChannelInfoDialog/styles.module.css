@@ -11,8 +11,14 @@
     column-gap: 10px;
 }
 
+.info__photo {
+    width: 10rem;
+    height: 10rem;
+}
+
 img {
     border-radius: 50%;
+    width: 100%;
 }
 
 .info__about {

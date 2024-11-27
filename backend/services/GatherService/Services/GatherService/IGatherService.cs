@@ -1,7 +1,7 @@
-﻿using GatherMicroservice.Models;
+﻿using Gather.Models;
 using SharedCore.Models;
 
-namespace GatherMicroservice.Services
+namespace Gather.Services
 {
     public interface IGatherService
     {

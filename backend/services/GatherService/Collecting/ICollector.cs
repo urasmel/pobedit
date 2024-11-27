@@ -1,6 +1,6 @@
 ﻿using TL;
 
-namespace GatherMicroservice.Collecting
+namespace Gather.Collecting
 {
     public interface ICollector
     {

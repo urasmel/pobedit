@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test_1": "json-server --watch ./data/data.json --routes routes.json -p 5037",
-    "test_2": "json-server --watch ./data/data.json --routes routes.json -p 5113"
+    "test": "json-server --watch ./data/data.json --routes routes.json -p 5037"
   },
   "keywords": [
     "telegramm",

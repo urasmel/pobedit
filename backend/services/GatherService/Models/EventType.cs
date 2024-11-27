@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace GatherMicroservice.Models
+namespace Gather.Models
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum EventType

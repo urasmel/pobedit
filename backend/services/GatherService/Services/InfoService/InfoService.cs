@@ -1,21 +1,22 @@
 ﻿using AutoMapper;
-using GatherMicroservice.Client;
-using GatherMicroservice.Data;
-using GatherMicroservice.Models;
-using GatherMicroservice.Utils;
+using Gather.Client;
+using Gather.Data;
+using Gather.Models;
+using Gather.Utils;
 using Microsoft.EntityFrameworkCore;
 using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
 using SharedCore.Models;
 using System;
 using System.Diagnostics.Metrics;
+using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using TL;
 using WTelegram;
 
-namespace GatherMicroservice.Services.InfoService
+namespace Gather.Services.InfoService
 {
     public class InfoService : IInfoService
     {
@@ -124,7 +125,7 @@ namespace GatherMicroservice.Services.InfoService
                     }
 
                     // Добавляем новые в БД.
-                    var random =new Random();
+                    var random = new Random();
                     foreach (var chat in chatsFromTG)
                     {
                         try
@@ -612,7 +613,7 @@ namespace GatherMicroservice.Services.InfoService
                     //return response;
                     await webSocket.CloseAsync(
                         WebSocketCloseStatus.NormalClosure,
-                        "Channel not found", 
+                        "Channel not found",
                         CancellationToken.None);
                     return;
                 }

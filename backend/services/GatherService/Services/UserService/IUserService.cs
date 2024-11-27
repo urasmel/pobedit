@@ -1,7 +1,7 @@
 ﻿using SharedCore.Dtos.User;
 using SharedCore.Models;
 
-namespace ControlService.Services.UserService
+namespace Gather.Services.UserService
 {
     public interface IUserService
     {

@@ -1,11 +1,11 @@
-﻿using GatherMicroservice.Models;
+﻿using Gather.Models;
 using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
 using SharedCore.Models;
 using System.Net.WebSockets;
 using TL;
 
-namespace GatherMicroservice.Services
+namespace Gather.Services
 {
     public interface IInfoService
     {
