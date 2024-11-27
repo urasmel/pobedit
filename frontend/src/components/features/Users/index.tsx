@@ -124,32 +124,32 @@ export const Users = () => {
     const columns = useMemo<GridColDef<User>[]>(
         () => [
             { field: "userId", headerName: "ID", width: 50 },
-            { field: "username", headerName: "Username", width: 100 },
-            { field: "password", headerName: "Password", flex: 1 },
-            { field: "phoneNumber", headerName: "Phone Number", width: 150 },
+            { field: "username", headerName: "Пользователь", width: 100 },
+            { field: "password", headerName: "Пароль", flex: 1 },
+            { field: "phoneNumber", headerName: "Тел. номер", width: 150 },
             {
                 field: "actions",
                 type: "actions",
                 flex: 1,
-                headerName: "Actions",
+                headerName: "Операции",
                 getActions: (params: GridRowParams) => [
                     <GridActionsCellItem
                         key={0}
                         icon={<DeleteIcon />}
-                        label="Delete"
+                        label="Удалить"
                         onClick={() => deleteUserIcon_handler(params.row.userId)}
                     />,
                     <GridActionsCellItem
                         key={1}
                         icon={<EditIcon />}
-                        label="Edit"
+                        label="Редактировать"
                         onClick={() => editUserIcon_handler(params.row)}
                         showInMenu
                     />,
                     <GridActionsCellItem
                         key={1}
                         icon={<LoginIcon />}
-                        label="Login"
+                        label="Логин"
                         showInMenu
                     />,
                 ],
@@ -254,7 +254,7 @@ export const Users = () => {
                     variant="contained"
                     onClick={onClickBtnLoadAccounts}
                 >
-                    Reload
+                    Обновить
                 </Button>
 
                 <Button
@@ -264,7 +264,7 @@ export const Users = () => {
                     variant="contained"
                     onClick={handleClickOpenAddUser}
                 >
-                    Add
+                    Добавить
                 </Button>
             </div>
 

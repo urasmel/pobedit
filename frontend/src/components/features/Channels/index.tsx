@@ -83,17 +83,17 @@ const Channels = () => {
 
     const columns = useMemo<GridColDef<ChannelInfo>[]>(() => [
         { field: "id", headerName: "ID", width: 100 },
-        { field: "title", headerName: "Title", flex: 1 },
-        { field: "mainUsername", headerName: "Owner", flex: 1 },
+        { field: "title", headerName: "Заголовок", flex: 1 },
+        { field: "mainUsername", headerName: "Владелец", flex: 1 },
         {
             field: "isChannel",
-            headerName: "Is channel",
+            headerName: "Канал",
             type: "boolean",
             width: 100,
         },
         {
             field: "isGroup",
-            headerName: "Is group",
+            headerName: "Группа",
             type: "boolean",
             width: 100,
         },
@@ -101,12 +101,12 @@ const Channels = () => {
             field: "actions",
             type: "actions",
             flex: 1,
-            headerName: "Actions",
+            headerName: "Операции",
             getActions: (params: GridRowParams) => [
                 <GridActionsCellItem
                     key={0}
                     icon={<InfoIcon />}
-                    label="Show info"
+                    label="Показать информацию"
                     onClick={() => handleChannelInfoIconClick(params.row.id)}
                 />,
             ],
@@ -189,7 +189,7 @@ const Channels = () => {
                     variant="contained"
                     onClick={onBtnClickOpenAddChannel}
                 >
-                    Add
+                    Добавить
                 </Button>
 
                 <Button
@@ -199,7 +199,7 @@ const Channels = () => {
                     variant="contained"
                     onClick={onBtnClickUpdateUserChannels}
                 >
-                    Update
+                    Обновить
                 </Button>
             </div>
 
