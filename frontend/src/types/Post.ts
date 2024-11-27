@@ -3,4 +3,5 @@ export interface Post {
     peerId: number;
     date: Date;
     message: string;
+    comments: Comment[];
 }

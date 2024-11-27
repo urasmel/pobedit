@@ -1,6 +1,6 @@
 import styles from "./styles.module.scss";
 import { useEffect, useState } from "react";
-import { MainState, useMainStore } from "@/store/MainStore";
+import { MainState, Action, useMainStore } from "@/store/MainStore";
 import { useParams } from "react-router-dom";
 import PostWidget from "@/components/features/PostWidget";
 import { IconButton, Snackbar } from "@mui/material";
@@ -29,9 +29,7 @@ const Posts = () => {
         (state: MainState) => state.channelPostsDict
     );
 
-    const fetchChannelPosts = useMainStore(
-        (state: MainState) => state.fetchChannelPosts
-    );
+    const fetchChannelPosts = useMainStore((state: MainState & Action) => state.fetchChannelPosts);
 
     const handleErrorClose = () => {
         setOpenErrorMessage(false);
@@ -60,11 +58,12 @@ const Posts = () => {
     useEffect(() => {
         const fetchChannelName = async () => {
 
-            const channelName = await fetchChannelNameById(user, channelId ? +channelId : undefined);
-            setChannelName(channelName.title);
+            const channel = await fetchChannelNameById(user, channelId ? +channelId : undefined);
+            if (channel != undefined)
+                setChannelName(channel.title);
         };
 
-        fetchChannelName();
+        fetchChannelName().catch(console.error);
     }, []);
 
     useEffect(() => {
@@ -93,7 +92,7 @@ const Posts = () => {
             setIsLoading(false);
         };
 
-        fetchPosts();
+        fetchPosts().catch(console.error);
     }, [inView]);
 
     return (
@@ -115,6 +114,7 @@ const Posts = () => {
                                     <div className={styles['posts-channel']}>
                                         <ChannelMainInfo id={channelId === undefined ? 0 : +channelId} title={channelTitle} />
                                     </div>
+
                                     {
                                         channelPostsDict.posts.length == 0
                                             ?

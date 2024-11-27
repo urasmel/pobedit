@@ -26,7 +26,7 @@ export const fetchChannels = async (username: string): Promise<ChannelInfo[]> =>
     return (await response.json() as ServiceResponse<ChannelInfo[]>).data;
 };
 
-export const fetchChannelNameById = async (username: string | undefined, channelId: number | undefined) => {
+export const fetchChannelNameById = async (username: string | undefined, channelId: number | undefined): Promise<ChannelInfo | undefined> => {
 
     if (username == undefined) {
         throw new Error("username is undefined");
@@ -57,6 +57,6 @@ export const fetchChannelNameById = async (username: string | undefined, channel
         throw new Error('Error fetching channel info by id');
     }
 
-    const channel = (await response.json() as ServiceResponse<Channel>).data;
+    const channel = ((await response.json()) as ServiceResponse<ChannelInfo>).data;
     return channel;
 };
