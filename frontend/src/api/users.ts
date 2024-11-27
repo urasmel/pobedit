@@ -1,9 +1,9 @@
 import { User, AddUserDto, LoginUserDto as LoginUserDto } from "@/models/user";
-import { controlApiVersion, controlDomain, controlPort, controlProto } from "@/constants";
+import { serviceApiVersion, serviceDomain, servicePort, serviceProto } from "@/constants";
 import { ServiceResponse, UserRow } from "@/types";
 
 export const fetchUsers = async () => {
-    const request = new Request(`${controlProto}${controlDomain}:${controlPort}/api/${controlApiVersion}/users`,
+    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/users`,
         {
             method: 'GET',
             mode: 'cors',
@@ -27,7 +27,7 @@ export const fetchUsers = async () => {
 };
 
 export const addUser = async (user: AddUserDto) => {
-    const request = new Request(`${controlProto}${controlDomain}:${controlPort}/users`,
+    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/users`,
         {
             method: 'POST',
             mode: 'cors',
@@ -54,7 +54,7 @@ export const addUser = async (user: AddUserDto) => {
 };
 
 export const deleteUser = async (id: number) => {
-    const request = new Request(`${controlProto}${controlDomain}:${controlPort}/users/${id}`,
+    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/users/${id}`,
         {
             method: 'DELETE',
             mode: 'cors',
@@ -80,7 +80,7 @@ export const deleteUser = async (id: number) => {
 };
 
 export const editUser = async (user: User) => {
-    const request = new Request(`${controlProto}${controlDomain}:${controlPort}/users`,
+    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/users`,
         {
             method: 'PATCH',
             mode: 'cors',
@@ -106,7 +106,7 @@ export const editUser = async (user: User) => {
 };
 
 export const loginUser = async (user: LoginUserDto) => {
-    const request = new Request(`${controlProto}${controlDomain}:${controlPort}/auth/login`,
+    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/auth/login`,
         {
             method: 'GET',
             mode: 'cors',

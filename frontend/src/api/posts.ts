@@ -1,7 +1,7 @@
-import { gatherDomain, gatherPort, gatherProto, gatherApiVersion } from "@/constants";
+import { serviceDomain, servicePort, serviceProto, serviceApiVersion } from "@/constants";
 
 export const DownloadChannelPostsFromTelegram = async (userName: string, channelId: number) => {
-    const request = new Request(`${gatherProto}${gatherDomain}:${gatherPort}/api/${gatherApiVersion}/info/users/${userName}/channels/${channelId}/updated_messages`,
+    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${userName}/channels/${channelId}/updated_messages`,
         {
             method: 'GET',
             mode: 'cors',
