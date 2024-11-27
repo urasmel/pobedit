@@ -1,4 +1,4 @@
-export interface ChannelFullInfo {
+export interface ChannelInfo {
     id: number;
     about: string;
     participantsCount: number;

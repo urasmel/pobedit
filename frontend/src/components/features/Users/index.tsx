@@ -37,9 +37,10 @@ import { User } from "@/models/user";
 import CustomNoRowsOverlay from "@/components/ui/CustomNoRowsOverlay";
 import DataGridTitle from "@/components/ui/DataGridTitle";
 import { UserRow } from "@/types";
-import { UsersProps } from "types/Props";
+import { Action, MainState, useMainStore } from "@/store/MainStore";
+import { ErrorAction } from "@/components/common/ErrorrAction";
 
-export const Users = ({ setSelectedUser }: UsersProps) => {
+export const Users = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [openAddUser, setOpenAddUser] = useState(false);
     const [openEditUser, setOpenEditUser] = useState(false);
@@ -52,9 +53,9 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
 
     const [isUsersLoading, setIsUsersLoading] = useState(false);
 
-    // const fetchChannels = useMainStore(
-    //     (state: MainState) => state.fetchChannels
-    // );
+    const setSelectedUser = useMainStore(
+        (state: MainState & Action) => state.updateSelectedUser
+    );
 
     useEffect(() => {
 
@@ -122,7 +123,7 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
 
     const columns = useMemo<GridColDef<User>[]>(
         () => [
-            { field: "id", headerName: "ID", width: 50 },
+            { field: "userId", headerName: "ID", width: 50 },
             { field: "username", headerName: "Username", width: 100 },
             { field: "password", headerName: "Password", flex: 1 },
             { field: "phoneNumber", headerName: "Phone Number", width: 150 },
@@ -136,7 +137,7 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
                         key={0}
                         icon={<DeleteIcon />}
                         label="Delete"
-                        onClick={() => deleteUserIcon_handler(params.row.id)}
+                        onClick={() => deleteUserIcon_handler(params.row.userId)}
                     />,
                     <GridActionsCellItem
                         key={1}
@@ -219,19 +220,6 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
     const handleErrorClose = () => {
         setOpenErrorMessage(false);
     };
-
-    const errorAction = (
-        <React.Fragment>
-            <IconButton
-                size="small"
-                aria-label="close"
-                color="inherit"
-                onClick={handleErrorClose}
-            >
-                <CloseIcon fontSize="small" />
-            </IconButton>
-        </React.Fragment>
-    );
 
     return (
         <section className={styles.users}>
@@ -379,7 +367,8 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
                 autoHideDuration={6000}
                 onClose={handleErrorClose}
                 message={errorMessage}
-                action={errorAction}
+                // action={errorAction}
+                action={ErrorAction(handleErrorClose)}
             />
         </section>
     );

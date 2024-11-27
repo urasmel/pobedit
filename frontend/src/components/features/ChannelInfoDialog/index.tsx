@@ -1,9 +1,9 @@
 import styles from "./styles.module.css";
 import { MainState, useMainStore } from "@/store/MainStore";
 
-export const ChannelInfo = () => {
+export const ChannelInfoDialog = () => {
     const channelFullInfo = useMainStore(
-        (state: MainState) => state.selectedChannelFullInfo
+        (state: MainState) => state.selectedChannelInfo
     );
 
     return (

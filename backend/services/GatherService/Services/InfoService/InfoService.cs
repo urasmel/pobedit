@@ -20,7 +20,7 @@ namespace GatherMicroservice.Services.InfoService
     public class InfoService : IInfoService
     {
         // Дата, с которой начинаем загружать данные.
-        private DateTime startLoadingDate = DateTime.Parse("Dec 31, 2023");
+        private DateTime startLoadingDate = DateTime.Parse("Oct 30, 2024");
         ILogger _logger;
         GatherClient _client;
         TL.User? user;
@@ -124,6 +124,7 @@ namespace GatherMicroservice.Services.InfoService
                     }
 
                     // Добавляем новые в БД.
+                    var random =new Random();
                     foreach (var chat in chatsFromTG)
                     {
                         try
@@ -153,6 +154,7 @@ namespace GatherMicroservice.Services.InfoService
                                 exception.StackTrace + Environment.NewLine +
                                 $"channel is: {chat.Title}", "UpdateChannels");
                         }
+                        Thread.Sleep(random.Next(500, 2000));
                     }
 
                     // Удаляем из БД те, которых в телеграмме уже нет.

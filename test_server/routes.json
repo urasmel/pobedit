@@ -1,5 +1,5 @@
 {
-    "/user/all": "/users",
-    "/SivtsevV/all_channels": "/SivtsevV_all_channels",
-    "/SivtsevV/ChannelInfo/1067797620": "/SivtsevV_ChannelInfo_1067797620"
+    "/api/v1/users": "/users",
+    "/api/v1/info/users/SivtsevV/channels": "/SivtsevV_all_channels",
+    "/api/v1/info/users/SivtsevV/channels/1067797620/info": "/SivtsevV_ChannelInfo_1067797620"
 }

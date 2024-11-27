@@ -5,6 +5,7 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    Snackbar,
     TextField,
 } from "@mui/material";
 import {
@@ -15,62 +16,63 @@ import {
 } from "@mui/x-data-grid";
 import React, {
     Suspense,
+    useCallback,
     useEffect,
     useMemo,
     useState,
 } from "react";
 import styles from "./styles.module.css";
-import { Channel } from "@/models/channel";
 import CustomNoRowsOverlay from "@/components/ui/CustomNoRowsOverlay";
-import { MainState, useMainStore } from "@/store/MainStore";
-import { ChannelInfo } from "../ChannelInfo";
-import { ChannelProps } from "types/Props";
+import { MainState, Action, useMainStore } from "@/store/MainStore";
 import DataGridTitle from "@/components/ui/DataGridTitle";
 const Loading = React.lazy(() => import("@/components/common/Loading"));
 import InfoIcon from "@mui/icons-material/Info";
 import { useNavigate } from "react-router-dom";
 import { fetchChannels } from "@/api/channels";
+import { ChannelInfo } from "@/types";
+import { ChannelInfoDialog } from "../ChannelInfoDialog";
+import { ErrorAction } from "@/components/common/ErrorrAction";
 
-const Channels = ({ userName }: ChannelProps) => {
-    // const Channels = () => {
+const Channels = () => {
+
     const navigate = useNavigate();
     const [openAddChannel, setOpenAddChannel] = useState(false);
     const [openShowChannelInfo, setOpenShowChannelInfo] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
     const showChannelInfoDialogClose_handler = () => {
         setOpenShowChannelInfo(false);
     };
+    const [channels, setChannels] = useState<ChannelInfo[]>([]);
 
-    const [channels, setChannels] = useState<Channel[]>([]);
-    const fetchchannelFullInfo = useMainStore(
-        (state: MainState) => state.fetchChannelInfo
-    );
+    const selectedUser = useMainStore((state: MainState) => state.selectedUser);
+    const fetchchannelInfo = useMainStore((state: MainState & Action) => state.fetchChannelInfo);
+    const fetchUpdatedChannels = useMainStore((state: MainState & Action) => state.fetchUpdatedChannels);
+    const [openErrorMessage, setOpenErrorMessage] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
-    const fetchUpdatedChannels = useMainStore(
-        (state: MainState) => state.fetchUpdatedChannels
-    );
+    const fetchData = useCallback(async (userName: string) => {
+
+        if (typeof userName !== "string" || !userName) {
+            return;
+        }
+        setIsLoading(true);
+
+        try {
+            const data = fetchChannels(userName);
+            setChannels(await data);
+        } catch (error) {
+            console.error(error);
+            setChannels([]);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
-        const fetchData = async (user: string | null) => {
-
-            if (typeof user !== "string" || !user) {
-                return;
-            }
-            setIsLoading(true);
-
-            try {
-                const data = await fetchChannels(user);
-                setChannels(data);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchData(userName);
-    }, [userName]);
+        if (selectedUser != undefined) {
+            fetchData(selectedUser).catch(console.error);
+        }
+    }, [selectedUser]);
 
     // const onDeleteChannel = useCallback(
     //     (id: number) => () => {
@@ -79,7 +81,7 @@ const Channels = ({ userName }: ChannelProps) => {
     //     []
     // );
 
-    const columns = useMemo<GridColDef<Channel>[]>(() => [
+    const columns = useMemo<GridColDef<ChannelInfo>[]>(() => [
         { field: "id", headerName: "ID", width: 100 },
         { field: "title", headerName: "Title", flex: 1 },
         { field: "mainUsername", headerName: "Owner", flex: 1 },
@@ -114,13 +116,13 @@ const Channels = ({ userName }: ChannelProps) => {
     const onBtnClickOpenAddChannel = () => { };
 
     const onBtnClickUpdateUserChannels = () => {
-        const fetchData = () => {
-            if (typeof userName !== "string" || !userName) {
+        const fetchData = async () => {
+            if (typeof selectedUser !== "string" || !selectedUser) {
                 return;
             }
 
             setIsLoading(true);
-            fetchUpdatedChannels(userName);
+            await fetchUpdatedChannels(selectedUser);
             setIsLoading(false);
         };
 
@@ -133,14 +135,24 @@ const Channels = ({ userName }: ChannelProps) => {
 
     const onAddChannelSave = () => { };
 
-    const handleChannelInfoIconClick = (channelId: number) => {
-        console.log("channelId " + channelId + " and user is " + userName);
-        fetchchannelFullInfo(userName, channelId);
-        setOpenShowChannelInfo(true);
+    const handleChannelInfoIconClick = async (channelId: number) => {
+        console.log("channelId " + channelId + " and user is " + selectedUser);
+        const result = await fetchchannelInfo(channelId);
+        if (result) { setOpenShowChannelInfo(true); }
+        else {
+            setErrorMessage("Error loading channel's info");
+            setOpenErrorMessage(true);
+        }
     };
 
     const handleChannelRowClick = (params: GridRowParams) => {
-        navigate(`/posts/${userName}/channels/${params.row["id"]}`);
+        console.log("logging row type in channels control");
+        console.log(params.row);
+        navigate(`/posts/${selectedUser}/channels/${params.row.id}`);
+    };
+
+    const handleErrorClose = () => {
+        setOpenErrorMessage(false);
     };
 
     return (
@@ -243,7 +255,7 @@ const Channels = ({ userName }: ChannelProps) => {
             >
                 <DialogTitle>Channel info</DialogTitle>
                 <DialogContent>
-                    <ChannelInfo />
+                    <ChannelInfoDialog />
                 </DialogContent>
 
                 <DialogActions>
@@ -252,6 +264,14 @@ const Channels = ({ userName }: ChannelProps) => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <Snackbar
+                open={openErrorMessage}
+                autoHideDuration={6000}
+                onClose={handleErrorClose}
+                message={errorMessage}
+                action={ErrorAction(handleErrorClose)}
+            />
         </section>
     );
 };
