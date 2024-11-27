@@ -1,10 +1,10 @@
-﻿using GatherMicroservice.Collecting;
-using GatherMicroservice.Utils;
+﻿using Gather.Collecting;
+using Gather.Utils;
 using SharedCore.Extentions;
 using SharedCore.Models;
 using TL;
 
-namespace GatherMicroservice.Services
+namespace Gather.Services
 {
     public class GatherService : IGatherService
     {

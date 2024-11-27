@@ -52,8 +52,6 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 }); ;
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IAuthRepository, AuthRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment())

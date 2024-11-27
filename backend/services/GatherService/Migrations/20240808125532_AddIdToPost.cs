@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace GatherMicroservice.Migrations
+namespace Gather.Migrations
 {
     public partial class AddIdToPost : Migration
     {

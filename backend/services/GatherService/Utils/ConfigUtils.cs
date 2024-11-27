@@ -1,4 +1,4 @@
-﻿namespace GatherMicroservice.Utils
+﻿namespace Gather.Utils
 {
 
     public class ConfigUtils : IConfigUtils

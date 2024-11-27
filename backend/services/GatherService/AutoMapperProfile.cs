@@ -5,7 +5,7 @@ using SharedCore.Dtos.User;
 using SharedCore.Models;
 using TL;
 
-namespace GatherMicroservice
+namespace Gather
 {
     public class AutoMapperProfile : Profile
     {
@@ -13,6 +13,7 @@ namespace GatherMicroservice
         {
             CreateMap<Message, PostDto>();
             CreateMap<TL.User, GetUserDto>();
+            CreateMap<SharedCore.Models.User, GetUserDto>();
             CreateMap<SharedCore.Models.Channel, ChatBase>();
             CreateMap<ChatBase, SharedCore.Models.Channel>();
             CreateMap<SharedCore.Models.Channel, ChannelInfoDto>();

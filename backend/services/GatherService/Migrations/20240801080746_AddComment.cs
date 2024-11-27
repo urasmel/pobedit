@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace GatherMicroservice.Migrations
+namespace Gather.Migrations
 {
     public partial class AddComment : Migration
     {

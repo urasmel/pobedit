@@ -1,9 +1,10 @@
 using Asp.Versioning;
-using GatherMicroservice.Client;
-using GatherMicroservice.Data;
-using GatherMicroservice.Services;
-using GatherMicroservice.Services.InfoService;
-using GatherMicroservice.Utils;
+using Gather.Client;
+using Gather.Data;
+using Gather.Services;
+using Gather.Services.InfoService;
+using Gather.Services.UserService;
+using Gather.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using SharedCore.Filtering;
@@ -14,9 +15,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApiVersioning(options =>
 {
-    //options.AssumeDefaultVersionWhenUnspecified = true;
     options.DefaultApiVersion = new ApiVersion(1,0);
     options.ReportApiVersions = true;
+    //options.AssumeDefaultVersionWhenUnspecified = true;
     options.ApiVersionReader = ApiVersionReader.Combine(
         new UrlSegmentApiVersionReader(),
         new HeaderApiVersionReader("X-Api-Version"));
@@ -33,6 +34,12 @@ builder.Services.Configure<RouteOptions>(options =>
     options.LowercaseUrls = true;
 });
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddFile(@".\logs\{Date}_log.txt");
+
+builder.Services.AddScoped<IdFilter>();
+builder.Services.AddScoped<UserFilter>();
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Singleton);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer(); 
@@ -60,13 +67,10 @@ builder.Services.AddCors(options =>
         });
 });
 
-builder.Services.AddScoped<UserFilter>();
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-builder.Logging.AddFile(@".\logs\{Date}_log.txt");
-
 builder.Services.AddSingleton<IConfigUtils, ConfigUtils>();
 builder.Services.AddSingleton<GatherClient>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IGatherService, GatherService>();
 builder.Services.AddScoped<IInfoService, InfoService>();

@@ -1,5 +1,5 @@
 ﻿using Asp.Versioning;
-using GatherMicroservice.Services;
+using Gather.Services;
 using Microsoft.AspNetCore.Mvc;
 using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Channels;
 using TL;
 
-namespace GatherMicroservice.Controllers
+namespace Gather.Controllers
 {
     [ApiVersion("1.0")]
     [ApiController]

@@ -1,4 +1,4 @@
-﻿namespace GatherMicroservice.Dtos
+﻿namespace Gather.Dtos
 {
     public class LoginDto
     {

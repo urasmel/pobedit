@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GatherService.Tests
+namespace Gather.Tests
 {
     public class TestDataHelper
     {

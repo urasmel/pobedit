@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\GatherService\GatherMicroservice.csproj" />
+    <ProjectReference Include="..\..\GatherService\Gather.csproj" />
     <ProjectReference Include="..\..\SharedCore\SharedCore.csproj" />
   </ItemGroup>
 

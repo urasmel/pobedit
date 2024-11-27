@@ -1,10 +1,10 @@
-﻿using GatherMicroservice.Controllers;
-using GatherMicroservice.Services;
+﻿using Gather.Controllers;
+using Gather.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using SharedCore.Dtos.Channel;
 
-namespace GatherService.Tests
+namespace Gather.Tests
 {
     public class InfoControllerTests
     {

@@ -1,6 +1,6 @@
 ﻿using SharedCore.Models;
 
-namespace ControlService.Data
+namespace Gather.Data
 {
     public interface IAuthRepository
     {

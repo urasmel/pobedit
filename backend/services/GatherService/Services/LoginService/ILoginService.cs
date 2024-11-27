@@ -1,8 +1,8 @@
-﻿using GatherMicroservice.Dtos;
-using GatherMicroservice.Models;
+﻿using Gather.Dtos;
+using Gather.Models;
 using SharedCore.Models;
 
-namespace GatherMicroservice.Services
+namespace Gather.Services
 {
     public interface ILoginService
     {

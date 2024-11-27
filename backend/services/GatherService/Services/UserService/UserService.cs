@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using ControlService.Data;
+using Gather.Data;
 using SharedCore.Dtos.User;
 using Microsoft.EntityFrameworkCore;
 using SharedCore.Models;
@@ -7,7 +7,7 @@ using System.Net;
 using System.Collections;
 using SharedCore.Dtos.Channel;
 
-namespace ControlService.Services.UserService
+namespace Gather.Services.UserService
 {
     public class UserService : IUserService
     {

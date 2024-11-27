@@ -1,6 +1,6 @@
-﻿using GatherMicroservice.Utils;
+﻿using Gather.Utils;
 
-namespace GatherMicroservice.Client
+namespace Gather.Client
 {
     public class GatherClient : WTelegram.Client
     {

@@ -1,13 +1,13 @@
-﻿using GatherMicroservice.Models;
+﻿using Gather.Models;
 using System.Text;
 using System;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using TL;
-using GatherMicroservice.Dtos;
+using Gather.Dtos;
 using SharedCore.Models;
 
-namespace GatherMicroservice.Services
+namespace Gather.Services
 {
     public class LoginService : ILoginService
     {

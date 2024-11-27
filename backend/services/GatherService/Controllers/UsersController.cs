@@ -1,11 +1,11 @@
 ﻿using Asp.Versioning;
-using ControlService.Services.UserService;
+using Gather.Services.UserService;
 using Microsoft.AspNetCore.Mvc;
 using SharedCore.Dtos.User;
 using SharedCore.Filtering;
 using SharedCore.Models;
 
-namespace ControlService.Controllers
+namespace Gather.Controllers
 {
     [ApiController]
     [Produces("application/json")]

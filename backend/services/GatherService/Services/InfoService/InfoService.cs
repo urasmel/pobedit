@@ -1,21 +1,22 @@
 ﻿using AutoMapper;
-using GatherMicroservice.Client;
-using GatherMicroservice.Data;
-using GatherMicroservice.Models;
-using GatherMicroservice.Utils;
+using Gather.Client;
+using Gather.Data;
+using Gather.Models;
+using Gather.Utils;
 using Microsoft.EntityFrameworkCore;
 using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
 using SharedCore.Models;
 using System;
 using System.Diagnostics.Metrics;
+using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using TL;
 using WTelegram;
 
-namespace GatherMicroservice.Services.InfoService
+namespace Gather.Services.InfoService
 {
     public class InfoService : IInfoService
     {
@@ -124,7 +125,7 @@ namespace GatherMicroservice.Services.InfoService
                     }
 
                     // Добавляем новые в БД.
-                    var random =new Random();
+                    var random = new Random();
                     foreach (var chat in chatsFromTG)
                     {
                         try
@@ -347,7 +348,7 @@ namespace GatherMicroservice.Services.InfoService
                 //response.Success = true;
                 //return response;
 
-                var posts = _context.Posts.Where(post => post.PeerId == chatId).OrderByDescending(item => item.Id).Skip(offset).Take(count);
+                var posts = _context.Posts.Where(post => post.PeerId == chatId).OrderByDescending(item => item.Id).Skip(offset).Take(count).AsEnumerable();
                 response.Data = _mapper.Map<List<PostDto>>(posts);
                 response.Success = true;
                 return response;
@@ -612,7 +613,7 @@ namespace GatherMicroservice.Services.InfoService
                     //return response;
                     await webSocket.CloseAsync(
                         WebSocketCloseStatus.NormalClosure,
-                        "Channel not found", 
+                        "Channel not found",
                         CancellationToken.None);
                     return;
                 }
@@ -633,9 +634,6 @@ namespace GatherMicroservice.Services.InfoService
                     var lastMessagesBase = await _client.Messages_GetHistory(peer, 0, DateTime.Now, 0, 1);
                     if (lastMessagesBase is not Messages_ChannelMessages channelMessages)
                     {
-                        //response.Success = false;
-                        //response.Message = "Channel peer is not ChannelMessages";
-                        //return response;
                         await webSocket.CloseAsync(
                             WebSocketCloseStatus.NormalClosure,
                             "Channel peer is not ChannelMessages",
@@ -645,9 +643,6 @@ namespace GatherMicroservice.Services.InfoService
 
                     if (channelMessages.count == 0)
                     {
-                        //response.Success = false;
-                        //response.Message = "No data";
-                        //return response;
                         await webSocket.CloseAsync(
                             WebSocketCloseStatus.NormalClosure,
                             "No data",
@@ -663,9 +658,6 @@ namespace GatherMicroservice.Services.InfoService
                     lastMessagesBase = await _client.Messages_GetHistory(peer, 0, startLoadingDate, 0, 1);
                     if (lastMessagesBase is not Messages_ChannelMessages end_channelMessages)
                     {
-                        //response.Success = false;
-                        //response.Message = "Channel peer is not ChannelMessages";
-                        //return response;
                         await webSocket.CloseAsync(
                             WebSocketCloseStatus.NormalClosure,
                             "Channel peer is not ChannelMessages",
@@ -675,9 +667,6 @@ namespace GatherMicroservice.Services.InfoService
 
                     if (channelMessages.count == 0)
                     {
-                        //response.Success = false;
-                        //response.Message = "No data";
-                        //return response;
                         await webSocket.CloseAsync(
                             WebSocketCloseStatus.NormalClosure,
                             "No data",
@@ -723,31 +712,31 @@ namespace GatherMicroservice.Services.InfoService
                             var postToDb = _mapper.Map<Post>(msg);
 
                             // Получили комментарии.
-                            //var replies = await _client.Messages_GetReplies(peer, msg.ID);
-                            //var client_comments = replies.Messages;
+                            /*var replies = await _client.Messages_GetReplies(peer, msg.ID);
+                            var client_comments = replies.Messages;
 
-                            //// Преобразовали их в класс типа из наших моделей.
-                            //List<Comment> comments = _mapper.Map<List<Comment>>(client_comments);
+                            // Преобразовали их в класс типа из наших моделей.
+                            List<Comment> comments = _mapper.Map<List<Comment>>(client_comments);
 
-                            //// Для кажддого комментария получили его автора.
-                            //// Преобразровали в объект класса из наших моделей.
-                            //// Добавили к комментариям.
-                            //for (int commentIndex = 0; commentIndex < comments.Count; commentIndex++)
-                            //{
-                            //    var userId = replies.Messages[commentIndex].From.ID;
-                            //    var inputUserFromMessage = new InputUserFromMessage
-                            //    {
-                            //        // ???????
-                            //        //msg_id = msg.id,
-                            //        msg_id = replies.Messages[commentIndex].ID,
-                            //        // ???????
-                            //        peer = peer,
-                            //        user_id = userId
-                            //    };
-                            //    var fullUser = await _client.Users_GetFullUser(inputUserFromMessage);
-                            //    var acc = _mapper.Map<Account>(fullUser);
-                            //    comments[commentIndex].Author = acc;
-                            //}
+                            // Для кажддого комментария получили его автора.
+                            // Преобразровали в объект класса из наших моделей.
+                            // Добавили к комментариям.
+                            for (int commentIndex = 0; commentIndex < comments.Count; commentIndex++)
+                            {
+                                var userId = replies.Messages[commentIndex].From.ID;
+                                var inputUserFromMessage = new InputUserFromMessage
+                                {
+                                    // ???????
+                                    //msg_id = msg.id,
+                                    msg_id = replies.Messages[commentIndex].ID,
+                                    // ???????
+                                    peer = peer,
+                                    user_id = userId
+                                };
+                                var fullUser = await _client.Users_GetFullUser(inputUserFromMessage);
+                                var acc = _mapper.Map<Account>(fullUser);
+                                comments[commentIndex].Author = acc;
+                            }*/
 
 
                             await _context.Posts.AddAsync(postToDb);
