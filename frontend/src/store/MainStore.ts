@@ -1,206 +1,176 @@
-import { Channel } from '@/models/channel';
 import { create } from 'zustand';
 import { channelDomain, channelPort, channelProto, channelApiVersion } from '../constants';
-import { immer } from 'zustand/middleware/immer';
-import { devtools } from 'zustand/middleware';
 import { ServiceResponse } from '@/types';
-import { ChannelFullInfo } from '@/types';
+import { ChannelInfo } from '@/types';
 import { Post } from '@/types';
 
 export interface MainState {
-
     selectedUser: string | null;
-    channels: Channel[];
+    channels: ChannelInfo[];
     isLoading: boolean;
     error: string;
     isError: boolean;
-    channelsInfos: ChannelFullInfo[];
+    channelsInfos: ChannelInfo[];
     channelPostsDict: {
         channelId: number;
         posts: Post[];
     };
     // Для отображения дополнительной информации о чате.
-    selectedChannelFullInfo: ChannelFullInfo;
-
-    setSelectedUser: (username: string) => void;
-    fetchUpdatedChannels: (username: string) => Promise<void>;
-    fetchChannelInfo: (username: string | null, channelId: number) => Promise<void>;
-    fetchChannelPosts: (username: string, channelId: number, offset: number, count: number) => Promise<boolean>;
-    updateAndFetchChannelPosts: (username: string, channelId: number) => Promise<void>;
-    updateSelectedUser: (user: string) => void;
+    selectedChannelInfo: ChannelInfo;
 }
 
-export const useMainStore = create<MainState>()(
-    devtools(
-        immer((set, get) => (
+export interface Action {
+    updateSelectedUser: (username: MainState['selectedUser']) => void;
+    fetchUpdatedChannels: (username: string) => Promise<void>;
+    fetchChannelInfo: (channelId: number) => Promise<void>;
+    fetchChannelPosts: (username: string, channelId: number, offset: number, count: number) => Promise<boolean>;
+    updateAndFetchChannelPosts: (username: string, channelId: number) => Promise<void>;
+}
+
+export const useMainStore = create<MainState & Action>((set, get) => ({
+    selectedUser: '',
+    channels: [],
+    channelsInfos: [],
+    channelPostsDict: {
+        channelId: 0,
+        posts: []
+    },
+    selectedChannelInfo: {} as ChannelInfo,
+    isLoading: false,
+    error: '',
+    isError: false,
+
+    updateSelectedUser: (selectedUser) => {
+        console.log("mainstore user setting: " + selectedUser);
+        set({ selectedUser });
+    },
+
+    fetchUpdatedChannels: async (username: string) => {
+        const url = `${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/info/users/${username}/updated_channels`;
+        const request = new Request(url,
             {
-                selectedUser: '',
-                channels: [],
-                channelsInfos: [],
-                channelPostsDict: {
-                    channelId: 0,
-                    posts: []
+                method: 'GET',
+                mode: 'cors',
+                headers: {
+                    'Access-Control-Request-Method': 'GET',
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
                 },
-                selectedChannelFullInfo: {} as ChannelFullInfo,
-                isLoading: false,
-                error: '',
-                isError: false,
+                redirect: 'follow',
+                cache: 'no-store'
+            }
+        );
 
-                setSelectedUser: (username: string) => {
-                    console.log("set user: " + username);
-                    // set({ selectedUser: username });
+        const response = await fetch(request);
 
-                    set((state) => ({
-                        ...state,
-                        selectedUser: username
-                    }));
-                    console.log("user is: " + get().selectedUser);
+        if (!response.ok) {
+            console.log("Error fetching channels");
+            set((state) => ({
+                ...state,
+                channels: []
+            }));
+            return;
+        }
+
+        const json = (await response.json() as ServiceResponse<ChannelInfo[]>).data;
+        // set({ channels: json });
+        set((state) => ({
+            ...state,
+            channels: json
+        }));
+    },
+
+    fetchChannelInfo: async (channelId: number) => {
+
+        if (get().selectedUser == null) {
+            return;
+        }
+
+        const request = new Request(`${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/info/users/${get().selectedUser}/channels/${channelId}/info`,
+            {
+                method: 'GET',
+                mode: 'cors',
+                headers: {
+                    'Access-Control-Request-Method': 'GET',
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
                 },
+                redirect: 'follow',
+                cache: 'no-store'
+            });
 
-                fetchUpdatedChannels: async (username: string) => {
-                    const url = `${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/info/users/${username}/updated_channels`;
-                    const request = new Request(url,
-                        {
-                            method: 'GET',
-                            mode: 'cors',
-                            headers: {
-                                'Access-Control-Request-Method': 'GET',
-                                'Access-Control-Allow-Origin': '*',
-                                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
-                            },
-                            redirect: 'follow',
-                            cache: 'no-store'
-                        }
-                    );
+        const response = await fetch(request);
 
-                    const response = await fetch(request);
+        if (!response.ok) {
+            console.log("Error requesting channelinfo");
+            return;
+        }
 
-                    if (!response.ok) {
-                        console.log("Error fetching channels");
-                        set({ channels: [] });
-                        return;
-                    }
+        const json = (await response.json() as ServiceResponse<ChannelInfo>).data;
+        set(() => ({ selectedChannelInfo: json }));
+    },
 
-                    const json = (await response.json() as ServiceResponse<Channel[]>).data;
-                    set({ channels: json });
+    fetchChannelPosts: async (username: string, channelId: number, offset = 0, count = 20) => {
+
+        try {
+            const request = new Request(`${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/info/users/${username}/channels/${channelId}/messages?offset=${offset}&count=${count}`,
+                {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Access-Control-Request-Method': 'GET',
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
+                    },
+                    redirect: 'follow',
+                    cache: 'no-store'
+                });
+
+            const response = await fetch(request);
+
+            if (!response.ok) {
+                console.log("Error requesting channel's posts!!!!!!");
+                return false;
+            }
+
+            const json = (await response.json() as ServiceResponse<Post[]>).data;
+            set((state) => ({
+                ...state,
+                channelPostsDict: { channelId: channelId, posts: [...state.channelPostsDict.posts, ...json] }
+            }));
+            return true;
+        } catch (error) {
+            return false;
+        }
+    },
+
+    updateAndFetchChannelPosts: async (username: string, channelId: number) => {
+        const request = new Request(`${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/info/users/${username}/channels/${channelId}/updated_messages`,
+            {
+                method: 'GET',
+                mode: 'cors',
+                headers: {
+                    'Access-Control-Request-Method': 'GET',
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
                 },
+                redirect: 'follow',
+                cache: 'no-store'
+            });
 
-                updateSelectedUser: (username: string) => {
-                    //set({ selectedUser: username });
-                    console.log("update user: " + username);
-                    set({ selectedUser: username });
-                },
+        const response = await fetch(request);
 
-                fetchChannelInfo: async (username: string | null, channelId: number) => {
+        if (!response.ok) {
+            console.log("Error requesting channel's posts");
+            return;
+        }
 
-                    if (username == null) {
-                        return;
-                    }
-
-                    console.log("fetching user is: " + username);
-
-                    if (get().channelsInfos.filter(item => item.id === channelId).length === 0) {
-
-                        const request = new Request(`${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/info/users/${username}/channels/${channelId}/info`,
-                            {
-                                method: 'GET',
-                                mode: 'cors',
-                                headers: {
-                                    'Access-Control-Request-Method': 'GET',
-                                    'Access-Control-Allow-Origin': '*',
-                                    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
-                                },
-                                redirect: 'follow',
-                                cache: 'no-store'
-                            });
-
-                        const response = await fetch(request);
-
-                        if (!response.ok) {
-                            console.log("Error requesting channelinfo");
-                            return;
-                        }
-
-                        const json = (await response.json() as ServiceResponse<ChannelFullInfo>).data;
-                        // set((state) => ({
-                        //     ...state,
-                        //     channelsInfo: [...state.channelsInfos, json]
-                        // }));
-                        set({
-                            channelsInfos: [...get().channelsInfos, json]
-                        });
-                    }
-
-                    //set({ selectedChannelFullInfo: get().channelsInfos[0] });
-                    set({ selectedChannelFullInfo: get().channelsInfos.filter(item => item.id === channelId)[0] });
-                    console.log(get().channelsInfos);
-                },
-
-                fetchChannelPosts: async (username: string, channelId: number, offset = 0, count = 20) => {
-
-                    try {
-                        const request = new Request(`${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/info/users/${username}/channels/${channelId}/messages?offset=${offset}&count=${count}`,
-                            {
-                                method: 'GET',
-                                mode: 'cors',
-                                headers: {
-                                    'Access-Control-Request-Method': 'GET',
-                                    'Access-Control-Allow-Origin': '*',
-                                    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
-                                },
-                                redirect: 'follow',
-                                cache: 'no-store'
-                            });
-
-                        const response = await fetch(request);
-
-                        if (!response.ok) {
-                            console.log("Error requesting channel's posts!!!!!!");
-                            return false;
-                        }
-
-                        const json = (await response.json() as ServiceResponse<Post[]>).data;
-                        set((state) => ({
-                            ...state,
-                            channelPostsDict: { channelId: channelId, posts: [...state.channelPostsDict.posts, ...json] }
-                        }));
-                        return true;
-                    } catch (error) {
-                        return false;
-                    }
-                },
-
-                updateAndFetchChannelPosts: async (username: string, channelId: number) => {
-                    const request = new Request(`${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/info/users/${username}/channels/${channelId}/updated_messages`,
-                        {
-                            method: 'GET',
-                            mode: 'cors',
-                            headers: {
-                                'Access-Control-Request-Method': 'GET',
-                                'Access-Control-Allow-Origin': '*',
-                                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
-                            },
-                            redirect: 'follow',
-                            cache: 'no-store'
-                        });
-
-                    const response = await fetch(request);
-
-                    if (!response.ok) {
-                        console.log("Error requesting channel's posts");
-                        return;
-                    }
-
-                    const json = (await response.json() as ServiceResponse<Post[]>).data;
-                    set((state) => ({
-                        ...state,
-                        //channelsInfo: [...state.channelsInfo, json]
-                        //channelPostsDict: { ...state.channelPostsDict, channelId: [...state.channelPostsDict[channelId], ...json] }
-                        channelPostsDict: { channelId: channelId, posts: [...state.channelPostsDict.posts, ...json] }
-                    }));
-                },
-
-            })
-        )
-    )
-);
+        const json = (await response.json() as ServiceResponse<Post[]>).data;
+        set((state) => ({
+            ...state,
+            //channelsInfo: [...state.channelsInfo, json]
+            //channelPostsDict: { ...state.channelPostsDict, channelId: [...state.channelPostsDict[channelId], ...json] }
+            channelPostsDict: { channelId: channelId, posts: [...state.channelPostsDict.posts, ...json] }
+        }));
+    }
+}));

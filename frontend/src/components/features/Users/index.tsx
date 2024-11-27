@@ -37,9 +37,9 @@ import { User } from "@/models/user";
 import CustomNoRowsOverlay from "@/components/ui/CustomNoRowsOverlay";
 import DataGridTitle from "@/components/ui/DataGridTitle";
 import { UserRow } from "@/types";
-import { UsersProps } from "types/Props";
+import { Action, MainState, useMainStore } from "@/store/MainStore";
 
-export const Users = ({ setSelectedUser }: UsersProps) => {
+export const Users = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [openAddUser, setOpenAddUser] = useState(false);
     const [openEditUser, setOpenEditUser] = useState(false);
@@ -52,9 +52,9 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
 
     const [isUsersLoading, setIsUsersLoading] = useState(false);
 
-    // const fetchChannels = useMainStore(
-    //     (state: MainState) => state.fetchChannels
-    // );
+    const setSelectedUser = useMainStore(
+        (state: MainState & Action) => state.updateSelectedUser
+    );
 
     useEffect(() => {
 
@@ -122,7 +122,7 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
 
     const columns = useMemo<GridColDef<User>[]>(
         () => [
-            { field: "id", headerName: "ID", width: 50 },
+            { field: "userId", headerName: "ID", width: 50 },
             { field: "username", headerName: "Username", width: 100 },
             { field: "password", headerName: "Password", flex: 1 },
             { field: "phoneNumber", headerName: "Phone Number", width: 150 },
@@ -136,7 +136,7 @@ export const Users = ({ setSelectedUser }: UsersProps) => {
                         key={0}
                         icon={<DeleteIcon />}
                         label="Delete"
-                        onClick={() => deleteUserIcon_handler(params.row.id)}
+                        onClick={() => deleteUserIcon_handler(params.row.userId)}
                     />,
                     <GridActionsCellItem
                         key={1}

@@ -1,8 +1,7 @@
 import { channelApiVersion, channelDomain, channelPort, channelProto } from "@/constants";
-import { Channel } from "@/models/channel";
-import { ServiceResponse } from "@/types";
+import { ChannelInfo, ServiceResponse } from "@/types";
 
-export const fetchChannels = async (username: string) => {
+export const fetchChannels = async (username: string): Promise<ChannelInfo[]> => {
     const url = `${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/info/users/${username}/channels`;
     const request = new Request(url,
         {
@@ -24,8 +23,7 @@ export const fetchChannels = async (username: string) => {
         throw new Error('Error fetching channels');
     }
 
-    const channels = (await response.json() as ServiceResponse<Channel[]>).data;
-    return channels;
+    return (await response.json() as ServiceResponse<ChannelInfo[]>).data;
 };
 
 export const fetchChannelNameById = async (username: string | undefined, channelId: number | undefined) => {
