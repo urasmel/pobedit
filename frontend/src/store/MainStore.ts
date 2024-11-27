@@ -22,7 +22,7 @@ export interface MainState {
 export interface Action {
     updateSelectedUser: (username: MainState['selectedUser']) => void;
     fetchUpdatedChannels: (username: string) => Promise<void>;
-    fetchChannelInfo: (channelId: number) => Promise<void>;
+    fetchChannelInfo: (channelId: number) => Promise<boolean>;
     fetchChannelPosts: (username: string, channelId: number, offset: number, count: number) => Promise<boolean>;
     updateAndFetchChannelPosts: (username: string, channelId: number) => Promise<void>;
 }
@@ -83,7 +83,7 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
     fetchChannelInfo: async (channelId: number) => {
 
         if (get().selectedUser == null) {
-            return;
+            return false;
         }
 
         const request = new Request(`${channelProto}${channelDomain}:${channelPort}/api/${channelApiVersion}/info/users/${get().selectedUser}/channels/${channelId}/info`,
@@ -103,11 +103,12 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
 
         if (!response.ok) {
             console.log("Error requesting channelinfo");
-            return;
+            return false;
         }
 
         const json = (await response.json() as ServiceResponse<ChannelInfo>).data;
         set(() => ({ selectedChannelInfo: json }));
+        return true;
     },
 
     fetchChannelPosts: async (username: string, channelId: number, offset = 0, count = 20) => {

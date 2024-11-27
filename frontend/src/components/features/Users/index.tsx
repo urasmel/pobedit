@@ -38,6 +38,7 @@ import CustomNoRowsOverlay from "@/components/ui/CustomNoRowsOverlay";
 import DataGridTitle from "@/components/ui/DataGridTitle";
 import { UserRow } from "@/types";
 import { Action, MainState, useMainStore } from "@/store/MainStore";
+import { ErrorAction } from "@/components/common/ErrorrAction";
 
 export const Users = () => {
     const [users, setUsers] = useState<User[]>([]);
@@ -220,19 +221,6 @@ export const Users = () => {
         setOpenErrorMessage(false);
     };
 
-    const errorAction = (
-        <React.Fragment>
-            <IconButton
-                size="small"
-                aria-label="close"
-                color="inherit"
-                onClick={handleErrorClose}
-            >
-                <CloseIcon fontSize="small" />
-            </IconButton>
-        </React.Fragment>
-    );
-
     return (
         <section className={styles.users}>
             <div style={{ height: 400 }}>
@@ -379,7 +367,8 @@ export const Users = () => {
                 autoHideDuration={6000}
                 onClose={handleErrorClose}
                 message={errorMessage}
-                action={errorAction}
+                // action={errorAction}
+                action={ErrorAction(handleErrorClose)}
             />
         </section>
     );

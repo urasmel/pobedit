@@ -5,6 +5,7 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    Snackbar,
     TextField,
 } from "@mui/material";
 import {
@@ -30,6 +31,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchChannels } from "@/api/channels";
 import { ChannelInfo } from "@/types";
 import { ChannelInfoDialog } from "../ChannelInfoDialog";
+import { ErrorAction } from "@/components/common/ErrorrAction";
 
 const Channels = () => {
 
@@ -43,8 +45,10 @@ const Channels = () => {
     const [channels, setChannels] = useState<ChannelInfo[]>([]);
 
     const selectedUser = useMainStore((state: MainState) => state.selectedUser);
-    const fetchchannelFullInfo = useMainStore((state: MainState & Action) => state.fetchChannelInfo);
+    const fetchchannelInfo = useMainStore((state: MainState & Action) => state.fetchChannelInfo);
     const fetchUpdatedChannels = useMainStore((state: MainState & Action) => state.fetchUpdatedChannels);
+    const [openErrorMessage, setOpenErrorMessage] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
     const fetchData = useCallback(async (userName: string) => {
 
@@ -133,14 +137,22 @@ const Channels = () => {
 
     const handleChannelInfoIconClick = async (channelId: number) => {
         console.log("channelId " + channelId + " and user is " + selectedUser);
-        await fetchchannelFullInfo(channelId);
-        setOpenShowChannelInfo(true);
+        const result = await fetchchannelInfo(channelId);
+        if (result) { setOpenShowChannelInfo(true); }
+        else {
+            setErrorMessage("Error loading channel's info");
+            setOpenErrorMessage(true);
+        }
     };
 
     const handleChannelRowClick = (params: GridRowParams) => {
         console.log("logging row type in channels control");
         console.log(params.row);
         navigate(`/posts/${selectedUser}/channels/${params.row.id}`);
+    };
+
+    const handleErrorClose = () => {
+        setOpenErrorMessage(false);
     };
 
     return (
@@ -252,6 +264,14 @@ const Channels = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <Snackbar
+                open={openErrorMessage}
+                autoHideDuration={6000}
+                onClose={handleErrorClose}
+                message={errorMessage}
+                action={ErrorAction(handleErrorClose)}
+            />
         </section>
     );
 };
