@@ -1,6 +1,6 @@
 import { Account } from "./Account";
 
-export interface Comment {
+export interface PostComment {
     commentId: number;
     channelId: number;
     author: Account;

@@ -1,8 +1,6 @@
 import styles from "./styles.module.scss";
 import { useEffect, useState } from "react";
-import { MainState, Action, useMainStore } from "@/store/MainStore";
 import { useParams } from "react-router-dom";
-import PostWidget from "@/components/features/PostWidget";
 import { Snackbar } from "@mui/material";
 import { useInView } from "react-intersection-observer";
 import Loading from "@/components/common/Loading";
@@ -10,20 +8,20 @@ import { NoChannelData } from "@/components/common/NoChannelData";
 import ScrollToTopButton from "@/components/common/ScrollToTopButton";
 import InfoPapper from "@/components/common/InfoPapper";
 import { ErrorAction } from "@/components/common/ErrorrAction";
+import { CommentWidget } from "@/components/features/CommentWidget";
+import { fetchComments } from "@/api/comments";
+import { PostComment } from "@/types";
 
 
 const Comments = () => {
-    const { user, channelId } = useParams();
+    const { user, channelId, postId } = useParams();
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
     const [openErrorMessage, setOpenErrorMessage] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [offset, setOffset] = useState(0);
     const [count] = useState(20);
-
-    const channelPostsDict = useMainStore(
-        (state: MainState) => state.channelPostsDict
-    );
+    const [comments, setComments] = useState<PostComment[]>([]);
 
     const handleErrorClose = () => {
         setOpenErrorMessage(false);
@@ -36,36 +34,36 @@ const Comments = () => {
     });
 
     useEffect(() => {
-        const fetchComments = async () => {
-            if (typeof user !== "string" || !user) {
-                return;
-            }
-
+        const fetchData = async () => {
             setIsLoading(() => true);
             setIsError(() => false);
             if (channelId && inView) {
-                const wasSuccess = await fetchChannelPosts(
+                const fetchedComments = await fetchComments(
                     user,
                     parseInt(channelId),
+                    postId,
                     offset,
                     count
                 );
                 await new Promise((resolve) => setTimeout(resolve, 1000));
                 setOffset(() => offset + count);
-                if (!wasSuccess) {
+                if (fetchedComments == undefined) {
                     setIsError(() => true);
-                    setErrorMessage("Error while fetching channel posts");
+                    setErrorMessage("Ошибка загрузки комментариев к посту");
                     setOpenErrorMessage(true);
+                }
+                else {
+                    setComments([...comments, ...fetchedComments]);
                 }
             }
             setIsLoading(false);
         };
 
-        fetchComments().catch(console.error);
+        fetchData().catch(console.error);
     }, [inView]);
 
     return (
-        <div className={styles.posts}>
+        <div className={styles.comments}>
 
             {
                 isLoading
@@ -77,21 +75,21 @@ const Comments = () => {
                         {
                             isError
                                 ?
-                                <InfoPapper message={'Во время запроса данных произошла ошибка...'} />
+                                <InfoPapper message={'Во время запроса комментариев произошла ошибка...'} />
                                 :
                                 <>
 
                                     {
-                                        channelPostsDict.posts.length == 0
+                                        comments == undefined || comments.length == 0
                                             ?
-                                            <div className={styles['posts-no-data']}>
+                                            <div className={styles['comments-no-data']}>
                                                 <NoChannelData userName={user} channelId={channelId ? +channelId : undefined} />
                                             </div>
                                             :
                                             <>
                                                 {
-                                                    channelPostsDict.posts.map((post) => (
-                                                        <PostWidget key={post.postId} {...post} />
+                                                    comments.map((comment: Comment) => (
+                                                        <CommentWidget  {...comment} key={comment.} />
                                                     ))
                                                 }
 

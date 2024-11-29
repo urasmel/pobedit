@@ -18,7 +18,7 @@ export const fetchUsers = async () => {
     const response = await fetch(request);
 
     if (!response.ok) {
-        throw new Error('Error to fetch users!');
+        throw new Error('Ошибка загрузки пользователей.');
     }
 
     const response_content = await response.json() as ServiceResponse<UserRow[]>;

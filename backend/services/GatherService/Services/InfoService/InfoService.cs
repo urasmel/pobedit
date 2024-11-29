@@ -1,20 +1,13 @@
 ﻿using AutoMapper;
 using Gather.Client;
 using Gather.Data;
-using Gather.Models;
-using Gather.Utils;
 using Microsoft.EntityFrameworkCore;
 using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
 using SharedCore.Models;
-using System;
-using System.Diagnostics.Metrics;
-using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
-using System.Text.Json;
 using TL;
-using WTelegram;
 
 namespace Gather.Services.InfoService
 {
@@ -187,12 +180,22 @@ namespace Gather.Services.InfoService
             var response = new ServiceResponse<ChannelInfoDto>();
             try
             {
-                var channel = await _context.Channels.Where(channel => channel.Id == chatId).FirstAsync();
+                if (_context.Channels == null)
+                {
+                    response.Success = false;
+                    response.Message = "Error fetching data from DB.";
+                    _logger.Log(LogLevel.Error, "DB context with channels is null.");
+                    response.Data = null;
+                    return response;
+                }
+
+                var channel = await _context.Channels.Where(channel => channel.Id == chatId).FirstOrDefaultAsync();
                 if (channel == null)
                 {
                     response.Success = false;
                     response.Message = "Channel not found.";
                     response.Data = null;
+                    return response;
                 }
 
                 var channelInfoDto = _mapper.Map<ChannelInfoDto>(channel);
@@ -213,6 +216,17 @@ namespace Gather.Services.InfoService
         public async Task<ServiceResponse<ChannelInfoDto>> UpdateChannelInfo(string username, long chatId)
         {
             var response = new ServiceResponse<ChannelInfoDto>();
+
+
+            if (_context.Channels == null)
+            {
+                response.Success = false;
+                response.Message = "Error fetching data from DB.";
+                _logger.Log(LogLevel.Error, "DB context with channels is null.");
+                response.Data = null;
+                return response;
+            }
+
             try
             {
                 var chats = await _client.Messages_GetAllChats();
@@ -348,7 +362,20 @@ namespace Gather.Services.InfoService
                 //response.Success = true;
                 //return response;
 
-                var posts = _context.Posts.Where(post => post.PeerId == chatId).OrderByDescending(item => item.Id).Skip(offset).Take(count).AsEnumerable();
+                if (_context.Posts == null)
+                {
+                    response.Success = false;
+                    response.Message = "Error fetching data from DB.";
+                    _logger.Log(LogLevel.Error, "DB context with posts is null.");
+                    response.Data = Enumerable.Empty<PostDto>();
+                    return response;
+                }
+
+                var posts = await _context.Posts
+                    .Where(post => post.PeerId == chatId)
+                    .OrderByDescending(item => item.Id)
+                    .Skip(offset).Take(count)
+                    .ToListAsync();
                 response.Data = _mapper.Map<List<PostDto>>(posts);
                 response.Success = true;
                 return response;

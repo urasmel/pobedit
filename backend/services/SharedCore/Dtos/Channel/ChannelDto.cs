@@ -1,5 +1,4 @@
-﻿using SharedCore.Models;
-
+﻿
 namespace SharedCore.Dtos.Channel
 {
     public class ChannelDto

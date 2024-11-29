@@ -21,9 +21,7 @@ const AppRouter = () => {
             <Route
                 path="/posts/:user/channels/:channelId"
                 element={
-                    <Suspense fallback={<Loading />}>
-                        <Posts />
-                    </Suspense>
+                    <Posts />
                 }
                 errorElement={<ErrorBoundary />}
             />

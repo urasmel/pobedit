@@ -1,8 +1,8 @@
-import { channelApiVersion, serviceDomain, servicePort, serviceProto } from "@/constants";
+import { serviceApiVersion, serviceDomain, servicePort, serviceProto } from "@/constants";
 import { ChannelInfo, ServiceResponse } from "@/types";
 
 export const fetchChannels = async (username: string): Promise<ChannelInfo[]> => {
-    const url = `${serviceProto}${serviceDomain}:${servicePort}/api/${channelApiVersion}/info/users/${username}/channels`;
+    const url = `${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${username}/channels`;
     const request = new Request(url,
         {
             method: 'GET',
@@ -20,7 +20,7 @@ export const fetchChannels = async (username: string): Promise<ChannelInfo[]> =>
     const response = await fetch(request);
 
     if (!response.ok) {
-        throw new Error('Error fetching channels');
+        throw new Error('Ошибка загрузки каналов');
     }
 
     return (await response.json() as ServiceResponse<ChannelInfo[]>).data;
@@ -36,7 +36,7 @@ export const fetchChannelNameById = async (username: string | undefined, channel
         throw new Error("channel id is undefined");
     }
 
-    const url = `${serviceProto}${serviceDomain}:${servicePort}/api/${channelApiVersion}/info/users/${username}/channels/${channelId}/info`;
+    const url = `${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${username}/channels/${channelId}/info`;
     const request = new Request(url,
         {
             method: 'GET',
@@ -54,7 +54,7 @@ export const fetchChannelNameById = async (username: string | undefined, channel
     const response = await fetch(request);
 
     if (!response.ok) {
-        throw new Error('Error fetching channel info by id');
+        throw new Error('Ошибка загрузки информации о канале по его идентификатору');
     }
 
     const channel = ((await response.json()) as ServiceResponse<ChannelInfo>).data;

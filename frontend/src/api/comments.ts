@@ -1,7 +1,7 @@
 import { serviceApiVersion, serviceDomain, servicePort, serviceProto } from "@/constants";
-import { Comment, ServiceResponse } from "@/types";
+import { PostComment, ServiceResponse } from "@/types";
 
-export const fetchComments = async (user: string, channelId: number, postId: number): Promise<Comment[]> => {
+export const fetchComments = async (user: string, channelId: number, postId: number, offset: number, count: number): Promise<PostComment[] | undefined> => {
     const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/users/${user}/channels/${channelId}/posts/${postId}/comments`,
         {
             method: 'GET',
@@ -14,13 +14,20 @@ export const fetchComments = async (user: string, channelId: number, postId: num
             redirect: 'follow'
         });
 
-    const response = await fetch(request);
+    let response;
+    try {
+        response = await fetch(request);
 
-    if (!response.ok) {
-        throw new Error('Error to fetch users!');
+        if (!response.ok) {
+            console.error('Ошибка загрузки комментариев.');
+            return;
+        }
+
+        const response_content = await response.json() as ServiceResponse<PostComment[]>;
+        const data = response_content.data;
+        return data;
+    } catch (error) {
+        console.error(error);
+        return;
     }
-
-    const response_content = await response.json() as ServiceResponse<Comment[]>;
-    const data = response_content.data;
-    return data;
 };

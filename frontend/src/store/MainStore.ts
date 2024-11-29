@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { serviceDomain, servicePort, serviceProto, channelApiVersion } from '../constants';
+import { serviceDomain, servicePort, serviceProto, serviceApiVersion } from '../constants';
 import { ServiceResponse } from '@/types';
 import { ChannelInfo } from '@/types';
 import { Post } from '@/types';
@@ -23,7 +23,6 @@ export interface Action {
     updateSelectedUser: (username: MainState['selectedUser']) => void;
     fetchUpdatedChannels: (username: string) => Promise<void>;
     fetchChannelInfo: (channelId: number) => Promise<boolean>;
-    fetchChannelPosts: (username: string, channelId: number, offset: number, count: number) => Promise<boolean>;
     updateAndFetchChannelPosts: (username: string, channelId: number) => Promise<void>;
 }
 
@@ -46,7 +45,7 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
     },
 
     fetchUpdatedChannels: async (username: string) => {
-        const url = `${serviceProto}${serviceDomain}:${servicePort}/api/${channelApiVersion}/info/users/${username}/updated_channels`;
+        const url = `${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${username}/updated_channels`;
         const request = new Request(url,
             {
                 method: 'GET',
@@ -64,7 +63,7 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
         const response = await fetch(request);
 
         if (!response.ok) {
-            console.log("Error fetching channels");
+            console.log("Ошибка загрузки каналов");
             set((state) => ({
                 ...state,
                 channels: []
@@ -86,7 +85,7 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
             return false;
         }
 
-        const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${channelApiVersion}/info/users/${get().selectedUser}/channels/${channelId}/info`,
+        const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${get().selectedUser}/channels/${channelId}/info`,
             {
                 method: 'GET',
                 mode: 'cors',
@@ -102,7 +101,7 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
         const response = await fetch(request);
 
         if (!response.ok) {
-            console.log("Error requesting channelinfo");
+            console.log("Ошибка загрузки информации о канале");
             return false;
         }
 
@@ -111,42 +110,8 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
         return true;
     },
 
-    fetchChannelPosts: async (username: string, channelId: number, offset = 0, count = 20) => {
-
-        try {
-            const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${channelApiVersion}/info/users/${username}/channels/${channelId}/messages?offset=${offset}&count=${count}`,
-                {
-                    method: 'GET',
-                    mode: 'cors',
-                    headers: {
-                        'Access-Control-Request-Method': 'GET',
-                        'Access-Control-Allow-Origin': '*',
-                        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
-                    },
-                    redirect: 'follow',
-                    cache: 'no-store'
-                });
-
-            const response = await fetch(request);
-
-            if (!response.ok) {
-                console.log("Error requesting channel's posts!!!!!!");
-                return false;
-            }
-
-            const json = (await response.json() as ServiceResponse<Post[]>).data;
-            set((state) => ({
-                ...state,
-                channelPostsDict: { channelId: channelId, posts: [...state.channelPostsDict.posts, ...json] }
-            }));
-            return true;
-        } catch (error) {
-            return false;
-        }
-    },
-
     updateAndFetchChannelPosts: async (username: string, channelId: number) => {
-        const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${channelApiVersion}/info/users/${username}/channels/${channelId}/updated_messages`,
+        const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${username}/channels/${channelId}/updated_messages`,
             {
                 method: 'GET',
                 mode: 'cors',
@@ -162,7 +127,7 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
         const response = await fetch(request);
 
         if (!response.ok) {
-            console.log("Error requesting channel's posts");
+            console.log("Ошибка загрузки постов канала");
             return;
         }
 

@@ -1,7 +1,9 @@
 import { serviceDomain, servicePort, serviceProto, serviceApiVersion } from "@/constants";
+import { Post, ServiceResponse } from "@/types";
 
-export const DownloadChannelPostsFromTelegram = async (userName: string, channelId: number) => {
-    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${userName}/channels/${channelId}/updated_messages`,
+export const fetchChannelPosts = async (username: string, channelId: number, offset = 0, count = 20): Promise<Post[]> => {
+
+    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${username}/channels/${channelId}/messages?offset=${offset}&count=${count}`,
         {
             method: 'GET',
             mode: 'cors',
@@ -10,16 +12,17 @@ export const DownloadChannelPostsFromTelegram = async (userName: string, channel
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
             },
-            redirect: 'follow'
+            redirect: 'follow',
+            cache: 'no-store'
         });
 
     const response = await fetch(request);
 
     if (!response.ok) {
-        throw new Error('Error to fetch users!');
+        console.log("Ошибка загрузки постов канала.");
+        throw new Error("Ошибка загрузки постов канала.");
     }
 
-    const { data = [] } = await response.json();
-
-    return data;
+    const posts = (await response.json() as ServiceResponse<Post[]>).data;
+    return posts;
 };

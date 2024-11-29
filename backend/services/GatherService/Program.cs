@@ -40,7 +40,8 @@ builder.Logging.AddFile(@".\logs\{Date}_log.txt");
 
 builder.Services.AddScoped<IdFilter>();
 builder.Services.AddScoped<UserFilter>();
-builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Singleton);
+//builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Singleton);
+builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer(); 
 builder.Services.AddSwaggerGen(options =>

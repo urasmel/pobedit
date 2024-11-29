@@ -136,18 +136,15 @@ const Channels = () => {
     const onAddChannelSave = () => { };
 
     const handleChannelInfoIconClick = async (channelId: number) => {
-        console.log("channelId " + channelId + " and user is " + selectedUser);
         const result = await fetchchannelInfo(channelId);
         if (result) { setOpenShowChannelInfo(true); }
         else {
-            setErrorMessage("Error loading channel's info");
+            setErrorMessage("Ошибка загрузки информации о канале");
             setOpenErrorMessage(true);
         }
     };
 
-    const handleChannelRowClick = (params: GridRowParams) => {
-        console.log("logging row type in channels control");
-        console.log(params.row);
+    const handleChannelRowClick = (params: GridRowParams<ChannelInfo>) => {
         navigate(`/posts/${selectedUser}/channels/${params.row.id}`);
     };
 

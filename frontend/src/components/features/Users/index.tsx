@@ -68,8 +68,8 @@ export const Users = () => {
             } catch (e: unknown) {
                 setUsers([]);
                 setOpenErrorMessage(true);
-                setErrorMessage("Error loading users");
-                console.log("Error loading users");
+                setErrorMessage("Ошибка загрузки пользователей");
+                console.log("Ошибка загрузки пользователейs");
                 return;
             } finally {
                 setIsUsersLoading(false);
