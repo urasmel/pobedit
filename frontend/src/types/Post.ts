@@ -1,7 +1,8 @@
 export interface Post {
-    postId: number;
+    postId: number; // id from DB
+    id: number;     // id from TG
     peerId: number;
     date: Date;
     message: string;
-    comments: Comment[];
+    commentsCount: number;
 }

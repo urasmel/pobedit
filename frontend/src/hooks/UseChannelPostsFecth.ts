@@ -27,7 +27,7 @@ const UseChannelPostsFetch = (user: string | undefined, channelId: string | unde
                     parseInt(channelId),
                     offset,
                     count);
-                setPosts([...posts, ...fetchedPosts]);
+                setPosts(posts => [...posts, ...fetchedPosts]);
             } catch (error) {
                 let message;
                 if (error instanceof Error) message = error.message;

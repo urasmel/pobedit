@@ -1,5 +1,8 @@
 {
     "/api/v1/users": "/users",
     "/api/v1/info/users/SivtsevV/channels": "/SivtsevV_all_channels",
-    "/api/v1/info/users/SivtsevV/channels/1067797620/info": "/SivtsevV_ChannelInfo_1067797620"
+    "/api/v1/info/users/SivtsevV/channels/1032086354/info": "/SivtsevV_ChannelInfo_1032086354",
+    "/api/v1/info/users/SivtsevV/channels/1032086354/posts/61721/comments": "/comments",
+    "/api/v1/info/users/SivtsevV/channels/1032086354/messages?offset=0&count=20": "/posts",
+    "/api/v1/info/users/SivtsevV/channels/1032086354/messages?offset=20&count=20": "/empty_posts"
 }

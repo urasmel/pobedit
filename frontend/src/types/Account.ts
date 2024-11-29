@@ -3,4 +3,5 @@ export interface Account {
     accountName: string;
     name: string;
     bio: string;
+    ava: string;
 }
