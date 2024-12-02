@@ -14,28 +14,22 @@ import { UseChannelInfoFetch, UseChannelPostsFetch } from "@/hooks";
 
 const Posts = () => {
     const { user, channelId } = useParams();
-    const [openErrorMessage, setOpenErrorMessage] = useState(false);
-    // const [offset, setOffset] = useState(0);
     const [count] = useState(20);
 
-    const handleErrorClose = () => {
-        setOpenErrorMessage(false);
-    };
-
-    // For intersection-guard.
-    // const { ref, inView, entry } = useInView({
     const { ref, inView } = useInView({
-        /* Optional options */
         threshold: 0,
     });
 
     const { channel, channelLoading, channelLoadingError } = UseChannelInfoFetch(user, channelId);
-    const { posts, postsLoading, postsLoadingError, setOffset } = UseChannelPostsFetch(user, channelId);
+    const { posts, postsLoading, postsLoadingError, setOffset, setPostsLoadingError } = UseChannelPostsFetch(user, channelId);
 
+    const handleErrorClose = () => {
+        setPostsLoadingError(false);
+    };
 
     useEffect(() => {
         if (inView) {
-            setOffset(offset => offset + 20);
+            setOffset(() => posts.length);
         }
     }, [inView]);
 

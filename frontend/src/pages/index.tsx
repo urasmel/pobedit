@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { Route, Routes, useRouteError } from "react-router-dom";
 import NotFound from "./NotFound";
 import Loading from "@/components/common/Loading";
+import Comments from "./Comments";
 
 const Home = lazy(() => import("./Home"));
 const Posts = lazy(() => import("./Posts"));
@@ -19,7 +20,14 @@ const AppRouter = () => {
                 errorElement={<ErrorBoundary />}
             />
             <Route
-                path="/posts/:user/channels/:channelId"
+                path="/user/:user/channels/:channelId/posts/:postId/comments"
+                element={
+                    <Comments />
+                }
+                errorElement={<ErrorBoundary />}
+            />
+            <Route
+                path="/user/:user/channels/:channelId/posts"
                 element={
                     <Posts />
                 }

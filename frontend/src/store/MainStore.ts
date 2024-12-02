@@ -111,7 +111,7 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
     },
 
     updateAndFetchChannelPosts: async (username: string, channelId: number) => {
-        const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${username}/channels/${channelId}/updated_messages`,
+        const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${username}/channels/${channelId}/updated_posts`,
             {
                 method: 'GET',
                 mode: 'cors',

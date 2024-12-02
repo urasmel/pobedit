@@ -3,7 +3,7 @@ import { Post, ServiceResponse } from "@/types";
 
 export const fetchChannelPosts = async (username: string, channelId: number, offset = 0, count = 20): Promise<Post[]> => {
 
-    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${username}/channels/${channelId}/messages?offset=${offset}&count=${count}`,
+    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${username}/channels/${channelId}/posts?offset=${offset}&count=${count}`,
         {
             method: 'GET',
             mode: 'cors',

@@ -145,7 +145,7 @@ const Channels = () => {
     };
 
     const handleChannelRowClick = (params: GridRowParams<ChannelInfo>) => {
-        navigate(`/posts/${selectedUser}/channels/${params.row.id}`);
+        navigate(`/user/${selectedUser}/channels/${params.row.id}/posts`);
     };
 
     const handleErrorClose = () => {

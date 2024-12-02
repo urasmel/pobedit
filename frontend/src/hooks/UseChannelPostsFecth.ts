@@ -42,7 +42,7 @@ const UseChannelPostsFetch = (user: string | undefined, channelId: string | unde
         fetchData();
     }, [user, channelId, offset]);
 
-    return { posts, postsLoading, postsLoadingError, setOffset };
+    return { posts, postsLoading, postsLoadingError, setOffset, setPostsLoadingError };
 };
 
 export default UseChannelPostsFetch;

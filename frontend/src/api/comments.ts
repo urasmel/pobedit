@@ -2,7 +2,8 @@ import { serviceApiVersion, serviceDomain, servicePort, serviceProto } from "@/c
 import { PostComment, ServiceResponse } from "@/types";
 
 export const fetchComments = async (user: string, channelId: number, postId: number, offset: number, count: number): Promise<PostComment[] | undefined> => {
-    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/users/${user}/channels/${channelId}/posts/${postId}/comments`,
+
+    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${user}/channels/${channelId}/posts/${postId}/comments?offset=${offset}&count=${count}`,
         {
             method: 'GET',
             mode: 'cors',
@@ -14,20 +15,13 @@ export const fetchComments = async (user: string, channelId: number, postId: num
             redirect: 'follow'
         });
 
-    let response;
-    try {
-        response = await fetch(request);
+    const response = await fetch(request);
 
-        if (!response.ok) {
-            console.error('Ошибка загрузки комментариев.');
-            return;
-        }
-
-        const response_content = await response.json() as ServiceResponse<PostComment[]>;
-        const data = response_content.data;
-        return data;
-    } catch (error) {
-        console.error(error);
-        return;
+    if (!response.ok) {
+        console.error('Ошибка загрузки комментариев.');
+        throw new Error("Ошибка загрузки комментариев.");
     }
+
+    const comments = (await response.json() as ServiceResponse<PostComment[]>).data;
+    return comments;
 };

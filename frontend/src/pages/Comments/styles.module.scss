@@ -1,0 +1,20 @@
+.post__comments {
+    display: flex;
+    flex-direction: column;
+    row-gap: 2rem;
+    align-items: left;
+    width: 100%;
+    height: 100%;
+}
+
+.comments-loading {
+    align-self: center;
+}
+
+.comments-no-data {
+    width: 50%;
+}
+
+.intersection-guard {
+    visibility: hidden;
+}
