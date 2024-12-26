@@ -22,19 +22,23 @@ const AppRouter = () => {
             <Route
                 path="/user/:user/channels/:channelId/posts/:postId/comments"
                 element={
-                    <Comments />
+                    <Suspense fallback={<Loading />}>
+                        <Comments />
+                    </Suspense>
                 }
                 errorElement={<ErrorBoundary />}
             />
             <Route
                 path="/user/:user/channels/:channelId/posts"
                 element={
-                    <Posts />
+                    <Suspense fallback={<Loading />}>
+                        <Posts />
+                    </Suspense>
                 }
-                errorElement={<ErrorBoundary />}
+                errorElement={< ErrorBoundary />}
             />
-            <Route path='*' element={<NotFound />} />
-        </Routes>
+            < Route path='*' element={< NotFound />} />
+        </Routes >
     );
 };
 

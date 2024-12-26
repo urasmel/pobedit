@@ -4,11 +4,11 @@
     column-gap: .5rem;
 }
 
-.connent__ava {
+.comment__ava {
     width: 3rem;
 }
 
-.connent__ava>img {
+.comment__ava>img {
     border-radius: 50%;
     width: 100%;
 }
