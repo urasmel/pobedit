@@ -2,29 +2,29 @@ import { User, AddUserDto, LoginUserDto as LoginUserDto } from "@/entities/User"
 import { serviceApiVersion, serviceDomain, servicePort, serviceProto } from "@/shared/constants";
 import { ServiceResponse, UserRow } from "@/entities";
 
-export const fetchUsers = async () => {
-    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/users`,
-        {
-            method: 'GET',
-            mode: 'cors',
-            headers: {
-                'Access-Control-Request-Method': 'GET',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
-            },
-            redirect: 'follow'
-        });
+// export const fetchUsers = async () => {
+//     const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/users`,
+//         {
+//             method: 'GET',
+//             mode: 'cors',
+//             headers: {
+//                 'Access-Control-Request-Method': 'GET',
+//                 'Access-Control-Allow-Origin': '*',
+//                 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
+//             },
+//             redirect: 'follow'
+//         });
 
-    const response = await fetch(request);
+//     const response = await fetch(request);
 
-    if (!response.ok) {
-        throw new Error('Ошибка загрузки пользователей.');
-    }
+//     if (!response.ok) {
+//         throw new Error('Ошибка загрузки пользователей.');
+//     }
 
-    const response_content = await response.json() as ServiceResponse<UserRow[]>;
-    const data = response_content.data;
-    return data;
-};
+//     const response_content = await response.json() as ServiceResponse<UserRow[]>;
+//     const data = response_content.data;
+//     return data;
+// };
 
 export const addUser = async (user: AddUserDto) => {
     const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/users`,

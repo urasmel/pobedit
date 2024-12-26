@@ -4,8 +4,6 @@ import {
     GridRowParams,
 } from "@mui/x-data-grid";
 import {
-    MouseEventHandler,
-    useCallback,
     useEffect,
     useMemo,
     useState,
@@ -14,22 +12,10 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import LoginIcon from "@mui/icons-material/Login";
 import {
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
     Snackbar,
-    TextField,
 } from "@mui/material";
 import { Button } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import {
-    addUser,
-    deleteUser,
-    editUser,
-    fetchUsers as fetchUsers,
-} from "@/shared/api/queries/users";
 import styles from "./styles.module.css";
 import { User } from "@/entities/User";
 import CustomNoRowsOverlay from "@/shared/components/CustomNoRowsOverlay";
@@ -37,15 +23,21 @@ import DataGridTitle from "@/shared/components/DataGridTitle";
 import { UserRow } from "@/entities";
 import { Action, MainState, useMainStore } from "@/app/stores";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
+import { useQuery } from "@tanstack/react-query";
+import { usersApi } from "@/entities/users";
 
 export const Users = () => {
-    const [users, setUsers] = useState<User[]>([]);
-    const [openAddUser, setOpenAddUser] = useState(false);
-    const [openEditUser, setOpenEditUser] = useState(false);
-    const [accId, setAccId] = useState(0);
-    const [accUsername, setAccUsername] = useState("");
-    const [accPhoneNumber, setAccPhoneNumber] = useState("");
-    const [accPassword, setAccPassword] = useState("");
+    //const [users, setUsers] = useState<User[]>([]);
+    const {
+        users: User[],
+        error,
+        isLoading,
+        isError,
+    } = useQuery(usersApi.usersQueries.detail({ id }));
+
+
+
+
     const [openErrorMessage, setOpenErrorMessage] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -77,48 +69,6 @@ export const Users = () => {
         fetchData().catch(console.error);
     }, []);
 
-    const deleteUserIcon_handler = useCallback(
-        (id: number) => () => {
-            setTimeout(() => {
-                deleteUser(id).then(() => { });
-                setUsers((prevRows) => prevRows.filter((row) => row.userId !== id));
-            });
-        },
-        []
-    );
-
-    const editUserIcon_handler = useCallback(
-        (row: UserRow): MouseEventHandler<HTMLLIElement> | undefined => {
-            setAccId(() => row.userId);
-            setAccUsername(() => row.username);
-            setAccPassword(() => row.password);
-            setAccPhoneNumber(() => row.phoneNumber);
-            setOpenEditUser(true);
-            return;
-        },
-        []
-    );
-
-    // const loginUserIcon_handler = useCallback(
-    //     async (
-    //         row: UserRow
-    //     ): Promise<MouseEventHandler<HTMLLIElement> | undefined> => {
-    //         setAccId(() => row.userId);
-    //         setAccUsername(() => row.username);
-    //         setAccPassword(() => row.password);
-    //         setAccPhoneNumber(() => row.phoneNumber);
-    //         setOpenEditUser(true);
-
-    //         await loginUser({
-    //             username: row.username,
-    //             password: row.password,
-    //             phoneNumber: row.phoneNumber,
-    //         });
-    //         return;
-    //     },
-    //     []
-    // );
-
     const columns = useMemo<GridColDef<User>[]>(
         () => [
             { field: "userId", headerName: "ID", width: 50 },
@@ -135,13 +85,11 @@ export const Users = () => {
                         key={0}
                         icon={<DeleteIcon />}
                         label="Удалить"
-                        onClick={() => deleteUserIcon_handler(params.row.userId)}
                     />,
                     <GridActionsCellItem
                         key={1}
                         icon={<EditIcon />}
                         label="Редактировать"
-                        onClick={() => editUserIcon_handler(params.row)}
                         showInMenu
                     />,
                     <GridActionsCellItem
@@ -153,7 +101,7 @@ export const Users = () => {
                 ],
             },
         ],
-        [deleteUser]
+        []
     );
 
     const loadUsers = async () => {
@@ -163,47 +111,6 @@ export const Users = () => {
 
     const onClickBtnLoadAccounts = async () => {
         await loadUsers();
-    };
-
-    const handleClickOpenAddUser = () => {
-        setOpenAddUser(true);
-    };
-
-    const addUserDialogClose_handler = () => {
-        setOpenAddUser(false);
-    };
-
-    const editUserDialogClose_handler = () => {
-        setOpenEditUser(false);
-    };
-
-    const addUserSave_handler = async () => {
-        await addUser({
-            username: accUsername,
-            password: accPassword,
-            phoneNumber: accPhoneNumber,
-        });
-        setOpenAddUser(false);
-        await loadUsers();
-        setAccId(0);
-        setAccUsername("");
-        setAccPassword("");
-        setAccPhoneNumber("");
-    };
-
-    const editUserSave_handler = async () => {
-        await editUser({
-            userId: accId,
-            username: accUsername,
-            password: accPassword,
-            phoneNumber: accPhoneNumber,
-        });
-        setOpenEditUser(false);
-        await loadUsers();
-        setAccId(0);
-        setAccUsername("");
-        setAccPassword("");
-        setAccPhoneNumber("");
     };
 
     const handleRowClick = (params: GridRowParams<UserRow>) => {
@@ -250,7 +157,7 @@ export const Users = () => {
                         width: "100px",
                     }}
                     variant="contained"
-                    onClick={onClickBtnLoadAccounts}
+                    onClick={() => onClickBtnLoadAccounts}
                 >
                     Обновить
                 </Button>
@@ -260,112 +167,16 @@ export const Users = () => {
                         width: "100px",
                     }}
                     variant="contained"
-                    onClick={handleClickOpenAddUser}
                 >
                     Добавить
                 </Button>
             </div>
-
-            <Dialog open={openAddUser} onClose={addUserDialogClose_handler}>
-                <DialogTitle>Add user</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Fill in an user details
-                    </DialogContentText>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="userName"
-                        label="Username"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        onChange={(e) => { setAccUsername(e.target.value); }}
-                        value={accUsername}
-                    />
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="phoneNumber"
-                        label="Phone number"
-                        type="tel"
-                        fullWidth
-                        variant="standard"
-                        onChange={(e) => { setAccPhoneNumber(e.target.value); }}
-                        value={accPhoneNumber}
-                    />
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="password"
-                        label="Password"
-                        type="password"
-                        fullWidth
-                        variant="standard"
-                        onChange={(e) => { setAccPassword(e.target.value); }}
-                        value={accPassword}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={addUserDialogClose_handler}>Cancel</Button>
-                    <Button onClick={() => addUserSave_handler}>Add</Button>
-                </DialogActions>
-            </Dialog>
-
-            <Dialog open={openEditUser} onClose={editUserDialogClose_handler}>
-                <DialogTitle>Edit user</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Fill in an user details
-                    </DialogContentText>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="userName"
-                        label="Username"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        onChange={(e) => { setAccUsername(e.target.value); }}
-                        value={accUsername}
-                    />
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="phoneNumber"
-                        label="Phone number"
-                        type="tel"
-                        fullWidth
-                        variant="standard"
-                        onChange={(e) => { setAccPhoneNumber(e.target.value); }}
-                        value={accPhoneNumber}
-                    />
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="password"
-                        label="Password"
-                        type="password"
-                        fullWidth
-                        variant="standard"
-                        onChange={(e) => { setAccPassword(e.target.value); }}
-                        value={accPassword}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={editUserDialogClose_handler}>
-                        Cancel
-                    </Button>
-                    <Button onClick={() => editUserSave_handler}>Save</Button>
-                </DialogActions>
-            </Dialog>
 
             <Snackbar
                 open={openErrorMessage}
                 autoHideDuration={6000}
                 onClose={handleErrorClose}
                 message={errorMessage}
-                // action={errorAction}
                 action={ErrorAction(handleErrorClose)}
             />
         </section>
