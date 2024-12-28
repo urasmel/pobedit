@@ -1,6 +1,6 @@
-import { User, AddUserDto, LoginUserDto as LoginUserDto } from "@/entities/User";
-import { serviceApiVersion, serviceDomain, servicePort, serviceProto } from "@/shared/constants";
+import { User, AddUserDto, LoginUserDto as LoginUserDto } from "@/entities/users/model/User";
 import { ServiceResponse, UserRow } from "@/entities";
+import { API_URL } from "@/shared/config";
 
 // export const fetchUsers = async () => {
 //     const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/users`,
@@ -80,7 +80,7 @@ export const deleteUser = async (id: number) => {
 };
 
 export const editUser = async (user: User) => {
-    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/users`,
+    const request = new Request(`${API_URL}/users`,
         {
             method: 'PATCH',
             mode: 'cors',

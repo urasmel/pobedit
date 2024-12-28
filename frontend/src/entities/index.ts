@@ -5,4 +5,4 @@ export type { Account } from './Account';
 export type { PostComment } from './PostComment';
 export type { ServiceResponse } from './ServiceResponse';
 export type { Status } from './Status';
-export type { User } from './User';
+export type { User } from './users/model/User';

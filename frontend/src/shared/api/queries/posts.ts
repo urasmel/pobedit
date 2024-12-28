@@ -1,9 +1,9 @@
-import { serviceDomain, servicePort, serviceProto, serviceApiVersion } from "@/shared/constants";
+import { API_URL } from "@/shared/config";
 import { Post, ServiceResponse } from "@/entities";
 
 export const fetchChannelPosts = async (username: string, channelId: number, offset = 0, count = 20): Promise<Post[]> => {
 
-    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${username}/channels/${channelId}/posts?offset=${offset}&count=${count}`,
+    const request = new Request(`${API_URL}/info/users/${username}/channels/${channelId}/posts?offset=${offset}&count=${count}`,
         {
             method: 'GET',
             mode: 'cors',

@@ -1,9 +1,9 @@
-import { serviceApiVersion, serviceDomain, servicePort, serviceProto } from "@/shared/constants";
+import { API_URL } from "@/shared/config";
 import { PostComment, ServiceResponse } from '@/entities';
 
 export const fetchComments = async (user: string, channelId: number, postId: number, offset: number, count: number): Promise<PostComment[] | undefined> => {
 
-    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${user}/channels/${channelId}/posts/${postId}/comments?offset=${offset}&count=${count}`,
+    const request = new Request(`${API_URL}/info/users/${user}/channels/${channelId}/posts/${postId}/comments?offset=${offset}&count=${count}`,
         {
             method: 'GET',
             mode: 'cors',

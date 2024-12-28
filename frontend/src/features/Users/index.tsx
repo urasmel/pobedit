@@ -17,23 +17,20 @@ import {
 import { Button } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import styles from "./styles.module.css";
-import { User } from "@/entities/User";
+import { User } from "@/entities/users/model/User";
 import CustomNoRowsOverlay from "@/shared/components/CustomNoRowsOverlay";
 import DataGridTitle from "@/shared/components/DataGridTitle";
 import { UserRow } from "@/entities";
 import { Action, MainState, useMainStore } from "@/app/stores";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
 import { useQuery } from "@tanstack/react-query";
-import { usersApi } from "@/entities/users";
+import { userApi } from "@/entities/users";
+
 
 export const Users = () => {
     //const [users, setUsers] = useState<User[]>([]);
-    const {
-        users: User[],
-        error,
-        isLoading,
-        isError,
-    } = useQuery(usersApi.usersQueries.detail({ id }));
+    const { data, isFetching, isLoading } = useQuery(userApi.userQueries.list());
+    console.log('data is ' + JSON.stringify(data));
 
 
 
@@ -47,27 +44,27 @@ export const Users = () => {
         (state: MainState & Action) => state.updateSelectedUser
     );
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        const fetchData = async () => {
-            setIsUsersLoading(true);
+    //     const fetchData = async () => {
+    //         setIsUsersLoading(true);
 
-            try {
-                const users: UserRow[] = await fetchUsers();
-                setUsers(users);
-            } catch (e: unknown) {
-                setUsers([]);
-                setOpenErrorMessage(true);
-                setErrorMessage("Ошибка загрузки пользователей");
-                console.log("Ошибка загрузки пользователейs");
-                return;
-            } finally {
-                setIsUsersLoading(false);
-            }
-        };
+    //         try {
+    //             const users: UserRow[] = await fetchUsers();
+    //             setUsers(users);
+    //         } catch (e: unknown) {
+    //             setUsers([]);
+    //             setOpenErrorMessage(true);
+    //             setErrorMessage("Ошибка загрузки пользователей");
+    //             console.log("Ошибка загрузки пользователей");
+    //             return;
+    //         } finally {
+    //             setIsUsersLoading(false);
+    //         }
+    //     };
 
-        fetchData().catch(console.error);
-    }, []);
+    //     fetchData().catch(console.error);
+    // }, []);
 
     const columns = useMemo<GridColDef<User>[]>(
         () => [
@@ -105,8 +102,8 @@ export const Users = () => {
     );
 
     const loadUsers = async () => {
-        const data = await fetchUsers();
-        setUsers(() => data);
+        // const data = await fetchUsers();
+        // setUsers(() => data);
     };
 
     const onClickBtnLoadAccounts = async () => {
@@ -144,7 +141,8 @@ export const Users = () => {
                         toolbar: () => DataGridTitle("Users"),
                         noRowsOverlay: CustomNoRowsOverlay,
                     }}
-                    rows={users}
+                    // rows={users}
+                    rows={data ? data.users : []}
                     columns={columns}
                     getRowId={(row: User) => row.userId}
                     loading={isUsersLoading}

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { serviceDomain, servicePort, serviceProto, serviceApiVersion } from '@/shared/constants';
+import { API_URL } from '@/shared/config';
 import { ServiceResponse } from '@/entities';
 import { ChannelInfo } from '@/entities';
 import { Post } from '@/entities';
@@ -45,7 +45,7 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
     },
 
     fetchUpdatedChannels: async (username: string) => {
-        const url = `${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${username}/updated_channels`;
+        const url = `${API_URL}/info/users/${username}/updated_channels`;
         const request = new Request(url,
             {
                 method: 'GET',
@@ -85,7 +85,7 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
             return false;
         }
 
-        const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${get().selectedUser}/channels/${channelId}/info`,
+        const request = new Request(`${API_URL}/info/users/${get().selectedUser}/channels/${channelId}/info`,
             {
                 method: 'GET',
                 mode: 'cors',
@@ -111,7 +111,7 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
     },
 
     updateAndFetchChannelPosts: async (username: string, channelId: number) => {
-        const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${username}/channels/${channelId}/updated_posts`,
+        const request = new Request(`${API_URL}/info/users/${username}/channels/${channelId}/updated_posts`,
             {
                 method: 'GET',
                 mode: 'cors',

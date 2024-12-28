@@ -1,9 +1,9 @@
 import { Button, Typography } from '@mui/material';
 import styles from './styles.module.css';
-import { NoChannelDataProps } from 'types/Props';
 import { useRef, useState } from 'react';
 import Loading from '../Loading';
 import { useNavigate } from 'react-router-dom';
+import { NoChannelDataProps } from '@/entities/Props';
 
 
 export const NoChannelData = ({ userName, channelId }: NoChannelDataProps) => {

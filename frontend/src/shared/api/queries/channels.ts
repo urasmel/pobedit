@@ -1,8 +1,8 @@
-import { serviceApiVersion, serviceDomain, servicePort, serviceProto } from "@/shared/constants";
+import { API_URL } from "@/shared/config";
 import { ChannelInfo, ServiceResponse } from "@/entities";
 
 export const fetchChannels = async (username: string): Promise<ChannelInfo[]> => {
-    const url = `${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${username}/channels`;
+    const url = `${API_URL}/info/users/${username}/channels`;
     const request = new Request(url,
         {
             method: 'GET',
@@ -36,7 +36,7 @@ export const fetchChannelNameById = async (username: string | undefined, channel
         throw new Error("channel id is undefined");
     }
 
-    const url = `${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/info/users/${username}/channels/${channelId}/info`;
+    const url = `${API_URL}/info/users/${username}/channels/${channelId}/info`;
     const request = new Request(url,
         {
             method: 'GET',

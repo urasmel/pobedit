@@ -3,7 +3,7 @@ import styles from './styles.module.css';
 import { useRef, useState } from 'react';
 import Loading from '../Loading';
 import { useNavigate } from 'react-router-dom';
-import { NoCommentsDataProps } from '@/types/Props/NoCommentsDataProps';
+import { NoCommentsDataProps } from '@/entities/Props/NoCommentsDataProps';
 
 
 export const NoCommentsData = ({ userName, channelId, postId }: NoCommentsDataProps) => {
