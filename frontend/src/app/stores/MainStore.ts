@@ -5,7 +5,7 @@ import { ChannelInfo } from '@/entities';
 import { Post } from '@/entities';
 
 export interface MainState {
-    selectedUser: string | null;
+    selectedUser: string | undefined;
     channels: ChannelInfo[];
     isLoading: boolean;
     error: string;
@@ -40,7 +40,6 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
     isError: false,
 
     updateSelectedUser: (selectedUser) => {
-        console.log("mainstore user setting: " + selectedUser);
         set({ selectedUser });
     },
 
@@ -63,7 +62,7 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
         const response = await fetch(request);
 
         if (!response.ok) {
-            console.log("Ошибка загрузки каналов");
+            console.error("Ошибка загрузки каналов");
             set((state) => ({
                 ...state,
                 channels: []
@@ -101,7 +100,7 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
         const response = await fetch(request);
 
         if (!response.ok) {
-            console.log("Ошибка загрузки информации о канале");
+            console.error("Ошибка загрузки информации о канале");
             return false;
         }
 
@@ -127,7 +126,7 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
         const response = await fetch(request);
 
         if (!response.ok) {
-            console.log("Ошибка загрузки постов канала");
+            console.error("Ошибка загрузки постов канала");
             return;
         }
 

@@ -16,6 +16,5 @@
 .widget__message {
     white-space: pre-wrap;
     word-wrap: break-word;
-    background: rgb(248, 249, 250);
     color: rgb(52, 71, 103);
 }

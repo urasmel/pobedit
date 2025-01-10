@@ -9,28 +9,38 @@ import { NoChannelData } from "@/shared/components/NoChannelData";
 import { ChannelMainInfo } from "@/shared/components/ChannelMainInfo";
 import ScrollToTopButton from "@/shared/components/ScrollToTopButton";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
-import { UseChannelInfoFetch, UseChannelPostsFetch } from "@/shared/api/hooks";
+import { useQuery } from "@tanstack/react-query";
+import { postsApi } from "@/entities/posts";
+import { Action, MainState, useMainStore } from "@/app/stores";
+import { channelApi } from "@/entities/channels";
 
 
 export const Posts = () => {
-    const { user, channelId } = useParams();
+
+
+    const { channelId } = useParams();
+    const selectedUser = useMainStore(
+        (state: MainState & Action) => state.selectedUser
+    );
+    const { data: channel, isFetching: channelIsFetching, isLoading: channelIsLoading, isError: channelIsError, error: channelError, isFetched: channelIsFetched, isSuccess: channelIsSucces } =
+        useQuery(channelApi.channelQueries.details(selectedUser, channelId));
+    const { data, isFetching, isLoading, isError, error, isFetched } = useQuery(postsApi.postsQueries.list(selectedUser, channelId));
+
     const [count] = useState(20);
 
     const { ref, inView } = useInView({
         threshold: 0,
     });
 
-    const { channel, channelLoading, channelLoadingError } = UseChannelInfoFetch(user, channelId);
-    const { posts, postsLoading, postsLoadingError, setOffset, setPostsLoadingError } = UseChannelPostsFetch(user, channelId);
 
     const handleErrorClose = () => {
-        setPostsLoadingError(false);
+        // setPostsLoadingError(false);
     };
 
     useEffect(() => {
-        if (inView) {
-            setOffset(() => posts.length);
-        }
+        // if (inView && data != undefined) {
+        //     setOffset(() => data.posts.length);
+        // }
     }, [inView]);
 
 
@@ -38,17 +48,17 @@ export const Posts = () => {
         <div className={styles.channel}>
 
             {
-                !channelLoadingError &&
+                !channelIsError &&
                 <div className={styles.channel__info}>
                     {
-                        channelLoading === 'Processing' &&
+                        (channelIsLoading || channelIsFetching) &&
                         <Loading />
                     }
                     {
-                        channelLoading === 'After' &&
+                        (channelIsFetched || channelIsSucces) &&
                         <ChannelMainInfo
                             id={channelId === undefined ? 0 : +channelId}
-                            title={channel === undefined ? '' : channel.title}
+                            title={channel == null ? '' : channel.title}
                         />
                     }
                 </div>
@@ -57,26 +67,26 @@ export const Posts = () => {
             <div className={styles.channel__posts}>
 
                 {
-                    postsLoading === 'After' &&
-                    posts.length === 0 &&
+                    isFetched &&
+                    data?.posts.length === 0 &&
                     <div className={styles['posts-no-data']}>
-                        <NoChannelData userName={user} channelId={channelId ? +channelId : undefined} />
+                        <NoChannelData userName={selectedUser} channelId={channelId ? +channelId : undefined} />
                     </div>
                 }
 
                 {
-                    posts.length !== 0 &&
+                    data?.posts.length !== 0 &&
                     <>
                         {
-                            posts.map((post) => (
-                                <PostWidget key={post.postId} {...post} />
+                            data?.posts.map((post) => (
+                                <PostWidget key={post.id} {...post} />
                             ))
                         }
                     </>
                 }
 
                 {
-                    postsLoading === 'Processing' &&
+                    (isFetching || isLoading) &&
                     <div className="channel__posts-loading">
                         <Loading />
                     </div>
@@ -92,18 +102,18 @@ export const Posts = () => {
             <ScrollToTopButton />
 
             <Snackbar
-                open={channelLoadingError}
+                open={channelIsError}
                 onClose={handleErrorClose}
                 autoHideDuration={6000}
-                message={"Error fetching channel info"}
+                message={channelError?.message}
                 action={ErrorAction(handleErrorClose)}
             />
 
             <Snackbar
-                open={postsLoadingError}
+                open={isError}
                 onClose={handleErrorClose}
                 autoHideDuration={6000}
-                message={"Error fetching posts"}
+                message={error?.message}
                 action={ErrorAction(handleErrorClose)}
             />
 

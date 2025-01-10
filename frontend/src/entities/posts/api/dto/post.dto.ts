@@ -1,4 +1,4 @@
-export interface Post {
+export interface PostDto {
     postId: number; // id from DB
     id: number;     // id from TG
     peerId: number;

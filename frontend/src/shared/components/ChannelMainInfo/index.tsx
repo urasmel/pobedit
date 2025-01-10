@@ -1,4 +1,4 @@
-import { ChannelMainInfoProps } from 'types/Props';
+import { ChannelMainInfoProps } from '@/entities/Props';
 import styles from './styles.module.css';
 
 export const ChannelMainInfo = (props: ChannelMainInfoProps) => {

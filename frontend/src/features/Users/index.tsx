@@ -4,7 +4,6 @@ import {
     GridRowParams,
 } from "@mui/x-data-grid";
 import {
-    useEffect,
     useMemo,
     useState,
 } from "react";
@@ -28,43 +27,12 @@ import { userApi } from "@/entities/users";
 
 
 export const Users = () => {
-    //const [users, setUsers] = useState<User[]>([]);
-    const { data, isFetching, isLoading } = useQuery(userApi.userQueries.list());
-    console.log('data is ' + JSON.stringify(data));
-
-
-
-
+    const { data, isFetching, isLoading, isError, error } = useQuery(userApi.userQueries.list());
     const [openErrorMessage, setOpenErrorMessage] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-
-    const [isUsersLoading, setIsUsersLoading] = useState(false);
 
     const setSelectedUser = useMainStore(
         (state: MainState & Action) => state.updateSelectedUser
     );
-
-    // useEffect(() => {
-
-    //     const fetchData = async () => {
-    //         setIsUsersLoading(true);
-
-    //         try {
-    //             const users: UserRow[] = await fetchUsers();
-    //             setUsers(users);
-    //         } catch (e: unknown) {
-    //             setUsers([]);
-    //             setOpenErrorMessage(true);
-    //             setErrorMessage("Ошибка загрузки пользователей");
-    //             console.log("Ошибка загрузки пользователей");
-    //             return;
-    //         } finally {
-    //             setIsUsersLoading(false);
-    //         }
-    //     };
-
-    //     fetchData().catch(console.error);
-    // }, []);
 
     const columns = useMemo<GridColDef<User>[]>(
         () => [
@@ -141,11 +109,10 @@ export const Users = () => {
                         toolbar: () => DataGridTitle("Users"),
                         noRowsOverlay: CustomNoRowsOverlay,
                     }}
-                    // rows={users}
                     rows={data ? data.users : []}
                     columns={columns}
                     getRowId={(row: User) => row.userId}
-                    loading={isUsersLoading}
+                    loading={isLoading || isFetching}
                 />
             </div>
 
@@ -171,10 +138,10 @@ export const Users = () => {
             </div>
 
             <Snackbar
-                open={openErrorMessage}
+                open={isError}
                 autoHideDuration={6000}
                 onClose={handleErrorClose}
-                message={errorMessage}
+                message={error?.message}
                 action={ErrorAction(handleErrorClose)}
             />
         </section>

@@ -1,30 +1,6 @@
-import { User, AddUserDto, LoginUserDto as LoginUserDto } from "@/entities/users/model/User";
+import { User, AddUserDto } from "@/entities/users/model/User";
 import { ServiceResponse, UserRow } from "@/entities";
 import { API_URL } from "@/shared/config";
-
-// export const fetchUsers = async () => {
-//     const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/api/${serviceApiVersion}/users`,
-//         {
-//             method: 'GET',
-//             mode: 'cors',
-//             headers: {
-//                 'Access-Control-Request-Method': 'GET',
-//                 'Access-Control-Allow-Origin': '*',
-//                 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
-//             },
-//             redirect: 'follow'
-//         });
-
-//     const response = await fetch(request);
-
-//     if (!response.ok) {
-//         throw new Error('Ошибка загрузки пользователей.');
-//     }
-
-//     const response_content = await response.json() as ServiceResponse<UserRow[]>;
-//     const data = response_content.data;
-//     return data;
-// };
 
 export const addUser = async (user: AddUserDto) => {
     const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/users`,
@@ -102,29 +78,5 @@ export const editUser = async (user: User) => {
 
     const response_content = await response.json() as ServiceResponse<UserRow>;
     const data = response_content.data;
-    return data;
-};
-
-export const loginUser = async (user: LoginUserDto) => {
-    const request = new Request(`${serviceProto}${serviceDomain}:${servicePort}/auth/login`,
-        {
-            method: 'GET',
-            mode: 'cors',
-            headers: {
-                'Access-Control-Request-Method': 'GET',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
-            },
-            redirect: 'follow',
-            body: JSON.stringify(user),
-        });
-
-    const response = await fetch(request);
-
-    if (!response.ok) {
-        return null;
-    }
-
-    const { data = [] } = await response.json();
     return data;
 };

@@ -19,7 +19,7 @@ export const fetchChannelPosts = async (username: string, channelId: number, off
     const response = await fetch(request);
 
     if (!response.ok) {
-        console.log("Ошибка загрузки постов канала.");
+        console.error("Ошибка загрузки постов канала.");
         throw new Error("Ошибка загрузки постов канала.");
     }
 
