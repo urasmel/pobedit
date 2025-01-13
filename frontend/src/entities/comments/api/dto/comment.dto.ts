@@ -1,6 +1,6 @@
-import { Account } from "./Account";
+import { Account } from "@/entities/account/model/Account";
 
-export interface PostComment {
+export interface CommentDto {
     commentId: number;
     channelId: number;
     author: Account;

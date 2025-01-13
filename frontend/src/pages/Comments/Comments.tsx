@@ -7,12 +7,18 @@ import Loading from '@/shared/components/Loading';
 import ScrollToTopButton from "@/shared/components/ScrollToTopButton";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
 import { CommentWidget } from "@/features/CommentWidget";
-import UseCommentsFetch from "@/shared/api/hooks/UseCommentsFetch";
 import { NoCommentsData } from "@/shared/components/NoCommentsData";
+import { Action, MainState, useMainStore } from "@/app/stores";
+import { commentApi } from "@/entities/comments/intex";
+import { useQuery } from "@tanstack/react-query";
 
 
 export const Comments = () => {
-    const { user, channelId, postId } = useParams();
+    const { channelId, postId } = useParams();
+    const selectedUser = useMainStore(
+        (state: MainState & Action) => state.selectedUser
+    );
+
     const [count] = useState(20);
 
 
@@ -21,34 +27,37 @@ export const Comments = () => {
     });
 
 
-    const { comments, commentsLoading, commentsLoadingError, setOffset, setCommentsLoadingError } = UseCommentsFetch(user, channelId, postId);
+    // const { comments, commentsLoading, commentsLoadingError, setOffset, setCommentsLoadingError } = UseCommentsFetch(user, channelId, postId);
+    const { data, isFetching, isLoading, isError, error, isFetched } = useQuery(commentApi.commentQueries.list(selectedUser, channelId, postId));
+
+
 
     const handleErrorClose = () => {
-        setCommentsLoadingError(false);
+        // setCommentsLoadingError(false);
     };
 
     useEffect(() => {
-        if (inView) {
-            setOffset(() => comments.length);
-        }
+        // if (inView) {
+        //     setOffset(() => comments.length);
+        // }
     }, [inView]);
 
     return (
         <div className={styles.post__comments}>
 
             {
-                commentsLoading === 'After' &&
-                comments.length === 0 &&
+                isFetched &&
+                data?.comments.length === 0 &&
                 <div className={styles['posts-no-data']}>
-                    <NoCommentsData userName={user} channelId={channelId ? +channelId : undefined} postId={postId ? +postId : undefined} />
+                    <NoCommentsData userName={selectedUser} channelId={channelId ? +channelId : undefined} postId={postId ? +postId : undefined} />
                 </div>
             }
 
             {
-                comments.length !== 0 &&
+                data?.comments.length !== 0 &&
                 <>
                     {
-                        comments.map((comment) => (
+                        data?.comments.map((comment) => (
                             <CommentWidget key={comment.commentId} {...comment} />
                         ))
                     }
@@ -56,7 +65,7 @@ export const Comments = () => {
             }
 
             {
-                commentsLoading === 'Processing' &&
+                (isFetching || isLoading) &&
                 <div className="channel__posts-loading">
                     <Loading />
                 </div>
@@ -73,10 +82,10 @@ export const Comments = () => {
             <ScrollToTopButton />
 
             <Snackbar
-                open={commentsLoadingError}
+                open={isError}
                 autoHideDuration={6000}
                 onClose={handleErrorClose}
-                message={"Error fetching comments"}
+                message={error?.message}
                 action={ErrorAction(handleErrorClose)}
             />
 

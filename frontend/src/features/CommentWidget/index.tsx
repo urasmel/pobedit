@@ -1,8 +1,8 @@
-import { PostComment } from "@/types";
+import { Comment } from '@/entities/comments/model/Comment';
 import styles from './styles.module.css';
 import { NavLink } from "react-router-dom";
 
-export const CommentWidget = (comment: PostComment) => {
+export const CommentWidget = (comment: Comment) => {
     return (
         <div className={styles.comment}>
             <NavLink

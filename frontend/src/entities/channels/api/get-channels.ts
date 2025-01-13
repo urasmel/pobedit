@@ -22,8 +22,6 @@ export const getChannel = async (user: string | undefined, channelId: string | u
     }
 
     const result = await apiClient.get<ServiceResponse<ChannelDto>>(`api/v1/info/users/${user}/channels/${channelId}/info`);
-    console.log("result is ", result.data);
-
     return (
         mapChannel(result.data)
     );
