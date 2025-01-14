@@ -25,6 +25,7 @@ import { ChannelInfo } from "@/entities";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { channelApi } from "@/entities/channels";
+import { Channel } from "@/entities/channels/model/Channel";
 
 const Channels = () => {
 
@@ -42,12 +43,12 @@ const Channels = () => {
 
 
     useEffect(() => {
-        if (selectedUser != undefined) {
-            queryClient.invalidateQueries(channelApi.channelQueries.list().queryKey);
-        }
+        // if (selectedUser != undefined) {
+        //     queryClient.invalidateQueries(channelApi.channelQueries.list().queryKey);
+        // }
     }, [selectedUser]);
 
-    const columns = useMemo<GridColDef<ChannelInfo>[]>(() => [
+    const columns = useMemo<GridColDef<Channel>[]>(() => [
         { field: "id", headerName: "ID", width: 100 },
         { field: "title", headerName: "Заголовок", flex: 1 },
         { field: "mainUsername", headerName: "Владелец", flex: 1 },
@@ -73,7 +74,7 @@ const Channels = () => {
                     key={0}
                     icon={<InfoIcon />}
                     label="Показать информацию"
-                    onClick={() => handleChannelInfoIconClick(params.row.id)}
+                    onClick={() => { }}
                 />,
             ],
         },

@@ -1,10 +1,11 @@
-import { ServiceResponse, ChannelInfo } from "@/entities";
+import { ServiceResponse } from "@/entities";
 import { apiClient } from "@/shared/api/base";
 
 import { mapChannel } from "./mapper/map-channel";
 import { ChannelDto } from "./dto/channel.dto";
+import { Channel } from "../model/Channel";
 
-export const getChannels = async (user: string | undefined): Promise<{ channels: ChannelInfo[]; }> => {
+export const getChannels = async (user: string | undefined): Promise<{ channels: Channel[]; }> => {
     if (user == undefined) {
         return Promise.resolve({ channels: [] });
     }
@@ -16,7 +17,7 @@ export const getChannels = async (user: string | undefined): Promise<{ channels:
     });
 };
 
-export const getChannel = async (user: string | undefined, channelId: string | undefined): Promise<ChannelInfo | null> => {
+export const getChannel = async (user: string | undefined, channelId: string | undefined): Promise<Channel | null> => {
     if (user == undefined || channelId == undefined) {
         return Promise.resolve(null);
     }

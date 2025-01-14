@@ -1,4 +1,4 @@
-export type { ChannelInfo } from './channels/model/ChannelInfo';
+export type { Channel as ChannelInfo } from './channels/model/Channel';
 export type { Post } from './posts/model/Post';
 export type { UserRow } from './UserRow';
 export type { Account } from './account/model/Account';

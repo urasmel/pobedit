@@ -13,10 +13,10 @@ import { useQuery } from "@tanstack/react-query";
 import { postsApi } from "@/entities/posts";
 import { Action, MainState, useMainStore } from "@/app/stores";
 import { channelApi } from "@/entities/channels";
+import { Post } from "@/entities";
 
 
 export const Posts = () => {
-
 
     const { channelId } = useParams();
     const selectedUser = useMainStore(
@@ -78,9 +78,10 @@ export const Posts = () => {
                     data?.posts.length !== 0 &&
                     <>
                         {
-                            data?.posts.map((post) => (
-                                <PostWidget key={post.id} {...post} />
-                            ))
+                            data?.posts.map((post: Post) => {
+                                console.log(post.id);
+                                return <PostWidget key={post.id} post={post} user={selectedUser} channelId={channelId} />;
+                            })
                         }
                     </>
                 }

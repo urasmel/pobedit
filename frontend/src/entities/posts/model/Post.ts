@@ -1,5 +1,6 @@
 export interface Post {
-    id: number;     // id from TG
+    id: number;
+    postId: number;     // id from TG
     peerId: number;
     date: Date;
     message: string;

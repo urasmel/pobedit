@@ -3,6 +3,7 @@ import { Post } from "../../model/Post";
 
 export const mapPost = (dto: PostDto): Post => ({
     id: dto.id,
+    postId: dto.postId,
     peerId: dto.peerId,
     date: dto.date,
     message: dto.message,

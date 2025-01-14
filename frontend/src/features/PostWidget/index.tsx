@@ -2,10 +2,9 @@ import { Post } from "@/entities";
 import styles from "./styles.module.css";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import plural from 'plural-ru';
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
-const PostWidget = (post: Post) => {
-    const { user, channelId } = useParams();
+const PostWidget = ({ post, user, channelId }: { post: Post, user: string | undefined, channelId: string | undefined; }) => {
     return (
         <div className={styles.post}>
 
@@ -19,17 +18,22 @@ const PostWidget = (post: Post) => {
             </div>
 
             {
-                post.commentsCount !== 0 &&
+                post.commentsCount &&
                 <div className={styles.post__comments}>
                     <div className={styles["post__comments-count"]}>
                         {post.commentsCount + ' ' + plural(post.commentsCount, 'комментарий', 'комментария', 'комментариев')}
                     </div>
-                    <NavLink
-                        className={styles["post__comments-link"]}
-                        to={`/user/${user}/channels/${channelId}/posts/${post.id}/comments`}
-                    >
-                        <ChevronRightIcon />
-                    </NavLink>
+                    {
+                        user != undefined &&
+                        channelId != undefined &&
+                        post.commentsCount > 0 &&
+                        <NavLink
+                            className={styles["post__comments-link"]}
+                            to={`/user/${user}/channels/${channelId}/posts/${post.id}/comments`}
+                        >
+                            <ChevronRightIcon />
+                        </NavLink>
+                    }
                 </div>
             }
         </div >

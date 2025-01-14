@@ -1,10 +1,20 @@
-import { Button, Typography } from '@mui/material';
+import { Button, Snackbar, Typography } from '@mui/material';
 import styles from './styles.module.css';
 import { useRef, useState } from 'react';
 import Loading from '../Loading';
-import { useNavigate } from 'react-router-dom';
 import { NoChannelDataProps } from '@/entities/Props';
+import { ErrorAction } from '../ErrorrAction';
+import getStatusCodeString from '@/shared/api/socket';
 
+class CloseEvent {
+    readonly code: number;
+    readonly reason?: string;
+
+    constructor(code: number, reason?: string) {
+        this.code = code;
+        this.reason = reason;
+    }
+}
 
 export const NoChannelData = ({ userName, channelId }: NoChannelDataProps) => {
 
@@ -12,7 +22,8 @@ export const NoChannelData = ({ userName, channelId }: NoChannelDataProps) => {
     const [isLoading, setIsLoading] = useState(false);
     const [response, setResponse] = useState<string>();
     const [isConnected, setIsConnected] = useState(false);
-    const navigate = useNavigate();
+    const [isError, setIsError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
 
     const wsRef = useRef<WebSocket>();
@@ -30,6 +41,8 @@ export const NoChannelData = ({ userName, channelId }: NoChannelDataProps) => {
             catch (error) {
                 setIsConnected(false);
                 setIsLoading(false);
+                setIsError(true);
+                setErrorMessage("Ошибка отправки запроса на обновление данных канала.");
             }
         };
 
@@ -37,10 +50,23 @@ export const NoChannelData = ({ userName, channelId }: NoChannelDataProps) => {
             setResponse(() => e.data);
         };
 
-        wsRef.current.onclose = () => {
+        wsRef.current.onclose = (event: CloseEvent) => {
             setIsConnected(false);
             setIsLoading(false);
-            navigate(0);
+            console.log(`Connection closed with status reason ${getStatusCodeString(event.code)}`);
+
+            if (1001 <= event.code && event.code <= 1015) {
+                setIsError(true);
+                setErrorMessage("Запрос на обновление постов канала завершился ошибкой");
+                console.error(getStatusCodeString(event.code));
+            }
+        };
+
+        wsRef.current.onerror = (event: Event) => {
+            setIsConnected(false);
+            setIsLoading(false);
+            setIsError(true);
+            setErrorMessage("Ошибка отправки запроса на обновление данных канала.");
         };
     };
 
@@ -52,6 +78,10 @@ export const NoChannelData = ({ userName, channelId }: NoChannelDataProps) => {
 
     const btnSendRequest_handler = () => {
         connectWs();
+    };
+
+    const handleErrorClose = () => {
+        setIsError(false);
     };
 
     return (
@@ -99,6 +129,14 @@ export const NoChannelData = ({ userName, channelId }: NoChannelDataProps) => {
                     :
                     <div>Disconnected</div>
             }
+
+            <Snackbar
+                open={isError}
+                onClose={handleErrorClose}
+                autoHideDuration={6000}
+                message={errorMessage}
+                action={ErrorAction(handleErrorClose)}
+            />
         </div>
     );
 };

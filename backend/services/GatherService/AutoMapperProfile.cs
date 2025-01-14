@@ -16,7 +16,6 @@ namespace Gather
             CreateMap<SharedCore.Models.User, GetUserDto>();
             CreateMap<SharedCore.Models.Channel, ChatBase>();
             CreateMap<ChatBase, SharedCore.Models.Channel>();
-            CreateMap<SharedCore.Models.Channel, ChannelInfoDto>();
             CreateMap<SharedCore.Models.Channel, ChannelDto>();
             CreateMap<Message, Post>();
             CreateMap<Post, PostDto>(); 

@@ -1,10 +1,14 @@
 import { ChannelDto } from "../dto/channel.dto";
-import { ChannelInfo } from "@/entities/channels/model/ChannelInfo";
+import { Channel } from "@/entities/channels/model/Channel";
 
-export const mapChannel = (dto: ChannelDto): ChannelInfo => ({
+export const mapChannel = (dto: ChannelDto): Channel => ({
     id: dto.id,
+    userId: dto.userId,
+    mainUsername: dto.mainUsername,
+    isChannel: dto.isChannel,
+    isGroup: dto.isGroup,
     about: dto.about,
     participantsCount: dto.participantsCount,
     image: dto.image,
-    title: dto.title
+    title: dto.title,
 });

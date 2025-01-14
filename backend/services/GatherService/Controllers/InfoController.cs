@@ -87,7 +87,7 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ChannelInfoDto>> GetChannelInfo(string user, int channelId)
+        public async Task<ActionResult<ChannelDto>> GetChannelInfo(string user, int channelId)
         {
             var response = await _infoService.GetChannelInfo(user, channelId);
             if (response.Message == "User not found" || response.Message == "Channel not found")
@@ -111,13 +111,13 @@ namespace Gather.Controllers
         /// <param name="offset">Смещение относительно последнего сообщения данного канала, находящегося в базе</param>
         /// <param name="count">Количество записей, которые необходимо вернуть</param>
         [HttpGet]
-        [Route("users/{user}/channels/{channelId}/messages")]
+        [Route("users/{user}/channels/{channelId}/posts")]
         [MapToApiVersion(1.0)]
         [ServiceFilter(typeof(UserFilter))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<PostDto>>> GetAllChannelMessages(string user, int channelId, int offset = 0, int count = 20)
+        public async Task<ActionResult<List<PostDto>>> GetAllChannelPosts(string user, int channelId, int offset = 0, int count = 20)
         {
             var response = await _infoService.GetChannelPosts(user, channelId, offset, count);
 
@@ -165,7 +165,7 @@ namespace Gather.Controllers
         //}
 
         [HttpGet()]
-        [Route("users/{user}/channels/{channelId}/update_messages")]
+        [Route("users/{user}/channels/{channelId}/update_posts")]
         public async Task UpdateChannelPosts(string user, int channelId)
         {
             if (HttpContext.WebSockets.IsWebSocketRequest)

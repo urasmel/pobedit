@@ -14,9 +14,9 @@ namespace Gather.Services
         Task<ServiceResponse<IEnumerable<long>>> UpdateChannels(string username);
 
 
-        Task<ServiceResponse<ChannelInfoDto>> UpdateChannelInfo(string username, long chatId);
+        Task<ServiceResponse<ChannelDto>> UpdateChannelInfo(string username, long chatId);
 
-        Task<ServiceResponse<ChannelInfoDto>> GetChannelInfo(string username, long chatId);
+        Task<ServiceResponse<ChannelDto>> GetChannelInfo(string username, long chatId);
 
         Task<ServiceResponse<IEnumerable<PostDto>>> GetChannelPosts(string username, long chatId, int offset, int count);
 

@@ -2,11 +2,13 @@
 using Gather.Client;
 using Gather.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
 using SharedCore.Models;
 using System.Net.WebSockets;
 using System.Text;
+using System.Xml.Linq;
 using TL;
 
 namespace Gather.Services.InfoService
@@ -175,9 +177,9 @@ namespace Gather.Services.InfoService
             }
         }
 
-        public async Task<ServiceResponse<ChannelInfoDto>> GetChannelInfo(string username, long chatId)
+        public async Task<ServiceResponse<ChannelDto>> GetChannelInfo(string username, long chatId)
         {
-            var response = new ServiceResponse<ChannelInfoDto>();
+            var response = new ServiceResponse<ChannelDto>();
             try
             {
                 if (_context.Channels == null)
@@ -198,7 +200,7 @@ namespace Gather.Services.InfoService
                     return response;
                 }
 
-                var channelInfoDto = _mapper.Map<ChannelInfoDto>(channel);
+                var channelInfoDto = _mapper.Map<ChannelDto>(channel);
                 response.Success = true;
                 response.Data = channelInfoDto;
                 return response;
@@ -213,9 +215,9 @@ namespace Gather.Services.InfoService
             }
         }
 
-        public async Task<ServiceResponse<ChannelInfoDto>> UpdateChannelInfo(string username, long chatId)
+        public async Task<ServiceResponse<ChannelDto>> UpdateChannelInfo(string username, long chatId)
         {
-            var response = new ServiceResponse<ChannelInfoDto>();
+            var response = new ServiceResponse<ChannelDto>();
 
 
             if (_context.Channels == null)
@@ -244,7 +246,7 @@ namespace Gather.Services.InfoService
                 var chatInfo = await _client.GetFullChat(chatPeer);
 
                 // Получаем инфо о канале.
-                var channelFullInfoDto = new ChannelInfoDto();
+                var channelFullInfoDto = new ChannelDto();
                 channelFullInfoDto.Id = chatInfo.full_chat.ID;
                 channelFullInfoDto.ParticipantsCount = chatInfo.full_chat.ParticipantsCount;
                 channelFullInfoDto.About = chatInfo.full_chat.About;
@@ -654,8 +656,8 @@ namespace Gather.Services.InfoService
                 int endOffsetId = 0;
 
 
-                // Если пусто, запрашиваем у телеграмма один пост на 31.12.2023.
-                // Его id используем для запроса новых постов канала как смещение.
+                // Если пусто, запрашиваем у телеграмма последний пост и
+                // используем его как начала для скачивания постов в прошлом.
                 if (postFromDb == null)
                 {
                     var lastMessagesBase = await _client.Messages_GetHistory(peer, 0, DateTime.Now, 0, 1);
@@ -679,8 +681,6 @@ namespace Gather.Services.InfoService
 
                     var msgBase = channelMessages.messages[0];
                     startOffsetId = msgBase.ID;
-
-
 
                     lastMessagesBase = await _client.Messages_GetHistory(peer, 0, startLoadingDate, 0, 1);
                     if (lastMessagesBase is not Messages_ChannelMessages end_channelMessages)
@@ -713,7 +713,7 @@ namespace Gather.Services.InfoService
 
                 // Возможно потом пригодится.
                 var messages = new List<PostDto>();
-                bool needStop = false;
+                bool needBreak = false;
 
                 while (true)
                 {
@@ -727,7 +727,7 @@ namespace Gather.Services.InfoService
                     {
                         if (channelMessages.messages[index].ID <= endOffsetId)
                         {
-                            needStop = true;
+                            needBreak = true;
                             break;
                         }
 
@@ -772,7 +772,10 @@ namespace Gather.Services.InfoService
 
                             if (index % 20 == 0 || index == channelMessages.messages.Length - 1)
                             {
-                                SendAsyncMessage(webSocket, postDto.Date.ToString("yyyy:MM:dd HH:mm:ss"));
+                                SendAsyncMessage(
+                                    webSocket, 
+                                    postDto.Date.ToString("yyyy:MM:dd HH:mm:ss")
+                                    );
                             }
                         }
 
@@ -782,19 +785,36 @@ namespace Gather.Services.InfoService
                         }
                     }
 
-                    if (needStop)
+                    if (needBreak)
                     {
                         break;
                     }
                 }
                 await _context.SaveChangesAsync();
-                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "The request was completed successfully", CancellationToken.None);
+                await webSocket.CloseAsync(
+                    WebSocketCloseStatus.NormalClosure, 
+                    "The request was completed successfully", 
+                    CancellationToken.None);
                 //response.Success = true;
                 //response.Data = messages.Count;
             }
+            catch(InvalidOperationException ex)
+            {
+                var errorMessage = "An error ocurred while updating channel's posts. You may no longer subscribe to this channel.";
+                _logger.LogError(ex.Message, errorMessage);
+                await webSocket.CloseAsync(
+                    WebSocketCloseStatus.InternalServerError,
+                    errorMessage,
+                    CancellationToken.None);
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error ocurred while updating channel's posts");
+                var errorMessage = "An error ocurred while updating channel's posts.";
+                _logger.LogError(ex.Message, errorMessage);
+                await webSocket.CloseAsync(
+                    WebSocketCloseStatus.InternalServerError,
+                    errorMessage,
+                    CancellationToken.None);
                 //response.Success = false;
                 //response.Message = "An error ocurred while updating channel's posts";
                 //response.Data = 0;
