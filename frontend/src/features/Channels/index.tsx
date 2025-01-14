@@ -1,5 +1,9 @@
 import {
     Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     Snackbar,
 } from "@mui/material";
 import {
@@ -21,26 +25,26 @@ import DataGridTitle from "@/shared/components/DataGridTitle";
 const Loading = React.lazy(() => import("@/shared/components/Loading"));
 import InfoIcon from "@mui/icons-material/Info";
 import { useNavigate } from "react-router-dom";
-import { ChannelInfo } from "@/entities";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { channelApi } from "@/entities/channels";
 import { Channel } from "@/entities/channels/model/Channel";
+import { ChannelInfoDialog } from "../ChannelInfoDialog";
 
 const Channels = () => {
 
 
     const selectedUser = useMainStore((state: MainState) => state.selectedUser);
+    const [channelId, setChannelId] = useState<string | undefined>(undefined);
 
     const queryClient = useQueryClient();
     const { data, isFetching, isLoading, isError, error } = useQuery(channelApi.channelQueries.list(selectedUser));
+    const { data: channelInfo } = useQuery(channelApi.channelQueries.details(selectedUser, channelId));
 
     const navigate = useNavigate();
     const [openShowChannelInfo, setOpenShowChannelInfo] = useState(false);
 
-    const fetchchannelInfo = useMainStore((state: MainState & Action) => state.fetchChannelInfo);
     const [openErrorMessage, setOpenErrorMessage] = useState(false);
-
 
     useEffect(() => {
         // if (selectedUser != undefined) {
@@ -69,27 +73,21 @@ const Channels = () => {
             type: "actions",
             flex: 1,
             headerName: "Операции",
-            getActions: (params: GridRowParams) => [
+            getActions: (params: GridRowParams<Channel>) => [
                 <GridActionsCellItem
                     key={0}
                     icon={<InfoIcon />}
                     label="Показать информацию"
-                    onClick={() => { }}
+                    onClick={() => {
+                        setChannelId(params.row.id.toString());
+                        setOpenShowChannelInfo(true);
+                    }}
                 />,
             ],
         },
     ], []);
 
-    const handleChannelInfoIconClick = async (channelId: number) => {
-        const result = await fetchchannelInfo(channelId);
-        if (result) { setOpenShowChannelInfo(true); }
-        else {
-            // setErrorMessage("Ошибка загрузки информации о канале");
-            setOpenErrorMessage(true);
-        }
-    };
-
-    const handleChannelRowClick = (params: GridRowParams<ChannelInfo>) => {
+    const handleChannelRowClick = (params: GridRowParams<Channel>) => {
         navigate(`/user/${selectedUser}/channels/${params.row.id}/posts`);
     };
 
@@ -142,6 +140,23 @@ const Channels = () => {
                     Обновить
                 </Button>
             </div>
+
+            {
+                channelInfo != null && <Dialog
+                    open={openShowChannelInfo}
+                    onClose={() => { setOpenShowChannelInfo(false); }}
+                >
+                    <DialogTitle>Channel info</DialogTitle>
+                    <DialogContent>
+                        <ChannelInfoDialog channel={channelInfo} />
+                    </DialogContent>
+
+                    <DialogActions>
+                        <Button onClick={() => { setOpenShowChannelInfo(false); }}>
+                            Закрыть
+                        </Button>
+                    </DialogActions>
+                </Dialog>}
 
             <Snackbar
                 open={isError}
