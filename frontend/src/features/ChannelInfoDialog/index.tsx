@@ -14,7 +14,7 @@ export const ChannelInfoDialog = (props: { channel: Channel; }) => {
                                 src={`data:image/jpeg;base64,${props.channel.image}`}
                             />
                             :
-                            <img src="./images/no_image.svg" alt="No image" />
+                            <img src="./images/no_image.svg" alt="Нет изображения" />
                     }
                 </div>
                 <div className={styles.info__about}>

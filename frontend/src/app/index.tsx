@@ -8,6 +8,7 @@ import { Providers } from './providers';
 
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from "react-router-dom";
+import './styles/index.scss';
 
 
 const rootNode = document.getElementById('root') as Element;
@@ -17,15 +18,11 @@ root.render(
     <BrowserRouter>
         <div className={styles.app}>
 
-            <div className={styles.header}>
-                <Header />
-            </div>
+            <Header />
 
             <div className={styles.main_block}>
 
-                <div className={styles.aside}>
-                    <Aside />
-                </div>
+                <Aside />
 
                 <div className={styles.main_content}>
 
@@ -35,9 +32,8 @@ root.render(
                 </div>
 
             </div>
-            <div className={styles.footer}>
-                <Footer />
-            </div>
+
+            <Footer />
         </div>
     </BrowserRouter >
     // </React.StrictMode>

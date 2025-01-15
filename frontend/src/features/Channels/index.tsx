@@ -146,7 +146,7 @@ const Channels = () => {
                     open={openShowChannelInfo}
                     onClose={() => { setOpenShowChannelInfo(false); }}
                 >
-                    <DialogTitle>Channel info</DialogTitle>
+                    <DialogTitle>Информация о канале</DialogTitle>
                     <DialogContent>
                         <ChannelInfoDialog channel={channelInfo} />
                     </DialogContent>

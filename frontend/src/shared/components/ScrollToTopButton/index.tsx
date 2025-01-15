@@ -7,11 +7,14 @@ const ScrollToTopButton = () => {
     const [isVisible, setIsVisible] = useState(false);
 
     const toggleVisibility = () => {
+        // const inner = document.getElementById('inner');
+        // console.log(window.document.body.offsetTop - window.document.body.scrollTop);
         if (window.document.body.scrollTop > 300) {
             setIsVisible(true);
         } else {
             setIsVisible(false);
         }
+        console.log(window.document.body.scrollTop);
     };
 
     const scrollToTop = () => {
@@ -22,14 +25,17 @@ const ScrollToTopButton = () => {
     };
 
     useEffect(() => {
-        document.body.addEventListener('scroll', toggleVisibility);
+        console.log("!!!!");
+        // document.body.addEventListener('scroll', toggleVisibility);
+        document.addEventListener('scroll', toggleVisibility);
         return () => {
-            document.body.removeEventListener('scroll', toggleVisibility);
+            // document.body.removeEventListener('scroll', toggleVisibility);
+            document.removeEventListener('scroll', toggleVisibility);
         };
     }, []);
 
     return (
-        <>
+        <div>
             {isVisible && (
                 <div className={styles['button-up']}>
                     <Button onClick={scrollToTop} fullWidth >
@@ -38,7 +44,7 @@ const ScrollToTopButton = () => {
                 </div>
 
             )}
-        </>
+        </div>
     );
 };
 

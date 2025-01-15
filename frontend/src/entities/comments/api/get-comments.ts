@@ -28,8 +28,3 @@ export const getComment = async (user: string | undefined, channelId: string | u
         comment: mapComment(result.data)
     });
 };
-
-
-
-// "/api/v1/info/users/SivtsevV/channels/1032086354/posts/61721/comments": "/comments",
-// "/api/v1/info/users/SivtsevV/channels/1032086354/posts/61721/comments?offset=0&count=20": "/comments",

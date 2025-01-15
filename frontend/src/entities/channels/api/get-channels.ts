@@ -6,7 +6,7 @@ import { ChannelDto } from "./dto/channel.dto";
 import { Channel } from "../model/Channel";
 
 export const getChannels = async (user: string | undefined): Promise<{ channels: Channel[]; }> => {
-    if (user == undefined) {
+    if (!user) {
         return Promise.resolve({ channels: [] });
     }
 

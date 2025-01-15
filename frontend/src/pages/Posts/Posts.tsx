@@ -1,5 +1,5 @@
 import styles from "./Posts.module.scss";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import PostWidget from "@/features/PostWidget";
 import { Snackbar } from "@mui/material";
@@ -26,22 +26,24 @@ export const Posts = () => {
         useQuery(channelApi.channelQueries.details(selectedUser, channelId));
     const { data, isFetching, isLoading, isError, error, isFetched } = useQuery(postsApi.postsQueries.list(selectedUser, channelId));
 
+    const [offset, setOffset] = useState(0);
     const [count] = useState(20);
 
     const { ref, inView } = useInView({
         threshold: 0,
     });
 
-
     const handleErrorClose = () => {
         // setPostsLoadingError(false);
     };
 
+
     useEffect(() => {
-        // if (inView && data != undefined) {
-        //     setOffset(() => data.posts.length);
-        // }
+        if (inView && data != undefined) {
+            setOffset(() => data.posts.length);
+        }
     }, [inView]);
+
 
 
     return (
@@ -79,8 +81,7 @@ export const Posts = () => {
                     <>
                         {
                             data?.posts.map((post: Post) => {
-                                console.log(post.id);
-                                return <PostWidget key={post.id} post={post} user={selectedUser} channelId={channelId} />;
+                                return <PostWidget key={post.postId} post={post} user={selectedUser} channelId={channelId} />;
                             })
                         }
                     </>
@@ -99,6 +100,10 @@ export const Posts = () => {
 
             </div>
 
+
+            <div className={styles['intersection-guard']} ref={ref} >
+                {`Header inside viewport ${inView}.`}
+            </div>
 
             <ScrollToTopButton />
 

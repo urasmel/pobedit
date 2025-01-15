@@ -1,19 +1,15 @@
 .app {
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    padding: 0.5rem;
+    min-height: 100vh;
     box-sizing: border-box;
-}
-
-.header {
-    flex: 1 1 10vh;
+    padding: 0.5rem;
 }
 
 .main_block {
     display: flex;
     gap: 1rem;
-    flex: 3 1 85vw;
+    flex: 3 1 1vw;
     margin-top: 1rem;
 }
 
@@ -27,8 +23,4 @@
     box-shadow: var(--shadow);
     border-radius: .3rem;
     padding: .5rem;
-}
-
-.footer {
-    flex: 1 1 10vh;
 }
