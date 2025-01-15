@@ -7,29 +7,24 @@ const ScrollToTopButton = () => {
     const [isVisible, setIsVisible] = useState(false);
 
     const toggleVisibility = () => {
-        // const inner = document.getElementById('inner');
-        // console.log(window.document.body.offsetTop - window.document.body.scrollTop);
-        if (window.document.body.scrollTop > 300) {
+        if (window.scrollY > 300) {
             setIsVisible(true);
         } else {
             setIsVisible(false);
         }
-        console.log(window.document.body.scrollTop);
+        // console.log(window.screenY);
     };
 
     const scrollToTop = () => {
-        window.document.body.scrollTo({
+        window.scrollTo({
             top: 0,
             behavior: 'smooth',
         });
     };
 
     useEffect(() => {
-        console.log("!!!!");
-        // document.body.addEventListener('scroll', toggleVisibility);
         document.addEventListener('scroll', toggleVisibility);
         return () => {
-            // document.body.removeEventListener('scroll', toggleVisibility);
             document.removeEventListener('scroll', toggleVisibility);
         };
     }, []);

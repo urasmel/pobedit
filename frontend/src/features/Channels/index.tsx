@@ -111,7 +111,7 @@ const Channels = () => {
                             id: false,
                         }}
                         slots={{
-                            toolbar: () => DataGridTitle("Channels"),
+                            toolbar: () => DataGridTitle("Каналы"),
                             noRowsOverlay: CustomNoRowsOverlay,
                         }}
                         rows={data ? data.channels : []}

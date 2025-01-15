@@ -106,7 +106,7 @@ export const Users = () => {
                     }}
                     onRowClick={handleRowClick}
                     slots={{
-                        toolbar: () => DataGridTitle("Users"),
+                        toolbar: () => DataGridTitle("Пользователи"),
                         noRowsOverlay: CustomNoRowsOverlay,
                     }}
                     rows={data ? data.users : []}
