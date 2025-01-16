@@ -18,15 +18,17 @@ const PostWidget = ({ post, user, channelId }: { post: Post, user: string | unde
             </div>
 
             {
-                post.commentsCount &&
+                // post.commentsCount &&
                 <div className={styles.post__comments}>
                     <div className={styles["post__comments-count"]}>
-                        {post.commentsCount + ' ' + plural(post.commentsCount, 'комментарий', 'комментария', 'комментариев')}
+                        {
+                            'Загружено ' +
+                            (post.commentsCount ? post.commentsCount : 0) +
+                            ' ' +
+                            plural((post.commentsCount ? post.commentsCount : 0), 'комментарий', 'комментария', 'комментариев')
+                        }
                     </div>
                     {
-                        user != undefined &&
-                        channelId != undefined &&
-                        post.commentsCount > 0 &&
                         <NavLink
                             className={styles["post__comments-link"]}
                             to={`/user/${user}/channels/${channelId}/posts/${post.id}/comments`}

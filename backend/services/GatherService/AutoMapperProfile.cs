@@ -18,7 +18,8 @@ namespace Gather
             CreateMap<ChatBase, SharedCore.Models.Channel>();
             CreateMap<SharedCore.Models.Channel, ChannelDto>();
             CreateMap<Message, Post>();
-            CreateMap<Post, PostDto>(); 
+            CreateMap<Post, PostDto>();
+            CreateMap<Comment, CommentDto>();
             CreateMap<SharedCore.Models.Channel, InputPeer>();
         }
     }

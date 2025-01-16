@@ -70,7 +70,6 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddSingleton<IConfigUtils, ConfigUtils>();
 builder.Services.AddSingleton<GatherClient>();
-builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IGatherService, GatherService>();

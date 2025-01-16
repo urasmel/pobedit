@@ -16,7 +16,6 @@ namespace Gather.Tests
                 new Channel
                 {
                     Id = 1,
-                    User=new User{UserId=1, Password="passOne", PhoneNumber="+71234567123", Username="firstUser"},
                     IsChannel=true,
                     IsGroup=true,
                     MainUsername="Mainer",
@@ -29,7 +28,6 @@ namespace Gather.Tests
                 new Channel
                 {
                     Id = 1,
-                    User=new User{UserId=2, Password="passtwwo", PhoneNumber="+71231117123", Username="secondUser"},
                     IsChannel=true,
                     IsGroup=true,
                     MainUsername="Seconder",

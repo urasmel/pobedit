@@ -14,23 +14,18 @@ import { useQuery } from "@tanstack/react-query";
 
 
 export const Comments = () => {
+
     const { channelId, postId } = useParams();
     const selectedUser = useMainStore(
         (state: MainState & Action) => state.selectedUser
     );
 
     const [count] = useState(20);
-
-
     const { ref, inView } = useInView({
         threshold: 0,
     });
 
-
-    // const { comments, commentsLoading, commentsLoadingError, setOffset, setCommentsLoadingError } = UseCommentsFetch(user, channelId, postId);
     const { data, isFetching, isLoading, isError, error, isFetched } = useQuery(commentApi.commentQueries.list(selectedUser, channelId, postId));
-
-
 
     const handleErrorClose = () => {
         // setCommentsLoadingError(false);
@@ -42,6 +37,14 @@ export const Comments = () => {
         // }
     }, [inView]);
 
+    if (isLoading) {
+        return (
+            <div className={styles.loading}>
+                <Loading />
+            </div>
+        );
+    }
+
     return (
         <div className={styles.post__comments}>
 
@@ -49,7 +52,11 @@ export const Comments = () => {
                 isFetched &&
                 data?.comments.length === 0 &&
                 <div className={styles['posts-no-data']}>
-                    <NoCommentsData userName={selectedUser} channelId={channelId ? +channelId : undefined} postId={postId ? +postId : undefined} />
+                    <NoCommentsData
+                        userName={selectedUser}
+                        channelId={channelId ? +channelId : undefined}
+                        postId={postId ? +postId : undefined}
+                    />
                 </div>
             }
 
@@ -65,15 +72,11 @@ export const Comments = () => {
             }
 
             {
-                (isFetching || isLoading) &&
+                isFetching &&
                 <div className="channel__posts-loading">
                     <Loading />
                 </div>
             }
-
-            <div className={styles['intersection-guard']} ref={ref} >
-                {`Header inside viewport ${inView}.`}
-            </div>
 
             <div className={styles['intersection-guard']} ref={ref} >
                 {`Header inside viewport ${inView}.`}

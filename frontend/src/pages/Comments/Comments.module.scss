@@ -1,3 +1,11 @@
+.loading {
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    height: 100%;
+    width: 100%;
+}
+
 .post__comments {
     display: flex;
     flex-direction: column;

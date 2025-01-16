@@ -8,7 +8,6 @@ using SharedCore.Dtos.Channel;
 using SharedCore.Models;
 using System.Net.WebSockets;
 using System.Text;
-using System.Xml.Linq;
 using TL;
 
 namespace Gather.Services.InfoService
@@ -29,31 +28,15 @@ namespace Gather.Services.InfoService
             _context = context;
             _mapper = mapper;
             _logger = logger;
-            Init();
         }
 
-        private async void Init()
-        {
-            user = await _client.LoginUserIfNeeded();
-        }
-
-        public async Task<ServiceResponse<IEnumerable<ChannelDto>>> GetAllChannels(string username)
+        public async Task<ServiceResponse<IEnumerable<ChannelDto>>> GetAllChannels()
         {
             var response = new ServiceResponse<IEnumerable<ChannelDto>>();
 
             try
             {
-                var user = await _context.Users.Where(u => u.Username == username).FirstOrDefaultAsync();
-
-                if (user == null)
-                {
-                    response.Success = false;
-                    response.Data = Enumerable.Empty<ChannelDto>();
-                    response.Message = "User not found";
-                    return response;
-                }
-
-                var chats = _context.Channels.Where(channel => channel.User == user).ToList();
+                var chats = await _context.Channels.ToListAsync();
                 var results = _mapper.Map<List<ChannelDto>>(chats);
                 response.Data = results;
 
@@ -87,85 +70,82 @@ namespace Gather.Services.InfoService
             return response;
         }
 
-        public async Task<ServiceResponse<IEnumerable<long>>> UpdateChannels(string username)
+        public async Task<ServiceResponse<IEnumerable<long>>> UpdateChannels()
         {
             var response = new ServiceResponse<IEnumerable<long>>();
 
             try
             {
-                if (string.IsNullOrEmpty(username))
+                if (user == null)
                 {
-                    response.Success = false;
-                    response.Message = "Malformed request data. No user present.";
-                    response.Data = Enumerable.Empty<long>();
-                    return response;
+                    user = await _client.LoginUserIfNeeded();
                 }
-                else
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "UpdateChannels"+Environment.NewLine +"The error while logging telegram user.");
+                response.Success = false;
+                response.Message = "Unable to login to Telegram";
+                response.Data = Enumerable.Empty<long>();
+                return response;
+            }
+
+
+            try
+            {
+                // chats = groups/channels (does not include users dialogs)
+                var chats = await _client.Messages_GetAllChats();
+                var chatsFromTG = new List<ChatBase>();
+                foreach (var (id, chat) in chats.chats)
                 {
-                    var user = _context.Users.FirstOrDefault(u => u.Username == username);
-                    if (user == null)
-                    {
-                        response.Success = false;
-                        response.Message = "User not found.";
-                        response.Data = Enumerable.Empty<long>();
-                        return response;
-                    }
+                    chatsFromTG.Add(chat);
+                }
 
-                    // chats = groups/channels (does not include users dialogs)
-                    var chats = await _client.Messages_GetAllChats();
-                    var chatsFromTG = new List<ChatBase>();
-                    foreach (var (id, chat) in chats.chats)
+                // Добавляем новые в БД.
+                var random = new Random();
+                foreach (var chat in chatsFromTG)
+                {
+                    try
                     {
-                        chatsFromTG.Add(chat);
-                    }
-
-                    // Добавляем новые в БД.
-                    var random = new Random();
-                    foreach (var chat in chatsFromTG)
-                    {
-                        try
+                        if (!_context.Channels.Any(channel => channel.Id == chat.ID))
                         {
-                            if (!_context.Channels.Any(channel => channel.Id == chat.ID))
+                            var addedChat = _mapper.Map<SharedCore.Models.Channel>(chat);
+                            var channelFullInfo = await _client.GetFullChat(chat);
+
+                            addedChat.About = channelFullInfo.full_chat.About;
+                            addedChat.ParticipantsCount = channelFullInfo.full_chat.ParticipantsCount;
+
+                            if (chat.Photo != null)
                             {
-                                var addedChat = _mapper.Map<SharedCore.Models.Channel>(chat);
-                                var channelFullInfo = await _client.GetFullChat(chat);
-
-                                addedChat.User = user;
-                                addedChat.About = channelFullInfo.full_chat.About;
-                                addedChat.ParticipantsCount = channelFullInfo.full_chat.ParticipantsCount;
-
-                                if (chat.Photo != null)
-                                {
-                                    MemoryStream ms = new MemoryStream(1000000);
-                                    Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chat, ms);
-                                    addedChat.Image = Convert.ToBase64String(ms.ToArray());
-                                }
-                                _context.Channels.Add(addedChat);
+                                MemoryStream ms = new MemoryStream(1000000);
+                                Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chat, ms);
+                                addedChat.Image = Convert.ToBase64String(ms.ToArray());
                             }
+                            _context.Channels.Add(addedChat);
                         }
-                        catch (Exception exception)
-                        {
-                            _logger.LogError(
-                                exception.Message + Environment.NewLine +
-                                exception.StackTrace + Environment.NewLine +
-                                $"channel is: {chat.Title}", "UpdateChannels");
-                        }
-                        Thread.Sleep(random.Next(500, 2000));
                     }
-
-                    // Удаляем из БД те, которых в телеграмме уже нет.
-                    foreach (var chat in _context.Channels)
+                    catch (Exception exception)
                     {
-                        if (!chatsFromTG.Any(channel => channel.ID == chat.Id))
-                        {
-                            _context.Channels.Remove(chat);
-                        }
+                        _logger.LogError(
+                            exception.Message + Environment.NewLine +
+                            exception.StackTrace + Environment.NewLine +
+                            $"channel is: {chat.Title}", "UpdateChannels");
                     }
-
-                    await _context.SaveChangesAsync();
-                    response.Data = _context.Channels.Select(channel => channel.Id);
-                    return response;
+                    Thread.Sleep(random.Next(500, 2000));
                 }
+
+                // Удаляем из БД те, которых в телеграмме уже нет.
+                foreach (var chat in _context.Channels)
+                {
+                    if (!chatsFromTG.Any(channel => channel.ID == chat.Id))
+                    {
+                        _context.Channels.Remove(chat);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                response.Data = _context.Channels.Select(channel => channel.Id);
+                return response;
             }
             catch (Exception exception)
             {
@@ -177,7 +157,7 @@ namespace Gather.Services.InfoService
             }
         }
 
-        public async Task<ServiceResponse<ChannelDto>> GetChannelInfo(string username, long chatId)
+        public async Task<ServiceResponse<ChannelDto>> GetChannelInfo(long chatId)
         {
             var response = new ServiceResponse<ChannelDto>();
             try
@@ -215,10 +195,24 @@ namespace Gather.Services.InfoService
             }
         }
 
-        public async Task<ServiceResponse<ChannelDto>> UpdateChannelInfo(string username, long chatId)
+        public async Task<ServiceResponse<ChannelDto>> UpdateChannelInfo(long chatId)
         {
             var response = new ServiceResponse<ChannelDto>();
 
+            try
+            {
+                if (user == null)
+                {
+                    user = await _client.LoginUserIfNeeded();
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "UpdateChannels" + Environment.NewLine + "The error while logging telegram user.");
+                response.Success = false;
+                response.Message = "Unable to login to Telegram";
+                return response;
+            }
 
             if (_context.Channels == null)
             {
@@ -282,7 +276,7 @@ namespace Gather.Services.InfoService
             }
         }
 
-        public async Task<ServiceResponse<IEnumerable<PostDto>>> GetChannelPosts(string username, long chatId, int offset, int count)
+        public async Task<ServiceResponse<IEnumerable<PostDto>>> GetChannelPosts(long chatId, int offset, int count)
         {
             var response = new ServiceResponse<IEnumerable<PostDto>>();
 
@@ -375,7 +369,7 @@ namespace Gather.Services.InfoService
 
                 var posts = await _context.Posts
                     .Where(post => post.PeerId == chatId)
-                    .OrderByDescending(item => item.Id)
+                    .OrderByDescending(item => item.TlgId)
                     .Skip(offset).Take(count)
                     .ToListAsync();
                 response.Data = _mapper.Map<List<PostDto>>(posts);
@@ -507,17 +501,9 @@ namespace Gather.Services.InfoService
         //    return response;
         //}
 
-        public ServiceResponse<IEnumerable<PostDto>> GetChannelPosts(string username, long chatId, DateTime startTime)
+        public ServiceResponse<IEnumerable<PostDto>> GetChannelPosts(long chatId, DateTime startTime)
         {
             var response = new ServiceResponse<IEnumerable<PostDto>>();
-
-            if (string.IsNullOrEmpty(username))
-            {
-                response.Success = false;
-                response.Message = "User not defined in request";
-                response.Data = Enumerable.Empty<PostDto>();
-                return response;
-            }
 
             if (chatId <= 0)
             {
@@ -543,17 +529,9 @@ namespace Gather.Services.InfoService
             }
         }
 
-        public ServiceResponse<IEnumerable<PostDto>> GetChannelPosts(string username, long chatId, int startPostId)
+        public ServiceResponse<IEnumerable<PostDto>> GetChannelPosts(long chatId, int startPostTlgId)
         {
             var response = new ServiceResponse<IEnumerable<PostDto>>();
-
-            if (string.IsNullOrEmpty(username))
-            {
-                response.Success = false;
-                response.Message = "User not defined in request";
-                response.Data = Enumerable.Empty<PostDto>();
-                return response;
-            }
 
             if (chatId <= 0)
             {
@@ -563,7 +541,7 @@ namespace Gather.Services.InfoService
                 return response;
             }
 
-            if (startPostId <= 0)
+            if (startPostTlgId <= 0)
             {
                 response.Success = false;
                 response.Message = "Malformed parameter: the identifier of the start post.";
@@ -573,7 +551,7 @@ namespace Gather.Services.InfoService
 
             try
             {
-                var postsDB = _context.Posts.Where(post => post.PostId >= startPostId && post.PeerId == chatId);
+                var postsDB = _context.Posts.Where(post => post.TlgId >= startPostTlgId && post.PeerId == chatId);
                 response.Data = _mapper.Map<List<PostDto>>(postsDB);
                 response.Success = true;
                 return response;
@@ -587,7 +565,7 @@ namespace Gather.Services.InfoService
             }
         }
 
-        public async Task UpdateChannelPosts(string username, long chatId, WebSocket webSocket)
+        public async Task UpdateChannelPosts(long chatId, WebSocket webSocket)
         {
             var buffer = new byte[1024 * 4];
             var receiveResult = await webSocket.ReceiveAsync(
@@ -634,7 +612,7 @@ namespace Gather.Services.InfoService
 
             try
             {
-                var dbChannelPeer = _context.Channels.First(chat => chat.Id == chatId && chat.User.Username.Equals(username));
+                var dbChannelPeer = _context.Channels.First(chat => chat.Id == chatId);
                 if (dbChannelPeer == null)
                 {
                     //response.Success = false;
@@ -651,7 +629,10 @@ namespace Gather.Services.InfoService
                 InputPeer peer = chats.chats.First(chat => chat.Key == chatId).Value;
 
                 // Получаем из БД последнее сообщение, канала.
-                var postFromDb = _context.Posts.Where(post => post.PeerId == chatId).OrderBy(post => post.PostId).LastOrDefault();
+                var postFromDb = _context.Posts
+                    .Where(post => post.PeerId == chatId)
+                    .OrderBy(post => post.TlgId)
+                    .LastOrDefault();
                 int startOffsetId = 0;
                 int endOffsetId = 0;
 
@@ -708,7 +689,7 @@ namespace Gather.Services.InfoService
                 // Если не пусто, то его id используем для запроса новых постов канала как смещение.
                 else
                 {
-                    endOffsetId = (int)postFromDb.PostId;
+                    endOffsetId = (int)postFromDb.TlgId;
                 }
 
                 // Возможно потом пригодится.
@@ -773,7 +754,7 @@ namespace Gather.Services.InfoService
                             if (index % 20 == 0 || index == channelMessages.messages.Length - 1)
                             {
                                 SendAsyncMessage(
-                                    webSocket, 
+                                    webSocket,
                                     postDto.Date.ToString("yyyy:MM:dd HH:mm:ss")
                                     );
                             }
@@ -792,13 +773,13 @@ namespace Gather.Services.InfoService
                 }
                 await _context.SaveChangesAsync();
                 await webSocket.CloseAsync(
-                    WebSocketCloseStatus.NormalClosure, 
-                    "The request was completed successfully", 
+                    WebSocketCloseStatus.NormalClosure,
+                    "The request was completed successfully",
                     CancellationToken.None);
                 //response.Success = true;
                 //response.Data = messages.Count;
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 var errorMessage = "An error ocurred while updating channel's posts. You may no longer subscribe to this channel.";
                 _logger.LogError(ex.Message, errorMessage);
@@ -831,6 +812,26 @@ namespace Gather.Services.InfoService
                 WebSocketMessageType.Text,
                 true,
                 CancellationToken.None);
+        }
+
+        public Task<ServiceResponse<int>> GetCommentsCount(long chatId, long postId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ServiceResponse<IEnumerable<Comment>>> GetComments(long chatId, long postId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdatePostComments(long chatId, long postId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ServiceResponse<Account>> GetAccaunt(long accountTlgId)
+        {
+            throw new NotImplementedException();
         }
 
         //public async Task<ServiceResponse<int>> UpdateChannelPosts(string username, long chatId)

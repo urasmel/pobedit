@@ -81,7 +81,7 @@ export const Posts = () => {
                     <>
                         {
                             data?.posts.map((post: Post) => {
-                                return <PostWidget key={post.postId} post={post} user={selectedUser} channelId={channelId} />;
+                                return <PostWidget key={post.id} post={post} user={selectedUser} channelId={channelId} />;
                             })
                         }
                     </>

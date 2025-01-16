@@ -8,7 +8,7 @@ namespace SharedCore.Models
         // Идентификатор пользователя, который является подписчиком канала и под которым канал управляется в приложении.
 
         [Required]
-        public User? User { get; set; }
+        public Account? Owner { get; set; }
         public bool IsChannel { get; set; }
         public bool IsGroup { get; set; }
         public string? MainUsername { get; set; }
