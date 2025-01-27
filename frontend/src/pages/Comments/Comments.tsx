@@ -65,7 +65,7 @@ export const Comments = () => {
                 <>
                     {
                         data?.comments.map((comment) => (
-                            <CommentWidget key={comment.commentId} {...comment} />
+                            <CommentWidget key={comment.tlgId} {...comment} />
                         ))
                     }
                 </>

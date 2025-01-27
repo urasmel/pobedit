@@ -9,7 +9,7 @@ const PostWidget = ({ post, user, channelId }: { post: Post, user: string | unde
         <div className={styles.post}>
 
             <div className={styles.post__header}>
-                Ид. сообщения: {post.id}, время:{" "}
+                Ид. сообщения: {post.tlgId}, время:{" "}
                 {new Date(post.date).toLocaleString("ru-RU")}
             </div>
 
@@ -31,7 +31,7 @@ const PostWidget = ({ post, user, channelId }: { post: Post, user: string | unde
                     {
                         <NavLink
                             className={styles["post__comments-link"]}
-                            to={`/user/${user}/channels/${channelId}/posts/${post.id}/comments`}
+                            to={`/channels/${channelId}/posts/${post.tlgId}/comments`}
                         >
                             <ChevronRightIcon />
                         </NavLink>

@@ -2,7 +2,8 @@ import { CommentDto } from "../dto/comment.dto";
 import { Comment } from "../../model/Comment";
 
 export const mapComment = (dto: CommentDto): Comment => ({
-    commentId: dto.commentId,
+    tlgId: dto.tlgId,
+    postId: dto.postId,
     channelId: dto.channelId,
     author: dto.author,
     message: dto.message,

@@ -36,6 +36,7 @@ const Channels = () => {
 
     const selectedUser = useMainStore((state: MainState) => state.selectedUser);
     const [channelId, setChannelId] = useState<string | undefined>(undefined);
+    const fetchUpdatedChannels = useMainStore((state: MainState & Action) => state.fetchUpdatedChannels);
 
     const queryClient = useQueryClient();
     const { data, isFetching, isLoading, isError, error } = useQuery(channelApi.channelQueries.list(selectedUser));
@@ -52,22 +53,14 @@ const Channels = () => {
         // }
     }, [selectedUser]);
 
+    function getRowId(row: Channel) {
+        return row.tlgId;
+    }
+
     const columns = useMemo<GridColDef<Channel>[]>(() => [
-        { field: "id", headerName: "ID", width: 100 },
+        { field: "tlgId", headerName: "ID", width: 100 },
         { field: "title", headerName: "Заголовок", flex: 1 },
         { field: "mainUsername", headerName: "Владелец", flex: 1 },
-        {
-            field: "isChannel",
-            headerName: "Канал",
-            type: "boolean",
-            width: 100,
-        },
-        {
-            field: "isGroup",
-            headerName: "Группа",
-            type: "boolean",
-            width: 100,
-        },
         {
             field: "actions",
             type: "actions",
@@ -79,7 +72,7 @@ const Channels = () => {
                     icon={<InfoIcon />}
                     label="Показать информацию"
                     onClick={() => {
-                        setChannelId(params.row.id.toString());
+                        setChannelId(params.row.tlgId.toString());
                         setOpenShowChannelInfo(true);
                     }}
                 />,
@@ -88,11 +81,20 @@ const Channels = () => {
     ], []);
 
     const handleChannelRowClick = (params: GridRowParams<Channel>) => {
-        navigate(`/user/${selectedUser}/channels/${params.row.id}/posts`);
+        navigate(`/channels/${params.row.tlgId}/posts`);
     };
 
     const handleErrorClose = () => {
         setOpenErrorMessage(false);
+    };
+
+    const onBtnClickUpdateUserChannels = async () => {
+        const fetchData = async () => {
+
+            await fetchUpdatedChannels();
+        };
+
+        await fetchData();
     };
 
     return (
@@ -100,6 +102,7 @@ const Channels = () => {
             <div style={{ height: 400, width: "100%" }}>
                 <Suspense fallback={<Loading />}>
                     <DataGrid
+                        getRowId={getRowId}
                         sx={{
                             "--DataGrid-overlayHeight": "300px",
                             "& .MuiDataGrid-row:hover": {
@@ -135,6 +138,7 @@ const Channels = () => {
                     sx={{
                         width: "100px",
                     }}
+                    onClick={onBtnClickUpdateUserChannels}
                     variant="contained"
                 >
                     Обновить

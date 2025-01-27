@@ -4,10 +4,11 @@ namespace SharedCore.Dtos
 {
     public class PostDto
     {
-        public long Id { get; set; }
+        public long TlgId { get; set; }
         public long PeerId { get; set; }
+        public Account? Author { get; set; }
         public string? Message { get; set; }
         public DateTime Date { get; set; }
-        public Comment[] Comments { get; set; } = new Comment[0];
+        public long CommentsCount { get; set; }
     }
 }

@@ -6,10 +6,10 @@ export const postsQueries = {
 
     lists: () => [...postsQueries.all(), "list"],
 
-    list: (user: string | undefined, channelId: string | undefined) =>
+    list: (channelId: string | undefined) =>
         queryOptions({
-            queryKey: [...postsQueries.lists(), user, channelId],
-            queryFn: () => getPosts(user, channelId),
+            queryKey: [...postsQueries.lists(), channelId],
+            queryFn: () => getPosts(channelId),
             placeholderData: keepPreviousData,
         }),
 

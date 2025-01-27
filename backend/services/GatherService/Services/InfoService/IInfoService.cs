@@ -1,9 +1,7 @@
-﻿using Gather.Models;
-using SharedCore.Dtos;
+﻿using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
 using SharedCore.Models;
 using System.Net.WebSockets;
-using TL;
 
 namespace Gather.Services
 {
@@ -22,12 +20,13 @@ namespace Gather.Services
 
         ServiceResponse<IEnumerable<PostDto>> GetChannelPosts(long chatId, DateTime startTime);
 
-        //Task<ServiceResponse<int>> UpdateChannelPosts(string username, long chatId);
         Task UpdateChannelPosts(long chatId, WebSocket webSocket);
+
+        Task UpdatePostComments(long chatId, long postId, WebSocket webSocket);
 
         Task<ServiceResponse<int>> GetCommentsCount(long chatId, long postId);
 
-        Task<ServiceResponse<IEnumerable<Comment>>> GetComments( long chatId, long postId);
+        Task<ServiceResponse<IEnumerable<CommentDto>>> GetComments(long chatId, long postId, int offset = 0, int limit = 0);
 
         Task UpdatePostComments(long chatId, long postId);
 

@@ -6,17 +6,18 @@ export const channelQueries = {
 
     lists: () => [...channelQueries.all(), "list"],
 
-    list: (user: string | undefined) =>
+    // Аргумент user остается для дальнейшего разбиения запросов по микросервисам.
+    list: () =>
         queryOptions({
-            queryKey: [...channelQueries.lists(), user],
-            queryFn: () => getChannels(user),
+            queryKey: [...channelQueries.lists()],
+            queryFn: () => getChannels(),
             placeholderData: keepPreviousData,
         }),
 
-    details: (user: string | undefined, channelId: string | undefined) =>
+    details: (channelId: string | undefined) =>
         queryOptions({
-            queryKey: [...channelQueries.all(), user, channelId, "detail"],
-            queryFn: () => getChannel(user, channelId),
+            queryKey: [...channelQueries.all(), channelId, "detail"],
+            queryFn: () => getChannel(channelId),
             placeholderData: keepPreviousData,
         }),
 };

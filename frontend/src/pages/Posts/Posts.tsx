@@ -1,5 +1,5 @@
 import styles from "./Posts.module.scss";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import PostWidget from "@/features/PostWidget";
 import { Snackbar } from "@mui/material";
@@ -22,9 +22,21 @@ export const Posts = () => {
     const selectedUser = useMainStore(
         (state: MainState & Action) => state.selectedUser
     );
-    const { data: channel, isFetching: channelIsFetching, isLoading: channelIsLoading, isError: channelIsError, error: channelError, isFetched: channelIsFetched, isSuccess: channelIsSucces } =
-        useQuery(channelApi.channelQueries.details(selectedUser, channelId));
-    const { data, isFetching, isLoading, isError, error, isFetched } = useQuery(postsApi.postsQueries.list(selectedUser, channelId));
+    const { data: channel,
+        isFetching: channelIsFetching,
+        isLoading: channelIsLoading,
+        isError: channelIsError,
+        error: channelError,
+        isFetched: channelIsFetched,
+        isSuccess: channelIsSucces } =
+        useQuery(channelApi.channelQueries.details(channelId));
+
+    const { data,
+        isFetching,
+        isLoading,
+        isError,
+        error,
+        isFetched } = useQuery(postsApi.postsQueries.list(channelId));
 
     const [offset, setOffset] = useState(0);
     const [count] = useState(20);
@@ -81,7 +93,12 @@ export const Posts = () => {
                     <>
                         {
                             data?.posts.map((post: Post) => {
-                                return <PostWidget key={post.id} post={post} user={selectedUser} channelId={channelId} />;
+                                return <PostWidget
+                                    key={post.tlgId}
+                                    post={post}
+                                    user={selectedUser}
+                                    channelId={channelId}
+                                />;
                             })
                         }
                     </>

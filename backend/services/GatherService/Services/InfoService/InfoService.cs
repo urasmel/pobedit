@@ -2,218 +2,257 @@
 using Gather.Client;
 using Gather.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
 using SharedCore.Models;
+using System;
 using System.Net.WebSockets;
-using System.Text;
 using TL;
 
-namespace Gather.Services.InfoService
+namespace Gather.Services.InfoService;
+
+public class InfoService : IInfoService
 {
-    public class InfoService : IInfoService
+    // Дата, с которой начинаем загружать данные.
+    private DateTime startLoadingDate = DateTime.Parse("Jan 20, 2025");
+    ILogger _logger;
+    GatherClient _client;
+    TL.User? user;
+    private readonly IMapper _mapper;
+    private readonly DataContext _context;
+    Object lockObject = new();
+    static bool updateChannelsEnable = true;
+
+    public InfoService(GatherClient client, DataContext context, IMapper mapper, ILogger<InfoService> logger)
     {
-        // Дата, с которой начинаем загружать данные.
-        private DateTime startLoadingDate = DateTime.Parse("Oct 30, 2024");
-        ILogger _logger;
-        GatherClient _client;
-        TL.User? user;
-        private readonly IMapper _mapper;
-        private readonly DataContext _context;
+        _client = client;
+        _context = context;
+        _mapper = mapper;
+        _logger = logger;
+    }
 
-        public InfoService(GatherClient client, DataContext context, IMapper mapper, ILogger<InfoService> logger)
+    public async Task<ServiceResponse<IEnumerable<ChannelDto>>> GetAllChannels()
+    {
+        var response = new ServiceResponse<IEnumerable<ChannelDto>>();
+
+        if (_context.Channels == null)
         {
-            _client = client;
-            _context = context;
-            _mapper = mapper;
-            _logger = logger;
-        }
-
-        public async Task<ServiceResponse<IEnumerable<ChannelDto>>> GetAllChannels()
-        {
-            var response = new ServiceResponse<IEnumerable<ChannelDto>>();
-
-            try
-            {
-                var chats = await _context.Channels.ToListAsync();
-                var results = _mapper.Map<List<ChannelDto>>(chats);
-                response.Data = results;
-
-                //_logger.LogDebug($"We are logged-in as {user.Username ?? user.Username} (id {user.Id})");
-
-                //var chats = await _client.Messages_GetAllChats(); // chats = groups/channels (does not include users dialogs)
-                //_logger.LogDebug("This user has joined the following:");
-                //foreach (var (id, chat) in chats.chats)
-                //    result.Add(chat);
-                //switch (chat)
-                //{
-                //case Chat smallgroup when smallgroup.IsActive:
-                //    _logger.LogDebug($"{id}:  Small group: {smallgroup.title} with {smallgroup.participants_count} members");
-                //    break;
-                //case Channel channel when channel.IsChannel:
-                //    _logger.LogDebug($"{id}: Channel {channel.username}: {channel.title}");
-                //    break;
-                //case Channel group: // no broadcast flag => it's a big group, also called supergroup or megagroup
-                //    _logger.LogDebug($"{id}: Group {group.username}: {group.title}");
-                //    break;
-                //}
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "GetAllChannels");
-                response.Success = false;
-                response.Message = "An error has occurred while getting all channels." + Environment.NewLine + exception.Message;
-                response.Data = Enumerable.Empty<ChannelDto>();
-            }
-
+            _logger.LogError("GetAllChannels, _context.Channels is null");
+            response.Success = false;
+            response.Message = "Internal server error";
+            response.Data = Enumerable.Empty<ChannelDto>();
             return response;
         }
 
-        public async Task<ServiceResponse<IEnumerable<long>>> UpdateChannels()
+        try
         {
-            var response = new ServiceResponse<IEnumerable<long>>();
+            var chats = await _context.Channels.ToListAsync();
+            var results = _mapper.Map<List<ChannelDto>>(chats);
+            response.Data = results;
 
-            try
+            //_logger.LogDebug($"We are logged-in as {user.Username ?? user.Username} (id {user.Id})");
+
+            //var chats = await _client.Messages_GetAllChats(); // chats = groups/channels (does not include users dialogs)
+            //_logger.LogDebug("This user has joined the following:");
+            //foreach (var (id, chat) in chats.chats)
+            //    result.Add(chat);
+            //switch (chat)
+            //{
+            //case Chat smallgroup when smallgroup.IsActive:
+            //    _logger.LogDebug($"{id}:  Small group: {smallgroup.title} with {smallgroup.participants_count} members");
+            //    break;
+            //case Channel channel when channel.IsChannel:
+            //    _logger.LogDebug($"{id}: Channel {channel.username}: {channel.title}");
+            //    break;
+            //case Channel group: // no broadcast flag => it's a big group, also called supergroup or megagroup
+            //    _logger.LogDebug($"{id}: Group {group.username}: {group.title}");
+            //    break;
+            //}
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "GetAllChannels");
+            response.Success = false;
+            response.Message = "An error has occurred while getting all channels." +
+                Environment.NewLine +
+                exception.Message;
+            response.Data = Enumerable.Empty<ChannelDto>();
+        }
+
+        return response;
+    }
+
+    public async Task<ServiceResponse<IEnumerable<long>>> UpdateChannels()
+    {
+        var response = new ServiceResponse<IEnumerable<long>>();
+        if (_context.Users == null
+            || _context.Channels == null
+            || _context.Accounts == null)
+        {
+            response.Success = false;
+            response.Message = "Internal server error";
+            return response;
+        }
+
+        try
+        {
+            if (user == null)
             {
-                if (user == null)
+                user = await _client.LoginUserIfNeeded();
+            }
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception,
+                "UpdateChannels" +
+                Environment.NewLine +
+                "The error while logging telegram user.");
+
+            response.Success = false;
+            response.Message = "Unable to login to Telegram";
+            response.Data = Enumerable.Empty<long>();
+            return response;
+        }
+
+        if (!updateChannelsEnable)
+        {
+            response.Data = Enumerable.Empty<long>();
+            response.Success = false;
+            response.Message = "Channels updates are temporarily unavailable";
+            return response;
+        }
+        else
+        {
+            lock (lockObject)
+            {
+                updateChannelsEnable = false;
+            }
+        }
+
+        try
+        {
+            // chats = groups/channels (does not include users dialogs)
+            var chats = await _client.Messages_GetAllChats();
+            var chatsFromTG = new List<ChatBase>();
+            foreach (var (id, chat) in chats.chats)
+            {
+                chatsFromTG.Add(chat);
+            }
+
+            // Удаляем из БД те, которых в телеграмме уже нет.
+            var channelInDB = await _context.Channels.ToListAsync();
+            foreach (var chat in channelInDB)
+            {
+                if (!chatsFromTG.Any(channel => channel.ID == chat.Id))
                 {
-                    user = await _client.LoginUserIfNeeded();
+                    _context.Channels.Remove(chat);
                 }
             }
-            catch (Exception exception)
+            await _context.SaveChangesAsync();
+
+            // Добавляем новые в БД.
+            var random = new Random();
+            _logger.LogInformation("Channels update is started");
+            int channelCount = 0;
+            //foreach (var chat in chatsFromTG)
+            for (int i = 0; i < chatsFromTG.Count; i++)
             {
-                _logger.LogError(exception, "UpdateChannels"+Environment.NewLine +"The error while logging telegram user.");
-                response.Success = false;
-                response.Message = "Unable to login to Telegram";
-                response.Data = Enumerable.Empty<long>();
-                return response;
-            }
-
-
-            try
-            {
-                // chats = groups/channels (does not include users dialogs)
-                var chats = await _client.Messages_GetAllChats();
-                var chatsFromTG = new List<ChatBase>();
-                foreach (var (id, chat) in chats.chats)
+                try
                 {
-                    chatsFromTG.Add(chat);
-                }
-
-                // Добавляем новые в БД.
-                var random = new Random();
-                foreach (var chat in chatsFromTG)
-                {
-                    try
+                    if (chatsFromTG[i].IsChannel)
                     {
-                        if (!_context.Channels.Any(channel => channel.Id == chat.ID))
-                        {
-                            var addedChat = _mapper.Map<SharedCore.Models.Channel>(chat);
-                            var channelFullInfo = await _client.GetFullChat(chat);
+                        var isChannelExistsInDb =
+                            await _context.Channels
+                            .AnyAsync(channel => channel.Id == chatsFromTG[i].ID);
 
+                        if (!isChannelExistsInDb)
+                        {
+                            var addedChat = _mapper.Map<SharedCore.Models.Channel>(chatsFromTG[i]);
+                            var channelFullInfo = await _client.GetFullChat(chatsFromTG[i]);
+
+
+                            //addedChat.Owner = channelFullInfo.
                             addedChat.About = channelFullInfo.full_chat.About;
                             addedChat.ParticipantsCount = channelFullInfo.full_chat.ParticipantsCount;
 
-                            if (chat.Photo != null)
+                            if (chatsFromTG[i].Photo != null)
                             {
                                 MemoryStream ms = new MemoryStream(1000000);
-                                Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chat, ms);
+                                Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chatsFromTG[i], ms);
                                 addedChat.Image = Convert.ToBase64String(ms.ToArray());
                             }
+
+                            if (channelFullInfo.users.Count > 0)
+                            {
+                                var userKey = channelFullInfo.users.First().Key;
+                                var owner = await _context.Accounts
+                                    .Where(acc => acc.Id == userKey)
+                                    .FirstOrDefaultAsync();
+
+                                if (owner == null)
+                                {
+                                    owner = _mapper.Map<Account>(channelFullInfo.users[userKey]);
+                                    _context.Accounts.Add(owner);
+                                    _context.SaveChanges();
+                                }
+
+                                addedChat.Owner = owner;
+                            }
+
                             _context.Channels.Add(addedChat);
+                            await _context.SaveChangesAsync();
+
+                            channelCount++;
+                            _logger.LogInformation($"Channel {channelCount} added to collection: {addedChat.Title}");
+                            if (channelCount > 30)
+                            {
+                                break;
+                            }
                         }
                     }
-                    catch (Exception exception)
+                    else if (chatsFromTG[i].IsGroup)
+                    { }
+                    else
                     {
-                        _logger.LogError(
-                            exception.Message + Environment.NewLine +
-                            exception.StackTrace + Environment.NewLine +
-                            $"channel is: {chat.Title}", "UpdateChannels");
+                        _logger.LogWarning("Chat neither char not channel");
                     }
-                    Thread.Sleep(random.Next(500, 2000));
-                }
 
-                // Удаляем из БД те, которых в телеграмме уже нет.
-                foreach (var chat in _context.Channels)
+                }
+                catch (Exception exception)
                 {
-                    if (!chatsFromTG.Any(channel => channel.ID == chat.Id))
-                    {
-                        _context.Channels.Remove(chat);
-                    }
+                    _logger.LogError(
+                        exception.Message + Environment.NewLine +
+                        exception.StackTrace + Environment.NewLine +
+                        $"channel is: {chatsFromTG[i].Title}", "UpdateChannels");
                 }
-
-                await _context.SaveChangesAsync();
-                response.Data = _context.Channels.Select(channel => channel.Id);
-                return response;
+                Thread.Sleep(random.Next(500, 2000));
             }
-            catch (Exception exception)
+
+            response.Data = _context.Channels.Select(channel => channel.Id);
+            return response;
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "UpdateChannels");
+            response.Success = false;
+            response.Message = "The error while getting all updated channels occurred." + Environment.NewLine + exception.Message;
+            response.Data = Enumerable.Empty<long>();
+            return response;
+        }
+        finally
+        {
+            lock (lockObject)
             {
-                _logger.LogError(exception, "UpdateChannels");
-                response.Success = false;
-                response.Message = "The error while getting all updated channels occurred." + Environment.NewLine + exception.Message;
-                response.Data = Enumerable.Empty<long>();
-                return response;
+                updateChannelsEnable = true;
             }
         }
+    }
 
-        public async Task<ServiceResponse<ChannelDto>> GetChannelInfo(long chatId)
+    public async Task<ServiceResponse<ChannelDto>> GetChannelInfo(long chatId)
+    {
+        var response = new ServiceResponse<ChannelDto>();
+        try
         {
-            var response = new ServiceResponse<ChannelDto>();
-            try
-            {
-                if (_context.Channels == null)
-                {
-                    response.Success = false;
-                    response.Message = "Error fetching data from DB.";
-                    _logger.Log(LogLevel.Error, "DB context with channels is null.");
-                    response.Data = null;
-                    return response;
-                }
-
-                var channel = await _context.Channels.Where(channel => channel.Id == chatId).FirstOrDefaultAsync();
-                if (channel == null)
-                {
-                    response.Success = false;
-                    response.Message = "Channel not found.";
-                    response.Data = null;
-                    return response;
-                }
-
-                var channelInfoDto = _mapper.Map<ChannelDto>(channel);
-                response.Success = true;
-                response.Data = channelInfoDto;
-                return response;
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception.Message, exception);
-                response.Success = false;
-                response.Data = null;
-                response.Message = exception.Message;
-                return response;
-            }
-        }
-
-        public async Task<ServiceResponse<ChannelDto>> UpdateChannelInfo(long chatId)
-        {
-            var response = new ServiceResponse<ChannelDto>();
-
-            try
-            {
-                if (user == null)
-                {
-                    user = await _client.LoginUserIfNeeded();
-                }
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "UpdateChannels" + Environment.NewLine + "The error while logging telegram user.");
-                response.Success = false;
-                response.Message = "Unable to login to Telegram";
-                return response;
-            }
-
             if (_context.Channels == null)
             {
                 response.Success = false;
@@ -223,532 +262,532 @@ namespace Gather.Services.InfoService
                 return response;
             }
 
-            try
+            var channel = await _context
+                .Channels.Where(channel => channel.TlgId == chatId)
+                .FirstOrDefaultAsync();
+            if (channel == null)
             {
-                var chats = await _client.Messages_GetAllChats();
-                var chat = chats.chats.Where(item => item.Key == chatId).FirstOrDefault().Value;
-
-                if (chat == null)
-                {
-                    response.Success = false;
-                    response.Data = null;
-                    response.Message = "Channel not found";
-                    return response;
-                }
-
-                var chatPeer = chat.ToInputPeer();
-                var chatInfo = await _client.GetFullChat(chatPeer);
-
-                // Получаем инфо о канале.
-                var channelFullInfoDto = new ChannelDto();
-                channelFullInfoDto.Id = chatInfo.full_chat.ID;
-                channelFullInfoDto.ParticipantsCount = chatInfo.full_chat.ParticipantsCount;
-                channelFullInfoDto.About = chatInfo.full_chat.About;
-                MemoryStream ms = new MemoryStream(1000000);
-                Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chat, ms);
-                channelFullInfoDto.Image = Convert.ToBase64String(ms.ToArray());
-
-                var channelDB = _context.Channels.Where(channel => channel.Id == chatId).FirstOrDefault();
-                if (channelDB == null)
-                {
-                    response.Success = false;
-                    response.Data = null;
-                    response.Message = "Channel not found";
-                    return response;
-                }
-
-                // Сохраняем в БД.
-                channelDB.About = channelFullInfoDto.About;
-                channelDB.Image = channelFullInfoDto.Image;
-                channelDB.ParticipantsCount = channelFullInfoDto.ParticipantsCount;
-                await _context.SaveChangesAsync();
-
-                response.Data = channelFullInfoDto;
+                response.Success = false;
+                response.Message = "Channel not found.";
+                response.Data = null;
                 return response;
             }
-            catch (Exception exception)
+
+            var channelInfoDto = _mapper.Map<ChannelDto>(channel);
+            response.Success = true;
+            response.Data = channelInfoDto;
+            return response;
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception.Message, exception);
+            response.Success = false;
+            response.Data = null;
+            response.Message = exception.Message;
+            return response;
+        }
+    }
+
+    public async Task<ServiceResponse<ChannelDto>> UpdateChannelInfo(long chatId)
+    {
+        var response = new ServiceResponse<ChannelDto>();
+
+        try
+        {
+            if (user == null)
             {
-                _logger.LogError(exception.Message, exception);
+                user = await _client.LoginUserIfNeeded();
+            }
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "UpdateChannels" + Environment.NewLine + "The error while logging telegram user.");
+            response.Success = false;
+            response.Message = "Unable to login to Telegram";
+            return response;
+        }
+
+        if (_context.Channels == null)
+        {
+            response.Success = false;
+            response.Message = "Error fetching data from DB.";
+            _logger.Log(LogLevel.Error, "DB context with channels is null.");
+            response.Data = null;
+            return response;
+        }
+
+        try
+        {
+            var chats = await _client.Messages_GetAllChats();
+            var chat = chats.chats.Where(item => item.Key == chatId).FirstOrDefault().Value;
+
+            if (chat == null)
+            {
                 response.Success = false;
                 response.Data = null;
-                response.Message = exception.Message;
+                response.Message = "Channel not found";
                 return response;
             }
+
+            var chatPeer = chat.ToInputPeer();
+            var chatInfo = await _client.GetFullChat(chatPeer);
+
+            // Получаем инфо о канале.
+            var channelFullInfoDto = new ChannelDto();
+            channelFullInfoDto.TlgId = chatInfo.full_chat.ID;
+            channelFullInfoDto.ParticipantsCount = chatInfo.full_chat.ParticipantsCount;
+            channelFullInfoDto.About = chatInfo.full_chat.About;
+            MemoryStream ms = new MemoryStream(1000000);
+            Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chat, ms);
+            channelFullInfoDto.Image = Convert.ToBase64String(ms.ToArray());
+
+            var channelDB = _context.Channels.Where(channel => channel.Id == chatId).FirstOrDefault();
+            if (channelDB == null)
+            {
+                response.Success = false;
+                response.Data = null;
+                response.Message = "Channel not found";
+                return response;
+            }
+
+            // Сохраняем в БД.
+            channelDB.About = channelFullInfoDto.About;
+            channelDB.Image = channelFullInfoDto.Image;
+            channelDB.ParticipantsCount = channelFullInfoDto.ParticipantsCount;
+            await _context.SaveChangesAsync();
+
+            response.Data = channelFullInfoDto;
+            return response;
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception.Message, exception);
+            response.Success = false;
+            response.Data = null;
+            response.Message = exception.Message;
+            return response;
+        }
+    }
+
+    public async Task<ServiceResponse<IEnumerable<PostDto>>> GetChannelPosts(long chatId, int offset, int count)
+    {
+        var response = new ServiceResponse<IEnumerable<PostDto>>();
+
+        try
+        {
+            if (_context.Posts == null)
+            {
+                response.Success = false;
+                response.Message = "Error fetching data from DB.";
+                _logger.Log(LogLevel.Error, "DB context with posts is null.");
+                response.Data = Enumerable.Empty<PostDto>();
+                return response;
+            }
+
+            var posts = await _context.Posts
+                .Where(post => post.PeerId == chatId)
+                .OrderByDescending(item => item.TlgId)
+                .Skip(offset).Take(count)
+                .ToListAsync();
+            response.Data = _mapper.Map<List<PostDto>>(posts);
+            response.Success = true;
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error ocurred while getting channel posts");
+            response.Success = false;
+            response.Data = Enumerable.Empty<PostDto>();
+            return response;
+        }
+    }
+
+    //public async Task<ServiceResponse<IEnumerable<PostDto>>> UpdateAndFetchChannelPosts(long chatId)
+    //{
+    //    var response = new ServiceResponse<IEnumerable<PostDto>>();
+
+    //    try
+    //    {
+    //        var dbChannelPeer = _context.Channels.First(chat => chat.Id == chatId);
+    //        if (dbChannelPeer == null)
+    //        {
+    //            response.Success = false;
+    //            response.Data = null;
+    //            response.Message = "Channel not found in DB. Try to update db info";
+    //            return response;
+    //        }
+
+    //        var chats = await _client.Messages_GetAllChats();
+    //        InputPeer peer = chats.chats.First(chat => chat.Key == chatId).Value;
+
+    //        // Получаем из БД последнее сообщение, канала.
+    //        var postFromDb = _context.Posts.OrderBy(p => p.PeerId).LastOrDefault();
+    //        int offset_id = 0;
+
+    //        // Если пусто, запрашиваем у телеграмма один пост на 31.12.2023.
+    //        // Его id используем для запроса новых постов канала как смещение.
+    //        if (postFromDb == null)
+    //        {
+    //            var lastMessagesBase = await _client.Messages_GetHistory(peer, 0, startLoadingDate, 0, 1);
+    //            if (lastMessagesBase is not Messages_ChannelMessages channelMessages)
+    //            {
+    //                response.Data = null;
+    //                response.Success = false;
+    //                response.Message = "Channel peer is not ChannelMessages";
+    //                return response;
+    //            }
+
+    //            if (channelMessages.count == 0)
+    //            {
+    //                response.Data = null;
+    //                response.Success = false;
+    //                response.Message = "No data";
+    //                return response;
+    //            }
+
+    //            var msgBase = channelMessages.messages[0];
+    //            offset_id = msgBase.ID;
+    //        }
+
+    //        // Если не пусто, то
+    //        // его id используем для запроса новых постов канала как смещение.
+    //        else
+    //        {
+    //            offset_id = (int)postFromDb.PostId;
+    //        }
+
+    //        var messages = new List<PostDto>();
+    //        bool needStop = false;
+
+    //        for (int offset = 0; ;)
+    //        {
+    //            //var messagesBase = await _client.Messages_GetHistory(peer, 0, default, offset, 1000, 0, 0, 0);
+    //            //var messagesBase = await _client.Messages_GetHistory(peer, offset_id, default, offset, 100);
+    //            var messagesBase = await _client.Messages_GetHistory(
+    //                peer,
+    //                0,
+    //                DateTime.Now,
+    //                offset,
+    //                100);
+    //            if (messagesBase is not Messages_ChannelMessages channelMessages) break;
+
+    //            foreach (var msgBase in channelMessages.messages)
+    //            {
+    //                if (msgBase.ID <= offset_id)
+    //                {
+    //                    needStop = true;
+    //                    break;
+    //                }
+
+    //                if (msgBase is TL.Message msg && !string.IsNullOrEmpty(msg.message))
+    //                {
+    //                    var postDto = _mapper.Map<PostDto>(msg);
+    //                    var postToDb = _mapper.Map<Post>(msg);
+
+    //                    await _context.Posts.AddAsync(postToDb);
+    //                    messages.Add(postDto);
+    //                }
+    //            }
+    //            offset += channelMessages.messages.Length;
+    //            if (offset >= channelMessages.count) break;
+
+    //            if (needStop)
+    //            {
+    //                break;
+    //            }
+    //        }
+    //        await _context.SaveChangesAsync();
+    //        response.Success = true;
+
+    //        return await GetChannelPosts(chatId);
+    //        //response.Data = "Добавлено " + messages.Count + " сообщений";
+    //    }
+    //    catch (Exception exception)
+    //    {
+    //        _logger.LogError(exception.Message, exception);
+    //        response.Success = false;
+    //        response.Data = Enumerable.Empty<PostDto>();
+    //        response.Message = exception.Message;
+    //    }
+
+    //    return response;
+    //}
+
+    public ServiceResponse<IEnumerable<PostDto>> GetChannelPosts(long chatId, DateTime startTime)
+    {
+        var response = new ServiceResponse<IEnumerable<PostDto>>();
+
+        if (_context.Posts == null)
+        {
+            response.Success = false;
+            response.Message = "Error fetching data from DB.";
+            _logger.Log(LogLevel.Error, "DB context with posts is null.");
+            response.Data = Enumerable.Empty<PostDto>();
+            return response;
         }
 
-        public async Task<ServiceResponse<IEnumerable<PostDto>>> GetChannelPosts(long chatId, int offset, int count)
+        if (chatId <= 0)
         {
-            var response = new ServiceResponse<IEnumerable<PostDto>>();
+            response.Success = false;
+            response.Message = "Malformed parameter: chat identifier";
+            response.Data = Enumerable.Empty<PostDto>();
+            return response;
+        }
 
-            try
+        try
+        {
+            var postsDB = _context.Posts.Where(post => post.Date >= startTime && post.PeerId == chatId);
+            response.Data = _mapper.Map<List<PostDto>>(postsDB);
+            response.Success = true;
+            return response;
+        }
+        catch (Exception exception)
+        {
+            response.Success = false;
+            response.Message = exception.Message;
+            response.Data = Enumerable.Empty<PostDto>();
+            return response;
+        }
+    }
+
+    public ServiceResponse<IEnumerable<PostDto>> GetChannelPosts(long chatId, int startPostTlgId)
+    {
+        var response = new ServiceResponse<IEnumerable<PostDto>>();
+
+        if (_context.Posts == null)
+        {
+            response.Success = false;
+            response.Message = "Error fetching data from DB.";
+            _logger.Log(LogLevel.Error, "DB context with posts is null.");
+            response.Data = Enumerable.Empty<PostDto>();
+            return response;
+        }
+
+        if (chatId <= 0)
+        {
+            response.Success = false;
+            response.Message = "Malformed parameter: chat identifier";
+            response.Data = Enumerable.Empty<PostDto>();
+            return response;
+        }
+
+        if (startPostTlgId <= 0)
+        {
+            response.Success = false;
+            response.Message = "Malformed parameter: the identifier of the start post.";
+            response.Data = Enumerable.Empty<PostDto>();
+            return response;
+        }
+
+        try
+        {
+            var postsDB = _context.
+                Posts
+                .Where(post => post.TlgId >= startPostTlgId && post.PeerId == chatId);
+            response.Data = _mapper.Map<List<PostDto>>(postsDB);
+            response.Success = true;
+            return response;
+        }
+        catch (Exception exception)
+        {
+            response.Success = false;
+            response.Message = exception.Message;
+            response.Data = Enumerable.Empty<PostDto>();
+            return response;
+        }
+    }
+
+    public async Task UpdateChannelPosts(long chatId, WebSocket webSocket)
+    {
+        try
+        {
+            if (user == null)
             {
-                // Проверяем, загружали данные этого чата в БД раньше.
-                //var count = await _context.Posts.Where(p => p.PeerId == chatId).Take(2).CountAsync();
-                //var isFirstQuery = count == 0;
+                user = await _client.LoginUserIfNeeded();
+            }
+        }
+        catch (Exception exception)
+        {
+            var errorMessage = "UpdateChannelPosts" +
+                Environment.NewLine +
+                "The error while logging telegram user.";
+            _logger.LogError(exception, errorMessage);
 
-                //var chats = await _client.Messages_GetAllChats();
-                //0InputPeer peer = chats.chats.First(chat => chat.Key == chatId).Value;
+            await webSocket.CloseAsync(
+                WebSocketCloseStatus.InternalServerError,
+                errorMessage,
+                CancellationToken.None);
+            return;
+        }
 
-                //if (isFirstQuery)
-                //{
-                //    // Загружаем все данные в БД.
-                //    // TODO Отдаем только несколько последних записей и запускаем загрузку в БД всех данных.
-                //    int offset_id;
-                //    var lastMessagesBase = await _client.Messages_GetHistory(peer, 0, startLoadingDate, 0, 1);
+        if (_context.Channels == null)
+        {
+            var errorMessage = "An error ocurred while updating channel's posts. DB context with channels is null.";
+            _logger.LogError(errorMessage);
+            await webSocket.CloseAsync(
+                WebSocketCloseStatus.InternalServerError,
+                errorMessage,
+                CancellationToken.None);
+            return;
+        }
 
-                //    if (lastMessagesBase is not Messages_ChannelMessages channelMessages)
-                //    {
-                //        response.Data = null;
-                //        response.Success = false;
-                //        response.Message = "Channel peer is not ChannelMessages";
-                //        return response;
-                //    }
+        if (_context.Posts == null)
+        {
+            var errorMessage = "An error ocurred while updating channel's posts. DB context with posts is null.";
+            _logger.LogError(errorMessage);
+            await webSocket.CloseAsync(
+                WebSocketCloseStatus.InternalServerError,
+                errorMessage,
+                CancellationToken.None);
+            return;
+        }
 
-                //    if (channelMessages.count == 0)
-                //    {
-                //        response.Data = null;
-                //        response.Success = false;
-                //        response.Message = "No data";
-                //        return response;
-                //    }
+        var buffer = new byte[1024 * 4];
+        var receiveResult = await webSocket.ReceiveAsync(
+            new ArraySegment<byte>(buffer), CancellationToken.None);
 
-                //    var firstMsg = channelMessages.messages[0];
-                //    offset_id = firstMsg.ID;
-                //    lastMessagesBase = await _client.Messages_GetHistory(peer, offset_id);
+        try
+        {
+            var dbChannelPeer = _context
+                .Channels.First(chat => chat.TlgId == chatId);
 
-                //    var messages = new List<PostDto>();
-                //    foreach (var msgBase in channelMessages.messages)
-                //    {
-                //        if (msgBase is TL.Message msg && !string.IsNullOrEmpty(msg.message))
-                //        {
-                //            var postDto = _mapper.Map<PostDto>(msg);
-                //            var postToDb = _mapper.Map<Post>(msg);
-                //            await _context.Posts.AddAsync(postToDb);
-                //            messages.Add(postDto);
-                //        }
-                //    }
+            if (dbChannelPeer == null)
+            {
+                await webSocket.CloseAsync(
+                    WebSocketCloseStatus.NormalClosure,
+                    "Channel not found",
+                    CancellationToken.None);
+                return;
+            }
 
-                //    await _context.SaveChangesAsync();
-                //    response.Success = true;
-                //    return await GetChannelPosts(chatId);
-                //}
-                //else
-                //{
-                //}
+            var chats = await _client.Messages_GetAllChats();
+            var peersWithKey = chats.chats.Where(chat => chat.Key == chatId);
 
-                // Получаем дату последней загрузки данных из чата в БД.
-                //long offset_id = _context.Posts.Where(post => post.PeerId == chatId).Max(post => post.PostId);
-                //var lastMessagesBase = await _client.Messages_GetHistory(peer, (int)offset_id);
+            if (peersWithKey.Count() == 0)
+            {
+                await webSocket.CloseAsync(
+                    WebSocketCloseStatus.NormalClosure,
+                    "Channel not found in subscriptions",
+                    CancellationToken.None);
+                _logger.LogError("Channel not found in subscriptions. You may have unsubscribed from the channel.");
+                return;
+            }
 
-                //var messages = new List<PostDto>();
-                //var channelMessages = lastMessagesBase as Messages_ChannelMessages;
-                //foreach (var msgBase in channelMessages.messages)
-                //{
-                //    if (msgBase is TL.Message msg && !string.IsNullOrEmpty(msg.message))
-                //    {
-                //        var postDto = _mapper.Map<PostDto>(msg);
-                //        var postToDb = _mapper.Map<Post>(msg);
+            // Получаем из БД последнее сообщение, канала.
+            var postFromDb = _context.Posts
+                .Where(post => post.PeerId == chatId)
+                .OrderBy(post => post.TlgId)
+                .LastOrDefault();
+            int startOffsetId = 0;
+            int endOffsetId = 0;
 
-                //        await _context.Posts.AddAsync(postToDb);
-                //        messages.Add(postDto);
-                //    }
-                //}
-                //// Обновляем данные в БД.
-                //await _context.SaveChangesAsync();
-                //response.Success = true;
-                //return response;
+            // Если пусто, запрашиваем у телеграмма последний пост и
+            // используем его как начала для скачивания постов в прошлом.
+            InputPeer peer = peersWithKey.First().Value;
+            if (postFromDb == null)
+            {
+                var lastMessagesBase = await _client.Messages_GetHistory(peer, 0, DateTime.Now, 0, 1);
 
-                if (_context.Posts == null)
+                if (lastMessagesBase is not Messages_ChannelMessages channelMessages)
                 {
-                    response.Success = false;
-                    response.Message = "Error fetching data from DB.";
-                    _logger.Log(LogLevel.Error, "DB context with posts is null.");
-                    response.Data = Enumerable.Empty<PostDto>();
-                    return response;
-                }
-
-                var posts = await _context.Posts
-                    .Where(post => post.PeerId == chatId)
-                    .OrderByDescending(item => item.TlgId)
-                    .Skip(offset).Take(count)
-                    .ToListAsync();
-                response.Data = _mapper.Map<List<PostDto>>(posts);
-                response.Success = true;
-                return response;
-
-                //var posts = _context.Posts.AsEnumerable().Where(p => p.PeerId == chatId);
-                //response.Data = _mapper.Map<List<PostDto>>(posts);
-                //response.Success = true;
-                //return response;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error ocurred while getting channel posts");
-                response.Success = false;
-                response.Data = Enumerable.Empty<PostDto>();
-                return response;
-            }
-        }
-
-        //public async Task<ServiceResponse<IEnumerable<PostDto>>> UpdateAndFetchChannelPosts(long chatId)
-        //{
-        //    var response = new ServiceResponse<IEnumerable<PostDto>>();
-
-        //    try
-        //    {
-        //        var dbChannelPeer = _context.Channels.First(chat => chat.Id == chatId);
-        //        if (dbChannelPeer == null)
-        //        {
-        //            response.Success = false;
-        //            response.Data = null;
-        //            response.Message = "Channel not found in DB. Try to update db info";
-        //            return response;
-        //        }
-
-        //        var chats = await _client.Messages_GetAllChats();
-        //        InputPeer peer = chats.chats.First(chat => chat.Key == chatId).Value;
-
-        //        // Получаем из БД последнее сообщение, канала.
-        //        var postFromDb = _context.Posts.OrderBy(p => p.PeerId).LastOrDefault();
-        //        int offset_id = 0;
-
-        //        // Если пусто, запрашиваем у телеграмма один пост на 31.12.2023.
-        //        // Его id используем для запроса новых постов канала как смещение.
-        //        if (postFromDb == null)
-        //        {
-        //            var lastMessagesBase = await _client.Messages_GetHistory(peer, 0, startLoadingDate, 0, 1);
-        //            if (lastMessagesBase is not Messages_ChannelMessages channelMessages)
-        //            {
-        //                response.Data = null;
-        //                response.Success = false;
-        //                response.Message = "Channel peer is not ChannelMessages";
-        //                return response;
-        //            }
-
-        //            if (channelMessages.count == 0)
-        //            {
-        //                response.Data = null;
-        //                response.Success = false;
-        //                response.Message = "No data";
-        //                return response;
-        //            }
-
-        //            var msgBase = channelMessages.messages[0];
-        //            offset_id = msgBase.ID;
-        //        }
-
-        //        // Если не пусто, то
-        //        // его id используем для запроса новых постов канала как смещение.
-        //        else
-        //        {
-        //            offset_id = (int)postFromDb.PostId;
-        //        }
-
-        //        var messages = new List<PostDto>();
-        //        bool needStop = false;
-
-        //        for (int offset = 0; ;)
-        //        {
-        //            //var messagesBase = await _client.Messages_GetHistory(peer, 0, default, offset, 1000, 0, 0, 0);
-        //            //var messagesBase = await _client.Messages_GetHistory(peer, offset_id, default, offset, 100);
-        //            var messagesBase = await _client.Messages_GetHistory(
-        //                peer,
-        //                0,
-        //                DateTime.Now,
-        //                offset,
-        //                100);
-        //            if (messagesBase is not Messages_ChannelMessages channelMessages) break;
-
-        //            foreach (var msgBase in channelMessages.messages)
-        //            {
-        //                if (msgBase.ID <= offset_id)
-        //                {
-        //                    needStop = true;
-        //                    break;
-        //                }
-
-        //                if (msgBase is TL.Message msg && !string.IsNullOrEmpty(msg.message))
-        //                {
-        //                    var postDto = _mapper.Map<PostDto>(msg);
-        //                    var postToDb = _mapper.Map<Post>(msg);
-
-        //                    await _context.Posts.AddAsync(postToDb);
-        //                    messages.Add(postDto);
-        //                }
-        //            }
-        //            offset += channelMessages.messages.Length;
-        //            if (offset >= channelMessages.count) break;
-
-        //            if (needStop)
-        //            {
-        //                break;
-        //            }
-        //        }
-        //        await _context.SaveChangesAsync();
-        //        response.Success = true;
-
-        //        return await GetChannelPosts(chatId);
-        //        //response.Data = "Добавлено " + messages.Count + " сообщений";
-        //    }
-        //    catch (Exception exception)
-        //    {
-        //        _logger.LogError(exception.Message, exception);
-        //        response.Success = false;
-        //        response.Data = Enumerable.Empty<PostDto>();
-        //        response.Message = exception.Message;
-        //    }
-
-        //    return response;
-        //}
-
-        public ServiceResponse<IEnumerable<PostDto>> GetChannelPosts(long chatId, DateTime startTime)
-        {
-            var response = new ServiceResponse<IEnumerable<PostDto>>();
-
-            if (chatId <= 0)
-            {
-                response.Success = false;
-                response.Message = "Malformed parameter: chat identifier";
-                response.Data = Enumerable.Empty<PostDto>();
-                return response;
-            }
-
-            try
-            {
-                var postsDB = _context.Posts.Where(post => post.Date >= startTime && post.PeerId == chatId);
-                response.Data = _mapper.Map<List<PostDto>>(postsDB);
-                response.Success = true;
-                return response;
-            }
-            catch (Exception exception)
-            {
-                response.Success = false;
-                response.Message = exception.Message;
-                response.Data = Enumerable.Empty<PostDto>();
-                return response;
-            }
-        }
-
-        public ServiceResponse<IEnumerable<PostDto>> GetChannelPosts(long chatId, int startPostTlgId)
-        {
-            var response = new ServiceResponse<IEnumerable<PostDto>>();
-
-            if (chatId <= 0)
-            {
-                response.Success = false;
-                response.Message = "Malformed parameter: chat identifier";
-                response.Data = Enumerable.Empty<PostDto>();
-                return response;
-            }
-
-            if (startPostTlgId <= 0)
-            {
-                response.Success = false;
-                response.Message = "Malformed parameter: the identifier of the start post.";
-                response.Data = Enumerable.Empty<PostDto>();
-                return response;
-            }
-
-            try
-            {
-                var postsDB = _context.Posts.Where(post => post.TlgId >= startPostTlgId && post.PeerId == chatId);
-                response.Data = _mapper.Map<List<PostDto>>(postsDB);
-                response.Success = true;
-                return response;
-            }
-            catch (Exception exception)
-            {
-                response.Success = false;
-                response.Message = exception.Message;
-                response.Data = Enumerable.Empty<PostDto>();
-                return response;
-            }
-        }
-
-        public async Task UpdateChannelPosts(long chatId, WebSocket webSocket)
-        {
-            var buffer = new byte[1024 * 4];
-            var receiveResult = await webSocket.ReceiveAsync(
-                new ArraySegment<byte>(buffer), CancellationToken.None);
-
-
-
-            ////while (!receiveResult.CloseStatus.HasValue)
-            //int counter = 0;
-            //while (true)
-            //{
-            //    string time = DateTime.Now.ToString("HH:mm:ss");
-            //    byte[] bytes = Encoding.UTF8.GetBytes(time);
-            //    var arraySegment = new ArraySegment<byte>(bytes, 0, bytes.Length);
-
-            //    //await webSocket.SendAsync(
-            //    //    new ArraySegment<byte>(buffer, 0, receiveResult.Count),
-            //    //    receiveResult.MessageType,
-            //    //    receiveResult.EndOfMessage,
-            //    //    CancellationToken.None);
-
-            //    await webSocket.SendAsync(
-            //        arraySegment,
-            //        receiveResult.MessageType,
-            //        receiveResult.EndOfMessage,
-            //        CancellationToken.None);
-
-            //    //receiveResult = await webSocket.ReceiveAsync(
-            //    //    new ArraySegment<byte>(buffer), CancellationToken.None);
-
-            //    Thread.Sleep(1000);
-            //    counter += 100;
-
-            //    if (counter > 1000)
-            //    {
-            //        return;
-            //    }
-            //}
-
-            //await webSocket.CloseAsync(
-            //    receiveResult.CloseStatus.Value,
-            //    receiveResult.CloseStatusDescription,
-            //    CancellationToken.None);
-
-            try
-            {
-                var dbChannelPeer = _context.Channels.First(chat => chat.Id == chatId);
-                if (dbChannelPeer == null)
-                {
-                    //response.Success = false;
-                    //response.Message = "Channel not found";
-                    //return response;
                     await webSocket.CloseAsync(
                         WebSocketCloseStatus.NormalClosure,
-                        "Channel not found",
+                        "Channel peer is not ChannelMessages",
                         CancellationToken.None);
+                    _logger.LogInformation("Channel peer is not ChannelMessages");
                     return;
                 }
 
-                var chats = await _client.Messages_GetAllChats();
-                InputPeer peer = chats.chats.First(chat => chat.Key == chatId).Value;
-
-                // Получаем из БД последнее сообщение, канала.
-                var postFromDb = _context.Posts
-                    .Where(post => post.PeerId == chatId)
-                    .OrderBy(post => post.TlgId)
-                    .LastOrDefault();
-                int startOffsetId = 0;
-                int endOffsetId = 0;
-
-
-                // Если пусто, запрашиваем у телеграмма последний пост и
-                // используем его как начала для скачивания постов в прошлом.
-                if (postFromDb == null)
+                if (channelMessages.count == 0)
                 {
-                    var lastMessagesBase = await _client.Messages_GetHistory(peer, 0, DateTime.Now, 0, 1);
-                    if (lastMessagesBase is not Messages_ChannelMessages channelMessages)
-                    {
-                        await webSocket.CloseAsync(
-                            WebSocketCloseStatus.NormalClosure,
-                            "Channel peer is not ChannelMessages",
-                            CancellationToken.None);
-                        return;
-                    }
-
-                    if (channelMessages.count == 0)
-                    {
-                        await webSocket.CloseAsync(
-                            WebSocketCloseStatus.NormalClosure,
-                            "No data",
-                            CancellationToken.None);
-                        return;
-                    }
-
-                    var msgBase = channelMessages.messages[0];
-                    startOffsetId = msgBase.ID;
-
-                    lastMessagesBase = await _client.Messages_GetHistory(peer, 0, startLoadingDate, 0, 1);
-                    if (lastMessagesBase is not Messages_ChannelMessages end_channelMessages)
-                    {
-                        await webSocket.CloseAsync(
-                            WebSocketCloseStatus.NormalClosure,
-                            "Channel peer is not ChannelMessages",
-                            CancellationToken.None);
-                        return;
-                    }
-
-                    if (channelMessages.count == 0)
-                    {
-                        await webSocket.CloseAsync(
-                            WebSocketCloseStatus.NormalClosure,
-                            "No data",
-                            CancellationToken.None);
-                        return;
-                    }
-
-                    msgBase = end_channelMessages.messages[0];
-                    endOffsetId = msgBase.ID;
+                    await webSocket.CloseAsync(
+                        WebSocketCloseStatus.NormalClosure,
+                        "No data.",
+                        CancellationToken.None);
+                    _logger.LogInformation($"No data in the channel {peer.ID}.");
+                    return;
                 }
 
-                // Если не пусто, то его id используем для запроса новых постов канала как смещение.
-                else
+                var msgBase = channelMessages.messages[0];
+                startOffsetId = msgBase.ID;
+
+                lastMessagesBase = await _client.Messages_GetHistory(peer, 0, startLoadingDate, 0, 1);
+                if (lastMessagesBase is not Messages_ChannelMessages end_channelMessages)
                 {
-                    endOffsetId = (int)postFromDb.TlgId;
+                    await webSocket.CloseAsync(
+                        WebSocketCloseStatus.NormalClosure,
+                        "Channel peer is not ChannelMessages.",
+                        CancellationToken.None);
+                    _logger.LogInformation("Channel peer is not ChannelMessages.");
+                    return;
                 }
 
-                // Возможно потом пригодится.
-                var messages = new List<PostDto>();
-                bool needBreak = false;
-
-                while (true)
+                if (channelMessages.count == 0)
                 {
-                    var messagesBase = await _client.Messages_GetHistory(
-                        peer,
-                        startOffsetId);
+                    await webSocket.CloseAsync(
+                        WebSocketCloseStatus.NormalClosure,
+                        "No data",
+                        CancellationToken.None);
+                    _logger.LogInformation($"No data in the channel {peer.ID}.");
+                    return;
+                }
 
-                    if (messagesBase is not Messages_ChannelMessages channelMessages) break;
-                    //var msgBase in channelMessages.messages
-                    for (int index = 0; index < channelMessages.messages.Length; index++)
+                msgBase = end_channelMessages.messages[0];
+                endOffsetId = msgBase.ID;
+            }
+
+            // Если не пусто, то его id используем для запроса новых постов канала как смещение.
+            else
+            {
+                endOffsetId = (int)postFromDb.TlgId;
+            }
+
+            // Возможно потом пригодится.
+            var messages = new List<PostDto>();
+            bool needBreak = false;
+
+            while (true)
+            {
+                var messagesBase = await _client.Messages_GetHistory(
+                    peer,
+                    startOffsetId);
+
+                if (messagesBase is not Messages_ChannelMessages channelMessages) break;
+
+                for (int index = 0; index < channelMessages.messages.Length; index++)
+                {
+                    if (channelMessages.messages[index].ID <= endOffsetId)
                     {
-                        if (channelMessages.messages[index].ID <= endOffsetId)
+                        needBreak = true;
+                        break;
+                    }
+
+                    // TODO Тестируем этот код.
+                    // TODO Если текста нет, то отбрасываем. Исправить потом, чтобы все ел.
+                    if (channelMessages.messages[index] is TL.Message msg && !string.IsNullOrEmpty(msg.message))
+                    {
+                        var postToDb = _mapper.Map<Post>(msg);
+                        var postDto = _mapper.Map<PostDto>(postToDb);
+
+                        try
                         {
-                            needBreak = true;
-                            break;
+                            // Получаем комментарии.
+                            var replies = await _client.Messages_GetReplies(peer, msg.ID);
+                            postToDb.CommentsCount = replies.Count;
+                            postDto.CommentsCount = replies.Count;
+
+                            //await LoadPostComments(peer, msg, postToDb, replies);
+
                         }
-
-                        // TODO Тестируем этот код.
-                        // TODO Если текста нет, то отбрасываем. Исправить потом, чтобы все ел.
-                        if (channelMessages.messages[index] is TL.Message msg && !string.IsNullOrEmpty(msg.message))
+                        catch (Exception exception)
                         {
-                            var postDto = _mapper.Map<PostDto>(msg);
-                            var postToDb = _mapper.Map<Post>(msg);
-
-                            // Получили комментарии.
-                            /*var replies = await _client.Messages_GetReplies(peer, msg.ID);
-                            var client_comments = replies.Messages;
-
-                            // Преобразовали их в класс типа из наших моделей.
-                            List<Comment> comments = _mapper.Map<List<Comment>>(client_comments);
-
-                            // Для кажддого комментария получили его автора.
-                            // Преобразровали в объект класса из наших моделей.
-                            // Добавили к комментариям.
-                            for (int commentIndex = 0; commentIndex < comments.Count; commentIndex++)
-                            {
-                                var userId = replies.Messages[commentIndex].From.ID;
-                                var inputUserFromMessage = new InputUserFromMessage
-                                {
-                                    // ???????
-                                    //msg_id = msg.id,
-                                    msg_id = replies.Messages[commentIndex].ID,
-                                    // ???????
-                                    peer = peer,
-                                    user_id = userId
-                                };
-                                var fullUser = await _client.Users_GetFullUser(inputUserFromMessage);
-                                var acc = _mapper.Map<Account>(fullUser);
-                                comments[commentIndex].Author = acc;
-                            }*/
-
-
+                            var errorMessage = "UpdateChannelPosts";
+                            _logger.LogError(exception, errorMessage);
+                        }
+                        finally
+                        {
                             await _context.Posts.AddAsync(postToDb);
-                            //await _context.Comments.AddRangeAsync(comments);
+                            await _context.SaveChangesAsync();
                             messages.Add(postDto);
 
                             if (index % 20 == 0 || index == channelMessages.messages.Length - 1)
@@ -759,272 +798,165 @@ namespace Gather.Services.InfoService
                                     );
                             }
                         }
-
-                        if (index == channelMessages.messages.Length - 1)
-                        {
-                            startOffsetId = channelMessages.messages[index].ID;
-                        }
                     }
 
-                    if (needBreak)
+                    if (index == channelMessages.messages.Length - 1)
                     {
-                        break;
+                        startOffsetId = channelMessages.messages[index].ID;
                     }
                 }
-                await _context.SaveChangesAsync();
-                await webSocket.CloseAsync(
-                    WebSocketCloseStatus.NormalClosure,
-                    "The request was completed successfully",
-                    CancellationToken.None);
-                //response.Success = true;
-                //response.Data = messages.Count;
-            }
-            catch (InvalidOperationException ex)
-            {
-                var errorMessage = "An error ocurred while updating channel's posts. You may no longer subscribe to this channel.";
-                _logger.LogError(ex.Message, errorMessage);
-                await webSocket.CloseAsync(
-                    WebSocketCloseStatus.InternalServerError,
-                    errorMessage,
-                    CancellationToken.None);
-            }
-            catch (Exception ex)
-            {
-                var errorMessage = "An error ocurred while updating channel's posts.";
-                _logger.LogError(ex.Message, errorMessage);
-                await webSocket.CloseAsync(
-                    WebSocketCloseStatus.InternalServerError,
-                    errorMessage,
-                    CancellationToken.None);
-                //response.Success = false;
-                //response.Message = "An error ocurred while updating channel's posts";
-                //response.Data = 0;
-            }
-        }
 
-        private async void SendAsyncMessage(WebSocket webSocket, string message)
-        {
-            byte[] bytes = Encoding.UTF8.GetBytes(message);
-            var arraySegment = new ArraySegment<byte>(bytes, 0, bytes.Length);
-
-            await webSocket.SendAsync(
-                arraySegment,
-                WebSocketMessageType.Text,
-                true,
+                if (needBreak)
+                {
+                    break;
+                }
+            }
+            await webSocket.CloseAsync(
+                WebSocketCloseStatus.NormalClosure,
+                "The request was completed successfully",
                 CancellationToken.None);
         }
-
-        public Task<ServiceResponse<int>> GetCommentsCount(long chatId, long postId)
+        catch (InvalidOperationException ex)
         {
-            throw new NotImplementedException();
+            var errorMessage = "An error ocurred while updating channel's posts. You may no longer subscribe to this channel.";
+            _logger.LogError(ex.Message, errorMessage);
+            await webSocket.CloseAsync(
+                WebSocketCloseStatus.InternalServerError,
+                errorMessage,
+                CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            var errorMessage = "An error ocurred while updating channel's posts.";
+            _logger.LogError(ex.Message, errorMessage);
+            await webSocket.CloseAsync(
+                WebSocketCloseStatus.InternalServerError,
+                errorMessage,
+                CancellationToken.None);
+        }
+    }
+
+    private async Task LoadPostComments(InputPeer peer, Message msg, Post postToDb, Messages_MessagesBase replies)
+    {
+        //await LoadPostComments(peer, msg, postToDb, replies);
+
+
+        // Преобразовали их в класс типа из наших моделей.
+        List<Comment> comments = new List<Comment>();
+        var client_comments = replies.Messages;
+        foreach (var comment in client_comments)
+        {
+            var newComment = _mapper.Map<Comment>(comment);
+            newComment.PeerId = peer.ID;
+            if (newComment != null)
+            {
+                comments.Add(newComment);
+            }
         }
 
-        public Task<ServiceResponse<IEnumerable<Comment>>> GetComments(long chatId, long postId)
+        // Для кажддого комментария получили его автора.
+        for (int commentIndex = 0; commentIndex < comments.Count; commentIndex++)
         {
-            throw new NotImplementedException();
+            comments[commentIndex].PostId = msg.ID;
+            var userId = replies.Messages[commentIndex].From.ID;
+            if (_context.Accounts != null)
+            {
+                var user = await _context.Accounts
+                    .Where(acc => acc.TlgId == userId)
+                    .FirstOrDefaultAsync();
+
+                if (user == null)
+                {
+                    var inputUserFromMessage = new InputUserFromMessage()
+                    {
+                        peer = (replies as Messages_ChannelMessages).chats.First().Value,
+                        msg_id = replies.Messages[commentIndex].ID,
+                        user_id = userId
+                    };
+                    var fullUser = await _client.Users_GetFullUser(inputUserFromMessage);
+                    var acc = _mapper.Map<Account>(fullUser.users.First().Value);
+                    await _context.Accounts.AddAsync(acc);
+                    comments[commentIndex].From = acc;
+                }
+                else
+                {
+                    comments[commentIndex].From = user;
+                }
+            }
         }
 
-        public Task UpdatePostComments(long chatId, long postId)
+
+        postToDb.Comments.AddRange(comments);
+    }
+
+    private async void SendAsyncMessage(WebSocket webSocket, string message)
+    {
+        byte[] bytes = Encoding.UTF8.GetBytes(message);
+        var arraySegment = new ArraySegment<byte>(bytes, 0, bytes.Length);
+
+        await webSocket.SendAsync(
+            arraySegment,
+            WebSocketMessageType.Text,
+            true,
+            CancellationToken.None);
+    }
+
+    public Task<ServiceResponse<int>> GetCommentsCount(long chatId, long postId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<ServiceResponse<IEnumerable<CommentDto>>> GetComments(long chatId, long postId, int offset = 0, int limit = 10)
+    {
+        var response = new ServiceResponse<IEnumerable<CommentDto>>();
+
+        if (_context.Comments == null)
         {
-            throw new NotImplementedException();
+            _logger.LogError("GetComments, _context.Comments is null");
+            response.Success = false;
+            response.Message = "Internal server error";
+            response.Data = Enumerable.Empty<CommentDto>();
+            return response;
         }
 
-        public Task<ServiceResponse<Account>> GetAccaunt(long accountTlgId)
+        try
         {
-            throw new NotImplementedException();
+            var comments = await _context.Comments
+                .Where(c => c.PostId == postId && c.PeerId == chatId)
+                .OrderBy(c => c.TlgId)
+                .Skip(offset)
+                .Take(limit)
+                .ToListAsync();
+
+            var results = _mapper.Map<List<CommentDto>>(comments);
+            response.Data = results;
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "GetComments");
+            response.Success = false;
+            response.Message = "An error has occurred while getting comments." +
+                Environment.NewLine +
+                exception.Message;
+            response.Data = Enumerable.Empty<CommentDto>();
         }
 
-        //public async Task<ServiceResponse<int>> UpdateChannelPosts(string username, long chatId)
-        //{
-        //    var response = new ServiceResponse<int>();
+        return response;
+    }
 
-        //    try
-        //    {
-        //        var dbChannelPeer = _context.Channels.First(chat => chat.Id == chatId && chat.User.Username.Equals(username));
-        //        if (dbChannelPeer == null)
-        //        {
-        //            response.Success = false;
-        //            response.Message = "Channel not found";
-        //            return response;
-        //        }
+    public Task UpdatePostComments(long chatId, long postId)
+    {
+        throw new NotImplementedException();
+    }
 
-        //        var chats = await _client.Messages_GetAllChats();
-        //        InputPeer peer = chats.chats.First(chat => chat.Key == chatId).Value;
+    public Task<ServiceResponse<Account>> GetAccaunt(long accountTlgId)
+    {
+        throw new NotImplementedException();
+    }
 
-        //        // Получаем из БД последнее сообщение, канала.
-        //        var postFromDb = _context.Posts.Where(post => post.PeerId == chatId).OrderBy(post => post.PostId).LastOrDefault();
-        //        int startOffsetId = 0;
-        //        int endOffsetId = 0;
-
-
-        //        // Если пусто, запрашиваем у телеграмма один пост на 31.12.2023.
-        //        // Его id используем для запроса новых постов канала как смещение.
-        //        if (postFromDb == null)
-        //        {
-        //            var lastMessagesBase = await _client.Messages_GetHistory(peer, 0, DateTime.Now, 0, 1);
-        //            if (lastMessagesBase is not Messages_ChannelMessages channelMessages)
-        //            {
-        //                response.Success = false;
-        //                response.Message = "Channel peer is not ChannelMessages";
-        //                return response;
-        //            }
-
-        //            if (channelMessages.count == 0)
-        //            {
-        //                response.Success = false;
-        //                response.Message = "No data";
-        //                return response;
-        //            }
-
-        //            var msgBase = channelMessages.messages[0];
-        //            startOffsetId = msgBase.ID;
-
-
-
-        //            lastMessagesBase = await _client.Messages_GetHistory(peer, 0, startLoadingDate, 0, 1);
-        //            if (lastMessagesBase is not Messages_ChannelMessages end_channelMessages)
-        //            {
-        //                response.Success = false;
-        //                response.Message = "Channel peer is not ChannelMessages";
-        //                return response;
-        //            }
-
-        //            if (channelMessages.count == 0)
-        //            {
-        //                response.Success = false;
-        //                response.Message = "No data";
-        //                return response;
-        //            }
-
-        //            msgBase = end_channelMessages.messages[0];
-        //            endOffsetId = msgBase.ID;
-        //        }
-
-        //        // Если не пусто, то его id используем для запроса новых постов канала как смещение.
-        //        else
-        //        {
-        //            endOffsetId = (int)postFromDb.PostId;
-        //        }
-
-        //        // Возможно потом пригодится.
-        //        var messages = new List<PostDto>();
-        //        bool needStop = false;
-
-        //        while (true)
-        //        {
-        //            var messagesBase = await _client.Messages_GetHistory(
-        //                peer,
-        //                startOffsetId);
-
-        //            if (messagesBase is not Messages_ChannelMessages channelMessages) break;
-        //            //var msgBase in channelMessages.messages
-        //            for (int index = 0; index < channelMessages.messages.Length; index++)
-        //            {
-        //                if (channelMessages.messages[index].ID <= endOffsetId)
-        //                {
-        //                    needStop = true;
-        //                    break;
-        //                }
-
-        //                // TODO Тестируем этот код.
-        //                // TODO Если текста нет, то отбрасываем. Исправить потом, чтобы все ел.
-        //                if (channelMessages.messages[index] is TL.Message msg && !string.IsNullOrEmpty(msg.message))
-        //                {
-        //                    var postDto = _mapper.Map<PostDto>(msg);
-        //                    var postToDb = _mapper.Map<Post>(msg);
-
-        //                    // Получили комментарии.
-        //                    var replies = await _client.Messages_GetReplies(peer, msg.ID);
-        //                    var client_comments = replies.Messages;
-
-        //                    // Преобразовали их в класс типа из наших моделей.
-        //                    List<Comment> comments = _mapper.Map<List<Comment>>(client_comments);
-
-        //                    // Для кажддого комментария получили его автора.
-        //                    // Преобразровали в объект класса из наших моделей.
-        //                    // Добавили к комментариям.
-        //                    for (int commentIndex = 0; commentIndex < comments.Count; commentIndex++)
-        //                    {
-        //                        var userId = replies.Messages[commentIndex].From.ID;
-        //                        var inputUserFromMessage = new InputUserFromMessage
-        //                        {
-        //                            // ???????
-        //                            //msg_id = msg.id,
-        //                            msg_id = replies.Messages[commentIndex].ID,
-        //                            // ???????
-        //                            peer = peer,
-        //                            user_id = userId
-        //                        };
-        //                        var fullUser = await _client.Users_GetFullUser(inputUserFromMessage);
-        //                        var acc = _mapper.Map<Account>(fullUser);
-        //                        comments[commentIndex].Author = acc;
-        //                    }
-
-
-        //                    await _context.Posts.AddAsync(postToDb);
-        //                    await _context.Comments.AddRangeAsync(comments);
-        //                    messages.Add(postDto);
-        //                }
-
-        //                if (index == channelMessages.messages.Length - 1)
-        //                {
-        //                    startOffsetId = channelMessages.messages[index].ID;
-        //                }
-        //            }
-
-        //            if (needStop)
-        //            {
-        //                break;
-        //            }
-        //        }
-        //        await _context.SaveChangesAsync();
-        //        response.Success = true;
-        //        response.Data = messages.Count;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex.Message, "An error ocurred while updating channel's posts");
-        //        response.Success = false;
-        //        response.Message = "An error ocurred while updating channel's posts";
-        //        response.Data = 0;
-        //    }
-
-        //return response;
-        //}
-
-        //private async Task UpdateChannelPosts_delete(string username, long chatId, WebSocket webSocket)
-        //{
-
-        //while (!receiveResult.CloseStatus.HasValue)
-        //while (true)
-        //{
-        //    string time = DateTime.Now.ToString("HH:mm:ss");
-        //    byte[] bytes = Encoding.UTF8.GetBytes(time);
-        //    var arraySegment = new ArraySegment<byte>(bytes, 0, bytes.Length);
-
-        //    //await webSocket.SendAsync(
-        //    //    new ArraySegment<byte>(buffer, 0, receiveResult.Count),
-        //    //    receiveResult.MessageType,
-        //    //    receiveResult.EndOfMessage,
-        //    //    CancellationToken.None);
-
-        //    await webSocket.SendAsync(
-        //        arraySegment,
-        //        receiveResult.MessageType,
-        //        receiveResult.EndOfMessage,
-        //        CancellationToken.None);
-        //    Console.WriteLine(time);
-
-        //    //receiveResult = await webSocket.ReceiveAsync(
-        //    //    new ArraySegment<byte>(buffer), CancellationToken.None);
-
-        //    Thread.Sleep(1000);
-        //}
-
-        //await webSocket.CloseAsync(
-        //    receiveResult.CloseStatus.Value,
-        //    receiveResult.CloseStatusDescription,
-        //    CancellationToken.None);
-        //}
+    public Task UpdatePostComments(long chatId, long postId, WebSocket webSocket)
+    {
+        throw new NotImplementedException();
     }
 }
+

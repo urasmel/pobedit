@@ -1,7 +1,8 @@
 import { Account } from "@/entities/account/model/Account";
 
 export interface Comment {
-    commentId: number;
+    tlgId: number;
+    postId: number;
     channelId: number;
     author: Account;
     message: string;

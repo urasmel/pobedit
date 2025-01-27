@@ -1,27 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace SharedCore.Models;
 
-namespace SharedCore.Models
+public class Comment
 {
-    public class Comment
-    {
-        public long Id { get; set; }
+    // DB
+    public long Id { get; set; }
 
-        public long TlgId { get; set; }
+    // Идентификатор комментария в телеграмме.
+    public long TlgId { get; set; }
 
-        public long PostId {  get; set; }
 
-        [Required]
-        public Account? Author { get; set; }
+    // Идентификатор канала в телеграмме, в котором опубликован пост.
+    public long PeerId {  get; set; }
 
-        public string Message { get; set; } = string.Empty;
+    public long PostId {  get; set; }
 
-        public DateTime Created { get; set; }
+    public Account? From { get; set; }
 
-        public long ReplyTo {  get; set; }
-    }
+    public string Message { get; set; } = string.Empty;
+
+    public DateTime Date { get; set; }
 }

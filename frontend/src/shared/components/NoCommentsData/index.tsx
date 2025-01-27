@@ -8,7 +8,7 @@ import { NoCommentsDataProps } from '@/entities/Props/NoCommentsDataProps';
 
 export const NoCommentsData = ({ userName, channelId, postId }: NoCommentsDataProps) => {
 
-    const URL = `ws://localhost:5037/api/v1/info/users/${userName}/channels/${channelId}/post/${postId}/update_comments`;
+    const URL = `ws://localhost:5037/api/v1/info/channels/${channelId}/post/${postId}/update_comments`;
     const [isLoading, setIsLoading] = useState(false);
     const [response, setResponse] = useState<string>();
     const [isConnected, setIsConnected] = useState(false);

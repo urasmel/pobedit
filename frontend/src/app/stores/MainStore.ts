@@ -1,28 +1,24 @@
 import { create } from 'zustand';
 import { API_URL } from '@/shared/config';
-import { ServiceResponse } from '@/entities';
-import { ChannelInfo } from '@/entities';
+import { Channel, ServiceResponse } from '@/entities';
 import { Post } from '@/entities';
 
 export interface MainState {
     selectedUser: string | undefined;
-    channels: ChannelInfo[];
+    channels: Channel[];
     isLoading: boolean;
     error: string;
     isError: boolean;
-    channelsInfos: ChannelInfo[];
+    channelsInfos: Channel[];
     channelPostsDict: {
         channelId: number;
         posts: Post[];
     };
-    // Для отображения дополнительной информации о чате.
-    selectedChannelInfo: ChannelInfo;
 }
 
 export interface Action {
     updateSelectedUser: (username: MainState['selectedUser']) => void;
-    fetchUpdatedChannels: (username: string) => Promise<void>;
-    fetchChannelInfo: (channelId: number) => Promise<boolean>;
+    fetchUpdatedChannels: () => Promise<void>;
     updateAndFetchChannelPosts: (username: string, channelId: number) => Promise<void>;
 }
 
@@ -34,7 +30,6 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
         channelId: 0,
         posts: []
     },
-    selectedChannelInfo: {} as ChannelInfo,
     isLoading: false,
     error: '',
     isError: false,
@@ -43,8 +38,8 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
         set({ selectedUser });
     },
 
-    fetchUpdatedChannels: async (username: string) => {
-        const url = `${API_URL}/info/users/${username}/updated_channels`;
+    fetchUpdatedChannels: async () => {
+        const url = `${API_URL}/api/v1/info/updated_channels`;
         const request = new Request(url,
             {
                 method: 'GET',
@@ -76,37 +71,6 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
             ...state,
             channels: json
         }));
-    },
-
-    fetchChannelInfo: async (channelId: number) => {
-
-        if (get().selectedUser == null) {
-            return false;
-        }
-
-        const request = new Request(`${API_URL}/info/users/${get().selectedUser}/channels/${channelId}/info`,
-            {
-                method: 'GET',
-                mode: 'cors',
-                headers: {
-                    'Access-Control-Request-Method': 'GET',
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Options'
-                },
-                redirect: 'follow',
-                cache: 'no-store'
-            });
-
-        const response = await fetch(request);
-
-        if (!response.ok) {
-            console.error("Ошибка загрузки информации о канале");
-            return false;
-        }
-
-        const json = (await response.json() as ServiceResponse<ChannelInfo>).data;
-        set(() => ({ selectedChannelInfo: json }));
-        return true;
     },
 
     updateAndFetchChannelPosts: async (username: string, channelId: number) => {

@@ -7,7 +7,7 @@ export const CommentWidget = (comment: Comment) => {
         <div className={styles.comment}>
             <NavLink
                 className={styles["post__comments-link"]}
-                to={`/users/${comment.author.accountId}`}
+                to={`/account/${comment.author.accountId}`}
             >
                 <div className={styles.comment__ava}>
 
@@ -21,7 +21,7 @@ export const CommentWidget = (comment: Comment) => {
                 <div className={styles.comment__header}>
 
                     {comment.author.accountName}&nbsp;
-                    Ид. комментария: {comment.commentId}, время:{" "}
+                    Ид. комментария: {comment.tlgId}, время:{" "}
                     {new Date(comment.date).toLocaleString("ru-RU")}
                 </div>
 

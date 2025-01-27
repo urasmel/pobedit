@@ -60,6 +60,13 @@ namespace Gather.Services
                     return response;
                 }
 
+                if (_client == null) {
+                    response.Data = false;
+                    response.Success = false;
+                    response.Message = $"Internal server error";
+                    return response;
+                }
+
                 // Получаем все его чаты.
                 var chats = new List<ChatBase>();
                 var chatBases = await _client.Messages_GetAllChats();

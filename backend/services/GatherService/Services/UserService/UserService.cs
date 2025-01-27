@@ -25,6 +25,15 @@ namespace Gather.Services.UserService
         public async Task<ServiceResponse<GetUserDto>> GetUserIdAsync(int id)
         {
             var response = new ServiceResponse<GetUserDto>();
+
+            if (_context.Users == null)
+            {
+                response.Message = "Internal server error";
+                response.Success = false;
+                response.Data = null;
+                return response;
+            }
+
             try
             {
                 var dbUser = await _context.Users.FirstOrDefaultAsync(c => c.UserId == id);
@@ -49,6 +58,15 @@ namespace Gather.Services.UserService
         public async Task<ServiceResponse<IEnumerable<GetUserDto>>> GetAllUsersAsync()
         {
             var response = new ServiceResponse<IEnumerable<GetUserDto>>();
+
+            if (_context.Users == null)
+            {
+                response.Message = "Internal server error";
+                response.Success = false;
+                response.Data = null;
+                return response;
+            }
+
             try
             {
                 var dbUsers = await _context.Users.ToListAsync();
@@ -57,6 +75,7 @@ namespace Gather.Services.UserService
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 response.Success = false;
                 response.Data = Enumerable.Empty<GetUserDto>();
                 response.Message = "Server error";
@@ -67,6 +86,15 @@ namespace Gather.Services.UserService
         public async Task<ServiceResponse<int>> AddUserAsync(AddUserDto newUser)
         {
             var response = new ServiceResponse<int>();
+
+            if (_context.Users == null)
+            {
+                response.Message = "Internal server error";
+                response.Success = false;
+                response.Data = 0;
+                return response;
+            }
+
             User? userFromDb = await _context.Users
                 .FirstOrDefaultAsync(a => a.Password == newUser.Password && a.Username == newUser.Username);
             if (userFromDb != null)
@@ -103,6 +131,13 @@ namespace Gather.Services.UserService
 
             try
             {
+                if (_context.Users == null)
+                {
+                    response.Success = false;
+                    response.Message = "Internal server error";
+                    return response;
+                }
+
                 User? user = await _context.Users
                     .FirstOrDefaultAsync(c => c.UserId == id);
                 if (user != null)
@@ -133,8 +168,22 @@ namespace Gather.Services.UserService
 
             try
             {
+                if (_context.Users == null)
+                {
+                    response.Success = false;
+                    response.Message = "Internal server error";
+                    return response;
+                }
+
                 User? userInDb = await _context.Users
                     .FirstOrDefaultAsync(a => a.UserId == userParam.UserId);
+
+                if (userInDb == null)
+                {
+                    response.Success = false;
+                    response.Message = "User not found";
+                    return response;
+                }
 
                 if (_context.Users.Any(a => a.Username == userParam.Username && userInDb.UserId != userParam.UserId))
                 {
@@ -165,7 +214,7 @@ namespace Gather.Services.UserService
             catch (Exception ex)
             {
                 response.Success = false;
-                response.Message = "Фn error occurred while editing the user";
+                response.Message = "An error occurred while editing the user";
                 _logger.Log(LogLevel.Error, ex.Message);
             }
 

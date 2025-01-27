@@ -5,11 +5,9 @@ namespace SharedCore.Dtos.Channel
 {
     public class ChannelDto
     {
-        public long Id { get; set; }
+        public long TlgId { get; set; }
         // Идентификатор пользователя, который является подписчиком канала и под которым канал управляется в приложении.
         public Account? Owner { get; set; }
-        public bool IsChannel { get; set; }
-        public bool IsGroup { get; set; }
         public string? MainUsername { get; set; }
         public string? Title { get; set; }
         public string About { get; set; } = string.Empty;

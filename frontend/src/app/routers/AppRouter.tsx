@@ -22,7 +22,7 @@ export const AppRouter = () => {
                 errorElement={<ErrorBoundary />}
             />
             <Route
-                path="/user/:user/channels/:channelId/posts/:postId/comments"
+                path="/channels/:channelId/posts/:postId/comments"
                 element={
                     <Suspense fallback={<Loading />}>
                         <Comments />
@@ -31,7 +31,7 @@ export const AppRouter = () => {
                 errorElement={<ErrorBoundary />}
             />
             <Route
-                path="/user/:user/channels/:channelId/posts"
+                path="/channels/:channelId/posts"
                 element={
                     <Suspense fallback={<Loading />}>
                         <Posts />

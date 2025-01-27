@@ -5,6 +5,7 @@ import Loading from '../Loading';
 import { NoChannelDataProps } from '@/entities/Props';
 import { ErrorAction } from '../ErrorrAction';
 import getStatusCodeString from '@/shared/api/socket';
+import { useNavigate } from "react-router-dom";
 
 class CloseEvent {
     readonly code: number;
@@ -16,15 +17,15 @@ class CloseEvent {
     }
 }
 
-export const NoChannelData = ({ userName, channelId }: NoChannelDataProps) => {
+export const NoChannelData = ({ channelId }: NoChannelDataProps) => {
 
-    const URL = `ws://localhost:5037/api/v1/info/users/${userName}/channels/${channelId}/update_posts`;
+    const URL = `ws://localhost:5037/api/v1/info/channels/${channelId}/update_posts`;
     const [isLoading, setIsLoading] = useState(false);
     const [response, setResponse] = useState<string>();
     const [isConnected, setIsConnected] = useState(false);
     const [isError, setIsError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-
+    const navigate = useNavigate();
 
     const wsRef = useRef<WebSocket>();
 
@@ -60,6 +61,9 @@ export const NoChannelData = ({ userName, channelId }: NoChannelDataProps) => {
                 setErrorMessage("Запрос на обновление постов канала завершился ошибкой");
                 console.error(getStatusCodeString(event.code));
             }
+            else {
+                navigate(0);
+            }
         };
 
         wsRef.current.onerror = (event: Event) => {
@@ -87,7 +91,7 @@ export const NoChannelData = ({ userName, channelId }: NoChannelDataProps) => {
     return (
         <div className={styles.block}>
             {
-                (userName !== undefined && channelId !== undefined)
+                (channelId !== undefined)
                     ?
                     <>
                         <div className={styles.block__text}>Пока в базе данных нет записей канала с идентификатором <b>{channelId}</b></div>

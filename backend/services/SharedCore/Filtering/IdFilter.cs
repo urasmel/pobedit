@@ -18,7 +18,7 @@ namespace SharedCore.Filtering
                 var errorDict = new Dictionary<string, string[]>();
                 errorDict["id"] = new string[] { "The account ID is missing" };
                 var problems = new ValidationProblemDetails(errorDict);
-                context.Result = (context.Controller as ControllerBase).ValidationProblem(problems);
+                context.Result = ((ControllerBase)context.Controller).ValidationProblem(problems);
                 return;
             }
 
@@ -28,7 +28,7 @@ namespace SharedCore.Filtering
                 problemDetails.Status = 400;
                 problemDetails.Title = "Parameter type validation error occurred.";
                 problemDetails.Detail = "The account ID must be a number";
-                context.Result = (context.Controller as ControllerBase).ValidationProblem(problemDetails);
+                context.Result = ((ControllerBase)context.Controller).ValidationProblem(problemDetails);
                 return;
             }
         }

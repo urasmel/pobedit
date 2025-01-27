@@ -3,6 +3,7 @@ using System;
 using Gather.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,13 +12,14 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Gather.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250120142147_ReturnChatAndChannelOner")]
+    partial class ReturnChatAndChannelOner
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.12")
+                .HasAnnotation("ProductVersion", "6.0.35")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -37,19 +39,19 @@ namespace Gather.Migrations
                     b.ToTable("AccountChannel");
                 });
 
-            modelBuilder.Entity("AccountGroup", b =>
+            modelBuilder.Entity("AccountChat", b =>
                 {
                     b.Property<long>("SubscribersId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("SubscriptionGroupsId")
+                    b.Property<long>("SubscriptionChatsId")
                         .HasColumnType("bigint");
 
-                    b.HasKey("SubscribersId", "SubscriptionGroupsId");
+                    b.HasKey("SubscribersId", "SubscriptionChatsId");
 
-                    b.HasIndex("SubscriptionGroupsId");
+                    b.HasIndex("SubscriptionChatsId");
 
-                    b.ToTable("AccountGroup");
+                    b.ToTable("AccountChat");
                 });
 
             modelBuilder.Entity("SharedCore.Models.Account", b =>
@@ -131,43 +133,7 @@ namespace Gather.Migrations
                     b.ToTable("Channels");
                 });
 
-            modelBuilder.Entity("SharedCore.Models.Comment", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long?>("FromId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("PeerId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("PostId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("TlgId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FromId");
-
-                    b.HasIndex("PostId");
-
-                    b.ToTable("Comments");
-                });
-
-            modelBuilder.Entity("SharedCore.Models.Group", b =>
+            modelBuilder.Entity("SharedCore.Models.Chat", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -200,7 +166,43 @@ namespace Gather.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Groups");
+                    b.ToTable("Chat");
+                });
+
+            modelBuilder.Entity("SharedCore.Models.Comment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AuthorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("PostId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ReplyTo")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TlgId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("SharedCore.Models.Post", b =>
@@ -212,9 +214,6 @@ namespace Gather.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<long?>("AuthorId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("CommentsCount")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("Date")
@@ -284,7 +283,7 @@ namespace Gather.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AccountGroup", b =>
+            modelBuilder.Entity("AccountChat", b =>
                 {
                     b.HasOne("SharedCore.Models.Account", null)
                         .WithMany()
@@ -292,9 +291,9 @@ namespace Gather.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SharedCore.Models.Group", null)
+                    b.HasOne("SharedCore.Models.Chat", null)
                         .WithMany()
-                        .HasForeignKey("SubscriptionGroupsId")
+                        .HasForeignKey("SubscriptionChatsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -308,11 +307,22 @@ namespace Gather.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("SharedCore.Models.Chat", b =>
+                {
+                    b.HasOne("SharedCore.Models.Account", "Owner")
+                        .WithMany("Chats")
+                        .HasForeignKey("OwnerId");
+
+                    b.Navigation("Owner");
+                });
+
             modelBuilder.Entity("SharedCore.Models.Comment", b =>
                 {
-                    b.HasOne("SharedCore.Models.Account", "From")
+                    b.HasOne("SharedCore.Models.Account", "Author")
                         .WithMany()
-                        .HasForeignKey("FromId");
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SharedCore.Models.Post", null)
                         .WithMany("Comments")
@@ -320,16 +330,7 @@ namespace Gather.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("From");
-                });
-
-            modelBuilder.Entity("SharedCore.Models.Group", b =>
-                {
-                    b.HasOne("SharedCore.Models.Account", "Owner")
-                        .WithMany("Groups")
-                        .HasForeignKey("OwnerId");
-
-                    b.Navigation("Owner");
+                    b.Navigation("Author");
                 });
 
             modelBuilder.Entity("SharedCore.Models.Post", b =>
@@ -345,7 +346,7 @@ namespace Gather.Migrations
                 {
                     b.Navigation("Channels");
 
-                    b.Navigation("Groups");
+                    b.Navigation("Chats");
                 });
 
             modelBuilder.Entity("SharedCore.Models.Post", b =>

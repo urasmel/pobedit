@@ -1,11 +1,10 @@
 export interface Channel {
     id: number;
-    userId: number;
-    isChannel: boolean | undefined;
-    isGroup: boolean | undefined;
+    tlgId: number;
     mainUsername: string | undefined;
+    title: string;
+    image: string;
     about: string;
     participantsCount: number;
-    image: string;
-    title: string;
+    ownerId: number;
 }
