@@ -14,7 +14,7 @@ namespace Gather.Services.InfoService;
 public class InfoService : IInfoService
 {
     // Дата, с которой начинаем загружать данные.
-    private DateTime startLoadingDate = DateTime.Parse("Jan 20, 2025");
+    private DateTime startLoadingDate = DateTime.Parse("Jan 25, 2025");
     ILogger _logger;
     GatherClient _client;
     TL.User? user;
@@ -608,9 +608,7 @@ public class InfoService : IInfoService
         }
         catch (Exception exception)
         {
-            var errorMessage = "UpdateChannelPosts" +
-                Environment.NewLine +
-                "The error while logging telegram user.";
+            var errorMessage = "The error while logging telegram user.";
             _logger.LogError(exception, errorMessage);
 
             await webSocket.CloseAsync(
@@ -622,7 +620,7 @@ public class InfoService : IInfoService
 
         if (_context.Channels == null)
         {
-            var errorMessage = "An error ocurred while updating channel's posts. DB context with channels is null.";
+            var errorMessage = "An error ocurred while updating channel's posts. DB error.";
             _logger.LogError(errorMessage);
             await webSocket.CloseAsync(
                 WebSocketCloseStatus.InternalServerError,
@@ -633,7 +631,7 @@ public class InfoService : IInfoService
 
         if (_context.Posts == null)
         {
-            var errorMessage = "An error ocurred while updating channel's posts. DB context with posts is null.";
+            var errorMessage = "An error ocurred while updating channel's posts. DB error.";
             _logger.LogError(errorMessage);
             await webSocket.CloseAsync(
                 WebSocketCloseStatus.InternalServerError,
@@ -654,8 +652,8 @@ public class InfoService : IInfoService
             if (dbChannelPeer == null)
             {
                 await webSocket.CloseAsync(
-                    WebSocketCloseStatus.NormalClosure,
-                    "Channel not found",
+                    WebSocketCloseStatus.InternalServerError,
+                    "Channel not found in DB.",
                     CancellationToken.None);
                 return;
             }
@@ -665,11 +663,12 @@ public class InfoService : IInfoService
 
             if (peersWithKey.Count() == 0)
             {
+                var errorMessage = "Channel not found in subscriptions. You may have unsubscribed from the channel.";
                 await webSocket.CloseAsync(
-                    WebSocketCloseStatus.NormalClosure,
-                    "Channel not found in subscriptions",
+                    WebSocketCloseStatus.InternalServerError,
+                    errorMessage,
                     CancellationToken.None);
-                _logger.LogError("Channel not found in subscriptions. You may have unsubscribed from the channel.");
+                _logger.LogError(errorMessage);
                 return;
             }
 
@@ -957,6 +956,43 @@ public class InfoService : IInfoService
     public Task UpdatePostComments(long chatId, long postId, WebSocket webSocket)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<ServiceResponse<long>> GetChannelPostsCount(long chatId)
+    {
+        var response = new ServiceResponse<long>();
+
+        if (_context.Posts == null)
+        {
+            response.Success = false;
+            response.Message = "Error fetching data from DB.";
+            _logger.Log(LogLevel.Error, "DB context with posts is null.");
+            response.Data = 0;
+            return response;
+        }
+
+        if (chatId <= 0)
+        {
+            response.Success = false;
+            response.Message = "Malformed parameter: chat identifier";
+            response.Data = 0;
+            return response;
+        }
+
+        try
+        {
+            var count = await _context.Posts.Where(post => post.PeerId == chatId).CountAsync();
+            response.Data = count;
+            response.Success = true;
+            return response;
+        }
+        catch (Exception exception)
+        {
+            response.Success = false;
+            response.Message = exception.Message;
+            response.Data = 0;
+            return response;
+        }
     }
 }
 

@@ -22,7 +22,6 @@ const PostWidget = ({ post, user, channelId }: { post: Post, user: string | unde
                 <div className={styles.post__comments}>
                     <div className={styles["post__comments-count"]}>
                         {
-                            'Загружено ' +
                             (post.commentsCount ? post.commentsCount : 0) +
                             ' ' +
                             plural((post.commentsCount ? post.commentsCount : 0), 'комментарий', 'комментария', 'комментариев')

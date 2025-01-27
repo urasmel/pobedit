@@ -1,20 +1,19 @@
-import styles from "./Posts.module.scss";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import PostWidget from "@/features/PostWidget";
-import { Snackbar } from "@mui/material";
-import { useInView } from "react-intersection-observer";
-import Loading from "@/shared/components/Loading";
-import { NoChannelData } from "@/shared/components/NoChannelData";
-import { ChannelMainInfo } from "@/shared/components/ChannelMainInfo";
-import ScrollToTopButton from "@/shared/components/ScrollToTopButton";
-import { ErrorAction } from "@/shared/components/ErrorrAction";
-import { useQuery } from "@tanstack/react-query";
-import { postsApi } from "@/entities/posts";
 import { Action, MainState, useMainStore } from "@/app/stores";
-import { channelApi } from "@/entities/channels";
 import { Post } from "@/entities";
-
+import { channelApi } from "@/entities/channels";
+import { postsApi } from "@/entities/posts";
+import PostWidget from "@/features/PostWidget";
+import { ChannelMainInfo } from "@/shared/components/ChannelMainInfo";
+import { ErrorAction } from "@/shared/components/ErrorrAction";
+import Loading from "@/shared/components/Loading";
+import { ChannelPostsWidget } from "@/shared/components/ChannelPostsWidget";
+import ScrollToTopButton from "@/shared/components/ScrollToTopButton";
+import { Pagination, Snackbar } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
+import { ChangeEvent, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import styles from "./Posts.module.scss";
+import { POST_PER_PAGE } from "@/shared/config";
 
 export const Posts = () => {
 
@@ -22,13 +21,16 @@ export const Posts = () => {
     const selectedUser = useMainStore(
         (state: MainState & Action) => state.selectedUser
     );
-    const { data: channel,
-        isFetching: channelIsFetching,
-        isLoading: channelIsLoading,
-        isError: channelIsError,
-        error: channelError,
-        isFetched: channelIsFetched,
-        isSuccess: channelIsSucces } =
+    const [offset, setOffset] = useState(0);
+    const [limit, setLimit] = useState(20);
+
+    const { data: info,
+        isFetching: infoIsFetching,
+        isLoading: infoIsLoading,
+        isError: infoIsError,
+        error: channelInfoError,
+        isFetched: infoIsFetched,
+        isSuccess: channelInfoIsSucces } =
         useQuery(channelApi.channelQueries.details(channelId));
 
     const { data,
@@ -36,43 +38,47 @@ export const Posts = () => {
         isLoading,
         isError,
         error,
-        isFetched } = useQuery(postsApi.postsQueries.list(channelId));
+        isFetched } = useQuery(postsApi.postsQueries.list(channelId, offset, limit));
 
-    const [offset, setOffset] = useState(0);
-    const [count] = useState(20);
 
-    const { ref, inView } = useInView({
-        threshold: 0,
-    });
+    const { data: count } = useQuery(postsApi.postsQueries.count(channelId?.toString()));
+    const [pagesCount, setPagesCount] = useState(0);
+
+    useEffect(
+        () => {
+            if (count?.posts_count == null) {
+                return;
+            }
+
+            if (count.posts_count % POST_PER_PAGE == 0) {
+                setPagesCount(count?.posts_count / POST_PER_PAGE);
+            }
+            else {
+                setPagesCount(Math.ceil(count?.posts_count / POST_PER_PAGE));
+            }
+        }, [count]
+    );
 
     const handleErrorClose = () => {
         // setPostsLoadingError(false);
     };
 
 
-    useEffect(() => {
-        if (inView && data != undefined) {
-            setOffset(() => data.posts.length);
-        }
-    }, [inView]);
-
-
+    const onPageChange = (event: ChangeEvent, page: number) => {
+        setOffset(POST_PER_PAGE * (page - 1));
+    };
 
     return (
         <div className={styles.channel}>
 
             {
-                !channelIsError &&
+                !infoIsError &&
                 <div className={styles.channel__info}>
                     {
-                        (channelIsLoading || channelIsFetching) &&
-                        <Loading />
-                    }
-                    {
-                        (channelIsFetched || channelIsSucces) &&
+                        infoIsFetched &&
                         <ChannelMainInfo
                             id={channelId === undefined ? 0 : +channelId}
-                            title={channel == null ? '' : channel.title}
+                            title={info == null ? '' : info.title}
                         />
                     }
                 </div>
@@ -82,9 +88,11 @@ export const Posts = () => {
 
                 {
                     isFetched &&
-                    data?.posts.length === 0 &&
                     <div className={styles['posts-no-data']}>
-                        <NoChannelData userName={selectedUser} channelId={channelId ? +channelId : undefined} />
+                        <ChannelPostsWidget
+                            userName={selectedUser}
+                            channelId={channelId ? +channelId : undefined}
+                        />
                     </div>
                 }
 
@@ -111,24 +119,24 @@ export const Posts = () => {
                     </div>
                 }
 
-                <div className={styles['intersection-guard']} ref={ref} >
-                    {`Header inside viewport ${inView}.`}
-                </div>
 
+                <Pagination
+                    count={pagesCount}
+                    variant="outlined"
+                    shape="rounded"
+                    onChange={onPageChange}
+                />
             </div>
 
 
-            <div className={styles['intersection-guard']} ref={ref} >
-                {`Header inside viewport ${inView}.`}
-            </div>
 
             <ScrollToTopButton />
 
             <Snackbar
-                open={channelIsError}
+                open={infoIsError}
                 onClose={handleErrorClose}
                 autoHideDuration={6000}
-                message={channelError?.message}
+                message={channelInfoError?.message}
                 action={ErrorAction(handleErrorClose)}
             />
 

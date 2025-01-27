@@ -116,6 +116,29 @@ public class InfoController : ControllerBase
         return Ok(response);
     }
 
+    [HttpGet]
+    [Route("channels/{channelId}/posts_count")]
+    [MapToApiVersion(1.0)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<PostDto>>> GetChannelPostsCount(long channelId)
+    {
+        var response = await _infoService.GetChannelPostsCount(channelId);
+
+        if (response.Message == "Channel not found")
+        {
+            return NotFound(response);
+        }
+
+        if (!response.Success)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, response);
+        }
+
+        return Ok(response);
+    }
+
     /// <summary>
     /// Скачивает в базу данных новые сообщения канала, которые появились после последнего сообщения канала, содержащегося в базе данных.
     /// Если в базе данных нет записей канала, то загружаются все записи начиная с 31.12.2023.

@@ -36,11 +36,10 @@ const Channels = () => {
 
     const selectedUser = useMainStore((state: MainState) => state.selectedUser);
     const [channelId, setChannelId] = useState<string | undefined>(undefined);
-    const fetchUpdatedChannels = useMainStore((state: MainState & Action) => state.fetchUpdatedChannels);
 
     const queryClient = useQueryClient();
-    const { data, isFetching, isLoading, isError, error } = useQuery(channelApi.channelQueries.list(selectedUser));
-    const { data: channelInfo } = useQuery(channelApi.channelQueries.details(selectedUser, channelId));
+    const { data, isFetching, isLoading, isError, error } = useQuery(channelApi.channelQueries.list());
+    const { data: channelInfo } = useQuery(channelApi.channelQueries.details(channelId));
 
     const navigate = useNavigate();
     const [openShowChannelInfo, setOpenShowChannelInfo] = useState(false);
@@ -88,15 +87,6 @@ const Channels = () => {
         setOpenErrorMessage(false);
     };
 
-    const onBtnClickUpdateUserChannels = async () => {
-        const fetchData = async () => {
-
-            await fetchUpdatedChannels();
-        };
-
-        await fetchData();
-    };
-
     return (
         <section className={styles.channels}>
             <div style={{ height: 400, width: "100%" }}>
@@ -138,7 +128,6 @@ const Channels = () => {
                     sx={{
                         width: "100px",
                     }}
-                    onClick={onBtnClickUpdateUserChannels}
                     variant="contained"
                 >
                     Обновить

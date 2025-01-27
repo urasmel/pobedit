@@ -18,6 +18,8 @@ namespace Gather.Services
 
         Task<ServiceResponse<IEnumerable<PostDto>>> GetChannelPosts(long chatId, int offset, int count);
 
+        Task<ServiceResponse<long>> GetChannelPostsCount(long chatId);
+
         ServiceResponse<IEnumerable<PostDto>> GetChannelPosts(long chatId, DateTime startTime);
 
         Task UpdateChannelPosts(long chatId, WebSocket webSocket);

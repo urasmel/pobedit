@@ -11,3 +11,10 @@
 .block__text {
     font-size: 1rem;
 }
+
+.error {
+    font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: medium;
+    font-weight: 500;
+    color: rgb(52, 71, 103);
+}
