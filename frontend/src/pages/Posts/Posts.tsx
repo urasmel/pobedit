@@ -22,15 +22,12 @@ export const Posts = () => {
         (state: MainState & Action) => state.selectedUser
     );
     const [offset, setOffset] = useState(0);
-    const [limit, setLimit] = useState(20);
+    const [limit] = useState(20);
 
-    const { data: info,
-        isFetching: infoIsFetching,
-        isLoading: infoIsLoading,
-        isError: infoIsError,
+    const { data: channelInfo,
+        isError: channelInfoIsError,
         error: channelInfoError,
-        isFetched: infoIsFetched,
-        isSuccess: channelInfoIsSucces } =
+        isFetched: infoIsFetched } =
         useQuery(channelApi.channelQueries.details(channelId));
 
     const { data,
@@ -39,7 +36,6 @@ export const Posts = () => {
         isError,
         error,
         isFetched } = useQuery(postsApi.postsQueries.list(channelId, offset, limit));
-
 
     const { data: count } = useQuery(postsApi.postsQueries.count(channelId?.toString()));
     const [pagesCount, setPagesCount] = useState(0);
@@ -51,7 +47,7 @@ export const Posts = () => {
             }
 
             if (count.posts_count % POST_PER_PAGE == 0) {
-                setPagesCount(count?.posts_count / POST_PER_PAGE);
+                setPagesCount(count.posts_count / POST_PER_PAGE);
             }
             else {
                 setPagesCount(Math.ceil(count?.posts_count / POST_PER_PAGE));
@@ -63,7 +59,6 @@ export const Posts = () => {
         // setPostsLoadingError(false);
     };
 
-
     const onPageChange = (event: ChangeEvent, page: number) => {
         setOffset(POST_PER_PAGE * (page - 1));
     };
@@ -72,30 +67,27 @@ export const Posts = () => {
         <div className={styles.channel}>
 
             {
-                !infoIsError &&
+                !channelInfoIsError &&
                 <div className={styles.channel__info}>
                     {
                         infoIsFetched &&
                         <ChannelMainInfo
                             id={channelId === undefined ? 0 : +channelId}
-                            title={info == null ? '' : info.title}
+                            title={channelInfo == null ? '' : channelInfo.title}
+                        />
+                    }
+
+                    {
+                        isFetched &&
+                        <ChannelPostsWidget
+                            userName={selectedUser}
+                            channelId={channelId ? +channelId : undefined}
                         />
                     }
                 </div>
             }
 
             <div className={styles.channel__posts}>
-
-                {
-                    isFetched &&
-                    <div className={styles['posts-no-data']}>
-                        <ChannelPostsWidget
-                            userName={selectedUser}
-                            channelId={channelId ? +channelId : undefined}
-                        />
-                    </div>
-                }
-
                 {
                     data?.posts.length !== 0 &&
                     <>
@@ -133,7 +125,7 @@ export const Posts = () => {
             <ScrollToTopButton />
 
             <Snackbar
-                open={infoIsError}
+                open={channelInfoIsError}
                 onClose={handleErrorClose}
                 autoHideDuration={6000}
                 message={channelInfoError?.message}

@@ -101,6 +101,10 @@ export const ChannelPostsWidget = ({ channelId }: ChannelPostsWidgetProps) => {
         return (<div className={styles.error}>Ошибка. Не определен идентификатор канала.</div>);
     }
 
+    if (isError) {
+        return (<div className={styles.error}>Ошибка.Ошибка загрузки идентификатора канала.</div>);
+    }
+
     return (
         <div className={styles.block}>
 
@@ -110,7 +114,7 @@ export const ChannelPostsWidget = ({ channelId }: ChannelPostsWidgetProps) => {
                         ?
                         `Пока в базе данных нет записей канала с идентификатором ${channelId}`
                         :
-                        `В базе данных ${data?.posts_count} запис(и,ь,ей) канала с идентификатором ${channelId}`
+                        `В базе данных ${data?.posts_count} запис(и,ь,ей) канала с ид. ${channelId}`
                 }
             </div>
 

@@ -11,25 +11,17 @@ using TL;
 
 namespace Gather.Services.InfoService;
 
-public class InfoService : IInfoService
+public class InfoService(GatherClient client, DataContext context, IMapper mapper, ILogger<InfoService> logger) : IInfoService
 {
     // Дата, с которой начинаем загружать данные.
-    private DateTime startLoadingDate = DateTime.Parse("Jan 25, 2025");
-    ILogger _logger;
-    GatherClient _client;
+    private readonly DateTime startLoadingDate = DateTime.Parse("Jan 25, 2025");
+    readonly ILogger _logger = logger;
+    readonly GatherClient _client = client;
     TL.User? user;
-    private readonly IMapper _mapper;
-    private readonly DataContext _context;
-    Object lockObject = new();
+    private readonly IMapper _mapper = mapper;
+    private readonly DataContext _context = context;
+    readonly Object lockObject = new();
     static bool updateChannelsEnable = true;
-
-    public InfoService(GatherClient client, DataContext context, IMapper mapper, ILogger<InfoService> logger)
-    {
-        _client = client;
-        _context = context;
-        _mapper = mapper;
-        _logger = logger;
-    }
 
     public async Task<ServiceResponse<IEnumerable<ChannelDto>>> GetAllChannels()
     {
@@ -40,7 +32,7 @@ public class InfoService : IInfoService
             _logger.LogError("GetAllChannels, _context.Channels is null");
             response.Success = false;
             response.Message = "Internal server error";
-            response.Data = Enumerable.Empty<ChannelDto>();
+            response.Data = [];
             return response;
         }
 
@@ -76,7 +68,7 @@ public class InfoService : IInfoService
             response.Message = "An error has occurred while getting all channels." +
                 Environment.NewLine +
                 exception.Message;
-            response.Data = Enumerable.Empty<ChannelDto>();
+            response.Data = [];
         }
 
         return response;
@@ -96,10 +88,7 @@ public class InfoService : IInfoService
 
         try
         {
-            if (user == null)
-            {
-                user = await _client.LoginUserIfNeeded();
-            }
+            user ??= await _client.LoginUserIfNeeded();
         }
         catch (Exception exception)
         {
@@ -110,13 +99,13 @@ public class InfoService : IInfoService
 
             response.Success = false;
             response.Message = "Unable to login to Telegram";
-            response.Data = Enumerable.Empty<long>();
+            response.Data = [];
             return response;
         }
 
         if (!updateChannelsEnable)
         {
-            response.Data = Enumerable.Empty<long>();
+            response.Data = [];
             response.Success = false;
             response.Message = "Channels updates are temporarily unavailable";
             return response;
@@ -177,7 +166,7 @@ public class InfoService : IInfoService
 
                             if (chatsFromTG[i].Photo != null)
                             {
-                                MemoryStream ms = new MemoryStream(1000000);
+                                MemoryStream ms = new(1000000);
                                 Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chatsFromTG[i], ms);
                                 addedChat.Image = Convert.ToBase64String(ms.ToArray());
                             }
@@ -236,7 +225,7 @@ public class InfoService : IInfoService
             _logger.LogError(exception, "UpdateChannels");
             response.Success = false;
             response.Message = "The error while getting all updated channels occurred." + Environment.NewLine + exception.Message;
-            response.Data = Enumerable.Empty<long>();
+            response.Data = [];
             return response;
         }
         finally
@@ -294,10 +283,7 @@ public class InfoService : IInfoService
 
         try
         {
-            if (user == null)
-            {
-                user = await _client.LoginUserIfNeeded();
-            }
+            user ??= await _client.LoginUserIfNeeded();
         }
         catch (Exception exception)
         {
@@ -333,11 +319,13 @@ public class InfoService : IInfoService
             var chatInfo = await _client.GetFullChat(chatPeer);
 
             // Получаем инфо о канале.
-            var channelFullInfoDto = new ChannelDto();
-            channelFullInfoDto.TlgId = chatInfo.full_chat.ID;
-            channelFullInfoDto.ParticipantsCount = chatInfo.full_chat.ParticipantsCount;
-            channelFullInfoDto.About = chatInfo.full_chat.About;
-            MemoryStream ms = new MemoryStream(1000000);
+            var channelFullInfoDto = new ChannelDto
+            {
+                TlgId = chatInfo.full_chat.ID,
+                ParticipantsCount = chatInfo.full_chat.ParticipantsCount,
+                About = chatInfo.full_chat.About
+            };
+            MemoryStream ms = new(1000000);
             Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chat, ms);
             channelFullInfoDto.Image = Convert.ToBase64String(ms.ToArray());
 
@@ -380,7 +368,7 @@ public class InfoService : IInfoService
                 response.Success = false;
                 response.Message = "Error fetching data from DB.";
                 _logger.Log(LogLevel.Error, "DB context with posts is null.");
-                response.Data = Enumerable.Empty<PostDto>();
+                response.Data = [];
                 return response;
             }
 
@@ -397,7 +385,7 @@ public class InfoService : IInfoService
         {
             _logger.LogError(ex, "An error ocurred while getting channel posts");
             response.Success = false;
-            response.Data = Enumerable.Empty<PostDto>();
+            response.Data = [];
             return response;
         }
     }
@@ -522,7 +510,7 @@ public class InfoService : IInfoService
             response.Success = false;
             response.Message = "Error fetching data from DB.";
             _logger.Log(LogLevel.Error, "DB context with posts is null.");
-            response.Data = Enumerable.Empty<PostDto>();
+            response.Data = [];
             return response;
         }
 
@@ -530,7 +518,7 @@ public class InfoService : IInfoService
         {
             response.Success = false;
             response.Message = "Malformed parameter: chat identifier";
-            response.Data = Enumerable.Empty<PostDto>();
+            response.Data = [];
             return response;
         }
 
@@ -545,7 +533,7 @@ public class InfoService : IInfoService
         {
             response.Success = false;
             response.Message = exception.Message;
-            response.Data = Enumerable.Empty<PostDto>();
+            response.Data = [];
             return response;
         }
     }
@@ -559,7 +547,7 @@ public class InfoService : IInfoService
             response.Success = false;
             response.Message = "Error fetching data from DB.";
             _logger.Log(LogLevel.Error, "DB context with posts is null.");
-            response.Data = Enumerable.Empty<PostDto>();
+            response.Data = [];
             return response;
         }
 
@@ -567,7 +555,7 @@ public class InfoService : IInfoService
         {
             response.Success = false;
             response.Message = "Malformed parameter: chat identifier";
-            response.Data = Enumerable.Empty<PostDto>();
+            response.Data = [];
             return response;
         }
 
@@ -575,7 +563,7 @@ public class InfoService : IInfoService
         {
             response.Success = false;
             response.Message = "Malformed parameter: the identifier of the start post.";
-            response.Data = Enumerable.Empty<PostDto>();
+            response.Data = [];
             return response;
         }
 
@@ -592,7 +580,7 @@ public class InfoService : IInfoService
         {
             response.Success = false;
             response.Message = exception.Message;
-            response.Data = Enumerable.Empty<PostDto>();
+            response.Data = [];
             return response;
         }
     }
@@ -601,10 +589,7 @@ public class InfoService : IInfoService
     {
         try
         {
-            if (user == null)
-            {
-                user = await _client.LoginUserIfNeeded();
-            }
+            user ??= await _client.LoginUserIfNeeded();
         }
         catch (Exception exception)
         {
@@ -661,7 +646,7 @@ public class InfoService : IInfoService
             var chats = await _client.Messages_GetAllChats();
             var peersWithKey = chats.chats.Where(chat => chat.Key == chatId);
 
-            if (peersWithKey.Count() == 0)
+            if (!peersWithKey.Any())
             {
                 var errorMessage = "Channel not found in subscriptions. You may have unsubscribed from the channel.";
                 await webSocket.CloseAsync(
@@ -742,7 +727,6 @@ public class InfoService : IInfoService
             }
 
             // Возможно потом пригодится.
-            var messages = new List<PostDto>();
             bool needBreak = false;
 
             while (true)
@@ -787,7 +771,6 @@ public class InfoService : IInfoService
                         {
                             await _context.Posts.AddAsync(postToDb);
                             await _context.SaveChangesAsync();
-                            messages.Add(postDto);
 
                             if (index % 20 == 0 || index == channelMessages.messages.Length - 1)
                             {
@@ -803,6 +786,8 @@ public class InfoService : IInfoService
                     {
                         startOffsetId = channelMessages.messages[index].ID;
                     }
+
+                    Thread.Sleep(500);
                 }
 
                 if (needBreak)
@@ -817,7 +802,8 @@ public class InfoService : IInfoService
         }
         catch (InvalidOperationException ex)
         {
-            var errorMessage = "An error ocurred while updating channel's posts. You may no longer subscribe to this channel.";
+            var errorMessage = "An error ocurred while updating channel's posts." +
+                " You may no longer subscribe to this channel.";
             _logger.LogError(ex.Message, errorMessage);
             await webSocket.CloseAsync(
                 WebSocketCloseStatus.InternalServerError,
@@ -841,7 +827,7 @@ public class InfoService : IInfoService
 
 
         // Преобразовали их в класс типа из наших моделей.
-        List<Comment> comments = new List<Comment>();
+        List<Comment> comments = [];
         var client_comments = replies.Messages;
         foreach (var comment in client_comments)
         {
@@ -914,7 +900,7 @@ public class InfoService : IInfoService
             _logger.LogError("GetComments, _context.Comments is null");
             response.Success = false;
             response.Message = "Internal server error";
-            response.Data = Enumerable.Empty<CommentDto>();
+            response.Data = [];
             return response;
         }
 
@@ -937,7 +923,7 @@ public class InfoService : IInfoService
             response.Message = "An error has occurred while getting comments." +
                 Environment.NewLine +
                 exception.Message;
-            response.Data = Enumerable.Empty<CommentDto>();
+            response.Data = [];
         }
 
         return response;

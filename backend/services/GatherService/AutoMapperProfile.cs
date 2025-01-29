@@ -93,7 +93,7 @@ public class AutoMapperProfile : Profile
             account.FirstName = source.first_name;
             account.LastName = source.last_name;
             account.Username = source.username;
-            account.isBot = source.IsBot;
+            account.IsBot = source.IsBot;
             account.Phone = source.phone;
             return account;
         }

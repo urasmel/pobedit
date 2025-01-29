@@ -1,5 +1,5 @@
 ﻿using Asp.Versioning;
-using Gather.Services;
+using Gather.Services.InfoService;
 using Microsoft.AspNetCore.Mvc;
 using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
@@ -12,14 +12,9 @@ namespace Gather.Controllers;
 [ApiController]
 [Produces("application/json")]
 [Route("api/v{v:apiVersion}/[controller]")]
-public class InfoController : ControllerBase
+public class InfoController(IInfoService infoService) : ControllerBase
 {
-    private readonly IInfoService _infoService;
-
-    public InfoController(IInfoService infoService)
-    {
-        _infoService = infoService;
-    }
+    private readonly IInfoService _infoService = infoService;
 
     /// <summary>
     /// Возвращает каналы пользователя по его username, которые есть в БД.

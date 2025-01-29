@@ -1,5 +1,5 @@
 ﻿using Gather.Controllers;
-using Gather.Services;
+using Gather.Services.InfoService;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using SharedCore.Dtos.Channel;
