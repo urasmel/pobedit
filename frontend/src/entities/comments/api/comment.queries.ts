@@ -1,21 +1,28 @@
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
-import { getComment, getComments } from "./get-comments";
+import { getComment, getComments, getCommentsCount } from "./get-comments";
 
-export const commentQueries = {
+export const commentsQueries = {
     all: () => ["comments"],
 
-    lists: () => [...commentQueries.all(), "list"],
+    lists: () => [...commentsQueries.all(), "list"],
 
-    list: (user: string | undefined, channelId: string | undefined, postId: string | undefined) =>
+    count: (channelId: string | undefined, postId: string | undefined) =>
         queryOptions({
-            queryKey: [...commentQueries.lists(), user, channelId, postId],
-            queryFn: () => getComments(channelId, postId),
+            queryKey: [...commentsQueries.all(), channelId, postId, 'count'],
+            queryFn: () => getCommentsCount(channelId, postId),
             placeholderData: keepPreviousData,
         }),
 
-    details: (user: string | undefined, channelId: string | undefined, postId: string | undefined, commentId: string | undefined) =>
+    list: (channelId: string | undefined, postId: string | undefined, offset: number, limit: number) =>
         queryOptions({
-            queryKey: [...commentQueries.all(), user, channelId, postId, commentId, "detail"],
+            queryKey: [...commentsQueries.lists(), channelId, postId],
+            queryFn: () => getComments(channelId, postId, offset, limit),
+            placeholderData: keepPreviousData,
+        }),
+
+    details: (channelId: string | undefined, postId: string | undefined, commentId: string | undefined) =>
+        queryOptions({
+            queryKey: [...commentsQueries.all(), channelId, postId, commentId, "detail"],
             queryFn: () => getComment(channelId, postId, commentId),
             placeholderData: keepPreviousData,
         }),

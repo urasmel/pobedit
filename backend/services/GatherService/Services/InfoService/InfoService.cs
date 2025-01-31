@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
 using SharedCore.Models;
-using System;
+using System.Globalization;
 using System.Net.WebSockets;
 using TL;
 
@@ -603,6 +603,10 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
             return;
         }
 
+
+
+
+
         if (_context.Channels == null)
         {
             var errorMessage = "An error ocurred while updating channel's posts. DB error.";
@@ -628,6 +632,43 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         var buffer = new byte[1024 * 4];
         var receiveResult = await webSocket.ReceiveAsync(
             new ArraySegment<byte>(buffer), CancellationToken.None);
+
+        var _cts = new CancellationTokenSource();
+
+        // test
+        int i = 0;
+        while (!receiveResult.CloseStatus.HasValue)
+        {
+            SendAsyncMessage(
+                webSocket,
+                DateTime.Now.ToString(new CultureInfo("ru-RU"))
+                );
+            i++;
+            Thread.Sleep(1000);
+
+            if (i == 5)
+            {
+
+                await webSocket.CloseAsync(
+                WebSocketCloseStatus.InternalServerError,
+                    receiveResult.CloseStatusDescription,
+                    CancellationToken.None);
+                return;
+            }
+
+            receiveResult = await webSocket.ReceiveAsync(
+                new ArraySegment<byte>(buffer), CancellationToken.None);
+            Console.Write(receiveResult.ToString());
+        }
+
+        await webSocket.CloseAsync(
+            receiveResult.CloseStatus.Value,
+            receiveResult.CloseStatusDescription,
+            CancellationToken.None);
+        return;
+
+        // endtest
+
 
         try
         {
@@ -886,9 +927,44 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
             CancellationToken.None);
     }
 
-    public Task<ServiceResponse<int>> GetCommentsCount(long chatId, long postId)
+    public async Task<ServiceResponse<long>> GetCommentsCount(long chatId, long postId)
     {
-        throw new NotImplementedException();
+        var response = new ServiceResponse<long>();
+
+        if (_context.Comments == null)
+        {
+            response.Success = false;
+            response.Message = "Error fetching data from DB.";
+            _logger.Log(LogLevel.Error, "DB context with comments is null.");
+            response.Data = 0;
+            return response;
+        }
+
+        if (chatId <= 0)
+        {
+            response.Success = false;
+            response.Message = "Malformed parameter: chat identifier";
+            response.Data = 0;
+            return response;
+        }
+
+        try
+        {
+            var count = await _context
+                .Comments
+                .Where(comment => comment.PeerId == chatId && comment.PostId == postId)
+                .CountAsync();
+            response.Data = count;
+            response.Success = true;
+            return response;
+        }
+        catch (Exception exception)
+        {
+            response.Success = false;
+            response.Message = exception.Message;
+            response.Data = 0;
+            return response;
+        }
     }
 
     public async Task<ServiceResponse<IEnumerable<CommentDto>>> GetComments(long chatId, long postId, int offset = 0, int limit = 10)
@@ -939,9 +1015,85 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         throw new NotImplementedException();
     }
 
-    public Task UpdatePostComments(long chatId, long postId, WebSocket webSocket)
+    public async Task UpdatePostComments(long chatId, long postId, WebSocket webSocket)
     {
-        throw new NotImplementedException();
+        try
+        {
+            user ??= await _client.LoginUserIfNeeded();
+        }
+        catch (Exception exception)
+        {
+            var errorMessage = "The error while logging telegram user.";
+            _logger.LogError(exception, errorMessage);
+
+            await webSocket.CloseAsync(
+                WebSocketCloseStatus.InternalServerError,
+                errorMessage,
+                CancellationToken.None);
+            return;
+        }
+
+        if (_context.Comments == null)
+        {
+            var errorMessage = "An error ocurred while updating post's comments. DB error.";
+            _logger.LogError(errorMessage);
+            await webSocket.CloseAsync(
+                WebSocketCloseStatus.InternalServerError,
+                errorMessage,
+                CancellationToken.None);
+            return;
+        }
+
+        if (_context.Posts == null)
+        {
+            var errorMessage = "An error ocurred while updating post's comments. DB error.";
+            _logger.LogError(errorMessage);
+            await webSocket.CloseAsync(
+                WebSocketCloseStatus.InternalServerError,
+                errorMessage,
+                CancellationToken.None);
+            return;
+        }
+
+        var buffer = new byte[1024 * 4];
+        var receiveResult = await webSocket.ReceiveAsync(
+            new ArraySegment<byte>(buffer), CancellationToken.None);
+
+        var _cts = new CancellationTokenSource();
+
+        // test
+        int i = 0;
+        while (!receiveResult.CloseStatus.HasValue)
+        {
+            SendAsyncMessage(
+                webSocket,
+                DateTime.Now.ToString(new CultureInfo("ru-RU"))
+                );
+            i++;
+            Thread.Sleep(1000);
+
+            if (i == 5)
+            {
+
+                await webSocket.CloseAsync(
+                WebSocketCloseStatus.InternalServerError,
+                    receiveResult.CloseStatusDescription,
+                    CancellationToken.None);
+                return;
+            }
+
+            receiveResult = await webSocket.ReceiveAsync(
+                new ArraySegment<byte>(buffer), CancellationToken.None);
+            Console.Write(receiveResult.ToString());
+        }
+
+        await webSocket.CloseAsync(
+            receiveResult.CloseStatus.Value,
+            receiveResult.CloseStatusDescription,
+            CancellationToken.None);
+        return;
+
+        // endtest
     }
 
     public async Task<ServiceResponse<long>> GetChannelPostsCount(long chatId)

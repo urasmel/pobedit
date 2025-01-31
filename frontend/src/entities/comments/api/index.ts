@@ -1,1 +1,1 @@
-export { commentQueries } from './comment.queries';
+export { commentsQueries } from './comment.queries';

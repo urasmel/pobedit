@@ -19,6 +19,7 @@
 .channel__posts {
     display: flex;
     flex-direction: column;
+    flex: 1;
     row-gap: 2rem;
     align-items: left;
     width: 100%;
@@ -27,8 +28,4 @@
 
 .channel__posts-loading {
     align-self: center;
-}
-
-.intersection-guard {
-    visibility: hidden;
 }

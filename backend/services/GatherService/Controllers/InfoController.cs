@@ -117,7 +117,7 @@ public class InfoController(IInfoService infoService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<PostDto>>> GetChannelPostsCount(long channelId)
+    public async Task<ActionResult<long>> GetChannelPostsCount(long channelId)
     {
         var response = await _infoService.GetChannelPostsCount(channelId);
 
@@ -184,7 +184,7 @@ public class InfoController(IInfoService infoService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<PostDto>>> GetAllPostComments(long channelId, long postId, int offset = 0, int count = 20)
+    public async Task<ActionResult<List<CommentDto>>> GetAllPostComments(long channelId, long postId, int offset = 0, int count = 20)
     {
         var response = await _infoService.GetComments(channelId, postId, offset, count);
 
@@ -214,6 +214,29 @@ public class InfoController(IInfoService infoService) : ControllerBase
         {
             HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
         }
+    }
+
+    [HttpGet]
+    [Route("channels/{channelId}/posts/{postId}/comments_count")]
+    [MapToApiVersion(1.0)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<long>> GetPostCommentsCount(long channelId, long postId)
+    {
+        var response = await _infoService.GetCommentsCount(channelId, postId);
+
+        if (response.Message == "Channel not found")
+        {
+            return NotFound(response);
+        }
+
+        if (!response.Success)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, response);
+        }
+
+        return Ok(response);
     }
 
 }

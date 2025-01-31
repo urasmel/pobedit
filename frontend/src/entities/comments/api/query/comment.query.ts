@@ -1,8 +1,8 @@
-export interface CommentQuery {
+export interface CommentsQuery {
     limit: number;
     skip: number;
 }
 
-export interface CommentDetailQuery {
+export interface CommentsDetailQuery {
     id?: number;
 }
