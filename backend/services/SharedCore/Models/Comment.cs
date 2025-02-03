@@ -1,6 +1,6 @@
 ﻿namespace SharedCore.Models;
 
-public class Comment
+public record class Comment
 {
     // DB
     public long Id { get; set; }
@@ -12,7 +12,10 @@ public class Comment
     // Идентификатор канала в телеграмме, в котором опубликован пост.
     public long PeerId {  get; set; }
 
-    public long PostId {  get; set; }
+
+    public long PostId { get; set; }
+
+    public Post? Post {  get; set; }
 
     public Account? From { get; set; }
 

@@ -30,7 +30,5 @@ public interface IInfoService
 
     Task<ServiceResponse<IEnumerable<CommentDto>>> GetComments(long chatId, long postId, int offset = 0, int limit = 0);
 
-    Task UpdatePostComments(long chatId, long postId);
-
     Task<ServiceResponse<Account>> GetAccaunt(long accountTlgId);
 }

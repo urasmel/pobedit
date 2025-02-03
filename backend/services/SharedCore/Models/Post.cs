@@ -13,7 +13,7 @@ namespace SharedCore.Models
         public long PeerId { get; set; }
         public string Message { get; set; } = string.Empty;
         public DateTime Date { get; set; }
-        public List<Comment> Comments { get; set; } = new List<Comment>();
+        public ICollection<Comment> Comments { get; set; } =new List<Comment>();
         public long CommentsCount { get; set; }
     }
 }

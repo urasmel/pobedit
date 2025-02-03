@@ -4,6 +4,7 @@ namespace SharedCore.Dtos;
 
 public class CommentDto
 {
+    public int Id { get; set; }
     public long TlgId { get; set; }
     public long PeerId { get; set; }
     public long PostId { get; set; }

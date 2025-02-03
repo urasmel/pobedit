@@ -3,6 +3,7 @@ using System;
 using Gather.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Gather.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250203092130_FixIsBotCase")]
+    partial class FixIsBotCase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -314,16 +317,13 @@ namespace Gather.Migrations
                         .WithMany()
                         .HasForeignKey("FromId");
 
-                    b.HasOne("SharedCore.Models.Post", "Post")
+                    b.HasOne("SharedCore.Models.Post", null)
                         .WithMany("Comments")
                         .HasForeignKey("PostId")
-                        .HasPrincipalKey("TlgId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("From");
-
-                    b.Navigation("Post");
                 });
 
             modelBuilder.Entity("SharedCore.Models.Group", b =>

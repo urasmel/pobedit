@@ -2,11 +2,14 @@
 using Gather.Client;
 using Gather.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
 using SharedCore.Models;
 using System.Globalization;
+using System.Linq;
 using System.Net.WebSockets;
+using System.Threading.Channels;
 using TL;
 
 namespace Gather.Services.InfoService;
@@ -603,10 +606,6 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
             return;
         }
 
-
-
-
-
         if (_context.Channels == null)
         {
             var errorMessage = "An error ocurred while updating channel's posts. DB error.";
@@ -635,40 +634,40 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
 
         var _cts = new CancellationTokenSource();
 
-        // test
-        int i = 0;
-        while (!receiveResult.CloseStatus.HasValue)
-        {
-            SendAsyncMessage(
-                webSocket,
-                DateTime.Now.ToString(new CultureInfo("ru-RU"))
-                );
-            i++;
-            Thread.Sleep(1000);
+        #region Test
 
-            if (i == 5)
-            {
+        //int i = 0;
+        //while (!receiveResult.CloseStatus.HasValue)
+        //{
+        //    SendAsyncMessage(
+        //        webSocket,
+        //        DateTime.Now.ToString(new CultureInfo("ru-RU"))
+        //        );
+        //    i++;
+        //    Thread.Sleep(1000);
 
-                await webSocket.CloseAsync(
-                WebSocketCloseStatus.InternalServerError,
-                    receiveResult.CloseStatusDescription,
-                    CancellationToken.None);
-                return;
-            }
+        //    if (i == 5)
+        //    {
 
-            receiveResult = await webSocket.ReceiveAsync(
-                new ArraySegment<byte>(buffer), CancellationToken.None);
-            Console.Write(receiveResult.ToString());
-        }
+        //        await webSocket.CloseAsync(
+        //        WebSocketCloseStatus.InternalServerError,
+        //            receiveResult.CloseStatusDescription,
+        //            CancellationToken.None);
+        //        return;
+        //    }
 
-        await webSocket.CloseAsync(
-            receiveResult.CloseStatus.Value,
-            receiveResult.CloseStatusDescription,
-            CancellationToken.None);
-        return;
+        //    receiveResult = await webSocket.ReceiveAsync(
+        //        new ArraySegment<byte>(buffer), CancellationToken.None);
+        //    Console.Write(receiveResult.ToString());
+        //}
 
-        // endtest
+        //await webSocket.CloseAsync(
+        //    receiveResult.CloseStatus.Value,
+        //    receiveResult.CloseStatusDescription,
+        //    CancellationToken.None);
+        //return;
 
+        #endregion Endtest
 
         try
         {
@@ -862,59 +861,6 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         }
     }
 
-    private async Task LoadPostComments(InputPeer peer, Message msg, Post postToDb, Messages_MessagesBase replies)
-    {
-        //await LoadPostComments(peer, msg, postToDb, replies);
-
-
-        // Преобразовали их в класс типа из наших моделей.
-        List<Comment> comments = [];
-        var client_comments = replies.Messages;
-        foreach (var comment in client_comments)
-        {
-            var newComment = _mapper.Map<Comment>(comment);
-            newComment.PeerId = peer.ID;
-            if (newComment != null)
-            {
-                comments.Add(newComment);
-            }
-        }
-
-        // Для кажддого комментария получили его автора.
-        for (int commentIndex = 0; commentIndex < comments.Count; commentIndex++)
-        {
-            comments[commentIndex].PostId = msg.ID;
-            var userId = replies.Messages[commentIndex].From.ID;
-            if (_context.Accounts != null)
-            {
-                var user = await _context.Accounts
-                    .Where(acc => acc.TlgId == userId)
-                    .FirstOrDefaultAsync();
-
-                if (user == null)
-                {
-                    var inputUserFromMessage = new InputUserFromMessage()
-                    {
-                        peer = (replies as Messages_ChannelMessages).chats.First().Value,
-                        msg_id = replies.Messages[commentIndex].ID,
-                        user_id = userId
-                    };
-                    var fullUser = await _client.Users_GetFullUser(inputUserFromMessage);
-                    var acc = _mapper.Map<Account>(fullUser.users.First().Value);
-                    await _context.Accounts.AddAsync(acc);
-                    comments[commentIndex].From = acc;
-                }
-                else
-                {
-                    comments[commentIndex].From = user;
-                }
-            }
-        }
-
-
-        postToDb.Comments.AddRange(comments);
-    }
-
     private async void SendAsyncMessage(WebSocket webSocket, string message)
     {
         byte[] bytes = Encoding.UTF8.GetBytes(message);
@@ -982,6 +928,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
 
         try
         {
+
             var comments = await _context.Comments
                 .Where(c => c.PostId == postId && c.PeerId == chatId)
                 .OrderBy(c => c.TlgId)
@@ -1003,11 +950,6 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         }
 
         return response;
-    }
-
-    public Task UpdatePostComments(long chatId, long postId)
-    {
-        throw new NotImplementedException();
     }
 
     public Task<ServiceResponse<Account>> GetAccaunt(long accountTlgId)
@@ -1061,40 +1003,237 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
 
         var _cts = new CancellationTokenSource();
 
-        // test
-        int i = 0;
-        while (!receiveResult.CloseStatus.HasValue)
+        #region Test
+
+        //int i = 0;
+        //while (!receiveResult.CloseStatus.HasValue)
+        //{
+        //    SendAsyncMessage(
+        //        webSocket,
+        //        DateTime.Now.ToString(new CultureInfo("ru-RU"))
+        //        );
+        //    i++;
+        //    Thread.Sleep(1000);
+
+        //    if (i == 5)
+        //    {
+
+        //        await webSocket.CloseAsync(
+        //        WebSocketCloseStatus.InternalServerError,
+        //            receiveResult.CloseStatusDescription,
+        //            CancellationToken.None);
+        //        return;
+        //    }
+
+        //    receiveResult = await webSocket.ReceiveAsync(
+        //        new ArraySegment<byte>(buffer), CancellationToken.None);
+        //    Console.Write(receiveResult.ToString());
+        //}
+
+        //await webSocket.CloseAsync(
+        //    receiveResult.CloseStatus.Value,
+        //    receiveResult.CloseStatusDescription,
+        //    CancellationToken.None);
+        //return;
+
+        #endregion Endtest
+
+        var post = await _context.Posts.FirstAsync(p => p.TlgId == postId && p.PeerId == chatId);
+        if (post == null)
         {
-            SendAsyncMessage(
-                webSocket,
-                DateTime.Now.ToString(new CultureInfo("ru-RU"))
-                );
-            i++;
-            Thread.Sleep(1000);
+            var errorMessage = "An error ocurred while updating post's comments. Post not found in DB.";
+            _logger.LogError(errorMessage);
+            await webSocket.CloseAsync(
+                WebSocketCloseStatus.NormalClosure,
+                errorMessage,
+                CancellationToken.None);
+            return;
+        }
 
-            if (i == 5)
-            {
+        var message_chats = await _client.Messages_GetAllChats();
 
-                await webSocket.CloseAsync(
+        if (!message_chats.chats.ContainsKey(chatId))
+        {
+            var errorMessage = "An error ocurred while updating post's comments." +
+                "Cannot find channel in telegram. You may have unsubscribed from the channel.";
+            _logger.LogError(errorMessage);
+            await webSocket.CloseAsync(
                 WebSocketCloseStatus.InternalServerError,
-                    receiveResult.CloseStatusDescription,
+                errorMessage,
+                CancellationToken.None);
+            return;
+        }
+
+        try
+        {
+            var channel = message_chats.chats[chatId];
+            InputMessageID[] meessages_ids = new InputMessageID[1];
+            var messageID = new InputMessageID();
+            messageID.id = (int)postId;
+            var messages = await _client.GetMessages(channel.ToInputPeer(), [messageID]);
+
+            if (messages == null
+                || messages.Count == 0
+                || messages.Messages == null
+                || messages.Messages.Length == 0)
+            {
+                var errorMessage = "Post not found.";
+                _logger.LogError(errorMessage);
+                await webSocket.CloseAsync(
+                    WebSocketCloseStatus.NormalClosure,
+                    errorMessage,
                     CancellationToken.None);
                 return;
             }
 
-            receiveResult = await webSocket.ReceiveAsync(
-                new ArraySegment<byte>(buffer), CancellationToken.None);
-            Console.Write(receiveResult.ToString());
+
+            var msg = messages.Messages[0] as TL.Message;
+            if (msg == null)
+            {
+                var errorMessage = "An error ocurred while updating post's comments. Post is not a message.";
+                _logger.LogError(errorMessage);
+                await webSocket.CloseAsync(
+                    WebSocketCloseStatus.NormalClosure,
+                    errorMessage,
+                    CancellationToken.None);
+                return;
+            }
+
+            await LoadPostComments(channel, msg, post, webSocket);
+        }
+        catch (Exception)
+        {
+            var errorMessage = "An error ocurred while updating post's comments.";
+            _logger.LogError(errorMessage);
+            await webSocket.CloseAsync(
+                WebSocketCloseStatus.InternalServerError,
+                errorMessage,
+                CancellationToken.None);
+            return;
+        }
+    }
+
+
+    private async Task LoadPostComments(InputPeer peer, Message msg, Post postToDb, WebSocket webSocket)
+    {
+        // Для того, чтобы не добавлять комментарии, которые уже есть в базе.
+        var lastCommentId = 0;
+        bool commentsExist = _context.Comments
+            .Any(c => c.PostId == postToDb.TlgId && c.PeerId == peer.ID);
+
+        var dbCommentsIds = _context.Comments
+                .Where(c => c.PostId == postToDb.TlgId && c.PeerId == peer.ID)
+                .Select(c => c.TlgId).ToHashSet();
+
+        if (commentsExist)
+        {
+            lastCommentId = (int)_context.Comments
+                .Where(c => c.PostId == postToDb.TlgId && c.PeerId == peer.ID)
+                .Select(c => c.TlgId).Max();
         }
 
-        await webSocket.CloseAsync(
-            receiveResult.CloseStatus.Value,
-            receiveResult.CloseStatusDescription,
-            CancellationToken.None);
-        return;
+        Messages_MessagesBase replies;
 
-        // endtest
+        do
+        {
+            replies = await _client.Messages_GetReplies(peer, msg.ID, lastCommentId);
+
+            if (replies.Messages.Length == 0)
+            {
+                break;
+            }
+            var client_comments = replies.Messages;
+
+
+            foreach (var comment in client_comments)
+            {
+                var newComment = _mapper.Map<Comment>(comment);
+                if (newComment != null)
+                {
+                    newComment.PeerId = peer.ID;
+                    newComment.From = new Account();
+                    newComment.From.TlgId = comment.From.ID;
+                }
+                else
+                {
+                    continue;
+                }
+
+                // Пропускаем комментарии, которые уже есть в базе.
+                if (dbCommentsIds.Contains(newComment.From.TlgId))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    newComment.PostId = msg.ID;
+
+                    // var userId = replies.Messages[commentIndex].From.ID;
+
+                    var user = await _context.Accounts
+                        .Where(acc => acc.TlgId == newComment.From.TlgId)
+                        .FirstOrDefaultAsync();
+
+                    if (user == null)
+                    {
+                        var messages = replies as Messages_ChannelMessages;
+                        if (messages == null)
+                        {
+                            continue;
+                        }
+
+                        var chats = messages.chats;
+                        if (chats.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        var inputPeer = chats.First().Value;
+
+
+                        //var replies = await _client.Messages_GetReplies(peer, msg.ID);
+                        var inputUserFromMessage = new InputUserFromMessage()
+                        {
+                            peer = inputPeer,
+                            //peer = (replies as Messages_ChannelMessages).chats.First().Value,
+                            msg_id = comment.ID,
+                            user_id = newComment.From.TlgId
+                        };
+
+                        var fullUser = await _client.Users_GetFullUser(inputUserFromMessage);
+                        var acc = _mapper.Map<Account>(fullUser.users.First().Value);
+                        await _context.Accounts.AddAsync(acc);
+                        newComment.From = acc;
+                    }
+                    else
+                    {
+                        newComment.From = user;
+                    }
+
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(exception.Message);
+                    continue;
+                }
+                postToDb.Comments.Add(newComment);
+                SendAsyncMessage(
+                    webSocket,
+                    newComment.Date.ToString("yyyy:MM:dd HH:mm:ss")
+                    );
+
+                await _context.SaveChangesAsync();
+                Thread.Sleep(Random.Shared.Next(500, 1500));
+            }
+
+            lastCommentId = client_comments.Last().ID;
+        }
+        while (true);
+        postToDb.CommentsCount = replies.Count;
+        await _context.SaveChangesAsync();
     }
+
 
     public async Task<ServiceResponse<long>> GetChannelPostsCount(long chatId)
     {

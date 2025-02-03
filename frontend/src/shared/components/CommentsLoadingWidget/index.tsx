@@ -8,13 +8,15 @@ import { useQuery } from '@tanstack/react-query';
 import plural from 'plural-ru';
 
 
-export const CommentsLoadingWidget = ({ channelId, postId, invalidateCashe, setLoadingError }: CommentsLoadingWidgetProps) => {
+export const CommentsLoadingWidget = (props: CommentsLoadingWidgetProps) => {
 
+    const { channelId, postId, invalidateCashe, setLoadingError } = props;
     const URL = `ws://localhost:5037/api/v1/info/channels/${channelId}/posts/${postId}/update_comments`;
     const [isWSLoading, setIsWSLoading] = useState(false);
     const [response, setResponse] = useState<string>('');
 
-    const { data: comments_count, isFetching, isLoading, isError, error } = useQuery(commentsApi.commentsQueries.count(channelId?.toString(), postId?.toString()));
+    const { data: comments_count, isError }
+        = useQuery(commentsApi.commentsQueries.count(channelId?.toString(), postId?.toString()));
 
     const wsRef = useRef<WebSocket>(null);
 
@@ -29,7 +31,7 @@ export const CommentsLoadingWidget = ({ channelId, postId, invalidateCashe, setL
             }
             catch (error) {
                 setIsWSLoading(false);
-                setLoadingError("Ошибка отправки запроса на обновление данных канала.");
+                setLoadingError("Ошибка отправки запроса на обновление комментариев канала.");
             }
         };
 
@@ -44,9 +46,7 @@ export const CommentsLoadingWidget = ({ channelId, postId, invalidateCashe, setL
                 console.error(`Запрос завершился ошибкой. ${event.reason}`);
                 setLoadingError(`Запрос завершился ошибкой. ${event.reason}`);
             }
-            else {
-                invalidateCashe();
-            }
+            invalidateCashe();
         };
 
         wsRef.current.onerror = (event: Event) => {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using SharedCore.Models;
 
 namespace Gather.Data
@@ -36,6 +37,12 @@ namespace Gather.Data
             modelBuilder.Entity<Group>()
                 .HasOne(e => e.Owner)
                 .WithMany(e => e.Groups);
+
+            modelBuilder.Entity<Post>()
+                .HasMany(e => e.Comments)
+                .WithOne(e => e.Post)
+                .HasForeignKey(e => e.PostId)
+                .HasPrincipalKey(e => e.TlgId);
         }
 
         public DbSet<User>? Users { get; set; }

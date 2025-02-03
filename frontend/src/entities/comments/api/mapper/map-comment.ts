@@ -5,7 +5,7 @@ export const mapComment = (dto: CommentDto): Comment => ({
     tlgId: dto.tlgId,
     postId: dto.postId,
     channelId: dto.channelId,
-    author: dto.author,
+    fromId: dto.fromId,
     message: dto.message,
     date: dto.date,
     replyTo: dto.replyTo
