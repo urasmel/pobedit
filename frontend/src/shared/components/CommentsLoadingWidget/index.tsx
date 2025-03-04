@@ -88,7 +88,9 @@ export const CommentsLoadingWidget = (props: CommentsLoadingWidgetProps) => {
                     </div>
                     :
                     <div className={styles.block__text}>
-                        `В базе данных ${comments_count} ${plural((comments_count ? comments_count : 0), 'комментарий', 'комментария', 'комментариев')} к посту с ид. ${postId}`
+                        В базе данных {comments_count}&nbsp;
+                        {plural((comments_count ? comments_count : 0), 'комментарий', 'комментария', 'комментариев')}&nbsp;
+                        к посту с ид. {postId}
                     </div>
             }
 

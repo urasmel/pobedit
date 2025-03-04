@@ -7,20 +7,29 @@ export const CommentWidget = (comment: Comment) => {
         <div className={styles.comment}>
             <NavLink
                 className={styles["post__comments-link"]}
-                to={`/account/${comment.author.accountId}`}
+                to={`/account/${comment.from.tlg_id}`}
             >
                 <div className={styles.comment__ava}>
 
-                    <img
-                        src={`data:image/jpeg;base64,${comment.author.ava}`}
-                    />
+                    {
+                        comment.from.photo !== null ?
+                            <img
+                                src={`data:image/jpeg;base64,${comment.from.photo}`}
+                                alt='User Avatar'
+                            />
+                            :
+                            <img
+                                src={`${import.meta.env.BASE_URL}ava.png`}
+                                alt='User Avatar'
+                            />
+                    }
                 </div>
             </NavLink>
 
             <div className={styles.comment__info}>
                 <div className={styles.comment__header}>
 
-                    {comment.author.accountName}&nbsp;
+                    {comment.from.username}&nbsp;
                     Ид. комментария: {comment.tlgId}, время:{" "}
                     {new Date(comment.date).toLocaleString("ru-RU")}
                 </div>

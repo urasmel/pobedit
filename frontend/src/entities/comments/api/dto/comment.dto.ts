@@ -1,8 +1,10 @@
+import { Account } from "@/entities/account/model/Account";
+
 export interface CommentDto {
     tlgId: number;
     channelId: number;
     postId: number;
-    fromId: number;
+    from: Account;
     message: string;
     date: Date;
     replyTo: number;
