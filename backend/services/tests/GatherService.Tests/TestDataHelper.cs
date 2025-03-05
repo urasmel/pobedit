@@ -16,12 +16,9 @@ namespace Gather.Tests
                 new Channel
                 {
                     Id = 1,
-                    User=new User{UserId=1, Password="passOne", PhoneNumber="+71234567123", Username="firstUser"},
-                    IsChannel=true,
-                    IsGroup=true,
                     MainUsername="Mainer",
                     Title="First channel",
-                    Members=new Account[0],
+                    Subscribers=new List<Account>(),
                     About="First about",
                     Image="base64iamge",
                     ParticipantsCount=0
@@ -29,12 +26,9 @@ namespace Gather.Tests
                 new Channel
                 {
                     Id = 1,
-                    User=new User{UserId=2, Password="passtwwo", PhoneNumber="+71231117123", Username="secondUser"},
-                    IsChannel=true,
-                    IsGroup=true,
                     MainUsername="Seconder",
                     Title="Second channel",
-                    Members=new Account[0],
+                    Subscribers=new List<Account>(),
                     About="Second about",
                     Image="base64iamge",
                     ParticipantsCount=0

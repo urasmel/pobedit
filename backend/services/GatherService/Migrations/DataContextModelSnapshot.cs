@@ -17,34 +17,80 @@ namespace Gather.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.27")
+                .HasAnnotation("ProductVersion", "8.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("AccountChannel", b =>
+                {
+                    b.Property<long>("SubscribersId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SubscriptionChannelsId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("SubscribersId", "SubscriptionChannelsId");
+
+                    b.HasIndex("SubscriptionChannelsId");
+
+                    b.ToTable("AccountChannel");
+                });
+
+            modelBuilder.Entity("AccountGroup", b =>
+                {
+                    b.Property<long>("SubscribersId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SubscriptionGroupsId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("SubscribersId", "SubscriptionGroupsId");
+
+                    b.HasIndex("SubscriptionGroupsId");
+
+                    b.ToTable("AccountGroup");
+                });
+
             modelBuilder.Entity("SharedCore.Models.Account", b =>
                 {
-                    b.Property<long>("AccountId")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("AccountId"));
-
-                    b.Property<string>("AccountName")
-                        .HasColumnType("text");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Bio")
                         .HasColumnType("text");
 
-                    b.Property<long?>("ChannelId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Name")
+                    b.Property<string>("FirstName")
                         .HasColumnType("text");
 
-                    b.HasKey("AccountId");
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("boolean");
 
-                    b.HasIndex("ChannelId");
+                    b.Property<bool?>("IsBot")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MainUsername")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Photo")
+                        .HasColumnType("text");
+
+                    b.Property<long>("TlgId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
 
                     b.ToTable("Accounts");
                 });
@@ -63,14 +109,11 @@ namespace Gather.Migrations
                     b.Property<string>("Image")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsChannel")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsGroup")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("MainUsername")
                         .HasColumnType("text");
+
+                    b.Property<long?>("OwnerId")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("ParticipantsCount")
                         .HasColumnType("integer");
@@ -78,61 +121,28 @@ namespace Gather.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("text");
 
-                    b.Property<long>("UserId")
+                    b.Property<long>("TlgId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Channels");
                 });
 
             modelBuilder.Entity("SharedCore.Models.Comment", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<long>("AuthorAccountId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("Edited")
-                        .HasColumnType("boolean");
-
-                    b.Property<long?>("PostId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("ReferenceToComment")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AuthorAccountId");
-
-                    b.HasIndex("PostId");
-
-                    b.ToTable("Comment");
-                });
-
-            modelBuilder.Entity("SharedCore.Models.Post", b =>
-                {
-                    b.Property<long>("PostId")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("PostId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("Id")
+                    b.Property<long?>("FromId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Message")
@@ -142,7 +152,87 @@ namespace Gather.Migrations
                     b.Property<long>("PeerId")
                         .HasColumnType("bigint");
 
-                    b.HasKey("PostId");
+                    b.Property<long>("PostId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TlgId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FromId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("SharedCore.Models.Group", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("About")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Image")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MainUsername")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("OwnerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("ParticipantsCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
+                    b.Property<long>("TlgId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("SharedCore.Models.Post", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("AuthorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CommentsCount")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("PeerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TlgId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
 
                     b.ToTable("Posts");
                 });
@@ -168,44 +258,97 @@ namespace Gather.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1L,
+                            Password = "pass",
+                            PhoneNumber = "+79123456789",
+                            Username = "firstUser"
+                        });
                 });
 
-            modelBuilder.Entity("SharedCore.Models.Account", b =>
+            modelBuilder.Entity("AccountChannel", b =>
                 {
+                    b.HasOne("SharedCore.Models.Account", null)
+                        .WithMany()
+                        .HasForeignKey("SubscribersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("SharedCore.Models.Channel", null)
-                        .WithMany("Members")
-                        .HasForeignKey("ChannelId");
+                        .WithMany()
+                        .HasForeignKey("SubscriptionChannelsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AccountGroup", b =>
+                {
+                    b.HasOne("SharedCore.Models.Account", null)
+                        .WithMany()
+                        .HasForeignKey("SubscribersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SharedCore.Models.Group", null)
+                        .WithMany()
+                        .HasForeignKey("SubscriptionGroupsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("SharedCore.Models.Channel", b =>
                 {
-                    b.HasOne("SharedCore.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("SharedCore.Models.Account", "Owner")
+                        .WithMany("Channels")
+                        .HasForeignKey("OwnerId");
 
-                    b.Navigation("User");
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("SharedCore.Models.Comment", b =>
                 {
-                    b.HasOne("SharedCore.Models.Account", "Author")
+                    b.HasOne("SharedCore.Models.Account", "From")
                         .WithMany()
-                        .HasForeignKey("AuthorAccountId")
+                        .HasForeignKey("FromId");
+
+                    b.HasOne("SharedCore.Models.Post", "Post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId")
+                        .HasPrincipalKey("TlgId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SharedCore.Models.Post", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("PostId");
+                    b.Navigation("From");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("SharedCore.Models.Group", b =>
+                {
+                    b.HasOne("SharedCore.Models.Account", "Owner")
+                        .WithMany("Groups")
+                        .HasForeignKey("OwnerId");
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("SharedCore.Models.Post", b =>
+                {
+                    b.HasOne("SharedCore.Models.Account", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId");
 
                     b.Navigation("Author");
                 });
 
-            modelBuilder.Entity("SharedCore.Models.Channel", b =>
+            modelBuilder.Entity("SharedCore.Models.Account", b =>
                 {
-                    b.Navigation("Members");
+                    b.Navigation("Channels");
+
+                    b.Navigation("Groups");
                 });
 
             modelBuilder.Entity("SharedCore.Models.Post", b =>

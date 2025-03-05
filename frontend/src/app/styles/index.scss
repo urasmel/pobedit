@@ -1,4 +1,4 @@
-@import "./app";
-@import "./column";
-@import "./fonts";
-@import "./normalize";
+@use "./global";
+@use "./column";
+@use "./fonts";
+@use "./normalize";

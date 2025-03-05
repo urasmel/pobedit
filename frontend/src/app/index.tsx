@@ -1,34 +1,40 @@
-import { Aside } from "@/components/blocks/Aside";
-import { Footer } from "@/components/blocks/Footer";
-import { Header } from "@/components/blocks/Header";
-import AppRouter from "pages/index";
-import "./index.scss";
-import styles from "./styles.module.css";
+import { Aside } from '../widgets/Aside';
+import { Footer } from "../widgets/Footer";
+import { Header } from "../widgets/Header";
+import { AppRouter } from "./routers";
+import styles from "./styles/index.module.css";
+import { queryClient } from "@/shared/api/query-client";
+import { Providers } from './providers';
 
-function App() {
-    return (
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from "react-router-dom";
+import './styles/index.scss';
+
+
+const rootNode = document.getElementById('root') as Element;
+const root = createRoot(rootNode);
+root.render(
+    // <React.StrictMode>
+    <BrowserRouter>
         <div className={styles.app}>
 
-            <div className={styles.header}>
-                <Header />
-            </div>
+            <Header />
 
             <div className={styles.main_block}>
 
-                <div className={styles.aside}>
-                    <Aside />
-                </div>
+                <Aside />
 
                 <div className={styles.main_content}>
-                    <AppRouter />
+
+                    <Providers client={queryClient} >
+                        <AppRouter />
+                    </Providers>
                 </div>
 
             </div>
-            <div className={styles.footer}>
-                <Footer />
-            </div>
-        </div>
-    );
-}
 
-export default App;
+            <Footer />
+        </div>
+    </BrowserRouter >
+    // </React.StrictMode>
+);

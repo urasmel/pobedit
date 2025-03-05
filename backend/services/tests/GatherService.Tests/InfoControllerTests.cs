@@ -1,5 +1,5 @@
 ﻿using Gather.Controllers;
-using Gather.Services;
+using Gather.Services.InfoService;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using SharedCore.Dtos.Channel;
@@ -16,10 +16,10 @@ namespace Gather.Tests
             var controller = new InfoController(infoServiceMock.Object);
 
             // Act
-            var result = controller.GetChannelInfo("firstUser", 1);
+            var result = controller.GetChannelInfo(1);
 
             // Assert
-            Assert.IsType<Task<ActionResult<ChannelInfoDto>>>(result);
+            Assert.IsType<Task<ActionResult<ChannelDto>>>(result);
         }
     }
 }

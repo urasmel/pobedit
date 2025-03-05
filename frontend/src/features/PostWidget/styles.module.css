@@ -1,0 +1,48 @@
+.post {
+    font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0rem 1.25rem 1.6875rem 0rem rgba(0, 0, 0, 0.15);
+}
+
+.post__header {
+    max-width: 100%;
+    display: flex;
+    height: 20px;
+    color: rgb(52, 71, 103);
+    padding-top: 16px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.post__message-container {
+    padding: 8px 16px 16px;
+}
+
+.post__message {
+    min-height: 60px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: rgb(52, 71, 103);
+    border-radius: 0.75rem;
+}
+
+.post__comments {
+    display: flex;
+    justify-content: space-between;
+    padding: .4rem 1rem;
+    border-top: #999999 solid 1px;
+}
+
+.post__comments-count {
+    display: flex;
+    align-items: center;
+}
+
+.post__comments-link {
+    display: flex;
+    align-items: center;
+}

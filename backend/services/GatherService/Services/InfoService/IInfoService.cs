@@ -1,28 +1,34 @@
-﻿using Gather.Models;
-using SharedCore.Dtos;
+﻿using SharedCore.Dtos;
 using SharedCore.Dtos.Channel;
 using SharedCore.Models;
 using System.Net.WebSockets;
-using TL;
 
-namespace Gather.Services
+namespace Gather.Services.InfoService;
+
+public interface IInfoService
 {
-    public interface IInfoService
-    {
-        Task<ServiceResponse<IEnumerable<ChannelDto>>> GetAllChannels(string username);
+    Task<ServiceResponse<IEnumerable<ChannelDto>>> GetAllChannels();
 
-        Task<ServiceResponse<IEnumerable<long>>> UpdateChannels(string username);
+    Task<ServiceResponse<IEnumerable<long>>> UpdateChannels();
 
 
-        Task<ServiceResponse<ChannelInfoDto>> UpdateChannelInfo(string username, long chatId);
+    Task<ServiceResponse<ChannelDto>> UpdateChannelInfo(long chatId);
 
-        Task<ServiceResponse<ChannelInfoDto>> GetChannelInfo(string username, long chatId);
+    Task<ServiceResponse<ChannelDto>> GetChannelInfo(long chatId);
 
-        Task<ServiceResponse<IEnumerable<PostDto>>> GetChannelPosts(string username, long chatId, int offset, int count);
+    Task<ServiceResponse<IEnumerable<PostDto>>> GetChannelPosts(long chatId, int offset, int count);
 
-        ServiceResponse<IEnumerable<PostDto>> GetChannelPosts(string username, long chatId, DateTime startTime);
+    Task<ServiceResponse<long>> GetChannelPostsCount(long chatId);
 
-        //Task<ServiceResponse<int>> UpdateChannelPosts(string username, long chatId);
-        Task UpdateChannelPosts(string username, long chatId, WebSocket webSocket);
-    }
+    ServiceResponse<IEnumerable<PostDto>> GetChannelPosts(long chatId, DateTime startTime);
+
+    Task UpdateChannelPosts(long chatId, WebSocket webSocket);
+
+    Task UpdatePostComments(long chatId, long postId, WebSocket webSocket);
+
+    Task<ServiceResponse<long>> GetCommentsCount(long chatId, long postId);
+
+    Task<ServiceResponse<IEnumerable<CommentDto>>> GetComments(long chatId, long postId, int offset = 0, int limit = 0);
+
+    Task<ServiceResponse<Account>> GetAccaunt(long accountTlgId);
 }
