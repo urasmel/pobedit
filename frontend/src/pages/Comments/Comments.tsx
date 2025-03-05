@@ -7,7 +7,6 @@ import ScrollToTopButton from "@/shared/components/ScrollToTopButton";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
 import { CommentWidget } from "@/features/CommentWidget";
 import { CommentsLoadingWidget } from "@/shared/components/CommentsLoadingWidget";
-import { Action, MainState, useMainStore } from "@/app/stores";
 import { commentsApi as commentsApi } from "@/entities/comments";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { COMMENTS_PER_PAGE } from '@/shared/config';
@@ -16,9 +15,6 @@ import { COMMENTS_PER_PAGE } from '@/shared/config';
 export const Comments = () => {
 
     const { channelId, postId } = useParams();
-    const selectedUser = useMainStore(
-        (state: MainState & Action) => state.selectedUser
-    );
     const [offset, setOffset] = useState(0);
     const [limit] = useState(COMMENTS_PER_PAGE);
     const queryClient = useQueryClient();
@@ -32,9 +28,8 @@ export const Comments = () => {
         isFetching,
         isLoading,
         isError,
-        error,
-        isFetched }
-        = useQuery(commentsApi.commentsQueries.list(channelId, postId, offset, limit));
+        error
+    } = useQuery(commentsApi.commentsQueries.list(channelId, postId, offset, limit));
 
     const { data: count } = useQuery(commentsApi.commentsQueries.count(channelId, postId));
 

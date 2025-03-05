@@ -15,7 +15,7 @@ export const commentsQueries = {
 
     list: (channelId: string | undefined, postId: string | undefined, offset: number, limit: number) =>
         queryOptions({
-            queryKey: [...commentsQueries.lists(), channelId, postId],
+            queryKey: [...commentsQueries.lists(), channelId, postId, offset, limit],
             queryFn: () => getComments(channelId, postId, offset, limit),
             placeholderData: keepPreviousData,
         }),

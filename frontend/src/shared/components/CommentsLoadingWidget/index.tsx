@@ -49,7 +49,7 @@ export const CommentsLoadingWidget = (props: CommentsLoadingWidgetProps) => {
             invalidateCashe();
         };
 
-        wsRef.current.onerror = (event: Event) => {
+        wsRef.current.onerror = () => {
             setIsWSLoading(false);
             setLoadingError("Ошибка отправки запроса на обновление данных канала.");
         };
