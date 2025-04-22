@@ -2,7 +2,7 @@ import { ServiceResponse } from "@/entities";
 import { Comment } from "../model/Comment";
 import { apiClient } from "@/shared/api/base";
 
-import { mapComment } from "./mapper/map-comment";
+import { mapComment, mapComments } from "./mapper/map-comment";
 import { CommentDto } from "./dto/comment.dto";
 import { COMMENTS_PER_PAGE } from "@/shared/config";
 
@@ -50,16 +50,23 @@ export const getCommentsCount = async (channelId: string | undefined, postId: st
     );
 };
 
-export const getAllAccountComments = async (accountId: string | undefined, offset = 0, limit = COMMENTS_PER_PAGE): Promise<{ comments: Comment[]; }> => {
+export const getAllAccountComments = async (accountId: string | undefined, offset = 0, limit = COMMENTS_PER_PAGE): Promise<Comment[]> => {
     if (accountId == undefined) {
-        return Promise.resolve({ comments: [] });
+        return Promise.resolve([]);
     }
 
     const result = await apiClient
         .get<ServiceResponse<CommentDto[]>>
-        (`api/v1/info/users/${accountId}/comments?offset=${offset}&limit=${limit}`);
+        (`api/v1/accounts/${accountId}/comments?offset=${offset}&limit=${limit}`);
 
-    return ({
-        comments: result.data.map((comment: CommentDto) => mapComment(comment))
-    });
-};   
+    return mapComments(result.data);
+};
+
+// export const getAccountComments = async (accountId: string | undefined): Promise<Comment[]> => {
+//     if (accountId == undefined) {
+//         return Promise.resolve([]);
+//     }
+
+//     const result = await apiClient.get<ServiceResponse<CommentDto[]>>(`api/v1/accounts/${accountId}/comments`);
+//     return mapComments(result.data);
+// };

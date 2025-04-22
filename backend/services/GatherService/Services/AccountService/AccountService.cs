@@ -52,7 +52,7 @@ public class AccountService : IAccountService
         return response;
     }
 
-    public async Task<ServiceResponse<IEnumerable<CommentDto>>> GetCommentsAsync(long accountTlgId)
+    public async Task<ServiceResponse<IEnumerable<CommentDto>>> GetCommentsAsync(long accountTlgId, int offset = 0, int count = 20)
     {
         var response = new ServiceResponse<IEnumerable<CommentDto>>();
 
@@ -66,7 +66,10 @@ public class AccountService : IAccountService
 
         try
         {
-            var comments = await _context.Comments.Where(c => c.From.TlgId == accountTlgId).ToListAsync();
+            var comments = await _context.Comments.Where(c => c.From.TlgId == accountTlgId)
+                .OrderByDescending(item => item.TlgId)
+                .Skip(offset).Take(count)
+                .ToListAsync();
             response.Data = _mapper.Map<IEnumerable<CommentDto>>(comments);
         }
         catch (Exception ex)

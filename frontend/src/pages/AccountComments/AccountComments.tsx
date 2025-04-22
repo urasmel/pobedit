@@ -1,4 +1,8 @@
+import { accountApi } from '@/entities/account';
+import { commentsApi } from '@/entities/comments';
 import { Box, Typography, Avatar, List, ListItem, Paper } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 
 const AccountComments = () => {
     // Mock user data
@@ -75,6 +79,24 @@ const AccountComments = () => {
         ],
     };
 
+
+    const { accountId } = useParams();
+
+    const {
+        data: account,
+        isFetching,
+        isLoading,
+        isError,
+        error
+    } = useQuery(accountApi.accountsQueries.one(accountId));
+
+    const {
+        data: comments,
+        isFetching: isFetchingComments,
+        isLoading: isLoadingComments,
+        isError: isErrorComments,
+    } = useQuery(commentsApi.commentsQueries.allAccountComments(accountId, 0, 10));
+
     return (
         <Box sx={{ padding: 2 }}>
             {/* Header Section */}
@@ -90,25 +112,25 @@ const AccountComments = () => {
             >
                 <Avatar
                     src={`${import.meta.env.BASE_URL}ava.png`}
-                    alt={user.name}
+                    alt={account?.username}
                     sx={{ width: 56, height: 56, marginRight: 2 }}
                 />
-                <Typography variant="h5">{user.name}</Typography>
+                <Typography variant="h5">{account?.username}</Typography>
 
             </Box>
 
             {/* Comments List */}
             <Typography variant="h6" gutterBottom>
-                User Comments
+                Комментарии пользователя
             </Typography>
             <List>
-                {user.comments.map((comment) => (
-                    <ListItem key={comment.id} sx={{ marginBottom: 2 }}>
+                {comments?.map((comment) => (
+                    <ListItem key={comment.tlgId} sx={{ marginBottom: 2 }}>
                         <Paper elevation={3} sx={{ width: '100%', padding: 2 }}>
                             <Typography variant="subtitle2" color="text.secondary">
-                                {comment.date} - {comment.channel}
+                                {new Date(comment.date).toLocaleString()} {comment.channelId}
                             </Typography>
-                            <Typography variant="body1">{comment.text}</Typography>
+                            <Typography variant="body1">{comment.message}</Typography>
                         </Paper>
                     </ListItem>
                 ))}

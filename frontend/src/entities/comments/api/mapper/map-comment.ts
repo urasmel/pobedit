@@ -10,3 +10,7 @@ export const mapComment = (dto: CommentDto): Comment => ({
     date: dto.date,
     replyTo: dto.replyTo
 });
+
+export const mapComments = (dtos: CommentDto[]): Comment[] => {
+    return dtos.map((dto: CommentDto) => mapComment(dto));
+};

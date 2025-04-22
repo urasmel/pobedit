@@ -43,9 +43,9 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ServiceResponse<IEnumerable<CommentDto>>>> GetComments([FromRoute] long accountTlgId)
+        public async Task<ActionResult<ServiceResponse<IEnumerable<CommentDto>>>> GetComments([FromRoute] long accountTlgId, int offset = 0, int count = 20)
         {
-            var response = await _accountService.GetCommentsAsync(accountTlgId);
+            var response = await _accountService.GetCommentsAsync(accountTlgId, offset, count);
             if (response.Data == null)
             {
                 return NotFound(response);
