@@ -1,4 +1,4 @@
-﻿namespace SharedCore.Models;
+﻿namespace Gather.Models;
 
 public record class Comment
 {
@@ -8,10 +8,8 @@ public record class Comment
     // Идентификатор комментария в телеграмме.
     public long TlgId { get; set; }
 
-
     // Идентификатор канала в телеграмме, в котором опубликован пост.
     public long PeerId {  get; set; }
-
 
     public long PostId { get; set; }
 

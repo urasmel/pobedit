@@ -1,4 +1,6 @@
-﻿using SharedCore.Models;
+﻿using Gather.Models.Account;
+using Gather.Models.Channel;
+using SharedCore.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

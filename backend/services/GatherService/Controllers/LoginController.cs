@@ -2,7 +2,6 @@
 using Gather.Models;
 using Gather.Dtos;
 using Gather.Services;
-using SharedCore.Models;
 
 namespace Gather.Controllers
 {

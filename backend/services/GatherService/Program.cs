@@ -2,6 +2,7 @@ using Asp.Versioning;
 using Gather.Client;
 using Gather.Data;
 using Gather.Services;
+using Gather.Services.AccountService;
 using Gather.Services.InfoService;
 using Gather.Services.UserService;
 using Gather.Utils;
@@ -79,6 +80,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddSingleton<IConfigUtils, ConfigUtils>();
 builder.Services.AddSingleton<GatherClient>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IGatherService, GatherService>();

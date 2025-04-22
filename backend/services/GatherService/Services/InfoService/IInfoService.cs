@@ -1,6 +1,5 @@
-﻿using SharedCore.Dtos;
-using SharedCore.Dtos.Channel;
-using SharedCore.Models;
+﻿using Gather.Dtos;
+using Gather.Models;
 using System.Net.WebSockets;
 
 namespace Gather.Services.InfoService;

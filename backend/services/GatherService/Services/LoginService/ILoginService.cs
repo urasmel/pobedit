@@ -1,11 +1,9 @@
 ﻿using Gather.Dtos;
 using Gather.Models;
-using SharedCore.Models;
 
-namespace Gather.Services
+namespace Gather.Services;
+
+public interface ILoginService
 {
-    public interface ILoginService
-    {
-        Task<ServiceResponse<long>> Login(LoginDto loginData);
-    }
+    Task<ServiceResponse<long>> Login(LoginDto loginData);
 }

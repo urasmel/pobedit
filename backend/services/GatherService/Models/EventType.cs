@@ -1,12 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Gather.Models
+namespace Gather.Models;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum EventType
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum EventType
-    {
-        Connection,
-        ServerRequestedUserData,
-        ClientSentVerificationData
-    }
+    Connection,
+    ServerRequestedUserData,
+    ClientSentVerificationData
 }
