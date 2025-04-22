@@ -49,3 +49,17 @@ export const getCommentsCount = async (channelId: string | undefined, postId: st
         result.data as number
     );
 };
+
+export const getAllAccountComments = async (accountId: string | undefined, offset = 0, limit = COMMENTS_PER_PAGE): Promise<{ comments: Comment[]; }> => {
+    if (accountId == undefined) {
+        return Promise.resolve({ comments: [] });
+    }
+
+    const result = await apiClient
+        .get<ServiceResponse<CommentDto[]>>
+        (`api/v1/info/users/${accountId}/comments?offset=${offset}&limit=${limit}`);
+
+    return ({
+        comments: result.data.map((comment: CommentDto) => mapComment(comment))
+    });
+};   
