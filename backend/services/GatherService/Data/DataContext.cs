@@ -1,6 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using SharedCore.Models;
+﻿using Gather.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Gather.Data
 {
@@ -46,10 +45,15 @@ namespace Gather.Data
         }
 
         public DbSet<User>? Users { get; set; }
+
         public DbSet<Account>? Accounts { get; set; }
+
         public DbSet<Channel>? Channels { get; set; }
+
         public DbSet<Group>? Groups { get; set; }
+
         public DbSet<Post>? Posts { get; set; }
+
         public DbSet<Comment>? Comments { get; set; }
     }
 }

@@ -1,5 +1,5 @@
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
-import { getComment, getComments, getCommentsCount } from "./get-comments";
+import { getComment, getComments, getCommentsCount, getAllAccountComments } from "./get-comments";
 
 export const commentsQueries = {
     all: () => ["comments"],
@@ -24,6 +24,13 @@ export const commentsQueries = {
         queryOptions({
             queryKey: [...commentsQueries.all(), channelId, postId, commentId, "detail"],
             queryFn: () => getComment(channelId, postId, commentId),
+            placeholderData: keepPreviousData,
+        }),
+
+    allAccountComments: (accountId: string | undefined, offset: number, limit: number) =>
+        queryOptions({
+            queryKey: [...commentsQueries.all(), accountId, offset, limit],
+            queryFn: () => getAllAccountComments(accountId, offset, limit),
             placeholderData: keepPreviousData,
         }),
 };

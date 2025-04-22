@@ -1,9 +1,9 @@
 ﻿using Asp.Versioning;
+using Gather.Dtos;
+using Gather.Models;
 using Gather.Services.UserService;
 using Microsoft.AspNetCore.Mvc;
-using SharedCore.Dtos.User;
 using SharedCore.Filtering;
-using SharedCore.Models;
 
 namespace Gather.Controllers
 {

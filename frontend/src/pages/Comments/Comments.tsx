@@ -7,7 +7,7 @@ import ScrollToTopButton from "@/shared/components/ScrollToTopButton";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
 import { CommentWidget } from "@/features/CommentWidget";
 import { CommentsLoadingWidget } from "@/shared/components/CommentsLoadingWidget";
-import { commentsApi as commentsApi } from "@/entities/comments";
+import { commentsApi } from "@/entities/comments";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { COMMENTS_PER_PAGE } from '@/shared/config';
 

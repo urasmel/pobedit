@@ -1,9 +1,8 @@
 ﻿using Asp.Versioning;
+using Gather.Dtos;
+using Gather.Models;
 using Gather.Services.InfoService;
 using Microsoft.AspNetCore.Mvc;
-using SharedCore.Dtos;
-using SharedCore.Dtos.Channel;
-using SharedCore.Models;
 using TL;
 
 namespace Gather.Controllers;

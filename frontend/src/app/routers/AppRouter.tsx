@@ -5,6 +5,7 @@ import Loading from "@/shared/components/Loading";
 import { Comments } from "@/pages/Comments";
 import { Home } from "@/pages/Home";
 import { Posts } from "@/pages/Posts";
+import { AccountPage } from "@/pages/AccountPage";
 
 // const Home = lazy(() => import("@/pages/Home"));
 // const Posts = lazy(() => import("@/pages/Posts"));
@@ -35,6 +36,23 @@ export const AppRouter = () => {
                 element={
                     <Suspense fallback={<Loading />}>
                         <Posts />
+                    </Suspense>
+                }
+                errorElement={< ErrorBoundary />}
+            />
+            <Route
+                path="/accounts/:accountId"
+                element={
+                    <Suspense fallback={<Loading />}>
+                        <AccountPage />
+                    </Suspense>
+                }
+                errorElement={< ErrorBoundary />}
+            />            <Route
+                path="/accounts/:accountId/comments"
+                element={
+                    <Suspense fallback={<Loading />}>
+                        <AccountPage />
                     </Suspense>
                 }
                 errorElement={< ErrorBoundary />}

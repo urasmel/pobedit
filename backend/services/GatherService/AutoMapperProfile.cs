@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using SharedCore.Dtos;
-using SharedCore.Dtos.Channel;
-using SharedCore.Dtos.User;
-using SharedCore.Models;
+using Gather.Dtos;
+using Gather.Models;
 using TL;
 
 namespace Gather;
@@ -18,21 +16,25 @@ public class AutoMapperProfile : Profile
         CreateMap<TL.User, GetUserDto>();
         CreateMap<TL.User, Account>().ConvertUsing(new TlgAccountConverter());
 
-        CreateMap<SharedCore.Models.User, GetUserDto>();
-        CreateMap<SharedCore.Models.Channel, ChatBase>();
-        CreateMap<SharedCore.Models.Channel, InputPeer>();
-        CreateMap<TL.Channel, SharedCore.Models.Channel>().ConvertUsing(new TlgChannelConverter());
-        CreateMap<SharedCore.Models.Channel, ChannelDto>();
+        CreateMap<Models.User, GetUserDto>();
+        CreateMap<Models.Channel, ChatBase>();
+        CreateMap<Models.Channel, InputPeer>();
+        CreateMap<TL.Channel, Models.Channel>().ConvertUsing(new TlgChannelConverter());
+        CreateMap<Models.Channel, ChannelDto>();
 
         CreateMap<Comment, CommentDto>();
         CreateMap<MessageBase, Comment>().ConvertUsing(new TlgMessageBaseConverter());
         CreateMap<Message, Comment>().ConvertUsing(new TlgMessageConverter());
+
+
+        CreateMap<Models.Account, AccountDto>();
     }
-    public class TlgChannelConverter : ITypeConverter<TL.Channel, SharedCore.Models.Channel>
+
+    public class TlgChannelConverter : ITypeConverter<TL.Channel, Models.Channel>
     {
-        public SharedCore.Models.Channel Convert(TL.Channel source, SharedCore.Models.Channel destination, ResolutionContext context)
+        public Models.Channel Convert(TL.Channel source, Models.Channel destination, ResolutionContext context)
         {
-            var channel = new SharedCore.Models.Channel();
+            var channel = new Models.Channel();
             channel.TlgId = source.ID;
             channel.MainUsername = source.MainUsername;
             channel.Title = source.Title;
@@ -43,7 +45,7 @@ public class AutoMapperProfile : Profile
 
     public class TlgPostConverter : ITypeConverter<TL.Message, Post>
     {
-        public SharedCore.Models.Post Convert(TL.Message source, Post destination, ResolutionContext context)
+        public Post Convert(TL.Message source, Post destination, ResolutionContext context)
         {
             var post = new Post();
             post.TlgId = source.ID;

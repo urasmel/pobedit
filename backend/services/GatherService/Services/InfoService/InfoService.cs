@@ -1,15 +1,10 @@
 ﻿using AutoMapper;
 using Gather.Client;
 using Gather.Data;
+using Gather.Dtos;
+using Gather.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using SharedCore.Dtos;
-using SharedCore.Dtos.Channel;
-using SharedCore.Models;
-using System.Globalization;
-using System.Linq;
 using System.Net.WebSockets;
-using System.Threading.Channels;
 using TL;
 
 namespace Gather.Services.InfoService;
@@ -159,7 +154,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
 
                         if (!isChannelExistsInDb)
                         {
-                            var addedChat = _mapper.Map<SharedCore.Models.Channel>(chatsFromTG[i]);
+                            var addedChat = _mapper.Map<Models.Channel>(chatsFromTG[i]);
                             var channelFullInfo = await _client.GetFullChat(chatsFromTG[i]);
 
 

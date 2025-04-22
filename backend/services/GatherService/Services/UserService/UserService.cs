@@ -1,224 +1,220 @@
 ﻿using AutoMapper;
 using Gather.Data;
-using SharedCore.Dtos.User;
 using Microsoft.EntityFrameworkCore;
-using SharedCore.Models;
-using System.Net;
-using System.Collections;
-using SharedCore.Dtos.Channel;
+using Gather.Models;
+using Gather.Dtos;
 
-namespace Gather.Services.UserService
+namespace Gather.Services.UserService;
+
+public class UserService : IUserService
 {
-    public class UserService : IUserService
+    ILogger _logger;
+    private readonly IMapper _mapper;
+    private readonly DataContext _context;
+
+    public UserService(IMapper mapper, DataContext context, ILogger<UserService> logger)
     {
-        ILogger _logger;
-        private readonly IMapper _mapper;
-        private readonly DataContext _context;
+        _mapper = mapper;
+        _context = context;
+        _logger = logger;
+    }
 
-        public UserService(IMapper mapper, DataContext context, ILogger<UserService> logger)
+    public async Task<ServiceResponse<GetUserDto>> GetUserIdAsync(int id)
+    {
+        var response = new ServiceResponse<GetUserDto>();
+
+        if (_context.Users == null)
         {
-            _mapper = mapper;
-            _context = context;
-            _logger = logger;
-        }
-
-        public async Task<ServiceResponse<GetUserDto>> GetUserIdAsync(int id)
-        {
-            var response = new ServiceResponse<GetUserDto>();
-
-            if (_context.Users == null)
-            {
-                response.Message = "Internal server error";
-                response.Success = false;
-                response.Data = null;
-                return response;
-            }
-
-            try
-            {
-                var dbUser = await _context.Users.FirstOrDefaultAsync(c => c.UserId == id);
-                if (dbUser == null)
-                {
-                    response.Message = "User not found";
-                }
-                else
-                {
-                    response.Data = _mapper.Map<GetUserDto>(dbUser);
-                }
-            }
-            catch (Exception ex)
-            {
-                response.Message = "Server error";
-                response.Success = false;
-                _logger.Log(LogLevel.Error, ex.Message);
-            }
+            response.Message = "Internal server error";
+            response.Success = false;
+            response.Data = null;
             return response;
         }
 
-        public async Task<ServiceResponse<IEnumerable<GetUserDto>>> GetAllUsersAsync()
+        try
         {
-            var response = new ServiceResponse<IEnumerable<GetUserDto>>();
-
-            if (_context.Users == null)
+            var dbUser = await _context.Users.FirstOrDefaultAsync(c => c.UserId == id);
+            if (dbUser == null)
             {
-                response.Message = "Internal server error";
-                response.Success = false;
-                response.Data = null;
-                return response;
+                response.Message = "User not found";
             }
-
-            try
+            else
             {
-                var dbUsers = await _context.Users.ToListAsync();
-                response.Data = dbUsers.Select(a => _mapper.Map<GetUserDto>(a)).ToList();
-                return response;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                response.Success = false;
-                response.Data = Enumerable.Empty<GetUserDto>();
-                response.Message = "Server error";
-                return response;
+                response.Data = _mapper.Map<GetUserDto>(dbUser);
             }
         }
-
-        public async Task<ServiceResponse<int>> AddUserAsync(AddUserDto newUser)
+        catch (Exception ex)
         {
-            var response = new ServiceResponse<int>();
+            response.Message = "Server error";
+            response.Success = false;
+            _logger.Log(LogLevel.Error, ex.Message);
+        }
+        return response;
+    }
 
+    public async Task<ServiceResponse<IEnumerable<GetUserDto>>> GetAllUsersAsync()
+    {
+        var response = new ServiceResponse<IEnumerable<GetUserDto>>();
+
+        if (_context.Users == null)
+        {
+            response.Message = "Internal server error";
+            response.Success = false;
+            response.Data = null;
+            return response;
+        }
+
+        try
+        {
+            var dbUsers = await _context.Users.ToListAsync();
+            response.Data = dbUsers.Select(a => _mapper.Map<GetUserDto>(a)).ToList();
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            response.Success = false;
+            response.Data = Enumerable.Empty<GetUserDto>();
+            response.Message = "Server error";
+            return response;
+        }
+    }
+
+    public async Task<ServiceResponse<int>> AddUserAsync(AddUserDto newUser)
+    {
+        var response = new ServiceResponse<int>();
+
+        if (_context.Users == null)
+        {
+            response.Message = "Internal server error";
+            response.Success = false;
+            response.Data = 0;
+            return response;
+        }
+
+        User? userFromDb = await _context.Users
+            .FirstOrDefaultAsync(a => a.Password == newUser.Password && a.Username == newUser.Username);
+        if (userFromDb != null)
+        {
+            response.Success = false;
+            response.Message = "User already exists";
+            return response;
+        }
+
+        try
+        {
+            User user = _mapper.Map<User>(newUser);
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            response.Data = _context.Users
+                .Where(a => a.Password == user.Password && a.Username == user.Username)
+                .Select(a => _mapper.Map<GetUserDto>(a).UserId).First();
+            response.Success = true;
+            return response;
+        }
+        catch (Exception ex)
+        {
+            response.Success = false;
+            response.Message = "An error occurred while creating the user";
+            _logger.Log(LogLevel.Error, ex.Message);
+            return response;
+        }
+    }
+
+    public async Task<ServiceResponse<GetUserDto>> DeleteUserAsync(int id)
+    {
+        ServiceResponse<GetUserDto> response = new ServiceResponse<GetUserDto>();
+
+        try
+        {
             if (_context.Users == null)
             {
+                response.Success = false;
                 response.Message = "Internal server error";
-                response.Success = false;
-                response.Data = 0;
                 return response;
             }
 
-            User? userFromDb = await _context.Users
-                .FirstOrDefaultAsync(a => a.Password == newUser.Password && a.Username == newUser.Username);
-            if (userFromDb != null)
+            User? user = await _context.Users
+                .FirstOrDefaultAsync(c => c.UserId == id);
+            if (user != null)
             {
-                response.Success = false;
-                response.Message = "User already exists";
-                return response;
-            }
-
-            try
-            {
-                User user = _mapper.Map<User>(newUser);
-
-                _context.Users.Add(user);
+                _context.Users.Remove(user);
                 await _context.SaveChangesAsync();
-                response.Data = _context.Users
-                    .Where(a => a.Password == user.Password && a.Username == user.Username)
-                    .Select(a => _mapper.Map<GetUserDto>(a).UserId).First();
-                response.Success = true;
-                return response;
+                response.Data = _mapper.Map<GetUserDto>(user);
             }
-            catch (Exception ex)
+            else
             {
                 response.Success = false;
-                response.Message = "An error occurred while creating the user";
-                _logger.Log(LogLevel.Error, ex.Message);
-                return response;
+                response.Message = "User not found";
             }
-        }
-
-        public async Task<ServiceResponse<GetUserDto>> DeleteUserAsync(int id)
-        {
-            ServiceResponse<GetUserDto> response = new ServiceResponse<GetUserDto>();
-
-            try
-            {
-                if (_context.Users == null)
-                {
-                    response.Success = false;
-                    response.Message = "Internal server error";
-                    return response;
-                }
-
-                User? user = await _context.Users
-                    .FirstOrDefaultAsync(c => c.UserId == id);
-                if (user != null)
-                {
-                    _context.Users.Remove(user);
-                    await _context.SaveChangesAsync();
-                    response.Data = _mapper.Map<GetUserDto>(user);
-                }
-                else
-                {
-                    response.Success = false;
-                    response.Message = "User not found";
-                }
-                return response;
-            }
-            catch (Exception ex)
-            {
-                response.Success = false;
-                response.Message = "An error occurred while deleting the user";
-                _logger.Log(LogLevel.Error, ex.Message);
-                return response;
-            }
-        }
-
-        public async Task<ServiceResponse<GetUserDto>> EditUserAsync(User userParam)
-        {
-            var response = new ServiceResponse<GetUserDto>();
-
-            try
-            {
-                if (_context.Users == null)
-                {
-                    response.Success = false;
-                    response.Message = "Internal server error";
-                    return response;
-                }
-
-                User? userInDb = await _context.Users
-                    .FirstOrDefaultAsync(a => a.UserId == userParam.UserId);
-
-                if (userInDb == null)
-                {
-                    response.Success = false;
-                    response.Message = "User not found";
-                    return response;
-                }
-
-                if (_context.Users.Any(a => a.Username == userParam.Username && userInDb.UserId != userParam.UserId))
-                {
-                    response.Success = false;
-                    response.Message = " with this username already exists";
-                }
-                else if (_context.Users.Any(a => a.PhoneNumber == userParam.PhoneNumber && userInDb.UserId != userParam.UserId))
-                {
-                    response.Success = false;
-                    response.Message = "User with this phone number already exists";
-                }
-                else if (userInDb == null)
-                {
-                    response.Success = false;
-                    response.Message = "User not found";
-                }
-                else
-                {
-                    userInDb.Password = userParam.Password;
-                    userInDb.Username = userParam.Username;
-                    userInDb.PhoneNumber = userParam.PhoneNumber;
-
-                    await _context.SaveChangesAsync();
-                    response.Data = _mapper.Map<GetUserDto>(userInDb);
-                    response.Success = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                response.Success = false;
-                response.Message = "An error occurred while editing the user";
-                _logger.Log(LogLevel.Error, ex.Message);
-            }
-
             return response;
         }
+        catch (Exception ex)
+        {
+            response.Success = false;
+            response.Message = "An error occurred while deleting the user";
+            _logger.Log(LogLevel.Error, ex.Message);
+            return response;
+        }
+    }
+
+    public async Task<ServiceResponse<GetUserDto>> EditUserAsync(User userParam)
+    {
+        var response = new ServiceResponse<GetUserDto>();
+
+        try
+        {
+            if (_context.Users == null)
+            {
+                response.Success = false;
+                response.Message = "Internal server error";
+                return response;
+            }
+
+            User? userInDb = await _context.Users
+                .FirstOrDefaultAsync(a => a.UserId == userParam.UserId);
+
+            if (userInDb == null)
+            {
+                response.Success = false;
+                response.Message = "User not found";
+                return response;
+            }
+
+            if (_context.Users.Any(a => a.Username == userParam.Username && userInDb.UserId != userParam.UserId))
+            {
+                response.Success = false;
+                response.Message = " with this username already exists";
+            }
+            else if (_context.Users.Any(a => a.PhoneNumber == userParam.PhoneNumber && userInDb.UserId != userParam.UserId))
+            {
+                response.Success = false;
+                response.Message = "User with this phone number already exists";
+            }
+            else if (userInDb == null)
+            {
+                response.Success = false;
+                response.Message = "User not found";
+            }
+            else
+            {
+                userInDb.Password = userParam.Password;
+                userInDb.Username = userParam.Username;
+                userInDb.PhoneNumber = userParam.PhoneNumber;
+
+                await _context.SaveChangesAsync();
+                response.Data = _mapper.Map<GetUserDto>(userInDb);
+                response.Success = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            response.Success = false;
+            response.Message = "An error occurred while editing the user";
+            _logger.Log(LogLevel.Error, ex.Message);
+        }
+
+        return response;
     }
 }
