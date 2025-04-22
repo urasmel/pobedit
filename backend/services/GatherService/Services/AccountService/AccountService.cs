@@ -51,4 +51,30 @@ public class AccountService : IAccountService
         }
         return response;
     }
+
+    public async Task<ServiceResponse<IEnumerable<CommentDto>>> GetCommentsAsync(long accountTlgId)
+    {
+        var response = new ServiceResponse<IEnumerable<CommentDto>>();
+
+        if (_context.Comments == null)
+        {
+            response.Message = "Internal server error";
+            response.Success = false;
+            response.Data = null;
+            return response;
+        }
+
+        try
+        {
+            var comments = await _context.Comments.Where(c => c.From.TlgId == accountTlgId).ToListAsync();
+            response.Data = _mapper.Map<IEnumerable<CommentDto>>(comments);
+        }
+        catch (Exception ex)
+        {
+            response.Message = "Server error";
+            response.Success = false;
+            _logger.Log(LogLevel.Error, ex.Message);
+        }
+        return response;
+    }
 }
