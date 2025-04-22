@@ -4,14 +4,12 @@ import { mapAccount } from "./mapper/map-account";
 import { AccountDto } from "./dto/account.dto";
 
 
-export const getAccount = async (accountId: string | undefined): Promise<{ account: Account | null; }> => {
+export const getAccount = async (accountId: string | undefined): Promise<Account | null> => {
     if (accountId == undefined) {
-        return Promise.resolve({ account: null });
+        return Promise.resolve(null);
     }
 
-    const result = await apiClient.get<ServiceResponse<AccountDto>>(`api/v1/info/accounts/${accountId}`);
+    const result = await apiClient.get<ServiceResponse<AccountDto>>(`api/v1/accounts/${accountId}`);
 
-    return ({
-        account: mapAccount(result.data)
-    });
+    return (mapAccount(result.data));
 };

@@ -1,6 +1,26 @@
+import { accountApi } from '@/entities/account';
+import Loading from '@/shared/components/Loading';
 import { Box, Typography, Button, Link } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 
 const AccountPage = () => {
+
+    const { accountId } = useParams();
+
+    const {
+        data: account,
+        isFetching,
+        isLoading,
+        isError,
+        error
+    } = useQuery(accountApi.accountsQueries.one(accountId));
+
+
+    if (isLoading) {
+        return <Loading />;
+    }
+
     return (
         <Box sx={{ padding: 4 }}>
             <Typography variant="h4" gutterBottom>
@@ -8,19 +28,19 @@ const AccountPage = () => {
             </Typography>
             <Box sx={{ marginBottom: 2 }}>
                 <Typography variant="body1">
-                    <strong>Логин:</strong> John Doe
+                    <strong>Логин:</strong> {account?.username}
                 </Typography>
                 <Typography variant="body1">
-                    <strong>Имя:</strong> john.doe@example.com
+                    <strong>Имя:</strong> {account?.first_name}
                 </Typography>
                 <Typography variant="body1">
-                    <strong>Фамилия:</strong> john.doe@example.com
+                    <strong>Фамилия:</strong> {account?.last_name}
                 </Typography>
                 <Typography variant="body1">
-                    <strong>Телефон:</strong> January 1, 2022
+                    <strong>Телефон:</strong> {account?.phone}
                 </Typography>
                 <Typography variant="body1">
-                    <strong>Bio:</strong> January 1, 2022
+                    <strong>Bio:</strong> {account?.bio}
                 </Typography>
             </Box>
             <Box>
