@@ -2,10 +2,11 @@ import { lazy, Suspense } from "react";
 import { Route, Routes, useRouteError } from "react-router-dom";
 import { NotFound } from "@/pages/NotFound";
 import Loading from "@/shared/components/Loading";
-import { Comments } from "@/pages/Comments";
+import { PostComments } from "@/pages/PostComments";
 import { Home } from "@/pages/Home";
 import { Posts } from "@/pages/Posts";
 import { AccountPage } from "@/pages/AccountPage";
+import { AccountComments } from "@/pages/AccountComments";
 
 // const Home = lazy(() => import("@/pages/Home"));
 // const Posts = lazy(() => import("@/pages/Posts"));
@@ -26,7 +27,7 @@ export const AppRouter = () => {
                 path="/channels/:channelId/posts/:postId/comments"
                 element={
                     <Suspense fallback={<Loading />}>
-                        <Comments />
+                        <PostComments />
                     </Suspense>
                 }
                 errorElement={<ErrorBoundary />}
@@ -48,11 +49,12 @@ export const AppRouter = () => {
                     </Suspense>
                 }
                 errorElement={< ErrorBoundary />}
-            />            <Route
+            />
+            <Route
                 path="/accounts/:accountId/comments"
                 element={
                     <Suspense fallback={<Loading />}>
-                        <AccountPage />
+                        <AccountComments />
                     </Suspense>
                 }
                 errorElement={< ErrorBoundary />}

@@ -12,7 +12,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { COMMENTS_PER_PAGE } from '@/shared/config';
 
 
-export const Comments = () => {
+export const PostComments = () => {
 
     const { channelId, postId } = useParams();
     const [offset, setOffset] = useState(0);
