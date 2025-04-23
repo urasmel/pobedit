@@ -2,11 +2,12 @@ import { accountApi } from '@/entities/account';
 import Loading from '@/shared/components/Loading';
 import { Box, Typography, Button, Link } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const AccountPage = () => {
 
     const { accountId } = useParams();
+    const navigate = useNavigate();
 
     const {
         data: account,
@@ -44,11 +45,12 @@ const AccountPage = () => {
                 </Typography>
             </Box>
             <Box>
-                <Link href="/comments" underline="none">
-                    <Button variant="contained" color="primary">
-                        View Comments
-                    </Button>
-                </Link>
+                <Button
+                    variant="contained"
+                    onClick={() => { navigate(`/accounts/${accountId}/comments`); }}
+                >
+                    Все комментарии
+                </Button>
             </Box>
         </Box>
     );

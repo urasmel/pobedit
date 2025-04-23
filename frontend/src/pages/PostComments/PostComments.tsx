@@ -12,7 +12,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { COMMENTS_PER_PAGE } from '@/shared/config';
 
 
-export const Comments = () => {
+export const PostComments = () => {
 
     const { channelId, postId } = useParams();
     const [offset, setOffset] = useState(0);
@@ -39,11 +39,11 @@ export const Comments = () => {
                 return;
             }
 
-            if (count % COMMENTS_PER_PAGE == 0) {
-                setPagesCount(count / COMMENTS_PER_PAGE);
+            if (count % limit == 0) {
+                setPagesCount(count / limit);
             }
             else {
-                setPagesCount(Math.ceil(count / COMMENTS_PER_PAGE));
+                setPagesCount(Math.ceil(count / limit));
             }
         }, [count]
     );
@@ -59,7 +59,7 @@ export const Comments = () => {
     };
 
     const onPageChange = (_event: ChangeEvent<unknown>, page: number) => {
-        setOffset(COMMENTS_PER_PAGE * (page - 1));
+        setOffset(limit * (page - 1));
     };
 
     const invalidateCashe = () => {

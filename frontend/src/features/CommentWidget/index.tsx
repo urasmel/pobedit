@@ -7,7 +7,7 @@ export const CommentWidget = (comment: Comment) => {
         <div className={styles.comment}>
             <NavLink
                 className={styles["post__comments-link"]}
-                to={`/account/${comment.from.tlg_id}`}
+                to={`/accounts/${comment.from.tlg_id}`}
             >
                 <div className={styles.comment__ava}>
 

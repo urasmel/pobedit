@@ -32,7 +32,7 @@ const PostWidget = ({ post, user, channelId }: { post: Post, user: string | unde
                             className={styles["post__comments-link"]}
                             to={`/channels/${channelId}/posts/${post.tlgId}/comments`}
                         >
-                            <ChevronRightIcon />
+                            {post.commentsCount > 0 && <ChevronRightIcon />}
                         </NavLink>
                     }
                 </div>

@@ -2,7 +2,7 @@ import { ServiceResponse } from "@/entities";
 import { Comment } from "../model/Comment";
 import { apiClient } from "@/shared/api/base";
 
-import { mapComment } from "./mapper/map-comment";
+import { mapComment, mapComments } from "./mapper/map-comment";
 import { CommentDto } from "./dto/comment.dto";
 import { COMMENTS_PER_PAGE } from "@/shared/config";
 
@@ -38,7 +38,7 @@ export const getComment = async (channelId: string | undefined, postId: string |
     });
 };
 
-export const getCommentsCount = async (channelId: string | undefined, postId: string | undefined): Promise<number> => {
+export const getPostCommentsCount = async (channelId: string | undefined, postId: string | undefined): Promise<number> => {
     if (channelId == undefined || postId == undefined) {
         return Promise.resolve(0);
     }
@@ -50,16 +50,26 @@ export const getCommentsCount = async (channelId: string | undefined, postId: st
     );
 };
 
-export const getAllAccountComments = async (accountId: string | undefined, offset = 0, limit = COMMENTS_PER_PAGE): Promise<{ comments: Comment[]; }> => {
+export const getAllAccountComments = async (accountId: string | undefined, offset = 0, limit = COMMENTS_PER_PAGE): Promise<Comment[]> => {
     if (accountId == undefined) {
-        return Promise.resolve({ comments: [] });
+        return Promise.resolve([]);
     }
 
     const result = await apiClient
         .get<ServiceResponse<CommentDto[]>>
-        (`api/v1/info/users/${accountId}/comments?offset=${offset}&limit=${limit}`);
+        (`api/v1/accounts/${accountId}/comments?offset=${offset}&limit=${limit}`);
 
-    return ({
-        comments: result.data.map((comment: CommentDto) => mapComment(comment))
-    });
-};   
+    return mapComments(result.data);
+};
+
+export const getAllAccountCommentsCount = async (accountId: string | undefined): Promise<number> => {
+    if (accountId == undefined) {
+        return Promise.resolve(0);
+    }
+
+    const result = await apiClient
+        .get<ServiceResponse<number>>
+        (`api/v1/accounts/${accountId}/comments_count`);
+
+    return result.data;
+};

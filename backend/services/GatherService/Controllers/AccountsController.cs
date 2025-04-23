@@ -31,7 +31,41 @@ namespace Gather.Controllers
             {
                 return NotFound(response);
             }
-            else if (response.Success == false)
+            else if (!response.Success)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+            return Ok(response);
+        }
+
+        [HttpGet("{accountTlgId}/comments")]
+        [MapToApiVersion(1.0)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ServiceResponse<IEnumerable<CommentDto>>>> GetComments([FromRoute] long accountTlgId,[FromQuery] int offset = 0, [FromQuery] int limit = 20)
+        {
+            var response = await _accountService.GetCommentsAsync(accountTlgId, offset, limit);
+            if (response.Data == null)
+            {
+                return NotFound(response);
+            }
+            else if (!response.Success)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+            return Ok(response);
+        }
+
+        [HttpGet("{accountTlgId}/comments_count")]
+        [MapToApiVersion(1.0)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ServiceResponse<int>>> GetCommentsCount([FromRoute] long accountTlgId)
+        {
+            var response = await _accountService.GetCommentsCountAsync(accountTlgId);
+            if (!response.Success)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, response);
             }
