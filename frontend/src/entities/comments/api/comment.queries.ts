@@ -1,15 +1,17 @@
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
-import { getComment, getComments, getCommentsCount, getAllAccountComments } from "./get-comments";
+import { getComment, getComments, getPostCommentsCount, getAllAccountComments, getAllAccountCommentsCount } from "./get-comments";
 
 export const commentsQueries = {
     all: () => ["comments"],
+
+    account: () => ["account"],
 
     lists: () => [...commentsQueries.all(), "list"],
 
     count: (channelId: string | undefined, postId: string | undefined) =>
         queryOptions({
             queryKey: [...commentsQueries.all(), channelId, postId, 'count'],
-            queryFn: () => getCommentsCount(channelId, postId),
+            queryFn: () => getPostCommentsCount(channelId, postId),
             placeholderData: keepPreviousData,
         }),
 
@@ -29,8 +31,15 @@ export const commentsQueries = {
 
     allAccountComments: (accountId: string | undefined, offset: number, limit: number) =>
         queryOptions({
-            queryKey: [...commentsQueries.all(), accountId, offset, limit],
+            queryKey: [...commentsQueries.all(), ...commentsQueries.account(), accountId, offset, limit],
             queryFn: () => getAllAccountComments(accountId, offset, limit),
+            placeholderData: keepPreviousData,
+        }),
+
+    allAccountCommentsCount: (accountId: string | undefined) =>
+        queryOptions({
+            queryKey: [...commentsQueries.account(), accountId, "count"],
+            queryFn: () => getAllAccountCommentsCount(accountId),
             placeholderData: keepPreviousData,
         }),
 };

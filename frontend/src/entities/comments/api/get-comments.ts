@@ -38,7 +38,7 @@ export const getComment = async (channelId: string | undefined, postId: string |
     });
 };
 
-export const getCommentsCount = async (channelId: string | undefined, postId: string | undefined): Promise<number> => {
+export const getPostCommentsCount = async (channelId: string | undefined, postId: string | undefined): Promise<number> => {
     if (channelId == undefined || postId == undefined) {
         return Promise.resolve(0);
     }
@@ -62,11 +62,14 @@ export const getAllAccountComments = async (accountId: string | undefined, offse
     return mapComments(result.data);
 };
 
-// export const getAccountComments = async (accountId: string | undefined): Promise<Comment[]> => {
-//     if (accountId == undefined) {
-//         return Promise.resolve([]);
-//     }
+export const getAllAccountCommentsCount = async (accountId: string | undefined): Promise<number> => {
+    if (accountId == undefined) {
+        return Promise.resolve(0);
+    }
 
-//     const result = await apiClient.get<ServiceResponse<CommentDto[]>>(`api/v1/accounts/${accountId}/comments`);
-//     return mapComments(result.data);
-// };
+    const result = await apiClient
+        .get<ServiceResponse<number>>
+        (`api/v1/accounts/${accountId}/comments_count`);
+
+    return result.data;
+};

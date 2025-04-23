@@ -1,86 +1,35 @@
 import { accountApi } from '@/entities/account';
 import { commentsApi } from '@/entities/comments';
-import { Box, Typography, Avatar, List, ListItem, Paper } from '@mui/material';
+import ScrollToTopButton from '@/shared/components/ScrollToTopButton';
+import { Box, Typography, Avatar, List, ListItem, Paper, Pagination } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { COMMENTS_PER_PAGE } from '@/shared/config';
 
 const AccountComments = () => {
-    // Mock user data
-    const user = {
-        name: 'John Doe',
-        avatar: 'https://avatar.iran.liara.run/public/38',
-        comments: [
-            {
-                id: 1,
-                date: '2023-10-01',
-                channel: 'General Discussion',
-                text: 'This is a sample comment.',
-            },
-            {
-                id: 2,
-                date: '2023-10-02',
-                channel: 'Feedback',
-                text: 'I really like this feature!',
-            },
-            {
-                id: 3,
-                date: '2023-10-03',
-                channel: 'Support',
-                text: 'Can someone help me with this issue?',
-            },
-            {
-                id: 3,
-                date: '2023-10-03',
-                channel: 'Support',
-                text: 'Can someone help me with this issue?',
-            },
-            {
-                id: 3,
-                date: '2023-10-03',
-                channel: 'Support',
-                text: 'Can someone help me with this issue?',
-            },
-            {
-                id: 3,
-                date: '2023-10-03',
-                channel: 'Support',
-                text: 'Can someone help me with this issue?',
-            },
-            {
-                id: 3,
-                date: '2023-10-03',
-                channel: 'Support',
-                text: 'Can someone help me with this issue?',
-            },
-            {
-                id: 3,
-                date: '2023-10-03',
-                channel: 'Support',
-                text: 'Can someone help me with this issue?',
-            },
-            {
-                id: 3,
-                date: '2023-10-03',
-                channel: 'Support',
-                text: 'Can someone help me with this issue?',
-            },
-            {
-                id: 3,
-                date: '2023-10-03',
-                channel: 'Support',
-                text: 'Can someone help me with this issue?',
-            },
-            {
-                id: 3,
-                date: '2023-10-03',
-                channel: 'Support',
-                text: 'Can someone help me with this issue?',
-            },
-        ],
-    };
-
 
     const { accountId } = useParams();
+    const [pagesCount, setPagesCount] = useState(0);
+    const [offset, setOffset] = useState(0);
+    const [limit] = useState(COMMENTS_PER_PAGE);
+
+    const { data: count } = useQuery(commentsApi.commentsQueries.allAccountCommentsCount(accountId));
+
+    useEffect(
+        () => {
+            if (count == 0 || count == undefined) {
+                return;
+            }
+
+            if (count % limit == 0) {
+                setPagesCount(count / limit);
+            }
+            else {
+                setPagesCount(Math.ceil(count / limit));
+            }
+        }, [count]
+    );
 
     const {
         data: account,
@@ -95,10 +44,14 @@ const AccountComments = () => {
         isFetching: isFetchingComments,
         isLoading: isLoadingComments,
         isError: isErrorComments,
-    } = useQuery(commentsApi.commentsQueries.allAccountComments(accountId, 0, 10));
+    } = useQuery(commentsApi.commentsQueries.allAccountComments(accountId, offset, limit));
+
+    const onPageChange = (_event: ChangeEvent<unknown>, page: number) => {
+        setOffset(limit * (page - 1));
+    };
 
     return (
-        <Box sx={{ padding: 2 }}>
+        <Box sx={{ padding: 2, height: '100%', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
             {/* Header Section */}
             <Box
                 sx={{
@@ -125,16 +78,40 @@ const AccountComments = () => {
             </Typography>
             <List>
                 {comments?.map((comment) => (
-                    <ListItem key={comment.tlgId} sx={{ marginBottom: 2 }}>
-                        <Paper elevation={3} sx={{ width: '100%', padding: 2 }}>
-                            <Typography variant="subtitle2" color="text.secondary">
+                    <ListItem
+                        key={comment.tlgId}
+                        sx={{ marginBottom: 2 }}
+                    >
+                        <Paper
+                            elevation={3}
+                            sx={{ width: '100%', padding: 2 }}
+                        >
+                            <Typography
+                                variant="subtitle2"
+                                color="text.secondary"
+                            >
                                 {new Date(comment.date).toLocaleString()} {comment.channelId}
                             </Typography>
-                            <Typography variant="body1">{comment.message}</Typography>
+                            <Typography variant="body1">
+                                {comment.message}
+                            </Typography>
                         </Paper>
                     </ListItem>
                 ))}
             </List>
+
+            {
+                !isError &&
+                <Pagination
+                    sx={{ marginTop: 'auto' }}
+                    count={pagesCount}
+                    variant="outlined"
+                    shape="rounded"
+                    onChange={onPageChange}
+                />
+            }
+
+            <ScrollToTopButton />
         </Box>
     );
 };
