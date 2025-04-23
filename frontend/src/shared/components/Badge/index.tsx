@@ -1,9 +1,10 @@
-import React from "react";
 import styles from "./styles.module.css";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import { BadgeProps } from "types/Props";
+import { BadgeProps } from "@/entities/Props/BadgeProps";
+import { useNavigate } from "react-router-dom";
 
-const Badge: React.FC<BadgeProps> = ({ title, active }) => {
+const Badge = ({ title, active }: BadgeProps) => {
+    const navigate = useNavigate();
     let badgeActive = "";
     let badgeIconActive = "";
     let badgeTitleActive = "";
@@ -15,7 +16,7 @@ const Badge: React.FC<BadgeProps> = ({ title, active }) => {
     }
 
     return (
-        <div className={`${styles.badge} ${styles[badgeActive]}`}>
+        <div className={`${styles.badge} ${styles[badgeActive]}`} onClick={() => { navigate('./search'); }}>
             <div
                 className={`${styles.badge__icon} ${styles[badgeIconActive]}`}
             >

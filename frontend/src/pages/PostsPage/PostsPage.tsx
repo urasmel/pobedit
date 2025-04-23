@@ -15,7 +15,7 @@ import { useParams } from "react-router-dom";
 import styles from "./styles.module.scss";
 import { POSTS_PER_PAGE } from "@/shared/config";
 
-export const Posts = () => {
+export const PostsPage = () => {
 
     const { channelId } = useParams();
     const selectedUser = useMainStore(

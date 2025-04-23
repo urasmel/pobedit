@@ -4,9 +4,10 @@ import { NotFound } from "@/pages/NotFound";
 import Loading from "@/shared/components/Loading";
 import { PostComments } from "@/pages/PostComments";
 import { Home } from "@/pages/Home";
-import { Posts } from "@/pages/Posts";
+import { PostsPage } from "@/pages/PostsPage";
 import { AccountPage } from "@/pages/AccountPage";
 import { AccountComments } from "@/pages/AccountComments";
+import { SearchPage } from "@/pages/SearchPage";
 
 // const Home = lazy(() => import("@/pages/Home"));
 // const Posts = lazy(() => import("@/pages/Posts"));
@@ -36,7 +37,7 @@ export const AppRouter = () => {
                 path="/channels/:channelId/posts"
                 element={
                     <Suspense fallback={<Loading />}>
-                        <Posts />
+                        <PostsPage />
                     </Suspense>
                 }
                 errorElement={< ErrorBoundary />}
@@ -55,6 +56,15 @@ export const AppRouter = () => {
                 element={
                     <Suspense fallback={<Loading />}>
                         <AccountComments />
+                    </Suspense>
+                }
+                errorElement={< ErrorBoundary />}
+            />
+            <Route
+                path="/search"
+                element={
+                    <Suspense fallback={<Loading />}>
+                        <SearchPage />
                     </Suspense>
                 }
                 errorElement={< ErrorBoundary />}

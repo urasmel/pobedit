@@ -7,7 +7,7 @@
     box-sizing: border-box;
     text-align: left;
     box-shadow: none;
-    transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, transform 0.2s ease;
     padding: 0.675rem 0.8rem 0.675rem 1rem;
     border-radius: 0.5rem;
     cursor: pointer;
@@ -17,6 +17,11 @@
     letter-spacing: 0.00938em;
     background: transparent;
     color: #67748e;
+}
+
+.badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .badge--active {
