@@ -32,7 +32,7 @@
 
 .post__comments {
     display: flex;
-    justify-content: space-between;
+    justify-content: start;
     padding: .4rem 1rem;
     border-top: #999999 solid 1px;
 }
