@@ -5,14 +5,14 @@ import { Box, Typography, Avatar, List, ListItem, Paper, Pagination } from '@mui
 import { useQuery } from '@tanstack/react-query';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { COMMENTS_PER_PAGE } from '@/shared/config';
+import { ITEMS_PER_PAGE } from '@/shared/config';
 
 const AccountComments = () => {
 
     const { accountId } = useParams();
     const [pagesCount, setPagesCount] = useState(0);
     const [offset, setOffset] = useState(0);
-    const [limit] = useState(COMMENTS_PER_PAGE);
+    const [limit] = useState(ITEMS_PER_PAGE);
 
     const { data: count } = useQuery(commentsApi.commentsQueries.allAccountCommentsCount(accountId));
 

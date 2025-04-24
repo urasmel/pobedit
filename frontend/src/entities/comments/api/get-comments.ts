@@ -4,13 +4,13 @@ import { apiClient } from "@/shared/api/base";
 
 import { mapComment, mapComments } from "./mapper/map-comment";
 import { CommentDto } from "./dto/comment.dto";
-import { COMMENTS_PER_PAGE } from "@/shared/config";
+import { ITEMS_PER_PAGE } from "@/shared/config";
 
 export const getComments = async (
     channelId: string | undefined,
     postId: string | undefined,
     offset = 0,
-    limit = COMMENTS_PER_PAGE)
+    limit = ITEMS_PER_PAGE)
     : Promise<{ comments: Comment[]; }> => {
 
     if (channelId == undefined || postId == undefined) {
@@ -19,7 +19,7 @@ export const getComments = async (
 
     const result = await apiClient
         .get<ServiceResponse<CommentDto[]>>
-        (`api/v1/info/channels/${channelId}/posts/${postId}/comments?offset=${offset}&limit=${limit}`);
+        (`info/channels/${channelId}/posts/${postId}/comments?offset=${offset}&limit=${limit}`);
 
     return ({
         comments: result.data.map((comment: CommentDto) => mapComment(comment))
@@ -31,7 +31,7 @@ export const getComment = async (channelId: string | undefined, postId: string |
         return Promise.resolve({ comment: null });
     }
 
-    const result = await apiClient.get<ServiceResponse<CommentDto>>(`api/v1/info/channels/${channelId}/posts/${postId}/comments/${commentId}`);
+    const result = await apiClient.get<ServiceResponse<CommentDto>>(`info/channels/${channelId}/posts/${postId}/comments/${commentId}`);
 
     return ({
         comment: mapComment(result.data)
@@ -43,21 +43,21 @@ export const getPostCommentsCount = async (channelId: string | undefined, postId
         return Promise.resolve(0);
     }
 
-    const result = await apiClient.get<ServiceResponse<number>>(`api/v1/info/channels/${channelId}/posts/${postId}/comments_count`);
+    const result = await apiClient.get<ServiceResponse<number>>(`info/channels/${channelId}/posts/${postId}/comments_count`);
 
     return (
         result.data as number
     );
 };
 
-export const getAllAccountComments = async (accountId: string | undefined, offset = 0, limit = COMMENTS_PER_PAGE): Promise<Comment[]> => {
+export const getAllAccountComments = async (accountId: string | undefined, offset = 0, limit = ITEMS_PER_PAGE): Promise<Comment[]> => {
     if (accountId == undefined) {
         return Promise.resolve([]);
     }
 
     const result = await apiClient
         .get<ServiceResponse<CommentDto[]>>
-        (`api/v1/accounts/${accountId}/comments?offset=${offset}&limit=${limit}`);
+        (`accounts/${accountId}/comments?offset=${offset}&limit=${limit}`);
 
     return mapComments(result.data);
 };
@@ -69,7 +69,7 @@ export const getAllAccountCommentsCount = async (accountId: string | undefined):
 
     const result = await apiClient
         .get<ServiceResponse<number>>
-        (`api/v1/accounts/${accountId}/comments_count`);
+        (`accounts/${accountId}/comments_count`);
 
     return result.data;
 };

@@ -39,16 +39,23 @@ export class ApiClient {
         return this.handleResponse<TResult>(response);
     }
 
-    public async post<TResult = unknown, TData = Record<string, unknown>>(endpoint: string, body: TData): Promise<TResult> {
-        const response = await fetch(`${this.baseUrl}${endpoint}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(body),
-        });
+    public async post<TResult = unknown, TData extends { body: unknown; } = { body: unknown; }>(endpoint: string, data: TData): Promise<TResult> {
 
-        return this.handleResponse<TResult>(response);
+        const url = new URL(endpoint, this.baseUrl); // Ensure the URL is constructed properly
+
+        try {
+            const response = await fetch(url.toString(), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data['body']),
+            });
+
+            return this.handleResponse<TResult>(response);
+        } catch (error) {
+            throw new Error(`Failed to fetch: ${error instanceof Error ? error.message : String(error)}`);
+        }
     }
 }
 

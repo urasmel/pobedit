@@ -13,7 +13,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import styles from "./styles.module.scss";
-import { POSTS_PER_PAGE } from "@/shared/config";
+import { ITEMS_PER_PAGE } from "@/shared/config";
 
 export const PostsPage = () => {
 
@@ -22,7 +22,7 @@ export const PostsPage = () => {
         (state: MainState & Action) => state.selectedUser
     );
     const [offset, setOffset] = useState(0);
-    const [limit] = useState(POSTS_PER_PAGE);
+    const [limit] = useState(ITEMS_PER_PAGE);
     const queryClient = useQueryClient();
     const [channelErrorOpen, setChannelInfoOpen] = useState(false);
     const [postsErrorOpen, setPostsErrorOpen] = useState(false);
@@ -51,11 +51,11 @@ export const PostsPage = () => {
                 return;
             }
 
-            if (count.posts_count % POSTS_PER_PAGE == 0) {
-                setPagesCount(count.posts_count / POSTS_PER_PAGE);
+            if (count.posts_count % ITEMS_PER_PAGE == 0) {
+                setPagesCount(count.posts_count / ITEMS_PER_PAGE);
             }
             else {
-                setPagesCount(Math.ceil(count?.posts_count / POSTS_PER_PAGE));
+                setPagesCount(Math.ceil(count?.posts_count / ITEMS_PER_PAGE));
             }
         }, [count]
     );
@@ -81,7 +81,7 @@ export const PostsPage = () => {
     };
 
     const onPageChange = (_event: ChangeEvent<unknown>, page: number) => {
-        setOffset(POSTS_PER_PAGE * (page - 1));
+        setOffset(ITEMS_PER_PAGE * (page - 1));
     };
 
     const invalidateCashe = () => {

@@ -9,7 +9,7 @@ export const getAccount = async (accountId: string | undefined): Promise<Account
         return Promise.resolve(null);
     }
 
-    const result = await apiClient.get<ServiceResponse<AccountDto>>(`api/v1/accounts/${accountId}`);
+    const result = await apiClient.get<ServiceResponse<AccountDto>>(`accounts/${accountId}`);
 
     return (mapAccount(result.data));
 };

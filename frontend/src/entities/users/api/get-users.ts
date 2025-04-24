@@ -5,7 +5,7 @@ import { mapUser } from "./mapper/map-user";
 import { UserDto } from "./dto/user.dto";
 
 export const getUsers = async (): Promise<{ users: User[]; }> => {
-    const result = await apiClient.get<ServiceResponse<UserDto[]>>('/api/v1/users');
+    const result = await apiClient.get<ServiceResponse<UserDto[]>>('users');
 
     return ({
         users: result.data.map((user: UserDto) => mapUser(user))
