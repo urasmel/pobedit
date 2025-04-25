@@ -8,7 +8,7 @@ import { Box, Typography } from '@mui/material';
 export const Aside = () => {
     return (
         <aside className={styles.aside}>
-            <Badge title='Поиск' link='/search'>
+            <Badge link='/search'>
                 <Box
                     sx={{
                         display: 'flex',
@@ -33,7 +33,7 @@ export const Aside = () => {
                 </Box>
             </Badge>
 
-            <Badge title='Управление' link='/admin'>
+            <Badge link='/admin'>
                 <Box
                     sx={{
                         display: 'flex',

@@ -1,25 +1,25 @@
 import { create } from 'zustand';
-import { API_URL } from '@/shared/config';
+import { API_URL, ITEMS_PER_PAGE } from '@/shared/config';
 import { Channel, ServiceResponse } from '@/entities';
 import { Post } from '@/entities';
+import { SearchQuery, SearchType } from '@/entities/search/model/SearchQuery';
 
 export interface MainState {
     selectedUser: string | undefined;
     channels: Channel[];
-    isLoading: boolean;
-    error: string;
-    isError: boolean;
     channelsInfos: Channel[];
     channelPostsDict: {
         channelId: number;
         posts: Post[];
     };
+    searchQuery: SearchQuery;
 }
 
 export interface Action {
     updateSelectedUser: (username: MainState['selectedUser']) => void;
     fetchUpdatedChannels: () => Promise<void>;
     updateAndFetchChannelPosts: (username: string, channelId: number) => Promise<void>;
+    setSearchQuery: (searchQuery: SearchQuery) => void;
 }
 
 export const useMainStore = create<MainState & Action>((set, get) => ({
@@ -30,9 +30,14 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
         channelId: 0,
         posts: []
     },
-    isLoading: false,
-    error: '',
-    isError: false,
+    searchQuery: {
+        query: "",
+        searchType: SearchType.posts,
+        startDate: null,
+        endDate: null,
+        limit: ITEMS_PER_PAGE,
+        offset: 0,
+    },
 
     updateSelectedUser: (selectedUser) => {
         set({ selectedUser });
@@ -65,7 +70,7 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
             return;
         }
 
-        const json = (await response.json() as ServiceResponse<ChannelInfo[]>).data;
+        const json = (await response.json() as ServiceResponse<Channel[]>).data;
         // set({ channels: json });
         set((state) => ({
             ...state,
@@ -100,6 +105,13 @@ export const useMainStore = create<MainState & Action>((set, get) => ({
             //channelsInfo: [...state.channelsInfo, json]
             //channelPostsDict: { ...state.channelPostsDict, channelId: [...state.channelPostsDict[channelId], ...json] }
             channelPostsDict: { channelId: channelId, posts: [...state.channelPostsDict.posts, ...json] }
+        }));
+    },
+
+    setSearchQuery: (searchQuery) => {
+        set((state) => ({
+            ...state,
+            searchQuery: searchQuery
         }));
     }
 }));

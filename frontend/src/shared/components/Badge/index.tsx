@@ -2,7 +2,7 @@ import { BadgeProps } from "@/entities/Props/BadgeProps";
 import { useNavigate } from "react-router-dom";
 import { Box } from "@mui/material";
 
-const Badge = ({ children, title, link }: BadgeProps) => {
+const Badge = ({ children, link }: BadgeProps) => {
     const navigate = useNavigate();
 
 

@@ -1,22 +1,20 @@
 import { Box, Typography } from "@mui/material";
-import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { searchApi } from "@/entities/search";
-import { SearchQuery } from "@/entities/search/model/SearchQuery";
 import { PostsSearchResults } from "@/features/PostsSearchResults";
 import { CommentsSearchResults } from "@/features/CommentsSerchResults";
 import { PostDto } from "@/entities/posts/api/dto/post.dto";
 import { CommentDto } from "@/entities/comments/api/dto/comment.dto";
 import Loading from "@/shared/components/Loading";
+import { useMainStore, MainState, Action } from "@/app/stores";
 
 export const SearchResultPage = () => {
-    const location = useLocation();
-    const searchQuery = location.state as SearchQuery || {};
+
+    const searchQuery = useMainStore(
+        (state: MainState & Action) => state.searchQuery
+    );
 
     const { data: results,
-        isError,
-        error,
-        isFetched,
         isLoading }
         = useQuery(searchApi.searchQueries.search(searchQuery));
 

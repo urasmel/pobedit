@@ -1,21 +1,16 @@
 import { TextField, Button, Switch, FormControlLabel, Box, InputAdornment } from "@mui/material";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
-import { SearchQuery, SearchType } from "@/entities/search/model/SearchQuery";
-import { ITEMS_PER_PAGE } from "@/shared/config";
+import { SearchType } from "@/entities/search/model/SearchQuery";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { Action, MainState, useMainStore } from "@/app/stores";
 ;
 export const SearchPage = () => {
-    const [searchQuery, setSearchQuery] = useState<SearchQuery>({
-        query: "",
-        searchType: SearchType.posts,
-        startDate: null,
-        endDate: null,
-        limit: ITEMS_PER_PAGE,
-        offset: 0,
-    });
+
+    const searchQuery = useMainStore((state: MainState & Action) => state.searchQuery);
+    const setSearchQuery = useMainStore((state: MainState & Action) => state.setSearchQuery);
+
     const navigate = useNavigate();
 
     const handleSearch = async () => {
