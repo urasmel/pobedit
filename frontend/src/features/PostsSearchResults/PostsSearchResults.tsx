@@ -1,8 +1,8 @@
-import { PostDto } from "@/entities/posts/api/dto/post.dto";
-import { PostSearchWidget } from "../PostSearchWidget";
+import { PostWidget } from "../PostWidget";
+import { Post } from "@/entities";
 
-export const PostsSearchResults = (props: { results: PostDto[]; }) => {
-    return (props.results.map((post: PostDto, index: number) => (
-        <PostSearchWidget index={index} post={post} />
+export const PostsSearchResults = (props: { results: Post[]; }) => {
+    return (props.results.map((post: Post) => (
+        <PostWidget post={post} />
     )));
 };

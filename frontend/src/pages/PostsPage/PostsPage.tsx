@@ -2,13 +2,13 @@ import { Action, MainState, useMainStore } from "@/app/stores";
 import { Post } from "@/entities";
 import { channelApi } from "@/entities/channels";
 import { postsApi } from "@/entities/posts";
-import PostWidget from "@/features/PostWidget";
+import { PostWidget } from "@/features/PostWidget";
 import { ChannelMainInfo } from "@/shared/components/ChannelMainInfo";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
 import Loading from "@/shared/components/Loading";
 import { PostsLoadingWidget } from "@/shared/components/PostsLoadingWidget";
 import ScrollToTopButton from "@/shared/components/ScrollToTopButton";
-import { Pagination, Snackbar } from "@mui/material";
+import { Box, Pagination, Snackbar } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -98,11 +98,26 @@ export const PostsPage = () => {
     };
 
     return (
-        <div className={styles.channel}>
-
+        <Box
+            sx={{
+                padding: 4,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "start",
+                gap: 2,
+            }}
+        >
             {
                 !channelInfoIsError &&
-                <div className={styles.channel__info}>
+
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "start",
+                        gap: 2,
+                    }}
+                >
                     {
                         infoIsFetched &&
                         <ChannelMainInfo
@@ -118,8 +133,8 @@ export const PostsPage = () => {
                             invalidateCashe={invalidateCashe}
                             setLoadingError={setIsLoadingError}
                         />
-                    }
-                </div>
+                    }</Box>
+
             }
 
             <div className={styles.channel__posts}>
@@ -131,8 +146,6 @@ export const PostsPage = () => {
                                 return <PostWidget
                                     key={post.tlgId}
                                     post={post}
-                                    user={selectedUser}
-                                    channelId={channelId}
                                 />;
                             })
                         }
@@ -184,6 +197,6 @@ export const PostsPage = () => {
                 action={ErrorAction(closeSocketError)}
             />
 
-        </div >
+        </Box>
     );
 };
