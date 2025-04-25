@@ -8,3 +8,5 @@ export const mapPost = (dto: PostDto): Post => ({
     message: dto.message,
     commentsCount: dto.commentsCount
 });
+
+export const mapPosts = (dtos: PostDto[]): Post[] => dtos.map(mapPost);

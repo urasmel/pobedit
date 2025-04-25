@@ -27,7 +27,7 @@ export const getPostsCount = async (channelId: string | undefined): Promise<{ po
         return Promise.resolve({ posts_count: 0 });
     }
 
-    const result = await apiClient.get<ServiceResponse<number>>(`api/v1/info/channels/${channelId}/posts_count`);
+    const result = await apiClient.get<ServiceResponse<number>>(`info/channels/${channelId}/posts_count`);
 
     return ({
         posts_count: result.data
