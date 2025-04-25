@@ -4,12 +4,14 @@ using Gather.Data;
 using Gather.Services;
 using Gather.Services.AccountService;
 using Gather.Services.InfoService;
+using Gather.Services.SearchService;
 using Gather.Services.UserService;
 using Gather.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using SharedCore.Filtering;
 using System.Reflection;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,9 +42,12 @@ builder.Logging.AddSimpleConsole();
 
 builder.Services.AddScoped<IdFilter>();
 builder.Services.AddScoped<UserFilter>();
-//builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Singleton);
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped);
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        }); ;
 builder.Services.AddEndpointsApiExplorer(); 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -85,6 +90,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IGatherService, GatherService>();
 builder.Services.AddScoped<IInfoService, InfoService>();
+builder.Services.AddScoped<ISearchService, SearchService>();
 
 var app = builder.Build();
 

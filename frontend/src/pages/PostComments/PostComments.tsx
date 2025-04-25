@@ -9,14 +9,13 @@ import { CommentWidget } from "@/features/CommentWidget";
 import { CommentsLoadingWidget } from "@/shared/components/CommentsLoadingWidget";
 import { commentsApi } from "@/entities/comments";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { COMMENTS_PER_PAGE } from '@/shared/config';
-
+import { ITEMS_PER_PAGE } from '@/shared/config';
 
 export const PostComments = () => {
 
     const { channelId, postId } = useParams();
     const [offset, setOffset] = useState(0);
-    const [limit] = useState(COMMENTS_PER_PAGE);
+    const [limit] = useState(ITEMS_PER_PAGE);
     const queryClient = useQueryClient();
     const [pagesCount, setPagesCount] = useState(0);
     const [commentsErrorOpen, setCommentsErrorOpen] = useState(false);
@@ -86,7 +85,6 @@ export const PostComments = () => {
                     setLoadingError={setIsLoadingError}
                 />
             </div>
-
 
             {
                 data?.comments.length !== 0 &&

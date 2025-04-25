@@ -2,12 +2,12 @@ import { ServiceResponse, Post } from "@/entities";
 import { apiClient } from "@/shared/api/base";
 import { PostDto } from "./dto/post.dto";
 import { mapPost } from "./mapper/map-post";
-import { POSTS_PER_PAGE } from "@/shared/config";
+import { ITEMS_PER_PAGE } from "@/shared/config";
 
 export const getPosts = async (
     channelId: string | undefined,
     offset = 0,
-    limit = POSTS_PER_PAGE)
+    limit = ITEMS_PER_PAGE)
     : Promise<{ posts: Post[]; }> => {
     if (channelId == undefined) {
         return Promise.resolve({ posts: [] });
@@ -15,7 +15,7 @@ export const getPosts = async (
 
     const result = await apiClient
         .get<ServiceResponse<PostDto[]>>
-        (`api/v1/info/channels/${channelId}/posts?offset=${offset}&limit=${limit}`);
+        (`info/channels/${channelId}/posts?offset=${offset}&limit=${limit}`);
 
     return ({
         posts: result.data.map((post: PostDto) => mapPost(post))
@@ -27,7 +27,7 @@ export const getPostsCount = async (channelId: string | undefined): Promise<{ po
         return Promise.resolve({ posts_count: 0 });
     }
 
-    const result = await apiClient.get<ServiceResponse<number>>(`api/v1/info/channels/${channelId}/posts_count`);
+    const result = await apiClient.get<ServiceResponse<number>>(`info/channels/${channelId}/posts_count`);
 
     return ({
         posts_count: result.data

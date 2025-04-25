@@ -2,27 +2,27 @@ import { Action, MainState, useMainStore } from "@/app/stores";
 import { Post } from "@/entities";
 import { channelApi } from "@/entities/channels";
 import { postsApi } from "@/entities/posts";
-import PostWidget from "@/features/PostWidget";
+import { PostWidget } from "@/features/PostWidget";
 import { ChannelMainInfo } from "@/shared/components/ChannelMainInfo";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
 import Loading from "@/shared/components/Loading";
 import { PostsLoadingWidget } from "@/shared/components/PostsLoadingWidget";
 import ScrollToTopButton from "@/shared/components/ScrollToTopButton";
-import { Pagination, Snackbar } from "@mui/material";
+import { Box, Pagination, Snackbar } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import styles from "./styles.module.scss";
-import { POSTS_PER_PAGE } from "@/shared/config";
+import { ITEMS_PER_PAGE } from "@/shared/config";
 
-export const Posts = () => {
+export const PostsPage = () => {
 
     const { channelId } = useParams();
     const selectedUser = useMainStore(
         (state: MainState & Action) => state.selectedUser
     );
     const [offset, setOffset] = useState(0);
-    const [limit] = useState(POSTS_PER_PAGE);
+    const [limit] = useState(ITEMS_PER_PAGE);
     const queryClient = useQueryClient();
     const [channelErrorOpen, setChannelInfoOpen] = useState(false);
     const [postsErrorOpen, setPostsErrorOpen] = useState(false);
@@ -51,11 +51,11 @@ export const Posts = () => {
                 return;
             }
 
-            if (count.posts_count % POSTS_PER_PAGE == 0) {
-                setPagesCount(count.posts_count / POSTS_PER_PAGE);
+            if (count.posts_count % ITEMS_PER_PAGE == 0) {
+                setPagesCount(count.posts_count / ITEMS_PER_PAGE);
             }
             else {
-                setPagesCount(Math.ceil(count?.posts_count / POSTS_PER_PAGE));
+                setPagesCount(Math.ceil(count?.posts_count / ITEMS_PER_PAGE));
             }
         }, [count]
     );
@@ -81,7 +81,7 @@ export const Posts = () => {
     };
 
     const onPageChange = (_event: ChangeEvent<unknown>, page: number) => {
-        setOffset(POSTS_PER_PAGE * (page - 1));
+        setOffset(ITEMS_PER_PAGE * (page - 1));
     };
 
     const invalidateCashe = () => {
@@ -98,11 +98,26 @@ export const Posts = () => {
     };
 
     return (
-        <div className={styles.channel}>
-
+        <Box
+            sx={{
+                padding: 4,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "start",
+                gap: 2,
+            }}
+        >
             {
                 !channelInfoIsError &&
-                <div className={styles.channel__info}>
+
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "start",
+                        gap: 2,
+                    }}
+                >
                     {
                         infoIsFetched &&
                         <ChannelMainInfo
@@ -118,8 +133,8 @@ export const Posts = () => {
                             invalidateCashe={invalidateCashe}
                             setLoadingError={setIsLoadingError}
                         />
-                    }
-                </div>
+                    }</Box>
+
             }
 
             <div className={styles.channel__posts}>
@@ -131,8 +146,6 @@ export const Posts = () => {
                                 return <PostWidget
                                     key={post.tlgId}
                                     post={post}
-                                    user={selectedUser}
-                                    channelId={channelId}
                                 />;
                             })
                         }
@@ -184,6 +197,6 @@ export const Posts = () => {
                 action={ErrorAction(closeSocketError)}
             />
 
-        </div >
+        </Box>
     );
 };

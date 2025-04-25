@@ -923,7 +923,6 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
 
         try
         {
-
             var comments = await _context.Comments
                 .Include(comment => comment.From)
                 .Where(c => c.PostId == postId && c.PeerId == chatId)

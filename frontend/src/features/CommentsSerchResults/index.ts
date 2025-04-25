@@ -1,0 +1,1 @@
+export { CommentsSearchResults } from './CommentsSearchResults';

@@ -6,7 +6,7 @@ import { ChannelDto } from "./dto/channel.dto";
 import { Channel } from "../model/Channel";
 
 export const getChannels = async (): Promise<{ channels: Channel[]; }> => {
-    const result = await apiClient.get<ServiceResponse<ChannelDto[]>>(`api/v1/info/channels`);
+    const result = await apiClient.get<ServiceResponse<ChannelDto[]>>(`info/channels`);
 
     return ({
         channels: result.data.map((channel: ChannelDto) => mapChannel(channel))
@@ -18,7 +18,7 @@ export const getChannel = async (channelId: string | undefined): Promise<Channel
         return Promise.resolve(null);
     }
 
-    const result = await apiClient.get<ServiceResponse<ChannelDto>>(`api/v1/info/channels/${channelId}/info`);
+    const result = await apiClient.get<ServiceResponse<ChannelDto>>(`info/channels/${channelId}/info`);
     return (
         mapChannel(result.data)
     );
