@@ -1,5 +1,7 @@
+import { ReactNode } from "react";
+
 export interface BadgeProps {
+    children: ReactNode;
     title: string;
-    active: boolean;
     link: string;
 }
