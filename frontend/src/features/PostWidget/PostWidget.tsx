@@ -3,12 +3,13 @@ import { channelApi } from "@/entities/channels";
 import { Card, CardContent, Divider, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import plural from 'plural-ru';
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 
 export const PostWidget = ({ post }: { post: Post; }) => {
 
+    const navigate = useNavigate();
     const { data: channelInfo,
         isError: channelInfoIsError,
         error: channelInfoError,
@@ -52,17 +53,15 @@ export const PostWidget = ({ post }: { post: Post; }) => {
                             ' комментарий', ' комментария', ' комментариев')
                     }
 
-                    <NavLink
-                        style={{ textDecoration: "none" }}
-                        to={`/channels/${post.peerId}/posts/${post.tlgId}/comments`}
-                    >
-                        {post.commentsCount > 0 && <ChevronRightIcon
-                            sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                            }} />}
-                    </NavLink>
+                    <ChevronRightIcon
+                        sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            cursor: "pointer",
+                        }}
+                        onClick={() => { navigate(`/channels/${post.peerId}/posts/${post.tlgId}/comments`); }}
+                    />
                 </Typography>
             </CardContent>
         </Card>);

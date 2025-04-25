@@ -3,7 +3,7 @@ import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import { BadgeProps } from "@/entities/Props/BadgeProps";
 import { useNavigate } from "react-router-dom";
 
-const Badge = ({ title, active }: BadgeProps) => {
+const Badge = ({ title, active, link }: BadgeProps) => {
     const navigate = useNavigate();
     let badgeActive = "";
     let badgeIconActive = "";
@@ -16,7 +16,7 @@ const Badge = ({ title, active }: BadgeProps) => {
     }
 
     return (
-        <div className={`${styles.badge} ${styles[badgeActive]}`} onClick={() => { navigate('./search'); }}>
+        <div className={`${styles.badge} ${styles[badgeActive]}`} onClick={() => { navigate(link); }}>
             <div
                 className={`${styles.badge__icon} ${styles[badgeIconActive]}`}
             >
