@@ -6,21 +6,28 @@ import { PostDto } from "@/entities/posts/api/dto/post.dto";
 import { mapComments } from "@/entities/comments/api/mapper/map-comment";
 import { Comment } from "@/entities/comments/model/Comment";
 import { mapPosts } from "@/entities/posts/api/mapper/map-post";
+import { SearchResult } from "../model/SearchResult";
 
 
-export const postSearch = async (query: SearchQuery | null): Promise<Comment[] | Post[]> => {
+export const postSearch = async (query: SearchQuery | null): Promise<SearchResult<Comment | Post>> => {
     if (query == null) {
-        return Promise.resolve([]);
+        return Promise.resolve({ totalCount: 0, data: [] });
     }
 
-    const result = await apiClient.post<ServiceResponse<CommentDto[] | PostDto[]>>(`search`, { 'body': query });
+    const result = await apiClient.post<ServiceResponse<SearchResult<CommentDto | PostDto>>>(`search`, { 'body': query });
 
-    if (result.data.length === 0) {
-        return Promise.resolve([]);
+    if (result.data.data.length === 0) {
+        return Promise.resolve({ totalCount: 0, data: [] });
     }
 
-    if ('commentsCount' in result.data[0]) { // Assuming PostDto has a unique property like 'postId'
-        return mapPosts(result.data as PostDto[]) as Post[];
+    console.log('result', result.data.data);
+
+    if ('commentsCount' in result.data.data[0]) {
+        const posts = mapPosts(result.data.data as PostDto[]) as Post[];
+        return { totalCount: result.data.totalCount, data: posts };
     }
-    return mapComments(result.data as CommentDto[]) as Comment[];
+    else {
+        const comments = mapComments(result.data.data as CommentDto[]) as Comment[];
+        return { totalCount: result.data.totalCount, data: comments };
+    }
 };

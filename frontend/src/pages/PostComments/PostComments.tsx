@@ -11,7 +11,6 @@ import { commentsApi } from "@/entities/comments";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ITEMS_PER_PAGE } from '@/shared/config';
 
-
 export const PostComments = () => {
 
     const { channelId, postId } = useParams();
@@ -86,7 +85,6 @@ export const PostComments = () => {
                     setLoadingError={setIsLoadingError}
                 />
             </div>
-
 
             {
                 data?.comments.length !== 0 &&

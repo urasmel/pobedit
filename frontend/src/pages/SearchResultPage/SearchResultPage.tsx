@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Pagination, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { searchApi } from "@/entities/search";
 import { PostsSearchResults } from "@/features/PostsSearchResults";
@@ -7,16 +7,43 @@ import { PostDto } from "@/entities/posts/api/dto/post.dto";
 import { CommentDto } from "@/entities/comments/api/dto/comment.dto";
 import Loading from "@/shared/components/Loading";
 import { useMainStore, MainState, Action } from "@/app/stores";
+import ScrollToTopButton from "@/shared/components/ScrollToTopButton";
+import { ChangeEvent, useEffect, useState } from "react";
+import { ITEMS_PER_PAGE } from "@/shared/config";
 
 export const SearchResultPage = () => {
 
+    const [pagesCount, setPagesCount] = useState(0);
+    const [limit] = useState(ITEMS_PER_PAGE);
     const searchQuery = useMainStore(
         (state: MainState & Action) => state.searchQuery
     );
+    const setSearchQuery = useMainStore(
+        (state: MainState & Action) => state.setSearchQuery
+    );
 
-    const { data: results,
-        isLoading }
+    const { data: result,
+        isLoading, isError }
         = useQuery(searchApi.searchQueries.search(searchQuery));
+
+    const onPageChange = (_event: ChangeEvent<unknown>, page: number) => {
+        setSearchQuery({ ...searchQuery, offset: searchQuery.limit * (page - 1) });
+    };
+
+    useEffect(
+        () => {
+            if (result?.totalCount == 0 || result?.totalCount == undefined) {
+                return;
+            }
+
+            if (result?.totalCount % limit == 0) {
+                setPagesCount(result?.totalCount / limit);
+            }
+            else {
+                setPagesCount(Math.ceil(result?.totalCount / limit));
+            }
+        }, [result?.totalCount]
+    );
 
     if (isLoading) {
         return (<Loading />);
@@ -30,6 +57,8 @@ export const SearchResultPage = () => {
                 flexDirection: "column",
                 alignItems: "start",
                 gap: 2,
+                height: "100%",
+                boxSizing: "border-box",
             }}
         >
             {/* Search Parameters Summary */}
@@ -56,11 +85,11 @@ export const SearchResultPage = () => {
                     gap: 2,
                 }}
             >
-                {results && results.length > 0 ? (
+                {result?.data && result.data.length > 0 ? (
                     searchQuery.searchType === "posts" ? (
-                        <PostsSearchResults results={results as PostDto[]} />
+                        <PostsSearchResults results={result.data as PostDto[]} />
                     ) : (
-                        <CommentsSearchResults results={results as CommentDto[]} />
+                        <CommentsSearchResults results={result.data as CommentDto[]} />
                     )
                 ) : (
                     <Typography variant="body1" color="text.secondary">
@@ -68,6 +97,19 @@ export const SearchResultPage = () => {
                     </Typography>
                 )}
             </Box>
+
+            {
+                !isError &&
+                <Pagination
+                    sx={{ marginTop: 'auto' }}
+                    count={pagesCount}
+                    variant="outlined"
+                    shape="rounded"
+                    onChange={onPageChange}
+                />
+            }
+
+            <ScrollToTopButton />
         </Box>
     );
 };

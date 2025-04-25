@@ -5,6 +5,6 @@ namespace Gather.Services.SearchService
     public interface ISearchService
     {
 
-        Task<ServiceResponse<IEnumerable<object>>> Search(SearchQuery query);
+        Task<ServiceResponse<object>> Search(SearchQuery query);
     }
 }

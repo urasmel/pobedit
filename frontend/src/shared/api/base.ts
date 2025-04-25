@@ -39,7 +39,11 @@ export class ApiClient {
         return this.handleResponse<TResult>(response);
     }
 
-    public async post<TResult = unknown, TData extends { body: unknown; } = { body: unknown; }>(endpoint: string, data: TData): Promise<TResult> {
+    public async post<
+        TResult = unknown,
+        TData extends { body: unknown; } = { body: unknown; }
+    >
+        (endpoint: string, data: TData): Promise<TResult> {
 
         const url = new URL(endpoint, this.baseUrl); // Ensure the URL is constructed properly
 

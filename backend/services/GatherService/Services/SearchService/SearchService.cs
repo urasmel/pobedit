@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Gather.Data;
 using Gather.Dtos;
+using Gather.Dtos.Comments;
+using Gather.Dtos.Posts;
 using Gather.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Xml.Linq;
@@ -20,9 +22,9 @@ namespace Gather.Services.SearchService
             _logger = logger;
         }
 
-        public async Task<ServiceResponse<IEnumerable<object>>> Search(SearchQuery query)
+        public async Task<ServiceResponse<object>> Search(SearchQuery query)
         {
-            var response = new ServiceResponse<IEnumerable<object>>();
+            var response = new ServiceResponse<object>();
 
             if (query.SearchType == SearchType.Posts && _context.Posts == null)
             {
@@ -53,14 +55,20 @@ namespace Gather.Services.SearchService
                         dbQuery = dbQuery.Where(p => p.Date <= query.EndDate);
                     }
 
+                    dbQuery = dbQuery.Where(p => p.Message.Contains(query.Query));
+                    int totalCount = dbQuery.Count();
+
                     var ids = await dbQuery
-                        .Where(p => p.Message.Contains(query.Query))
                         .Skip(query.Offset)
                         .Take(query.Limit)
                         .Select(p => p.Id)
                         .ToListAsync();
                     var postsDtos = ids.Select(id => GetPostById(id));
-                    response.Data = postsDtos;
+                    response.Data = new SearchResultPostsDto()
+                    {
+                        TotalCount = totalCount,
+                        Data = postsDtos
+                    };
                 }
                 else if (query.SearchType == SearchType.Comments)
                 {
@@ -75,14 +83,20 @@ namespace Gather.Services.SearchService
                         dbQuery = dbQuery.Where(p => p.Date <= query.EndDate);
                     }
 
-                    var comments = await dbQuery
-                        .Include(comment => comment.From)
-                        .Where(c => c.Message.Contains(query.Query))
+                    dbQuery = dbQuery.Where(c => c.Message.Contains(query.Query));
+                    int totalCount = dbQuery.Count();
+
+                    var comments = await dbQuery                        
                         .Skip(query.Offset)
                         .Take(query.Limit)
+                        .Include(comment => comment.From)
                         .ToListAsync();
                     var commentsDtos = _mapper.Map<List<CommentDto>>(comments);
-                    response.Data = commentsDtos;
+                    response.Data = new SearchResultCommentsDto()
+                    {
+                        TotalCount = totalCount,
+                        Data = commentsDtos
+                    }; 
                 }
                 response.Success = true;
                 return response;
