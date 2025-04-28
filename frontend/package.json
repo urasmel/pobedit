@@ -20,6 +20,7 @@
         "@testing-library/react": "^16.2.0",
         "date-fns": "^4.1.0",
         "eslint-plugin-react": "^7.37.4",
+        "gsap": "^3.12.7",
         "localforage": "^1.10.0",
         "match-sorter": "^8.0.0",
         "plural-ru": "^2.0.2",
