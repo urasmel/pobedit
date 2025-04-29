@@ -12,7 +12,7 @@ namespace Gather.Services.InfoService;
 public class InfoService(GatherClient client, DataContext context, IMapper mapper, ILogger<InfoService> logger) : IInfoService
 {
     // Дата, с которой начинаем загружать данные.
-    private readonly DateTime startLoadingDate = DateTime.Parse("Jan 25, 2025");
+    private readonly DateTime startLoadingDate = DateTime.Parse("Apr 25, 2025");
     readonly ILogger _logger = logger;
     readonly GatherClient _client = client;
     TL.User? user;
@@ -947,11 +947,6 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         return response;
     }
 
-    public Task<ServiceResponse<Account>> GetAccaunt(long accountTlgId)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task UpdatePostComments(long chatId, long postId, WebSocket webSocket)
     {
         try
@@ -1108,7 +1103,6 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         }
     }
 
-
     private async Task LoadPostComments(InputPeer peer, Message msg, Post postToDb, WebSocket webSocket)
     {
         // Для того, чтобы не добавлять комментарии, которые уже есть в базе.
@@ -1163,8 +1157,6 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
                 try
                 {
                     newComment.PostId = msg.ID;
-
-                    // var userId = replies.Messages[commentIndex].From.ID;
 
                     var user = await _context.Accounts
                         .Where(acc => acc.TlgId == newComment.From.TlgId)
@@ -1228,7 +1220,6 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         postToDb.CommentsCount = replies.Count;
         await _context.SaveChangesAsync();
     }
-
 
     public async Task<ServiceResponse<long>> GetChannelPostsCount(long chatId)
     {
