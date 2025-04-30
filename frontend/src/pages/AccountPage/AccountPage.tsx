@@ -2,7 +2,7 @@ import { accountApi } from '@/entities/account';
 import { updateAccountInfo } from '@/entities/account/api/get-accounts';
 import { ErrorAction } from '@/shared/components/ErrorrAction';
 import Loading from '@/shared/components/Loading';
-import { Box, Typography, Button, Snackbar, Alert } from '@mui/material';
+import { Box, Typography, Button, Snackbar, Alert, Avatar, Dialog, DialogContent } from '@mui/material';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -14,6 +14,8 @@ const AccountPage = () => {
     const navigate = useNavigate();
     const [updateWithError, setUpdatingWithError] = useState(false);
     const [isInfoUpdating, setIsInfoUpdating] = useState(false);
+    const [avaOpen, setAvaOpen] = useState(false);
+
 
     const {
         data: account,
@@ -40,6 +42,14 @@ const AccountPage = () => {
         setUpdatingWithError(false);
     };
 
+    const handleClickOpen = () => {
+        setAvaOpen(true);
+    };
+
+    const handleClose = () => {
+        setAvaOpen(false);
+    };
+
     if (isLoading) {
         return <Loading />;
     }
@@ -63,6 +73,33 @@ const AccountPage = () => {
                 Информация о пользователе
             </Typography>
             <Box sx={{ marginBottom: 2 }}>
+
+                {
+                    account?.photo
+                        ?
+                        <Avatar
+                            sx={{
+                                width: 56,
+                                height: 56,
+                                cursor: "pointer",
+                            }}
+                            alt="User Avatar"
+                            src={`data:image/jpeg;base64,${account?.photo}`}
+                            onClick={handleClickOpen}
+                        />
+                        :
+                        <Avatar
+                            sx={{
+                                width: 56,
+                                height: 56,
+                                cursor: "pointer",
+                            }}
+                            alt="User Avatar"
+                            onClick={handleClickOpen}
+                            src={`${import.meta.env.BASE_URL}ava.png`}
+                        />
+                }
+
                 <Typography variant="body1">
                     <strong>Логин:</strong> {account?.username}
                 </Typography>
@@ -122,6 +159,29 @@ const AccountPage = () => {
                     Не удалось обновить информацию о пользователе
                 </Alert>
             </Snackbar>
+
+            <Dialog
+                open={avaOpen}
+                onClose={handleClose}
+                maxWidth="sm"
+                fullWidth={true}
+            >
+                <DialogContent>
+                    {
+                        account?.photo
+                            ?
+                            <img
+                                alt="User Avatar"
+                                src={`data:image/jpeg;base64,${account?.photo}`}
+                            />
+                            :
+                            <img
+                                alt="User Avatar"
+                                src={`${import.meta.env.BASE_URL}ava.png`}
+                            />
+                    }
+                </DialogContent>
+            </Dialog>
         </Box>
     );
 };

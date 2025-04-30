@@ -4,15 +4,6 @@
     column-gap: .5rem;
 }
 
-.comment__ava {
-    width: 3rem;
-}
-
-.comment__ava>img {
-    border-radius: 50%;
-    width: 100%;
-}
-
 .comment__info {
     display: flex;
     flex-direction: column;

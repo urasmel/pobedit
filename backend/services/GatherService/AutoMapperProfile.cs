@@ -15,6 +15,11 @@ public class AutoMapperProfile : Profile
 
         CreateMap<TL.User, GetUserDto>();
         CreateMap<TL.User, Account>().ConvertUsing(new TlgAccountConverter());
+        CreateMap<Users_UserFull, AccountDto>().ConvertUsing(new UserFullAccountDtoConverter());
+        CreateMap<Users_UserFull, Account>().ConvertUsing(new UserFullAccountConverter());
+        CreateMap<AccountDto, Account>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest=>dest.TlgId, opt=>opt.Ignore());
 
         CreateMap<Models.User, GetUserDto>();
         CreateMap<Models.Channel, ChatBase>();
@@ -28,7 +33,7 @@ public class AutoMapperProfile : Profile
 
 
         CreateMap<Models.Account, AccountDto>();
-        CreateMap<Users_UserFull, AccountDto>();
+        CreateMap<UserFull, AccountDto>();
     }
 
     public class TlgChannelConverter : ITypeConverter<TL.Channel, Models.Channel>
@@ -98,6 +103,40 @@ public class AutoMapperProfile : Profile
             account.Username = source.username;
             account.IsBot = source.IsBot;
             account.Phone = source.phone;
+            return account;
+        }
+    }
+
+    public class UserFullAccountDtoConverter : ITypeConverter<Users_UserFull, AccountDto>
+    {
+        public AccountDto Convert(Users_UserFull userFull, AccountDto destination, ResolutionContext context)
+        {
+            var account = new AccountDto();
+            var user = userFull.users.First().Value;
+            account.TlgId = user.ID;
+            account.MainUsername = user.MainUsername;
+            account.FirstName = user.first_name;
+            account.LastName = user.last_name;
+            account.Username = user.username;
+            account.IsBot = user.IsBot;
+            account.Phone = user.phone;
+            return account;
+        }
+    }
+
+    public class UserFullAccountConverter : ITypeConverter<Users_UserFull, Account>
+    {
+        public Account Convert(Users_UserFull userFull, Account destination, ResolutionContext context)
+        {
+            var account = new Account();
+            var user = userFull.users.First().Value;
+            account.TlgId = user.ID;
+            account.MainUsername = user.MainUsername;
+            account.FirstName = user.first_name;
+            account.LastName = user.last_name;
+            account.Username = user.username;
+            account.IsBot = user.IsBot;
+            account.Phone = user.phone;
             return account;
         }
     }

@@ -105,6 +105,8 @@ export const PostsPage = () => {
                 flexDirection: "column",
                 alignItems: "start",
                 gap: 2,
+                height: "100%",
+                boxSizing: "border-box",
             }}
         >
             {

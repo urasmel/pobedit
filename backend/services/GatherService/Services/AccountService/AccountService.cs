@@ -18,7 +18,6 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
     readonly GatherClient _client = client;
     TL.User? user;
 
-
     public async Task<ServiceResponse<AccountDto>> GetAccountAsync(long accountTlgId)
     {
         var response = new ServiceResponse<AccountDto>();
@@ -148,29 +147,51 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             return response;
         }
 
+        if (_context.Comments == null)
+        {
+            _logger.LogError("Comments in db context is null");
+            response.Success = false;
+            response.ErrorType = ErrorType.ServerError;
+            response.Message = "Server error";
+            return response;
+        }
+
         try
         {
-            var commentFromDb = await _context.Comments.Where(c => c.From.TlgId == accountTlgId).FirstAsync();
-            long commentId = commentFromDb.TlgId;
-            var peerId = commentFromDb.PeerId;
-            var postId = commentFromDb.PostId;
+            var commentFromDb = await _context
+                .Comments
+                .Where(c => c.From != null && c.From.TlgId == accountTlgId)
+                .FirstAsync();
 
-            var allChats = await _client.Messages_GetAllChats();
-            var chatNeeded = allChats.chats.Where(c => c.Value.ID == peerId).FirstOrDefault().Value;
-
-            if (chatNeeded == null)
+            if (commentFromDb == null)
             {
-                _logger.LogError("Chat of comment not found");
+                _logger.LogError("User's comments not found");
                 response.Success = false;
                 response.ErrorType = ErrorType.NotFound;
-                response.Message = "Chat of comment not found";
+                response.Message = "Data for retrieving user info not found";
                 return response;
             }
 
-            var inputMessage = new InputMessageID();
-            inputMessage.id = (int)postId;
+            // Получаем нужный канал.
+            var allChannels = await _client.Messages_GetAllChats();
+            var channelNeeded = allChannels
+                .chats
+                .Where(c => c.Value.ID == commentFromDb.PeerId)
+                .FirstOrDefault().Value;
 
-            var posts = await _client.GetMessages(chatNeeded, new InputMessage[] { inputMessage });
+            if (channelNeeded == null)
+            {
+                _logger.LogError("Channel of comment not found");
+                response.Success = false;
+                response.ErrorType = ErrorType.NotFound;
+                response.Message = "Channel of comment not found";
+                return response;
+            }
+
+            // Получаем нужный пост в канале.
+            var inputMessage = new InputMessageID();
+            inputMessage.id = (int)commentFromDb.PostId;
+            var posts = await _client.GetMessages(channelNeeded, new InputMessage[] { inputMessage });
             var postNeeded = posts.Messages.FirstOrDefault();
 
             if (postNeeded == null)
@@ -182,71 +203,65 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
                 return response;
             }
 
-            var comments = await _client.Messages_GetReplies(chatNeeded, postNeeded.ID);
-            var commentNeeded = comments.Messages.Where(c => c.ID == commentId).FirstOrDefault();
-
-            if (commentNeeded == null)
-            {
-                _logger.LogError("User's comment not found");
-                response.Success = false;
-                response.ErrorType = ErrorType.NotFound;
-                response.Message = "User's comment not found";
-                return response;
-            }
-
-            //InputPeer: TL.InputPeerSelf,            TL.InputPeerChat, TL.InputPeerUser, TL.InputPeerChannel,
-            //           TL.InputPeerUserFromMessage, TL.InputPeerChannelFromMessage
-
-            //InputUserBase: InputUserSelf,InputUser,InputUserFromMessage
-
-            //Peer PeerUser, PeerChat, PeerChannel
-
-            //var inputUser = new InputUser(commentNeeded.From, ((PeerUser)commentNeeded.From));
-
-            InputUserFromMessage inputUserFromMessage = new InputUserFromMessage();
-            inputUserFromMessage.peer = chatNeeded;
-            inputUserFromMessage.user_id = commentNeeded.From.ID;
-            //inputUserFromMessage.msg_id = commentNeeded.ID;
-            inputUserFromMessage.msg_id = postNeeded.ID;
-
-            int delay = 300;
+            // Получаем нужный комментарий к посту.
+            int offset = 0;
+            MessageBase? commentNeeded;
+            Messages_MessagesBase? comments;
             while (true)
             {
-                if (delay > 8000)
+                comments = await _client.Messages_GetReplies(channelNeeded, postNeeded.ID, offset);
+                var replies = comments.Messages;
+                if (replies.Count() == 0)
+                {
+                    _logger.LogError("User's comment not found");
+                    response.Success = false;
+                    response.ErrorType = ErrorType.NotFound;
+                    response.Message = "User's comment not found";
+                    return response;
+                }
+                commentNeeded = replies.Where(c => c.ID == commentFromDb.TlgId).FirstOrDefault();
+                if (commentNeeded != null)
                 {
                     break;
                 }
-
-                try
-                {
-                    //InputUser userBase = new(commentNeeded.From.ID, user.access_hash);
-                    var userInfo = await _client.Users_GetFullUser(inputUserFromMessage);
-                    var acc = _mapper.Map<AccountDto>(userInfo);
-                    response.Data = acc;
-
-                    //InputPeer inputPeer = new InputPeerChat(peerId);
-                    //var inputUserFromMessage = new InputUserFromMessage()
-                    //{
-                    //    peer = inputPeer,
-                    //    msg_id = (int)comment.TlgId,
-                    //    user_id = accountTlgId
-                    //};
-
-                    //var fullUser = await _client.Users_GetFullUser(inputUserFromMessage);
-                    //var acc = _mapper.Map<AccountDto>(fullUser.users.First().Value);
-                    //response.Data = acc;
-                    return response;
-                }
-                catch (Exception)
-                {
-                    delay = delay * 3;
-                }
-                Thread.Sleep(delay);
+                offset = replies.Last().ID;
             }
 
-            response.Success = false;
-            response.Message = "Сouldn't get user information";
-            response.ErrorType = ErrorType.ServerError;
+            // Получаем чат, привязанный к каналу.
+            var messages = comments as Messages_ChannelMessages;
+            var chats = messages.chats;
+            var inputPeer = chats.First().Value;
+
+            // Получаем информацию о пользователе.
+            var inputUserFromMessage = new InputUserFromMessage()
+            {
+                peer = inputPeer,
+                msg_id = commentNeeded.ID,
+                user_id = commentNeeded.From.ID
+            };
+
+            var userInfo = await _client.Users_GetFullUser(inputUserFromMessage);
+            var acc = _mapper.Map<AccountDto>(userInfo);
+
+            // Получаем одно фото пользователя.
+            MemoryStream ms = new(1000000);
+            Storage_FileType storage = await _client.DownloadProfilePhotoAsync(userInfo.users.First().Value, ms);
+            acc.Photo = Convert.ToBase64String(ms.ToArray());
+
+            // Сохраняем обновленную информацию о пользователе в базу.
+            var account = await _context.Accounts.Where(a => a.TlgId == accountTlgId).FirstAsync();
+            //account = _mapper.Map<Account>(acc);
+            account.FirstName = acc.FirstName;
+            account.LastName = acc.LastName;
+            account.Username = acc.Username;
+            account.Bio = acc.Bio;
+            account.Phone = acc.Phone;
+            account.Photo = acc.Photo;
+            account.MainUsername = acc.MainUsername;
+            await _context.SaveChangesAsync();
+
+            // Возвращаем назад.
+            response.Data = acc;
             return response;
         }
         catch (Exception ex)

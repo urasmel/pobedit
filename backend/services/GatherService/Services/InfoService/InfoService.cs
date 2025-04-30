@@ -227,8 +227,8 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         {
             _logger.LogError(exception, "UpdateChannels");
             response.Success = false;
-            response.Message = "The error while getting all updated channels occurred." 
-                + Environment.NewLine 
+            response.Message = "The error while getting all updated channels occurred."
+                + Environment.NewLine
                 + exception.Message;
             response.ErrorType = ErrorType.ServerError;
             response.Data = [];
@@ -297,7 +297,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         catch (Exception exception)
         {
             _logger.LogError(exception, "UpdateChannels"
-                + Environment.NewLine 
+                + Environment.NewLine
                 + "The error while logging telegram user.");
             response.Success = false;
             response.Message = "Unable to login to Telegram";
@@ -1164,26 +1164,23 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
             }
             var client_comments = replies.Messages;
 
-
             foreach (var comment in client_comments)
             {
-                var newComment = _mapper.Map<Comment>(comment);
-                if (newComment != null)
-                {
-                    newComment.PeerId = peer.ID;
-                    newComment.From = new Account();
-                    newComment.From.TlgId = comment.From.ID;
-                }
-                else
+                // Пропускаем комментарии, которые уже есть в базе.
+                if (dbCommentsIds.Contains(comment.From.ID))
                 {
                     continue;
                 }
 
-                // Пропускаем комментарии, которые уже есть в базе.
-                if (dbCommentsIds.Contains(newComment.From.TlgId))
+                var newComment = _mapper.Map<Comment>(comment);
+                if (newComment == null)
                 {
                     continue;
                 }
+
+                newComment.PeerId = peer.ID;
+                newComment.From = new Account();
+                newComment.From.TlgId = comment.From.ID;
 
                 try
                 {
@@ -1208,13 +1205,9 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
                         }
 
                         var inputPeer = chats.First().Value;
-
-
-                        //var replies = await _client.Messages_GetReplies(peer, msg.ID);
                         var inputUserFromMessage = new InputUserFromMessage()
                         {
                             peer = inputPeer,
-                            //peer = (replies as Messages_ChannelMessages).chats.First().Value,
                             msg_id = comment.ID,
                             user_id = newComment.From.TlgId
                         };
