@@ -25,7 +25,8 @@ public class UserService : IUserService
 
         if (_context.Users == null)
         {
-            response.Message = "Internal server error";
+            response.Message = "Server error";
+            response.ErrorType = ErrorType.ServerError;
             response.Success = false;
             response.Data = null;
             return response;
@@ -37,6 +38,7 @@ public class UserService : IUserService
             if (dbUser == null)
             {
                 response.Message = "User not found";
+                response.ErrorType = ErrorType.NotFound;
             }
             else
             {
@@ -45,9 +47,10 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex.Message);
             response.Message = "Server error";
+            response.ErrorType = ErrorType.ServerError;
             response.Success = false;
-            _logger.Log(LogLevel.Error, ex.Message);
         }
         return response;
     }
@@ -58,7 +61,8 @@ public class UserService : IUserService
 
         if (_context.Users == null)
         {
-            response.Message = "Internal server error";
+            response.Message = "Server error";
+            response.ErrorType = ErrorType.ServerError;
             response.Success = false;
             response.Data = null;
             return response;
@@ -76,6 +80,7 @@ public class UserService : IUserService
             response.Success = false;
             response.Data = Enumerable.Empty<GetUserDto>();
             response.Message = "Server error";
+            response.ErrorType = ErrorType.ServerError;
             return response;
         }
     }
@@ -86,7 +91,8 @@ public class UserService : IUserService
 
         if (_context.Users == null)
         {
-            response.Message = "Internal server error";
+            response.Message = "Server error";
+            response.ErrorType = ErrorType.ServerError;
             response.Success = false;
             response.Data = 0;
             return response;
@@ -98,6 +104,7 @@ public class UserService : IUserService
         {
             response.Success = false;
             response.Message = "User already exists";
+            response.ErrorType = ErrorType.AlreadyExists;
             return response;
         }
 
@@ -115,9 +122,10 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex.Message);
             response.Success = false;
             response.Message = "An error occurred while creating the user";
-            _logger.Log(LogLevel.Error, ex.Message);
+            response.ErrorType = ErrorType.ServerError;
             return response;
         }
     }
@@ -131,7 +139,8 @@ public class UserService : IUserService
             if (_context.Users == null)
             {
                 response.Success = false;
-                response.Message = "Internal server error";
+                response.Message = "Server error";
+                response.ErrorType = ErrorType.ServerError;
                 return response;
             }
 
@@ -147,14 +156,16 @@ public class UserService : IUserService
             {
                 response.Success = false;
                 response.Message = "User not found";
+                response.ErrorType = ErrorType.NotFound;
             }
             return response;
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex.Message);
             response.Success = false;
             response.Message = "An error occurred while deleting the user";
-            _logger.Log(LogLevel.Error, ex.Message);
+            response.ErrorType = ErrorType.ServerError;
             return response;
         }
     }
@@ -168,7 +179,8 @@ public class UserService : IUserService
             if (_context.Users == null)
             {
                 response.Success = false;
-                response.Message = "Internal server error";
+                response.Message = "Server error";
+                response.ErrorType = ErrorType.ServerError;
                 return response;
             }
 
@@ -179,23 +191,27 @@ public class UserService : IUserService
             {
                 response.Success = false;
                 response.Message = "User not found";
+                response.ErrorType = ErrorType.NotFound;
                 return response;
             }
 
             if (_context.Users.Any(a => a.Username == userParam.Username && userInDb.UserId != userParam.UserId))
             {
                 response.Success = false;
-                response.Message = " with this username already exists";
+                response.Message = "User with this username already exists";
+                response.ErrorType = ErrorType.AlreadyExists;
             }
             else if (_context.Users.Any(a => a.PhoneNumber == userParam.PhoneNumber && userInDb.UserId != userParam.UserId))
             {
                 response.Success = false;
                 response.Message = "User with this phone number already exists";
+                response.ErrorType = ErrorType.AlreadyExists;
             }
             else if (userInDb == null)
             {
                 response.Success = false;
                 response.Message = "User not found";
+                response.ErrorType = ErrorType.NotFound;
             }
             else
             {
@@ -210,9 +226,10 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex.Message);
             response.Success = false;
             response.Message = "An error occurred while editing the user";
-            _logger.Log(LogLevel.Error, ex.Message);
+            response.ErrorType = ErrorType.ServerError;
         }
 
         return response;

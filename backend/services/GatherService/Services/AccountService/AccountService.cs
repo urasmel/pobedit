@@ -4,6 +4,7 @@ using Gather.Data;
 using Gather.Dtos;
 using Gather.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 using TL;
 using WTelegram;
 
@@ -36,6 +37,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             if (account == null)
             {
                 response.Message = "Account not found";
+                response.ErrorType = ErrorType.NotFound;
                 response.Success = false;
             }
             else
@@ -46,8 +48,9 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         catch (Exception ex)
         {
             response.Message = "Server error";
+            response.ErrorType = ErrorType.ServerError;
             response.Success = false;
-            _logger.Log(LogLevel.Error, ex.Message);
+            _logger.LogError(ex.Message);
         }
 
 
@@ -60,7 +63,8 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
 
         if (_context.Accounts == null || _context.Comments == null)
         {
-            response.Message = "Internal server error";
+            response.Message = "Server error";
+            response.ErrorType = ErrorType.ServerError;
             response.Success = false;
             response.Data = null;
             return response;
@@ -72,6 +76,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             if (account == null)
             {
                 response.Message = "Account not found";
+                response.ErrorType = ErrorType.NotFound;
                 response.Success = false;
             }
             else
@@ -86,8 +91,9 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         catch (Exception ex)
         {
             response.Message = "Server error";
+            response.ErrorType = ErrorType.ServerError;
             response.Success = false;
-            _logger.Log(LogLevel.Error, ex.Message);
+            _logger.LogError(ex.Message);
         }
         return response;
     }
@@ -98,7 +104,8 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
 
         if (_context.Accounts == null || _context.Comments == null)
         {
-            response.Message = "Internal server error";
+            response.Message = "Server error";
+            response.ErrorType = ErrorType.ServerError;
             response.Success = false;
             response.Data = 0;
             return response;
@@ -112,8 +119,9 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         catch (Exception ex)
         {
             response.Message = "Server error";
+            response.ErrorType = ErrorType.ServerError;
             response.Success = false;
-            _logger.Log(LogLevel.Error, ex.Message);
+            _logger.LogError(ex.Message);
         }
         return response;
     }
@@ -135,54 +143,119 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
 
             response.Success = false;
             response.Message = "Unable to login to Telegram";
+            response.ErrorType = ErrorType.ServerError;
             response.Data = null;
             return response;
         }
 
         try
         {
-            //var user = _client.User;
-            //Console.WriteLine($"User ID: {user.ID}, Username: {user.username}, First Name: {user.first_name}, Last Name: {user.last_name}");
+            var commentFromDb = await _context.Comments.Where(c => c.From.TlgId == accountTlgId).FirstAsync();
+            long commentId = commentFromDb.TlgId;
+            var peerId = commentFromDb.PeerId;
+            var postId = commentFromDb.PostId;
 
-            //long userId = accountTlgId;
+            var allChats = await _client.Messages_GetAllChats();
+            var chatNeeded = allChats.chats.Where(c => c.Value.ID == peerId).FirstOrDefault().Value;
 
-            //var account = await _context.Accounts.FirstOrDefaultAsync(acc => acc.TlgId == userId);
-            //if (account == null || account.AccessHash == null)
-            //{
-            //    response.Message = "Account not found or access hash is missing";
-            //    response.Success = false;
-            //    return response;
-            //}
-
-            //var targetUser = await _client.Invoke(new TL.Methods.Users_GetFullUser
-            //{
-            //    id = new InputUser { user_id = userId, access_hash = account.AccessHash.Value }
-            //});
-
-            var comment = await _context.Comments.Where(c => c.From.TlgId == accountTlgId).FirstAsync();
-            long commentId = comment.TlgId;
-            var peerId = comment.PeerId;
-
-            InputPeer inputPeer = new InputPeerChat(peerId);
-            var inputUserFromMessage = new InputUserFromMessage()
+            if (chatNeeded == null)
             {
-                peer = inputPeer,
-                msg_id = (int)comment.TlgId,
-                user_id = accountTlgId
-            };
+                _logger.LogError("Chat of comment not found");
+                response.Success = false;
+                response.ErrorType = ErrorType.NotFound;
+                response.Message = "Chat of comment not found";
+                return response;
+            }
 
-            var fullUser = await _client.Users_GetFullUser(inputUserFromMessage);
-            var acc = _mapper.Map<AccountDto>(fullUser.users.First().Value);
-            response.Data = acc;
+            var inputMessage = new InputMessageID();
+            inputMessage.id = (int)postId;
+
+            var posts = await _client.GetMessages(chatNeeded, new InputMessage[] { inputMessage });
+            var postNeeded = posts.Messages.FirstOrDefault();
+
+            if (postNeeded == null)
+            {
+                _logger.LogError("Chat of comment not found");
+                response.Success = false;
+                response.ErrorType = ErrorType.NotFound;
+                response.Message = "Chat of comment not found";
+                return response;
+            }
+
+            var comments = await _client.Messages_GetReplies(chatNeeded, postNeeded.ID);
+            var commentNeeded = comments.Messages.Where(c => c.ID == commentId).FirstOrDefault();
+
+            if (commentNeeded == null)
+            {
+                _logger.LogError("User's comment not found");
+                response.Success = false;
+                response.ErrorType = ErrorType.NotFound;
+                response.Message = "User's comment not found";
+                return response;
+            }
+
+            //InputPeer: TL.InputPeerSelf,            TL.InputPeerChat, TL.InputPeerUser, TL.InputPeerChannel,
+            //           TL.InputPeerUserFromMessage, TL.InputPeerChannelFromMessage
+
+            //InputUserBase: InputUserSelf,InputUser,InputUserFromMessage
+
+            //Peer PeerUser, PeerChat, PeerChannel
+
+            //var inputUser = new InputUser(commentNeeded.From, ((PeerUser)commentNeeded.From));
+
+            InputUserFromMessage inputUserFromMessage = new InputUserFromMessage();
+            inputUserFromMessage.peer = chatNeeded;
+            inputUserFromMessage.user_id = commentNeeded.From.ID;
+            //inputUserFromMessage.msg_id = commentNeeded.ID;
+            inputUserFromMessage.msg_id = postNeeded.ID;
+
+            int delay = 300;
+            while (true)
+            {
+                if (delay > 8000)
+                {
+                    break;
+                }
+
+                try
+                {
+                    //InputUser userBase = new(commentNeeded.From.ID, user.access_hash);
+                    var userInfo = await _client.Users_GetFullUser(inputUserFromMessage);
+                    var acc = _mapper.Map<AccountDto>(userInfo);
+                    response.Data = acc;
+
+                    //InputPeer inputPeer = new InputPeerChat(peerId);
+                    //var inputUserFromMessage = new InputUserFromMessage()
+                    //{
+                    //    peer = inputPeer,
+                    //    msg_id = (int)comment.TlgId,
+                    //    user_id = accountTlgId
+                    //};
+
+                    //var fullUser = await _client.Users_GetFullUser(inputUserFromMessage);
+                    //var acc = _mapper.Map<AccountDto>(fullUser.users.First().Value);
+                    //response.Data = acc;
+                    return response;
+                }
+                catch (Exception)
+                {
+                    delay = delay * 3;
+                }
+                Thread.Sleep(delay);
+            }
+
+            response.Success = false;
+            response.Message = "Сouldn't get user information";
+            response.ErrorType = ErrorType.ServerError;
             return response;
         }
         catch (Exception ex)
         {
             response.Success = false;
             response.Message = "Server error";
-            _logger.Log(LogLevel.Error, ex.Message);
+            response.ErrorType = ErrorType.ServerError;
+            _logger.LogError(ex.Message);
             return response;
-
         }
         finally
         {

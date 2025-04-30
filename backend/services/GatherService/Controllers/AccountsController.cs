@@ -38,7 +38,7 @@ namespace Gather.Controllers
             return Ok(response);
         }
 
-        [HttpPost("{accountTlgId}")]
+        [HttpGet("{accountTlgId}/update")]
         [MapToApiVersion(1.0)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -28,6 +28,7 @@ public class AutoMapperProfile : Profile
 
 
         CreateMap<Models.Account, AccountDto>();
+        CreateMap<Users_UserFull, AccountDto>();
     }
 
     public class TlgChannelConverter : ITypeConverter<TL.Channel, Models.Channel>

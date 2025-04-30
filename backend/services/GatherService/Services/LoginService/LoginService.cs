@@ -39,6 +39,7 @@ public class LoginService : ILoginService
             {
                 response.Success = false;
                 response.Message = "Access denied";
+                response.ErrorType = ErrorType.ServerError;
             }
             else
             {
@@ -53,6 +54,7 @@ public class LoginService : ILoginService
         {
             response.Success = false;
             response.Message = "Login error";
+            response.ErrorType = ErrorType.ServerError;
             return response;
         }
 

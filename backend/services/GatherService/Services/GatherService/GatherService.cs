@@ -28,7 +28,7 @@ public class GatherService : IGatherService
     {
         if (_client == null)
         {
-            _logger.Log(LogLevel.Error, "Error to init telegram client. Client is not initialized.");
+            _logger.LogError("Error to init telegram client. Client is not initialized.");
             return;
         }
 
@@ -38,7 +38,7 @@ public class GatherService : IGatherService
         }
         catch (Exception)
         {
-            _logger.Log(LogLevel.Error, "Error to login user.");
+            _logger.LogError("Error to login user.");
             System.Environment.Exit(1);
         }
     }
@@ -63,7 +63,8 @@ public class GatherService : IGatherService
             if (_client == null) {
                 response.Data = false;
                 response.Success = false;
-                response.Message = $"Internal server error";
+                response.Message = "Server error";
+                response.ErrorType = ErrorType.ServerError;
                 return response;
             }
 
@@ -101,6 +102,7 @@ public class GatherService : IGatherService
             response.Success = false;
             response.Data = false;
             response.Message = "User does not exists";
+            response.ErrorType = ErrorType.NotFound;
             return response;
         }
 
@@ -118,6 +120,7 @@ public class GatherService : IGatherService
             response.Success = false;
             response.Data = false;
             response.Message = "User does not exists";
+            response.ErrorType = ErrorType.NotFound;
             return response;
         }
 

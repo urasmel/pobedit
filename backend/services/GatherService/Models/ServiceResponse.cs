@@ -6,5 +6,7 @@ public class ServiceResponse<T>
 
     public bool Success { get; set; } = true;
 
+    public ErrorType ErrorType { get; set; } = ErrorType.NoError;
+
     public string Message { get; set; } = string.Empty;
 }

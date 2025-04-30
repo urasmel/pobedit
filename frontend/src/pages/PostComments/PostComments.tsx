@@ -1,7 +1,7 @@
 import styles from "./Comments.module.scss";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Pagination, Snackbar } from "@mui/material";
+import { Alert, Pagination, Snackbar } from "@mui/material";
 import Loading from '@/shared/components/Loading';
 import ScrollToTopButton from "@/shared/components/ScrollToTopButton";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
@@ -123,18 +123,35 @@ export const PostComments = () => {
             <Snackbar
                 open={isError}
                 autoHideDuration={6000}
-                onClose={handleCommentsErrorClose}
-                message={error?.message}
                 action={ErrorAction(handleCommentsErrorClose)}
-            />
+                onClose={handleCommentsErrorClose}
+            >
+                <Alert
+                    onClose={handleCommentsErrorClose}
+                    severity="error"
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    error?.message
+                </Alert>
+            </Snackbar>
+
 
             <Snackbar
                 open={isSocketError}
                 autoHideDuration={6000}
-                onClose={closeSocketError}
-                message={socketErrorMessage}
                 action={ErrorAction(closeSocketError)}
-            />
+                onClose={closeSocketError}
+            >
+                <Alert
+                    onClose={closeSocketError}
+                    severity="error"
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    socketErrorMessage
+                </Alert>
+            </Snackbar>
 
         </div>
     );

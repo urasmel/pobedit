@@ -13,3 +13,13 @@ export const getAccount = async (accountId: string | undefined): Promise<Account
 
     return (mapAccount(result.data));
 };
+
+export const updateAccountInfo = async (accountId: string | undefined): Promise<Account | null> => {
+    if (accountId == undefined) {
+        return Promise.resolve(null);
+    }
+
+    const result = await apiClient.get<ServiceResponse<AccountDto>>(`accounts/${accountId}/update`);
+
+    return (mapAccount(result.data));
+};
