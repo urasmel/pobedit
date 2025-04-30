@@ -51,7 +51,13 @@ const AccountComments = () => {
     };
 
     return (
-        <Box sx={{ padding: 2, height: '100%', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
+        <Box sx={{
+            padding: 2,
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            boxSizing: 'border-box'
+        }}>
             {/* Header Section */}
             <Box
                 sx={{
@@ -61,13 +67,32 @@ const AccountComments = () => {
                     padding: 2,
                     backgroundColor: 'primary.light',
                     borderRadius: 2,
+                    gap: 2,
                 }}
             >
-                <Avatar
-                    src={`${import.meta.env.BASE_URL}ava.png`}
-                    alt={account?.username}
-                    sx={{ width: 56, height: 56, marginRight: 2 }}
-                />
+                {
+                    account?.photo
+                        ?
+                        <Avatar
+                            sx={{
+                                width: 56,
+                                height: 56,
+                                cursor: "pointer",
+                            }}
+                            alt="User Avatar"
+                            src={`data:image/jpeg;base64,${account?.photo}`}
+                        />
+                        :
+                        <Avatar
+                            sx={{
+                                width: 56,
+                                height: 56,
+                                cursor: "pointer",
+                            }}
+                            alt="User Avatar"
+                            src={`${import.meta.env.BASE_URL}ava.png`}
+                        />
+                }
                 <Typography variant="h5">{account?.username}</Typography>
 
             </Box>

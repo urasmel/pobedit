@@ -5,7 +5,6 @@ using Gather.Dtos.Comments;
 using Gather.Dtos.Posts;
 using Gather.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Xml.Linq;
 
 namespace Gather.Services.SearchService
 {
@@ -28,16 +27,18 @@ namespace Gather.Services.SearchService
 
             if (query.SearchType == SearchType.Posts && _context.Posts == null)
             {
-                _logger.Log(LogLevel.Error, "Posts table is null");
+                _logger.LogError("Posts table is null");
                 response.Success = false;
                 response.Message = "Server error";
+                response.ErrorType = ErrorType.ServerError;
                 return response;
             }
             else if (query.SearchType == SearchType.Comments && _context.Comments == null)
             {
-                _logger.Log(LogLevel.Error, "Comments table is null");
+                _logger.LogError("Comments table is null");
                 response.Success = false;
                 response.Message = "Server error";
+                response.ErrorType = ErrorType.ServerError;
                 return response;
             }
 
@@ -103,9 +104,10 @@ namespace Gather.Services.SearchService
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, ex.Message);
+                _logger.LogError(ex.Message);
                 response.Success = false;
                 response.Message = "Server error";
+                response.ErrorType = ErrorType.ServerError;
                 return response;
             }
         }

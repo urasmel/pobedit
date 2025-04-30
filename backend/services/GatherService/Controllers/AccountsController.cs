@@ -38,6 +38,25 @@ namespace Gather.Controllers
             return Ok(response);
         }
 
+        [HttpGet("{accountTlgId}/update")]
+        [MapToApiVersion(1.0)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ServiceResponse<AccountDto>>> Update([FromRoute] long accountTlgId)
+        {
+            var response = await _accountService.UpdateAccountAsync(accountTlgId);
+            if (response.Data == null)
+            {
+                return NotFound(response);
+            }
+            else if (!response.Success)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+            return Ok(response);
+        }
+
         [HttpGet("{accountTlgId}/comments")]
         [MapToApiVersion(1.0)]
         [ProducesResponseType(StatusCodes.Status200OK)]

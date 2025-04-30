@@ -8,7 +8,7 @@ import { ErrorAction } from "@/shared/components/ErrorrAction";
 import Loading from "@/shared/components/Loading";
 import { PostsLoadingWidget } from "@/shared/components/PostsLoadingWidget";
 import ScrollToTopButton from "@/shared/components/ScrollToTopButton";
-import { Box, Pagination, Snackbar } from "@mui/material";
+import { Alert, Box, Pagination, Snackbar } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -105,6 +105,8 @@ export const PostsPage = () => {
                 flexDirection: "column",
                 alignItems: "start",
                 gap: 2,
+                height: "100%",
+                boxSizing: "border-box",
             }}
         >
             {
@@ -175,27 +177,51 @@ export const PostsPage = () => {
 
             <Snackbar
                 open={channelErrorOpen}
-                onClose={handleChannelInfoErrorClose}
                 autoHideDuration={6000}
-                message={channelInfoError?.message}
                 action={ErrorAction(handleChannelInfoErrorClose)}
-            />
+                onClose={handleChannelInfoErrorClose}
+            >
+                <Alert
+                    onClose={handleChannelInfoErrorClose}
+                    severity="error"
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    channelInfoError?.message
+                </Alert>
+            </Snackbar>
 
             <Snackbar
                 open={postsErrorOpen}
-                onClose={handlePostsErrorClose}
                 autoHideDuration={6000}
-                message={error?.message}
                 action={ErrorAction(handlePostsErrorClose)}
-            />
+                onClose={handlePostsErrorClose}
+            >
+                <Alert
+                    onClose={handlePostsErrorClose}
+                    severity="error"
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    error?.message
+                </Alert>
+            </Snackbar>
 
             <Snackbar
                 open={isSocketError}
                 autoHideDuration={6000}
-                onClose={closeSocketError}
-                message={socketErrorMessage}
                 action={ErrorAction(closeSocketError)}
-            />
+                onClose={closeSocketError}
+            >
+                <Alert
+                    onClose={closeSocketError}
+                    severity="error"
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    socketErrorMessage
+                </Alert>
+            </Snackbar>
 
         </Box>
     );

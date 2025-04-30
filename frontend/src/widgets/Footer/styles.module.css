@@ -6,7 +6,7 @@
     position: sticky;
     backdrop-filter: none;
     color: rgba(0, 0, 0, 0.87);
-    border-radius: 1rem;
+    border-radius: .5rem;
     border: 0 solid rgba(0, 0, 0, 0.125);
     padding: 1rem;
     display: flex;

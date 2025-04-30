@@ -1,4 +1,5 @@
 import {
+    Alert,
     Button,
     Dialog,
     DialogActions,
@@ -151,13 +152,22 @@ const Channels = () => {
                     </DialogActions>
                 </Dialog>}
 
+
             <Snackbar
                 open={isError}
                 autoHideDuration={6000}
-                onClose={handleErrorClose}
-                message={error?.message}
                 action={ErrorAction(handleErrorClose)}
-            />
+                onClose={handleErrorClose}
+            >
+                <Alert
+                    onClose={handleErrorClose}
+                    severity="error"
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    error?.message
+                </Alert>
+            </Snackbar>
         </section>
     );
 };

@@ -12,7 +12,7 @@ namespace Gather.Services.InfoService;
 public class InfoService(GatherClient client, DataContext context, IMapper mapper, ILogger<InfoService> logger) : IInfoService
 {
     // Дата, с которой начинаем загружать данные.
-    private readonly DateTime startLoadingDate = DateTime.Parse("Jan 25, 2025");
+    private readonly DateTime startLoadingDate = DateTime.Parse("Apr 25, 2025");
     readonly ILogger _logger = logger;
     readonly GatherClient _client = client;
     TL.User? user;
@@ -29,7 +29,8 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         {
             _logger.LogError("GetAllChannels, _context.Channels is null");
             response.Success = false;
-            response.Message = "Internal server error";
+            response.Message = "Server error";
+            response.ErrorType = ErrorType.ServerError;
             response.Data = [];
             return response;
         }
@@ -66,6 +67,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
             response.Message = "An error has occurred while getting all channels." +
                 Environment.NewLine +
                 exception.Message;
+            response.ErrorType = ErrorType.ServerError;
             response.Data = [];
         }
 
@@ -80,7 +82,8 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
             || _context.Accounts == null)
         {
             response.Success = false;
-            response.Message = "Internal server error";
+            response.Message = "Server error";
+            response.ErrorType = ErrorType.ServerError;
             return response;
         }
 
@@ -97,6 +100,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
 
             response.Success = false;
             response.Message = "Unable to login to Telegram";
+            response.ErrorType = ErrorType.ServerError;
             response.Data = [];
             return response;
         }
@@ -106,6 +110,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
             response.Data = [];
             response.Success = false;
             response.Message = "Channels updates are temporarily unavailable";
+            response.ErrorType = ErrorType.ServerError;
             return response;
         }
         else
@@ -222,7 +227,10 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         {
             _logger.LogError(exception, "UpdateChannels");
             response.Success = false;
-            response.Message = "The error while getting all updated channels occurred." + Environment.NewLine + exception.Message;
+            response.Message = "The error while getting all updated channels occurred."
+                + Environment.NewLine
+                + exception.Message;
+            response.ErrorType = ErrorType.ServerError;
             response.Data = [];
             return response;
         }
@@ -242,9 +250,10 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         {
             if (_context.Channels == null)
             {
+                _logger.LogError("DB context with channels is null.");
                 response.Success = false;
                 response.Message = "Error fetching data from DB.";
-                _logger.Log(LogLevel.Error, "DB context with channels is null.");
+                response.ErrorType = ErrorType.ServerError;
                 response.Data = null;
                 return response;
             }
@@ -256,6 +265,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
             {
                 response.Success = false;
                 response.Message = "Channel not found.";
+                response.ErrorType = ErrorType.NotFound;
                 response.Data = null;
                 return response;
             }
@@ -271,6 +281,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
             response.Success = false;
             response.Data = null;
             response.Message = exception.Message;
+            response.ErrorType = ErrorType.ServerError;
             return response;
         }
     }
@@ -285,17 +296,21 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "UpdateChannels" + Environment.NewLine + "The error while logging telegram user.");
+            _logger.LogError(exception, "UpdateChannels"
+                + Environment.NewLine
+                + "The error while logging telegram user.");
             response.Success = false;
             response.Message = "Unable to login to Telegram";
+            response.ErrorType = ErrorType.ServerError;
             return response;
         }
 
         if (_context.Channels == null)
         {
+            _logger.LogError("DB context with channels is null.");
             response.Success = false;
             response.Message = "Error fetching data from DB.";
-            _logger.Log(LogLevel.Error, "DB context with channels is null.");
+            response.ErrorType = ErrorType.ServerError;
             response.Data = null;
             return response;
         }
@@ -310,6 +325,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
                 response.Success = false;
                 response.Data = null;
                 response.Message = "Channel not found";
+                response.ErrorType = ErrorType.NotFound;
                 return response;
             }
 
@@ -333,6 +349,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
                 response.Success = false;
                 response.Data = null;
                 response.Message = "Channel not found";
+                response.ErrorType = ErrorType.NotFound;
                 return response;
             }
 
@@ -351,6 +368,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
             response.Success = false;
             response.Data = null;
             response.Message = exception.Message;
+            response.ErrorType = ErrorType.NotFound;
             return response;
         }
     }
@@ -363,9 +381,10 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         {
             if (_context.Posts == null)
             {
+                _logger.LogError("DB context with posts is null.");
                 response.Success = false;
                 response.Message = "Error fetching data from DB.";
-                _logger.Log(LogLevel.Error, "DB context with posts is null.");
+                response.ErrorType = ErrorType.ServerError;
                 response.Data = [];
                 return response;
             }
@@ -505,9 +524,10 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
 
         if (_context.Posts == null)
         {
+            _logger.LogError("DB context with posts is null.");
             response.Success = false;
             response.Message = "Error fetching data from DB.";
-            _logger.Log(LogLevel.Error, "DB context with posts is null.");
+            response.ErrorType = ErrorType.ServerError;
             response.Data = [];
             return response;
         }
@@ -516,6 +536,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         {
             response.Success = false;
             response.Message = "Malformed parameter: chat identifier";
+            response.ErrorType = ErrorType.MalFormedData;
             response.Data = [];
             return response;
         }
@@ -531,6 +552,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         {
             response.Success = false;
             response.Message = exception.Message;
+            response.ErrorType = ErrorType.ServerError;
             response.Data = [];
             return response;
         }
@@ -542,9 +564,10 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
 
         if (_context.Posts == null)
         {
+            _logger.LogError("DB context with posts is null.");
             response.Success = false;
             response.Message = "Error fetching data from DB.";
-            _logger.Log(LogLevel.Error, "DB context with posts is null.");
+            response.ErrorType = ErrorType.ServerError;
             response.Data = [];
             return response;
         }
@@ -553,6 +576,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         {
             response.Success = false;
             response.Message = "Malformed parameter: chat identifier";
+            response.ErrorType = ErrorType.MalFormedData;
             response.Data = [];
             return response;
         }
@@ -561,6 +585,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         {
             response.Success = false;
             response.Message = "Malformed parameter: the identifier of the start post.";
+            response.ErrorType = ErrorType.MalFormedData;
             response.Data = [];
             return response;
         }
@@ -578,6 +603,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         {
             response.Success = false;
             response.Message = exception.Message;
+            response.ErrorType = ErrorType.ServerError;
             response.Data = [];
             return response;
         }
@@ -874,9 +900,10 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
 
         if (_context.Comments == null)
         {
+            _logger.LogError("DB context with comments is null.");
             response.Success = false;
             response.Message = "Error fetching data from DB.";
-            _logger.Log(LogLevel.Error, "DB context with comments is null.");
+            response.ErrorType = ErrorType.ServerError;
             response.Data = 0;
             return response;
         }
@@ -885,6 +912,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         {
             response.Success = false;
             response.Message = "Malformed parameter: chat identifier";
+            response.ErrorType = ErrorType.MalFormedData;
             response.Data = 0;
             return response;
         }
@@ -903,6 +931,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         {
             response.Success = false;
             response.Message = exception.Message;
+            response.ErrorType = ErrorType.ServerError;
             response.Data = 0;
             return response;
         }
@@ -916,7 +945,8 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         {
             _logger.LogError("GetComments, _context.Comments is null");
             response.Success = false;
-            response.Message = "Internal server error";
+            response.Message = "Server error";
+            response.ErrorType = ErrorType.ServerError;
             response.Data = [];
             return response;
         }
@@ -941,15 +971,11 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
             response.Message = "An error has occurred while getting comments." +
                 Environment.NewLine +
                 exception.Message;
+            response.ErrorType = ErrorType.ServerError;
             response.Data = [];
         }
 
         return response;
-    }
-
-    public Task<ServiceResponse<Account>> GetAccaunt(long accountTlgId)
-    {
-        throw new NotImplementedException();
     }
 
     public async Task UpdatePostComments(long chatId, long postId, WebSocket webSocket)
@@ -1108,7 +1134,6 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         }
     }
 
-
     private async Task LoadPostComments(InputPeer peer, Message msg, Post postToDb, WebSocket webSocket)
     {
         // Для того, чтобы не добавлять комментарии, которые уже есть в базе.
@@ -1139,32 +1164,27 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
             }
             var client_comments = replies.Messages;
 
-
             foreach (var comment in client_comments)
             {
-                var newComment = _mapper.Map<Comment>(comment);
-                if (newComment != null)
-                {
-                    newComment.PeerId = peer.ID;
-                    newComment.From = new Account();
-                    newComment.From.TlgId = comment.From.ID;
-                }
-                else
+                // Пропускаем комментарии, которые уже есть в базе.
+                if (dbCommentsIds.Contains(comment.From.ID))
                 {
                     continue;
                 }
 
-                // Пропускаем комментарии, которые уже есть в базе.
-                if (dbCommentsIds.Contains(newComment.From.TlgId))
+                var newComment = _mapper.Map<Comment>(comment);
+                if (newComment == null)
                 {
                     continue;
                 }
+
+                newComment.PeerId = peer.ID;
+                newComment.From = new Account();
+                newComment.From.TlgId = comment.From.ID;
 
                 try
                 {
                     newComment.PostId = msg.ID;
-
-                    // var userId = replies.Messages[commentIndex].From.ID;
 
                     var user = await _context.Accounts
                         .Where(acc => acc.TlgId == newComment.From.TlgId)
@@ -1185,13 +1205,9 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
                         }
 
                         var inputPeer = chats.First().Value;
-
-
-                        //var replies = await _client.Messages_GetReplies(peer, msg.ID);
                         var inputUserFromMessage = new InputUserFromMessage()
                         {
                             peer = inputPeer,
-                            //peer = (replies as Messages_ChannelMessages).chats.First().Value,
                             msg_id = comment.ID,
                             user_id = newComment.From.TlgId
                         };
@@ -1229,16 +1245,16 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         await _context.SaveChangesAsync();
     }
 
-
     public async Task<ServiceResponse<long>> GetChannelPostsCount(long chatId)
     {
         var response = new ServiceResponse<long>();
 
         if (_context.Posts == null)
         {
+            _logger.LogError("DB context with posts is null.");
             response.Success = false;
             response.Message = "Error fetching data from DB.";
-            _logger.Log(LogLevel.Error, "DB context with posts is null.");
+            response.ErrorType = ErrorType.ServerError;
             response.Data = 0;
             return response;
         }
@@ -1247,6 +1263,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         {
             response.Success = false;
             response.Message = "Malformed parameter: chat identifier";
+            response.ErrorType = ErrorType.MalFormedData;
             response.Data = 0;
             return response;
         }
@@ -1262,6 +1279,7 @@ public class InfoService(GatherClient client, DataContext context, IMapper mappe
         {
             response.Success = false;
             response.Message = exception.Message;
+            response.ErrorType = ErrorType.ServerError;
             response.Data = 0;
             return response;
         }

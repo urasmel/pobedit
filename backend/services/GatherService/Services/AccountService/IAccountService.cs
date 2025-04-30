@@ -10,4 +10,6 @@ public interface IAccountService
     Task<ServiceResponse<IEnumerable<CommentDto>>> GetCommentsAsync(long accountTlgId, int offset, int limit);
 
     Task<ServiceResponse<int>> GetCommentsCountAsync(long accountTlgId);
+
+    Task<ServiceResponse<AccountDto>> UpdateAccountAsync(long accountTlgId);
 }
