@@ -3,7 +3,7 @@ import { CommentHeader } from "../CommentHeader";
 import { CommentMessage } from "../CommentMessage"; import { Comment } from '@/entities/comments/model/Comment';
 
 
-export const CommentInfo = (props: { comment: Comment; }) => {
+export const CommentInfo = ({ comment, showUsername = true }: { comment: Comment; showUsername: boolean; }) => {
     return (
         <Box
             sx={{
@@ -13,9 +13,10 @@ export const CommentInfo = (props: { comment: Comment; }) => {
                 borderRadius: 2,
                 overflow: "hidden",
                 boxShadow: 5,
+                fontFamily: "Roboto, Helvetica Neue, Helvetica, Arial, sans-serif",
             }}>
-            <CommentHeader comment={props.comment} />
+            <CommentHeader comment={comment} showUsername={showUsername} />
 
-            <CommentMessage message={props.comment.message} />
+            <CommentMessage message={comment.message} />
         </Box>);
 };

@@ -14,7 +14,7 @@ export const SearchSettingsForm = () => {
             sx={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "center",
+                alignItems: "start",
                 height: "100%",
                 maxWidth: "400px",
                 justifyItems: "start",

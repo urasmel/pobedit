@@ -9,7 +9,6 @@ export const CommentWidget = (comment: Comment) => {
         <Box sx={{
             display: "flex",
             columnGap: 2,
-            fontFamily: "Roboto, Helvetica Neue, Helvetica, Arial, sans-serif",
         }}>
             <CommentAva comment={comment} />
 

@@ -1,10 +1,9 @@
-import { Box, Avatar, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { Comment } from '@/entities/comments/model/Comment';
 import { useContext } from "react";
 import { ThemeContext } from "@/app/theme";
 
-
-export const CommentHeader = (props: { comment: Comment; }) => {
+export const CommentHeader = ({ comment, showUsername = true }: { comment: Comment; showUsername: boolean; }) => {
 
     const theme = useContext(ThemeContext);
     return (
@@ -18,9 +17,9 @@ export const CommentHeader = (props: { comment: Comment; }) => {
                 color: "#333",
             }}
         >
-            {props.comment.from.username}&nbsp;
-            Ид. комментария: {props.comment.tlgId}, время:{" "}
-            {new Date(props.comment.date).toLocaleString("ru-RU")}
+            {showUsername && comment.from.username}&nbsp;
+            Ид. комментария: {comment.tlgId}, время:{" "}
+            {new Date(comment.date).toLocaleString("ru-RU")}
         </Box>
     );
 };
