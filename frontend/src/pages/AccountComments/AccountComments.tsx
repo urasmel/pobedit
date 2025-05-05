@@ -101,6 +101,7 @@ const AccountComments = () => {
             <Typography variant="h6" gutterBottom>
                 Комментарии пользователя
             </Typography>
+
             <List>
                 {comments?.map((comment) => (
                     <ListItem

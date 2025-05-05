@@ -9,6 +9,7 @@ import { Providers } from './providers';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from "react-router-dom";
 import './styles/index.scss';
+import { theme, ThemeContext } from './theme';
 
 
 const rootNode = document.getElementById('root') as Element;
@@ -25,10 +26,11 @@ root.render(
                 <Aside />
 
                 <div className={styles.main_content}>
-
-                    <Providers client={queryClient} >
-                        <AppRouter />
-                    </Providers>
+                    <ThemeContext.Provider value={theme}>
+                        <Providers client={queryClient} >
+                            <AppRouter />
+                        </Providers>
+                    </ThemeContext.Provider>
                 </div>
 
             </div>

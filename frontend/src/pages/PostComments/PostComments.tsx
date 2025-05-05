@@ -5,7 +5,7 @@ import { Alert, Pagination, Snackbar } from "@mui/material";
 import Loading from '@/shared/components/Loading';
 import ScrollToTopButton from "@/shared/components/ScrollToTopButton";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
-import { CommentWidget } from "@/features/CommentWidget";
+import { CommentWidget } from "@/shared/components/Comments/CommentWidget";
 import { CommentsLoadingWidget } from "@/shared/components/CommentsLoadingWidget";
 import { commentsApi } from "@/entities/comments";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
