@@ -5,6 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import plural from 'plural-ru';
 import { NavLink, useNavigate } from "react-router-dom";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { useContext } from "react";
+import { ThemeContext } from "@/app/theme";
 
 
 export const PostWidget = ({ post, showPostLink = true, showTitle = true }: { post: Post; showPostLink: boolean; showTitle: boolean; }) => {
@@ -15,6 +17,8 @@ export const PostWidget = ({ post, showPostLink = true, showTitle = true }: { po
         error: channelInfoError,
         isFetched: infoIsFetched }
         = useQuery(channelsApi.channelQueries.details(post.peerId.toString()));
+
+    const theme = useContext(ThemeContext);
 
     return (
         <Card key={post.tlgId} sx={{ width: "100%", padding: 1, boxSizing: "border-box" }}>
@@ -30,7 +34,22 @@ export const PostWidget = ({ post, showPostLink = true, showTitle = true }: { po
                 {
                     showTitle &&
                     <Typography variant="body1">
-                        <strong>Канал:</strong> {channelInfo?.title || post.peerId}
+                        Канал:&nbsp;
+                        <NavLink
+                            style={({ isActive }) =>
+                                isActive
+                                    ? {
+                                        color: theme.palette.primary.dark,
+                                        textDecoration: 'none'
+                                    }
+                                    : {
+                                        color: '#fff',
+                                        textDecoration: 'none'
+                                    }
+                            }
+                            to={`/channels/${post.peerId}/posts`}>
+                            <strong>{channelInfo?.title || post.peerId}</strong>
+                        </NavLink>
                     </Typography>
                 }
 
