@@ -3,6 +3,7 @@ using Gather.Client;
 using Gather.Data;
 using Gather.Services;
 using Gather.Services.AccountService;
+using Gather.Services.ChannelsService;
 using Gather.Services.InfoService;
 using Gather.Services.SearchService;
 using Gather.Services.UserService;
@@ -90,6 +91,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IGatherService, GatherService>();
 builder.Services.AddScoped<IInfoService, InfoService>();
+builder.Services.AddScoped<IChannelsService, ChannelsService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
 
 var app = builder.Build();

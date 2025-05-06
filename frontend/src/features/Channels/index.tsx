@@ -28,7 +28,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import { useNavigate } from "react-router-dom";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { channelApi } from "@/entities/channels";
+import { channelsApi } from "@/entities/channels";
 import { Channel } from "@/entities/channels/model/Channel";
 import { ChannelInfoDialog } from "../ChannelInfoDialog";
 
@@ -39,8 +39,8 @@ const Channels = () => {
     const [channelId, setChannelId] = useState<string | undefined>(undefined);
 
     const queryClient = useQueryClient();
-    const { data, isFetching, isLoading, isError, error } = useQuery(channelApi.channelQueries.list());
-    const { data: channelInfo } = useQuery(channelApi.channelQueries.details(channelId));
+    const { data, isFetching, isLoading, isError, error } = useQuery(channelsApi.channelQueries.list());
+    const { data: channelInfo } = useQuery(channelsApi.channelQueries.details(channelId));
 
     const navigate = useNavigate();
     const [openShowChannelInfo, setOpenShowChannelInfo] = useState(false);

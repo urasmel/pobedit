@@ -1,1 +1,1 @@
-export * as channelApi from './api';
+export * as channelsApi from './api';

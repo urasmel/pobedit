@@ -1,5 +1,5 @@
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
-import { getPosts, getPostsCount } from "./get-posts";
+import { getPost, getPosts, getPostsCount } from "./get-posts";
 
 export const postsQueries = {
     all: () => ["posts"],
@@ -17,6 +17,13 @@ export const postsQueries = {
         queryOptions({
             queryKey: [...postsQueries.lists(), channelId, offset, limit],
             queryFn: () => getPosts(channelId, offset, limit),
+            placeholderData: keepPreviousData,
+        }),
+
+    one: (channelId: number | undefined, postId: number | undefined) =>
+        queryOptions({
+            queryKey: [...postsQueries.all(), "post", channelId, postId],
+            queryFn: () => getPost(channelId, postId),
             placeholderData: keepPreviousData,
         }),
 

@@ -15,10 +15,28 @@ export const getPosts = async (
 
     const result = await apiClient
         .get<ServiceResponse<PostDto[]>>
-        (`info/channels/${channelId}/posts?offset=${offset}&limit=${limit}`);
+        (`channels/${channelId}/posts?offset=${offset}&limit=${limit}`);
 
     return ({
         posts: result.data.map((post: PostDto) => mapPost(post))
+    });
+};
+
+export const getPost = async (
+    channelId: number | undefined,
+    postId: number | undefined)
+    : Promise<{ post: Post; } | null> => {
+
+    if (channelId == undefined) {
+        return Promise.resolve(null);
+    }
+
+    const result = await apiClient
+        .get<ServiceResponse<PostDto>>
+        (`channels/${channelId}/posts/${postId}`);
+
+    return ({
+        post: mapPost(result.data)
     });
 };
 
@@ -27,7 +45,7 @@ export const getPostsCount = async (channelId: string | undefined): Promise<{ po
         return Promise.resolve({ posts_count: 0 });
     }
 
-    const result = await apiClient.get<ServiceResponse<number>>(`info/channels/${channelId}/posts_count`);
+    const result = await apiClient.get<ServiceResponse<number>>(`channels/${channelId}/posts_count`);
 
     return ({
         posts_count: result.data

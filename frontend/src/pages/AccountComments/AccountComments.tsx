@@ -4,8 +4,9 @@ import ScrollToTopButton from '@/shared/components/ScrollToTopButton';
 import { Box, Typography, Avatar, List, ListItem, Paper, Pagination } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { ChangeEvent, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { NavLink, useParams } from 'react-router-dom';
 import { ITEMS_PER_PAGE } from '@/shared/config';
+import { CommentInfo } from '@/shared/components/Comments/CommentInfo';
 
 const AccountComments = () => {
 
@@ -52,7 +53,7 @@ const AccountComments = () => {
 
     return (
         <Box sx={{
-            padding: 2,
+            padding: 4,
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
@@ -70,29 +71,36 @@ const AccountComments = () => {
                     gap: 2,
                 }}
             >
-                {
-                    account?.photo
-                        ?
-                        <Avatar
-                            sx={{
-                                width: 56,
-                                height: 56,
-                                cursor: "pointer",
-                            }}
-                            alt="User Avatar"
-                            src={`data:image/jpeg;base64,${account?.photo}`}
-                        />
-                        :
-                        <Avatar
-                            sx={{
-                                width: 56,
-                                height: 56,
-                                cursor: "pointer",
-                            }}
-                            alt="User Avatar"
-                            src={`${import.meta.env.BASE_URL}ava.png`}
-                        />
-                }
+
+                <NavLink
+                    to={`/accounts/${accountId}`}
+                >
+                    {
+                        account?.photo
+                            ?
+                            <Avatar
+                                sx={{
+                                    width: 56,
+                                    height: 56,
+                                    cursor: "pointer",
+                                }}
+                                alt="User Avatar"
+                                src={`data:image/jpeg;base64,${account?.photo}`}
+                            />
+                            :
+                            <Avatar
+                                sx={{
+                                    width: 56,
+                                    height: 56,
+                                    cursor: "pointer",
+                                }}
+                                alt="User Avatar"
+                                src={`${import.meta.env.BASE_URL}ava.png`}
+                            />
+                    }
+                </NavLink>
+
+
                 <Typography variant="h5">{account?.username}</Typography>
 
             </Box>
@@ -101,26 +109,14 @@ const AccountComments = () => {
             <Typography variant="h6" gutterBottom>
                 Комментарии пользователя
             </Typography>
+
             <List>
                 {comments?.map((comment) => (
                     <ListItem
                         key={comment.tlgId}
                         sx={{ marginBottom: 2 }}
                     >
-                        <Paper
-                            elevation={3}
-                            sx={{ width: '100%', padding: 2 }}
-                        >
-                            <Typography
-                                variant="subtitle2"
-                                color="text.secondary"
-                            >
-                                {new Date(comment.date).toLocaleString()} {comment.channelId}
-                            </Typography>
-                            <Typography variant="body1">
-                                {comment.message}
-                            </Typography>
-                        </Paper>
+                        <CommentInfo comment={comment} showUsername={false} showChannel={true} />
                     </ListItem>
                 ))}
             </List>
