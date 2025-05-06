@@ -96,7 +96,7 @@ export const PostPage = () => {
             }}
         >
 
-            {post != undefined && <PostWidget post={post?.post} showPostLink={false} />}
+            {post != undefined && <PostWidget post={post?.post} showPostLink={false} showTitle={false} />}
 
             <CommentsLoadingWidget
                 channelId={channelId ? +channelId : undefined}

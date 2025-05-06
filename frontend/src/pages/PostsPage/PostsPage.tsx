@@ -12,7 +12,6 @@ import { Alert, Box, Pagination, Snackbar } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import styles from "./styles.module.scss";
 import { ITEMS_PER_PAGE } from "@/shared/config";
 
 export const PostsPage = () => {
@@ -135,11 +134,21 @@ export const PostsPage = () => {
                             invalidateCashe={invalidateCashe}
                             setLoadingError={setIsLoadingError}
                         />
-                    }</Box>
+                    }
+                </Box>
 
             }
 
-            <div className={styles.channel__posts}>
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    flex: 1,
+                    rowGap: "2rem",
+                    alignItems: "start",
+                    width: "100%",
+                    height: "100%"
+                }}>
                 {
                     data?.posts.length !== 0 &&
                     <>
@@ -148,6 +157,8 @@ export const PostsPage = () => {
                                 return <PostWidget
                                     key={post.tlgId}
                                     post={post}
+                                    showPostLink={true}
+                                    showTitle={false}
                                 />;
                             })
                         }
@@ -156,9 +167,9 @@ export const PostsPage = () => {
 
                 {
                     (isFetching || isLoading) &&
-                    <div className="channel__posts-loading">
+                    <Box sx={{ alignSelf: "center" }}>
                         <Loading />
-                    </div>
+                    </Box>
                 }
 
                 {
@@ -171,7 +182,7 @@ export const PostsPage = () => {
                         onChange={onPageChange}
                     />
                 }
-            </div>
+            </Box>
 
             <ScrollToTopButton />
 

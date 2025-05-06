@@ -7,7 +7,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 
-export const PostWidget = ({ post, showPostLink = true }: { post: Post; showPostLink: boolean; }) => {
+export const PostWidget = ({ post, showPostLink = true, showTitle = true }: { post: Post; showPostLink: boolean; showTitle: boolean; }) => {
 
     const navigate = useNavigate();
     const { data: channelInfo,
@@ -27,9 +27,13 @@ export const PostWidget = ({ post, showPostLink = true }: { post: Post; showPost
                     },
                 }}
             >
-                <Typography variant="body1">
-                    <strong>Канал:</strong> {channelInfo?.title || post.peerId}
-                </Typography>
+                {
+                    showTitle &&
+                    <Typography variant="body1">
+                        <strong>Канал:</strong> {channelInfo?.title || post.peerId}
+                    </Typography>
+                }
+
                 <Typography variant="body2" color="text.secondary">
                     {new Date(post.date).toLocaleString()}
                 </Typography>
