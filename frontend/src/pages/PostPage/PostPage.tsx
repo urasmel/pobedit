@@ -96,7 +96,7 @@ export const PostPage = () => {
             }}
         >
 
-            {post != undefined && <PostWidget post={post?.post} showPostLink={false} showTitle={false} />}
+            {post != undefined && <PostWidget post={post?.post} showPostLink={false} showTitle={true} />}
 
             <CommentsLoadingWidget
                 channelId={channelId ? +channelId : undefined}
@@ -113,7 +113,7 @@ export const PostPage = () => {
                             <CommentWidget
                                 key={comment.tlgId}
                                 comment={comment}
-                                showChannel={true}
+                                showChannel={false}
                                 showUsername={true}
                             />
                         ))
