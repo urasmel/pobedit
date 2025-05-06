@@ -1,7 +1,6 @@
-import styles from "./Comments.module.scss";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Alert, Pagination, Snackbar } from "@mui/material";
+import { Alert, Box, Pagination, Snackbar } from "@mui/material";
 import Loading from '@/shared/components/Loading';
 import ScrollToTopButton from "@/shared/components/ScrollToTopButton";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
@@ -10,8 +9,11 @@ import { CommentsLoadingWidget } from "@/shared/components/CommentsLoadingWidget
 import { commentsApi } from "@/entities/comments";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ITEMS_PER_PAGE } from '@/shared/config';
+import { PostWidget } from "@/features/PostWidget";
+import { postsApi } from "@/entities/posts";
+import { ErrorBoundary } from "@/shared/components/ErrorBoundary/ErrorBoundary";
 
-export const PostComments = () => {
+export const PostPage = () => {
 
     const { channelId, postId } = useParams();
     const [offset, setOffset] = useState(0);
@@ -31,6 +33,12 @@ export const PostComments = () => {
     } = useQuery(commentsApi.commentsQueries.list(channelId, postId, offset, limit));
 
     const { data: count } = useQuery(commentsApi.commentsQueries.count(channelId, postId));
+
+    if (channelId === undefined || postId === undefined) {
+        return <ErrorBoundary>Произошла ошибка</ErrorBoundary>;
+    }
+
+    const { data: post } = useQuery(postsApi.postsQueries.one(+channelId, +postId));
 
     useEffect(
         () => {
@@ -75,16 +83,27 @@ export const PostComments = () => {
     };
 
     return (
-        <div className={styles.post__comments}>
+        <Box
+            sx={{
+                padding: 4,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "start",
+                gap: 2,
+                height: "100%",
+                width: "100%",
+                boxSizing: "border-box",
+            }}
+        >
 
-            <div className={styles['posts-no-data']}>
-                <CommentsLoadingWidget
-                    channelId={channelId ? +channelId : undefined}
-                    postId={postId ? +postId : 0}
-                    invalidateCashe={invalidateCashe}
-                    setLoadingError={setIsLoadingError}
-                />
-            </div>
+            {post != undefined && <PostWidget post={post?.post} showPostLink={false} />}
+
+            <CommentsLoadingWidget
+                channelId={channelId ? +channelId : undefined}
+                postId={postId ? +postId : 0}
+                invalidateCashe={invalidateCashe}
+                setLoadingError={setIsLoadingError}
+            />
 
             {
                 data?.comments.length !== 0 &&
@@ -93,7 +112,9 @@ export const PostComments = () => {
                         data?.comments.map((comment) => (
                             <CommentWidget
                                 key={comment.tlgId}
-                                {...comment}
+                                comment={comment}
+                                showChannel={true}
+                                showUsername={true}
                             />
                         ))
                     }
@@ -132,10 +153,9 @@ export const PostComments = () => {
                     variant="filled"
                     sx={{ width: '100%' }}
                 >
-                    error?.message
+                    {error?.message}
                 </Alert>
             </Snackbar>
-
 
             <Snackbar
                 open={isSocketError}
@@ -153,6 +173,6 @@ export const PostComments = () => {
                 </Alert>
             </Snackbar>
 
-        </div>
+        </Box>
     );
 };

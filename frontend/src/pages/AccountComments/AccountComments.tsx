@@ -53,7 +53,7 @@ const AccountComments = () => {
 
     return (
         <Box sx={{
-            padding: 2,
+            padding: 4,
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
@@ -116,7 +116,7 @@ const AccountComments = () => {
                         key={comment.tlgId}
                         sx={{ marginBottom: 2 }}
                     >
-                        <CommentInfo comment={comment} showUsername={false} />
+                        <CommentInfo comment={comment} showUsername={false} showChannel={true} />
                     </ListItem>
                 ))}
             </List>

@@ -19,7 +19,7 @@ class CloseEvent {
 
 export const PostsLoadingWidget = ({ channelId, invalidateCashe, setLoadingError }: PostsLoadingWidgetProps) => {
 
-    const URL = `ws://localhost:5037/api/v1/info/channels/${channelId}/update_posts`;
+    const URL = `ws://localhost:5037/api/v1/channels/${channelId}/update_posts`;
     const [isWSLoading, setIsWSLoading] = useState(false);
     const [response, setResponse] = useState<string>('');
 

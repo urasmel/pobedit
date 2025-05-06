@@ -3,7 +3,7 @@ import { CommentHeader } from "../CommentHeader";
 import { CommentMessage } from "../CommentMessage"; import { Comment } from '@/entities/comments/model/Comment';
 
 
-export const CommentInfo = ({ comment, showUsername = true }: { comment: Comment; showUsername: boolean; }) => {
+export const CommentInfo = ({ comment, showUsername = true, showChannel = true }: { comment: Comment; showUsername: boolean; showChannel: boolean; }) => {
     return (
         <Box
             sx={{
@@ -15,7 +15,7 @@ export const CommentInfo = ({ comment, showUsername = true }: { comment: Comment
                 boxShadow: 5,
                 fontFamily: "Roboto, Helvetica Neue, Helvetica, Arial, sans-serif",
             }}>
-            <CommentHeader comment={comment} showUsername={showUsername} />
+            <CommentHeader comment={comment} showUsername={showUsername} showChannel={showChannel} />
 
             <CommentMessage message={comment.message} />
         </Box>);

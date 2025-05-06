@@ -1,6 +1,6 @@
 import { Action, MainState, useMainStore } from "@/app/stores";
 import { Post } from "@/entities";
-import { channelApi } from "@/entities/channels";
+import { channelsApi } from "@/entities/channels";
 import { postsApi } from "@/entities/posts";
 import { PostWidget } from "@/features/PostWidget";
 import { ChannelMainInfo } from "@/shared/components/ChannelMainInfo";
@@ -33,7 +33,7 @@ export const PostsPage = () => {
         isError: channelInfoIsError,
         error: channelInfoError,
         isFetched: infoIsFetched }
-        = useQuery(channelApi.channelQueries.details(channelId));
+        = useQuery(channelsApi.channelQueries.details(channelId));
 
     const { data,
         isFetching,

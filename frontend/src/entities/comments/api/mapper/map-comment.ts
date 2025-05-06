@@ -4,7 +4,7 @@ import { Comment } from "../../model/Comment";
 export const mapComment = (dto: CommentDto): Comment => ({
     tlgId: dto.tlgId,
     postId: dto.postId,
-    channelId: dto.channelId,
+    peerId: dto.peerId,
     from: dto.from,
     message: dto.message,
     date: dto.date,

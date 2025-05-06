@@ -45,7 +45,7 @@ export const Aside = () => {
                 </Box>
             </Badge>
 
-            <Badge link='/admin'>
+            <Badge link='/control'>
                 <Box
                     sx={{
                         display: 'flex',
