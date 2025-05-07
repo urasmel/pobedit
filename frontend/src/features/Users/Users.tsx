@@ -12,11 +12,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import LoginIcon from "@mui/icons-material/Login";
 import {
     Alert,
+    Box,
     Snackbar,
 } from "@mui/material";
 import { Button } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import styles from "./styles.module.css";
 import { User } from "@/entities/users/model/User";
 import CustomNoRowsOverlay from "@/shared/components/CustomNoRowsOverlay";
 import DataGridTitle from "@/shared/components/DataGridTitle";
@@ -93,7 +93,13 @@ export const Users = () => {
     };
 
     return (
-        <section className={styles.users}>
+        <Box sx={{
+            minWidth: "12rem",
+            width: "100%",
+            '@media (min-width: 1078px)': {
+                width: '49%',
+            },
+        }}>
             <div style={{ height: 400 }}>
                 <DataGrid
                     sx={{
@@ -117,7 +123,11 @@ export const Users = () => {
                 />
             </div>
 
-            <div className={styles.users__buttons}>
+            <Box sx={{
+                marginTop: "1rem",
+                display: "flex",
+                columnGap: "1rem"
+            }}>
                 <Button
                     sx={{
                         width: "100px",
@@ -136,7 +146,7 @@ export const Users = () => {
                 >
                     Добавить
                 </Button>
-            </div>
+            </Box>
 
             <Snackbar
                 open={isError}
@@ -153,6 +163,6 @@ export const Users = () => {
                     error?.message
                 </Alert>
             </Snackbar>
-        </section>
+        </Box>
     );
 };

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import styles from './user-widget.module.css';
 import { User } from '@/entities';
+import { Box } from '@mui/material';
 
-const UserWidget = () => {
+export const UserWidget = () => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -23,19 +23,27 @@ const UserWidget = () => {
     }, []);
 
     if (loading) {
-        return <div className={styles.splash}>Loading...</div>;
+        return <div>Loading...</div>;
     }
 
     if (!user) {
-        return <div className={styles.splash}>Error loading user data</div>;
+        return <div>Error loading user data</div>;
     }
 
     return (
-        <div className={styles.splash}>
+        <Box sx={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            padding: "1rem",
+            backgroundColor: "#fff",
+            border: "1px solid #ccc",
+            boxShadow: "var(--shadow)",
+            textAlign: "center"
+        }}>
             <h2>User Information</h2>
             <p>Name: {user.username}</p>
-        </div>
+        </Box>
     );
 };
-
-export default UserWidget;

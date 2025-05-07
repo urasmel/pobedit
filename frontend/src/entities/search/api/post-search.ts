@@ -20,8 +20,6 @@ export const postSearch = async (query: SearchQuery | null): Promise<SearchResul
         return Promise.resolve({ totalCount: 0, data: [] });
     }
 
-    console.log('result', result.data.data);
-
     if ('commentsCount' in result.data.data[0]) {
         const posts = mapPosts(result.data.data as PostDto[]) as Post[];
         return { totalCount: result.data.totalCount, data: posts };

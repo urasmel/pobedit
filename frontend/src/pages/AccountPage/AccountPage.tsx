@@ -1,7 +1,7 @@
 import { accountApi } from '@/entities/account';
 import { updateAccountInfo } from '@/entities/account/api/get-accounts';
 import { ErrorAction } from '@/shared/components/ErrorrAction';
-import Loading from '@/shared/components/Loading';
+import { Loading } from '@/shared/components/Loading';
 import { Box, Typography, Button, Snackbar, Alert, Avatar, Dialog, DialogContent } from '@mui/material';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';

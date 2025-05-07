@@ -1,12 +1,12 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes, useRouteError } from "react-router-dom";
-import { NotFound } from "@/pages/NotFound";
-import Loading from "@/shared/components/Loading";
+import { NotFoundPage } from "@/pages/NotFoundPage";
+import { Loading } from "@/shared/components/Loading";
 import { PostPage } from "@/pages/PostPage";
-import { Home } from "@/pages/Home";
+import { HomePage } from "@/pages/HomePage";
 import { PostsPage } from "@/pages/PostsPage";
 import { AccountPage } from "@/pages/AccountPage";
-import { AccountComments } from "@/pages/AccountComments";
+import { AccountCommentsPage } from "@/pages/AccountCommentsPage";
 import { SearchPage } from "@/pages/SearchPage";
 import { SearchResultPage } from "@/pages/SearchResultPage";
 import { ErrorBoundary } from "@/shared/components/ErrorBoundary/ErrorBoundary";
@@ -22,7 +22,7 @@ export const AppRouter = () => {
                 element={
                     <ErrorBoundary>
                         <Suspense fallback={<Loading />}>
-                            <Home />
+                            <HomePage />
                         </Suspense>
                     </ErrorBoundary>
                 }
@@ -62,7 +62,7 @@ export const AppRouter = () => {
                 element={
                     <ErrorBoundary>
                         <Suspense fallback={<Loading />}>
-                            <AccountComments />
+                            <AccountCommentsPage />
                         </Suspense>
                     </ErrorBoundary>
                 }
@@ -87,7 +87,7 @@ export const AppRouter = () => {
                     </ErrorBoundary>
                 }
             />
-            < Route path='*' element={< NotFound />} />
+            < Route path='*' element={< NotFoundPage />} />
         </Routes >
     );
 };
