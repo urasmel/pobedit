@@ -1,4 +1,4 @@
-import { Box, CircularProgress } from "@mui/material";
+import { Box } from "@mui/material";
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 
@@ -24,10 +24,7 @@ const Loading = () => {
             alignItems: "center",
             justifyContent: "center",
             alignSelf: "center",
-            width: "100%",
-            height: "100%",
         }}>
-            {/* <CircularProgress /> */}
             <div
                 ref={spinnerRef}
                 style={{

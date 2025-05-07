@@ -1,7 +1,7 @@
 ﻿using Gather.Dtos;
 using Gather.Models;
 
-namespace Gather.Services.AccountService;
+namespace Gather.Services.Accounts;
 
 public interface IAccountService
 {

@@ -12,8 +12,8 @@ namespace Gather.Tests
         public void GetChannel_Returns_OkResult()
         {
             // Arrange
-            var infoServiceMock = new Mock<IInfoService>();
-            var controller = new InfoController(infoServiceMock.Object);
+            var infoServiceMock = new Mock<ICommentsService>();
+            var controller = new CommentsController(infoServiceMock.Object);
 
             // Act
             var result = controller.GetChannelInfo(1);

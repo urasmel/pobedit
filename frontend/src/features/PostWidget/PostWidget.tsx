@@ -21,7 +21,14 @@ export const PostWidget = ({ post, showPostLink = true, showTitle = true }: { po
     const theme = useContext(ThemeContext);
 
     return (
-        <Card key={post.tlgId} sx={{ width: "100%", padding: 1, boxSizing: "border-box" }}>
+        <Card
+            key={post.tlgId}
+            sx={{
+                width: "100%",
+                padding: 1,
+                boxSizing: "border-box"
+            }}
+        >
             <CardContent
                 sx={{
                     padding: 1,

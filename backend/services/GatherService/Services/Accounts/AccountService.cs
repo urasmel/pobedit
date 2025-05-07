@@ -4,11 +4,9 @@ using Gather.Data;
 using Gather.Dtos;
 using Gather.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
 using TL;
-using WTelegram;
 
-namespace Gather.Services.AccountService;
+namespace Gather.Services.Accounts;
 
 public class AccountService(GatherClient client, IMapper mapper, DataContext context, ILogger<AccountService> logger) : IAccountService
 {

@@ -1,4 +1,4 @@
-﻿namespace Gather.Utils
+﻿namespace Gather.Utils.ConfigService
 {
 
     public interface IConfigUtils

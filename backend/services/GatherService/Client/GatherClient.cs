@@ -1,4 +1,4 @@
-﻿using Gather.Utils;
+﻿using Gather.Utils.ConfigService;
 
 namespace Gather.Client
 {
