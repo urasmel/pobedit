@@ -5,9 +5,9 @@ import { PostsSearchResults } from "@/features/PostsSearchResults";
 import { CommentsSearchResults } from "@/features/CommentsSerchResults";
 import { PostDto } from "@/entities/posts/api/dto/post.dto";
 import { CommentDto } from "@/entities/comments/api/dto/comment.dto";
-import Loading from "@/shared/components/Loading";
+import { Loading } from "@/shared/components/Loading";
 import { useMainStore, MainState, Action } from "@/app/stores";
-import ScrollToTopButton from "@/shared/components/ScrollToTopButton";
+import { ScrollToTopButton } from "@/shared/components/ScrollToTopButton/ScrollToTopButton";
 import { ChangeEvent, useEffect, useState } from "react";
 import { ITEMS_PER_PAGE } from "@/shared/config";
 

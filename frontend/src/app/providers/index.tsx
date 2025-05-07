@@ -1,7 +1,4 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { RouterProvider } from "react-router-dom";
-import type { Router } from "@remix-run/router/dist/router";
-import { ReactQueryDevtools } from "react-query-devtools";
 import { ReactNode } from "react";
 
 

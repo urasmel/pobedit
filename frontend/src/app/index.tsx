@@ -1,6 +1,6 @@
 import { Aside } from '../widgets/Aside';
-import { Footer } from "../widgets/Footer";
-import { Header } from "../widgets/Header";
+import { Footer } from "../widgets/Footer/Footer";
+import { Header } from "../widgets/Header/Header";
 import { AppRouter } from "./routers";
 import styles from "./styles/index.module.css";
 import { queryClient } from "@/shared/api/query-client";

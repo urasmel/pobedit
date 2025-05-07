@@ -1,10 +1,10 @@
 import { Box, Button, Typography } from '@mui/material';
 import { useRef, useState } from 'react';
-import { LoadingProgessDialog } from '../LoadingProgessDialogProps';
 import { CommentsUpdatingWidgetProps } from '@/entities/Props/CommentsUpdatingWidgetProps';
 import { commentsApi } from '@/entities/comments';
 import { useQuery } from '@tanstack/react-query';
 import plural from 'plural-ru';
+import { LoadingProgessDialog } from '../LoadingProgessDialog';
 
 
 export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {

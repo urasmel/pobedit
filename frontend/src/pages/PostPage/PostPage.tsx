@@ -1,8 +1,8 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Alert, Box, Pagination, Snackbar, Typography } from "@mui/material";
-import Loading from '@/shared/components/Loading';
-import ScrollToTopButton from "@/shared/components/ScrollToTopButton";
+import { Loading } from '@/shared/components/Loading';
+import { ScrollToTopButton } from "@/shared/components/ScrollToTopButton/ScrollToTopButton";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
 import { CommentWidget } from "@/shared/components/Comments/CommentWidget";
 import { CommentsUpdatingWidget } from "@/shared/components/CommentsUpdatingWidget";
