@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Gather.Models;
 using Gather.Dtos;
-using Gather.Services;
+using Gather.Services.Login;
 
 namespace Gather.Controllers
 {

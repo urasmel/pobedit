@@ -4,7 +4,8 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-	</PropertyGroup>
+	  <UserSecretsId>259e0c90-8d4f-43b8-891b-e19afd407eea</UserSecretsId>
+  </PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Asp.Versioning.Http" Version="8.1.0" />
@@ -32,6 +33,7 @@
 
 	<ItemGroup>
 	  <Folder Include="logs\" />
+	  <Folder Include="Services\Comments\" />
 	</ItemGroup>
 
 	<PropertyGroup>

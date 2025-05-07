@@ -1,6 +1,6 @@
 ﻿using Gather.Collecting;
 using Gather.Models;
-using Gather.Utils;
+using Gather.Utils.ConfigService;
 using SharedCore.Extentions;
 using TL;
 

@@ -1,7 +1,7 @@
 ﻿using Gather.Dtos;
 using Gather.Models;
 
-namespace Gather.Services;
+namespace Gather.Services.Login;
 
 public class LoginService : ILoginService
 {

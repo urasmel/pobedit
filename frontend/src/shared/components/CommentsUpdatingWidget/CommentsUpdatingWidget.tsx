@@ -1,21 +1,20 @@
-import { Button } from '@mui/material';
-import styles from './styles.module.css';
+import { Box, Button, Typography } from '@mui/material';
 import { useRef, useState } from 'react';
 import { LoadingProgessDialog } from '../LoadingProgessDialogProps';
-import { CommentsLoadingWidgetProps } from '@/entities/Props/CommentsLoadingWidgetProps';
+import { CommentsUpdatingWidgetProps } from '@/entities/Props/CommentsUpdatingWidgetProps';
 import { commentsApi } from '@/entities/comments';
 import { useQuery } from '@tanstack/react-query';
 import plural from 'plural-ru';
 
 
-export const CommentsLoadingWidget = (props: CommentsLoadingWidgetProps) => {
+export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
 
-    const { channelId, postId, invalidateCashe, setLoadingError } = props;
-    const URL = `ws://localhost:5037/api/v1/info/channels/${channelId}/posts/${postId}/update_comments`;
+    const { channelId, postId, invalidateCashe, setUpdatingError } = props;
+    const URL = `ws://localhost:5037/api/v1/channels/${channelId}/posts/${postId}/update_comments`;
     const [isWSLoading, setIsWSLoading] = useState(false);
     const [response, setResponse] = useState<string>('');
 
-    const { data: comments_count, isError }
+    const { data: comments_count }
         = useQuery(commentsApi.commentsQueries.count(channelId?.toString(), postId?.toString()));
 
     const wsRef = useRef<WebSocket>(null);
@@ -31,7 +30,7 @@ export const CommentsLoadingWidget = (props: CommentsLoadingWidgetProps) => {
             }
             catch (error) {
                 setIsWSLoading(false);
-                setLoadingError("Ошибка отправки запроса на обновление комментариев канала.");
+                setUpdatingError("Ошибка отправки запроса на обновление комментариев канала.");
             }
         };
 
@@ -44,14 +43,14 @@ export const CommentsLoadingWidget = (props: CommentsLoadingWidgetProps) => {
             setIsWSLoading(false);
             if (1001 <= event.code && event.code <= 1015) {
                 console.error(`Запрос завершился ошибкой. ${event.reason}`);
-                setLoadingError(`Запрос завершился ошибкой. ${event.reason}`);
+                setUpdatingError(`Запрос завершился ошибкой. ${event.reason}`);
             }
             invalidateCashe();
         };
 
         wsRef.current.onerror = () => {
             setIsWSLoading(false);
-            setLoadingError("Ошибка отправки запроса на обновление данных канала.");
+            setUpdatingError("Ошибка отправки запроса на обновление данных канала.");
         };
     };
 
@@ -65,50 +64,46 @@ export const CommentsLoadingWidget = (props: CommentsLoadingWidgetProps) => {
         SyncPostComments();
     };
 
-    if (channelId == undefined) {
-        return (<div className={styles.error}>Ошибка. Не определен идентификатор канала.</div>);
-    }
-
-    if (postId === 0) {
-        return (<div className={styles.error}>Ошибка. Не определен идентификатор поста.</div>);
-    }
-
-    if (isError) {
-        return (<div className={styles.error}>Ошибка.Ошибка загрузки информации о комментариях поста.</div>);
-    }
-
     return (
-        <div className={styles.block}>
+        <Box
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                rowGap: "1rem",
+                borderRadius: "1rem",
+                padding: "1rem",
+                boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;",
+                fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+            }}
+        >
 
             {
                 comments_count == 0
                     ?
-                    <div className={styles.block__text}>
+                    <Typography>
                         Пока в базе данных нет комментариев к посту с идентификатором <b>{postId}</b>
-                    </div>
+                    </Typography>
                     :
-                    <div className={styles.block__text}>
+                    <Typography>
                         В базе данных {comments_count}&nbsp;
                         {plural((comments_count ? comments_count : 0), 'комментарий', 'комментария', 'комментариев')}&nbsp;
                         к посту с ид. {postId}
-                    </div>
+                    </Typography>
             }
 
-            <div className={styles.block__button}>
-                <Button
-                    variant="contained"
-                    onClick={btnSendRequest_handler}
-                    disabled={isWSLoading}
-                >
-                    Обновить комментарии поста
-                </Button>
-            </div>
+            <Button
+                variant="contained"
+                onClick={btnSendRequest_handler}
+                disabled={isWSLoading}
+            >
+                Обновить комментарии поста
+            </Button>
 
             <LoadingProgessDialog
                 date={response}
                 cancellLoading={btnStopDownloading_handler}
                 open={isWSLoading}
             />
-        </div>
+        </Box>
     );
 };

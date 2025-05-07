@@ -1,24 +1,27 @@
 using Asp.Versioning;
 using Gather.Client;
 using Gather.Data;
+using Gather.ServiceFactories;
 using Gather.Services;
-using Gather.Services.AccountService;
-using Gather.Services.ChannelsService;
-using Gather.Services.InfoService;
-using Gather.Services.SearchService;
-using Gather.Services.UserService;
-using Gather.Utils;
+using Gather.Services.Accounts;
+using Gather.Services.Channels;
+using Gather.Services.Search;
+using Gather.Services.Users;
+using Gather.Services.Login;
+using Gather.Utils.ConfigService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using SharedCore.Filtering;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using TL;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApiVersioning(options =>
 {
-    options.DefaultApiVersion = new ApiVersion(1,0);
+    options.DefaultApiVersion = new ApiVersion(1, 0);
     options.ReportApiVersions = true;
     options.ApiVersionReader = ApiVersionReader.Combine(
         new UrlSegmentApiVersionReader(),
@@ -30,6 +33,18 @@ builder.Services.AddApiVersioning(options =>
     options.GroupNameFormat = "'v'V";
     options.SubstituteApiVersionInUrl = true;
 });
+
+
+var apiId = builder.Configuration["Pobedit:ApiId"];
+var apiHash = builder.Configuration["Pobedit:ApiHash"];
+var phoneNumber = builder.Configuration["Pobedit:PhoneNumber"];
+
+if (apiId == null || apiHash == null || phoneNumber == null)
+{
+    Console.WriteLine("Configuration data for the telegram account is missing.");
+    Log.Error("Configuration data for the telegram account is missing.");
+    return;
+}
 
 builder.Services.Configure<RouteOptions>(options =>
 {
@@ -49,7 +64,7 @@ builder.Services.AddControllers()
         {
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         }); ;
-builder.Services.AddEndpointsApiExplorer(); 
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -84,13 +99,19 @@ builder.Services.AddCors(options =>
         });
 });
 
-builder.Services.AddSingleton<IConfigUtils, ConfigUtils>();
+//builder.Services.AddSingleton<IConfigUtils, ConfigUtils>();
+builder.Services.AddSingleton<IConfigUtils>(sp =>
+    ConfigUtilsFactory.Create(
+        apiId,
+        apiHash,
+        phoneNumber));
+
+
 builder.Services.AddSingleton<GatherClient>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IGatherService, GatherService>();
-builder.Services.AddScoped<IInfoService, InfoService>();
 builder.Services.AddScoped<IChannelsService, ChannelsService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
 

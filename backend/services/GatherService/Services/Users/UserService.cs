@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Gather.Models;
 using Gather.Dtos;
 
-namespace Gather.Services.UserService;
+namespace Gather.Services.Users;
 
 public class UserService : IUserService
 {

@@ -1,11 +1,11 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Alert, Box, Pagination, Snackbar } from "@mui/material";
+import { Alert, Box, Pagination, Snackbar, Typography } from "@mui/material";
 import Loading from '@/shared/components/Loading';
 import ScrollToTopButton from "@/shared/components/ScrollToTopButton";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
 import { CommentWidget } from "@/shared/components/Comments/CommentWidget";
-import { CommentsLoadingWidget } from "@/shared/components/CommentsLoadingWidget";
+import { CommentsUpdatingWidget } from "@/shared/components/CommentsUpdatingWidget";
 import { commentsApi } from "@/entities/comments";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ITEMS_PER_PAGE } from '@/shared/config';
@@ -29,7 +29,7 @@ export const PostPage = () => {
         isFetching,
         isLoading,
         isError,
-        error
+        error,
     } = useQuery(commentsApi.commentsQueries.list(channelId, postId, offset, limit));
 
     const { data: count } = useQuery(commentsApi.commentsQueries.count(channelId, postId));
@@ -61,6 +61,12 @@ export const PostPage = () => {
         }
     }, [isError]);
 
+    useEffect(() => {
+        if (isError) {
+            setCommentsErrorOpen(true);
+        }
+    }, [isError]);
+
     const handleCommentsErrorClose = () => {
         setCommentsErrorOpen(false);
     };
@@ -73,7 +79,7 @@ export const PostPage = () => {
         queryClient.invalidateQueries(commentsApi.commentsQueries.list(channelId, postId, offset, limit));
     };
 
-    const setIsLoadingError = (description: string) => {
+    const setIsUpdatingError = (description: string) => {
         setSocketErrorMessage(description);
         setIsSocketError(true);
     };
@@ -96,14 +102,27 @@ export const PostPage = () => {
             }}
         >
 
-            {post != undefined && <PostWidget post={post?.post} showPostLink={false} showTitle={false} />}
+            {
+                post != undefined &&
+                <PostWidget
+                    post={post?.post}
+                    showPostLink={false}
+                    showTitle={true} />
+            }
 
-            <CommentsLoadingWidget
-                channelId={channelId ? +channelId : undefined}
-                postId={postId ? +postId : 0}
-                invalidateCashe={invalidateCashe}
-                setLoadingError={setIsLoadingError}
-            />
+            {
+                isError && <Typography>Ошибка загрузки комментариев поста.</Typography>
+            }
+
+            {
+                (!isLoading && !isError) &&
+                <CommentsUpdatingWidget
+                    channelId={channelId ? +channelId : undefined}
+                    postId={postId ? +postId : 0}
+                    invalidateCashe={invalidateCashe}
+                    setUpdatingError={setIsUpdatingError}
+                />
+            }
 
             {
                 data?.comments.length !== 0 &&
@@ -113,7 +132,7 @@ export const PostPage = () => {
                             <CommentWidget
                                 key={comment.tlgId}
                                 comment={comment}
-                                showChannel={true}
+                                showChannel={false}
                                 showUsername={true}
                             />
                         ))
@@ -122,10 +141,7 @@ export const PostPage = () => {
             }
 
             {
-                (isFetching || isLoading) &&
-                <div className="channel__posts-loading">
-                    <Loading />
-                </div>
+                (isFetching || isLoading) && <Loading />
             }
 
             {
@@ -142,7 +158,7 @@ export const PostPage = () => {
             <ScrollToTopButton />
 
             <Snackbar
-                open={isError}
+                open={commentsErrorOpen}
                 autoHideDuration={6000}
                 action={ErrorAction(handleCommentsErrorClose)}
                 onClose={handleCommentsErrorClose}

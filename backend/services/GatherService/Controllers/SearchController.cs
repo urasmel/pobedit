@@ -1,6 +1,6 @@
 ﻿using Asp.Versioning;
 using Gather.Models;
-using Gather.Services.SearchService;
+using Gather.Services.Search;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gather.Controllers;

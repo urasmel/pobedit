@@ -1,7 +1,7 @@
 ﻿using Gather.Dtos;
 using Gather.Models;
 
-namespace Gather.Services.UserService;
+namespace Gather.Services.Users;
 
 public interface IUserService
 {

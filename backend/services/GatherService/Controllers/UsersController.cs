@@ -1,7 +1,7 @@
 ﻿using Asp.Versioning;
 using Gather.Dtos;
 using Gather.Models;
-using Gather.Services.UserService;
+using Gather.Services.Users;
 using Microsoft.AspNetCore.Mvc;
 using SharedCore.Filtering;
 

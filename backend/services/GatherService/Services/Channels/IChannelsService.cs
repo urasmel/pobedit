@@ -2,7 +2,7 @@
 using Gather.Models;
 using System.Net.WebSockets;
 
-namespace Gather.Services.ChannelsService;
+namespace Gather.Services.Channels;
 
 public interface IChannelsService
 {
@@ -23,4 +23,10 @@ public interface IChannelsService
     ServiceResponse<IEnumerable<PostDto>> GetChannelPosts(long chatId, DateTime startTime);
 
     Task UpdateChannelPosts(long chatId, WebSocket webSocket);
+
+    Task UpdatePostComments(long chatId, long postId, WebSocket webSocket);
+
+    Task<ServiceResponse<long>> GetCommentsCount(long chatId, long postId);
+
+    Task<ServiceResponse<IEnumerable<CommentDto>>> GetComments(long chatId, long postId, int offset = 0, int limit = 0);
 }

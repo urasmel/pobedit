@@ -1,7 +1,7 @@
 ﻿using Asp.Versioning;
 using Gather.Dtos;
 using Gather.Models;
-using Gather.Services.AccountService;
+using Gather.Services.Accounts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gather.Controllers
