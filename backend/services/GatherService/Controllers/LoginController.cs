@@ -30,4 +30,3 @@ namespace Gather.Controllers
     }
 }
 // TODO общие модели и дтошки в проект библиотеки классов
-// apiid and apihash хранить в конфиге

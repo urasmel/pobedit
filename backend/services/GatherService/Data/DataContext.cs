@@ -10,7 +10,7 @@ namespace Gather.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql("User ID=postgres;Password=;Host=localhost;Port=5432;Database=pobedit_db;");
+            optionsBuilder.UseNpgsql("User ID=postgres;Password=;Host=localhost;Port=5432;Database=pobedit_db;Include Error Detail=true;");
             optionsBuilder.EnableSensitiveDataLogging();
         }
 
@@ -41,7 +41,8 @@ namespace Gather.Data
                 .HasMany(e => e.Comments)
                 .WithOne(e => e.Post)
                 .HasForeignKey(e => e.PostId)
-                .HasPrincipalKey(e => e.TlgId);
+                .HasPrincipalKey(e => e.TlgId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<User>? Users { get; set; }

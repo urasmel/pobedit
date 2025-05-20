@@ -13,7 +13,7 @@ namespace Gather.Services.Channels;
 public class ChannelsService(GatherClient client, DataContext context, IMapper mapper, ILogger<ChannelsService> logger) : IChannelsService
 {
     // Дата, с которой начинаем загружать данные.
-    private readonly DateTime startLoadingDate = DateTime.Parse("Apr 25, 2025");
+    private readonly DateTime startLoadingDate = DateTime.Parse("May 15, 2025");
     readonly ILogger _logger = logger;
     readonly GatherClient _client = client;
     TL.User? user;
@@ -25,6 +25,7 @@ public class ChannelsService(GatherClient client, DataContext context, IMapper m
 
     public async Task<ServiceResponse<IEnumerable<ChannelDto>>> GetAllChannels()
     {
+
         var response = new ServiceResponse<IEnumerable<ChannelDto>>();
 
         if (_context.Channels == null)
@@ -193,15 +194,17 @@ public class ChannelsService(GatherClient client, DataContext context, IMapper m
                                 addedChat.Owner = owner;
                             }
 
-                            _context.Channels.Add(addedChat);
+                                _context.Channels.Add(addedChat);
                             await _context.SaveChangesAsync();
 
                             channelCount++;
                             _logger.LogInformation($"Channel {channelCount} added to collection: {addedChat.Title}");
-                            if (channelCount > 30)
+                            // TODO Delete in Production
+                            if (channelCount > 10)
                             {
                                 break;
                             }
+                            // TODO
                         }
                     }
                     else if (chatsFromTG[i].IsGroup)
@@ -341,11 +344,29 @@ public class ChannelsService(GatherClient client, DataContext context, IMapper m
                 ParticipantsCount = chatInfo.full_chat.ParticipantsCount,
                 About = chatInfo.full_chat.About
             };
+
+            ////////////////////////////////////////////////////////////
+            //long access_hash = ReflectionHelper.GetPrivateFieldValue<long>(chatPeer as InputPeerChannel, "access_hash");
+            // Peer -> PeerUser, PeerChat, PeerChannel
+            // InputDialogPeerBase->InputDialogPeer, InputDialogPeerFolder
+            
+            //PeerChannel pc = (PeerChannel)chatPeer;
+
+            var all_dialogs = await _client.Messages_GetPeerSettings(chat);
+            Console.WriteLine(all_dialogs.chats.Count);
+
+            //var inputChannel = new InputChannel(chatId, access_hash);
+            
+            //var ch = await _client.Channels_GetFullChannel(inputChannel);
+            
+            // var perr = ch.UserOrChat(chatPeer as PeerChannel);
+            ////////////////////////////////////////////////////////////////////////
+
             MemoryStream ms = new(1000000);
             Storage_FileType storage = await _client.DownloadProfilePhotoAsync(chat, ms);
             channelFullInfoDto.Image = Convert.ToBase64String(ms.ToArray());
 
-            var channelDB = _context.Channels.Where(channel => channel.Id == chatId).FirstOrDefault();
+            var channelDB = _context.Channels.Where(channel => channel.TlgId == chatId).FirstOrDefault();
             if (channelDB == null)
             {
                 response.Success = false;
@@ -1269,7 +1290,7 @@ public class ChannelsService(GatherClient client, DataContext context, IMapper m
                         {
                             peer = inputPeer,
                             msg_id = comment.ID,
-                            user_id = newComment.From.TlgId
+                            user_id = (long)newComment.From.TlgId
                         };
 
                         var fullUser = await _client.Users_GetFullUser(inputUserFromMessage);

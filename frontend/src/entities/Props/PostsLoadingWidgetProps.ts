@@ -1,5 +1,5 @@
 export interface PostsLoadingWidgetProps {
     channelId: number | undefined;
-    invalidateCashe: () => void;
+    invalidateCache: () => void;
     setLoadingError: (description: string) => void;
 }

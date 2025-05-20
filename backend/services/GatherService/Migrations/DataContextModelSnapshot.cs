@@ -52,50 +52,62 @@ namespace Gather.Migrations
                     b.ToTable("AccountGroup");
                 });
 
-            modelBuilder.Entity("SharedCore.Models.Account", b =>
+            modelBuilder.Entity("Gather.Models.Account", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Relational:JsonPropertyName", "id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Bio")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasAnnotation("Relational:JsonPropertyName", "bio");
 
                     b.Property<string>("FirstName")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasAnnotation("Relational:JsonPropertyName", "first_name");
 
                     b.Property<bool?>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasAnnotation("Relational:JsonPropertyName", "is_active");
 
                     b.Property<bool?>("IsBot")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasAnnotation("Relational:JsonPropertyName", "is_bot");
 
                     b.Property<string>("LastName")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasAnnotation("Relational:JsonPropertyName", "last_name");
 
                     b.Property<string>("MainUsername")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasAnnotation("Relational:JsonPropertyName", "main_username");
 
                     b.Property<string>("Phone")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasAnnotation("Relational:JsonPropertyName", "phone");
 
                     b.Property<string>("Photo")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasAnnotation("Relational:JsonPropertyName", "photo");
 
-                    b.Property<long>("TlgId")
-                        .HasColumnType("bigint");
+                    b.Property<long?>("TlgId")
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Relational:JsonPropertyName", "tlg_id");
 
                     b.Property<string>("Username")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasAnnotation("Relational:JsonPropertyName", "username");
 
                     b.HasKey("Id");
 
                     b.ToTable("Accounts");
                 });
 
-            modelBuilder.Entity("SharedCore.Models.Channel", b =>
+            modelBuilder.Entity("Gather.Models.Channel", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -131,7 +143,7 @@ namespace Gather.Migrations
                     b.ToTable("Channels");
                 });
 
-            modelBuilder.Entity("SharedCore.Models.Comment", b =>
+            modelBuilder.Entity("Gather.Models.Comment", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -167,7 +179,7 @@ namespace Gather.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("SharedCore.Models.Group", b =>
+            modelBuilder.Entity("Gather.Models.Group", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -203,7 +215,7 @@ namespace Gather.Migrations
                     b.ToTable("Groups");
                 });
 
-            modelBuilder.Entity("SharedCore.Models.Post", b =>
+            modelBuilder.Entity("Gather.Models.Post", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -212,6 +224,9 @@ namespace Gather.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<long?>("AuthorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ChannelId")
                         .HasColumnType("bigint");
 
                     b.Property<long>("CommentsCount")
@@ -234,10 +249,12 @@ namespace Gather.Migrations
 
                     b.HasIndex("AuthorId");
 
+                    b.HasIndex("ChannelId");
+
                     b.ToTable("Posts");
                 });
 
-            modelBuilder.Entity("SharedCore.Models.User", b =>
+            modelBuilder.Entity("Gather.Models.User", b =>
                 {
                     b.Property<long>("UserId")
                         .ValueGeneratedOnAdd()
@@ -271,13 +288,13 @@ namespace Gather.Migrations
 
             modelBuilder.Entity("AccountChannel", b =>
                 {
-                    b.HasOne("SharedCore.Models.Account", null)
+                    b.HasOne("Gather.Models.Account", null)
                         .WithMany()
                         .HasForeignKey("SubscribersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SharedCore.Models.Channel", null)
+                    b.HasOne("Gather.Models.Channel", null)
                         .WithMany()
                         .HasForeignKey("SubscriptionChannelsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -286,35 +303,35 @@ namespace Gather.Migrations
 
             modelBuilder.Entity("AccountGroup", b =>
                 {
-                    b.HasOne("SharedCore.Models.Account", null)
+                    b.HasOne("Gather.Models.Account", null)
                         .WithMany()
                         .HasForeignKey("SubscribersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SharedCore.Models.Group", null)
+                    b.HasOne("Gather.Models.Group", null)
                         .WithMany()
                         .HasForeignKey("SubscriptionGroupsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SharedCore.Models.Channel", b =>
+            modelBuilder.Entity("Gather.Models.Channel", b =>
                 {
-                    b.HasOne("SharedCore.Models.Account", "Owner")
+                    b.HasOne("Gather.Models.Account", "Owner")
                         .WithMany("Channels")
                         .HasForeignKey("OwnerId");
 
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("SharedCore.Models.Comment", b =>
+            modelBuilder.Entity("Gather.Models.Comment", b =>
                 {
-                    b.HasOne("SharedCore.Models.Account", "From")
+                    b.HasOne("Gather.Models.Account", "From")
                         .WithMany()
                         .HasForeignKey("FromId");
 
-                    b.HasOne("SharedCore.Models.Post", "Post")
+                    b.HasOne("Gather.Models.Post", "Post")
                         .WithMany("Comments")
                         .HasForeignKey("PostId")
                         .HasPrincipalKey("TlgId")
@@ -326,32 +343,43 @@ namespace Gather.Migrations
                     b.Navigation("Post");
                 });
 
-            modelBuilder.Entity("SharedCore.Models.Group", b =>
+            modelBuilder.Entity("Gather.Models.Group", b =>
                 {
-                    b.HasOne("SharedCore.Models.Account", "Owner")
+                    b.HasOne("Gather.Models.Account", "Owner")
                         .WithMany("Groups")
                         .HasForeignKey("OwnerId");
 
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("SharedCore.Models.Post", b =>
+            modelBuilder.Entity("Gather.Models.Post", b =>
                 {
-                    b.HasOne("SharedCore.Models.Account", "Author")
+                    b.HasOne("Gather.Models.Account", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorId");
 
+                    b.HasOne("Gather.Models.Channel", "Channel")
+                        .WithMany("Posts")
+                        .HasForeignKey("ChannelId");
+
                     b.Navigation("Author");
+
+                    b.Navigation("Channel");
                 });
 
-            modelBuilder.Entity("SharedCore.Models.Account", b =>
+            modelBuilder.Entity("Gather.Models.Account", b =>
                 {
                     b.Navigation("Channels");
 
                     b.Navigation("Groups");
                 });
 
-            modelBuilder.Entity("SharedCore.Models.Post", b =>
+            modelBuilder.Entity("Gather.Models.Channel", b =>
+                {
+                    b.Navigation("Posts");
+                });
+
+            modelBuilder.Entity("Gather.Models.Post", b =>
                 {
                     b.Navigation("Comments");
                 });

@@ -9,7 +9,7 @@ import { LoadingProgessDialog } from '../LoadingProgessDialog';
 
 export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
 
-    const { channelId, postId, invalidateCashe, setUpdatingError } = props;
+    const { channelId, postId, invalidateCache, setUpdatingError } = props;
     const URL = `ws://localhost:5037/api/v1/channels/${channelId}/posts/${postId}/update_comments`;
     const [isWSLoading, setIsWSLoading] = useState(false);
     const [response, setResponse] = useState<string>('');
@@ -45,7 +45,7 @@ export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
                 console.error(`Запрос завершился ошибкой. ${event.reason}`);
                 setUpdatingError(`Запрос завершился ошибкой. ${event.reason}`);
             }
-            invalidateCashe();
+            invalidateCache();
         };
 
         wsRef.current.onerror = () => {

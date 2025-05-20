@@ -14,7 +14,7 @@ import {
     GridRowParams,
     GridActionsCellItem,
 } from "@mui/x-data-grid";
-import React, {
+import {
     Suspense,
     useEffect,
     useMemo,
@@ -23,19 +23,20 @@ import React, {
 import CustomNoRowsOverlay from "@/shared/components/CustomNoRowsOverlay";
 import { MainState, Action, useMainStore } from "@/app/stores";
 import DataGridTitle from "@/shared/components/DataGridTitle";
-const Loading = React.lazy(() => import("@/shared/components/Loading"));
+import { Loading } from "@/shared/components/Loading";
 import InfoIcon from "@mui/icons-material/Info";
 import { useNavigate } from "react-router-dom";
 import { ErrorAction } from "@/shared/components/ErrorrAction";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { channelsApi } from "@/entities/channels";
 import { Channel } from "@/entities/channels/model/Channel";
-import { ChannelInfoDialog } from "../ChannelInfoDialog";
+import { ChannelInfoDialog } from "@/features/ChannelInfoDialog";
 
 export const Channels = () => {
 
 
     const selectedUser = useMainStore((state: MainState) => state.selectedUser);
+    const updateChannels = useMainStore((action: Action) => action.fetchUpdatedChannels);
     const [channelId, setChannelId] = useState<string | undefined>(undefined);
 
     const queryClient = useQueryClient();
@@ -140,13 +141,16 @@ export const Channels = () => {
                         width: "100px",
                     }}
                     variant="contained"
+                    onClick={() => updateChannels()}
                 >
                     Обновить
                 </Button>
             </Box>
 
             {
-                channelInfo != null && <Dialog
+                channelInfo != null &&
+                <Dialog
+                    sx={{ ".MuiPaper-root": { maxWidth: "none" } }}
                     open={openShowChannelInfo}
                     onClose={() => { setOpenShowChannelInfo(false); }}
                 >
@@ -175,7 +179,7 @@ export const Channels = () => {
                     variant="filled"
                     sx={{ width: '100%' }}
                 >
-                    error?.message
+                    {error?.message}
                 </Alert>
             </Snackbar>
         </Box>

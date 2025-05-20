@@ -68,6 +68,28 @@ public class ChannelsController(IChannelsService channelsService) : ControllerBa
     public async Task<ActionResult<ChannelDto>> GetChannelInfo(long channelId)
     {
         var response = await _channelsService.GetChannelInfo(channelId);
+        if (response.Message == "Channel not found.")
+        {
+            return NotFound(response);
+        }
+
+        if (!response.Success)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, response);
+        }
+
+        return Ok(response);
+    }
+
+    [HttpGet]
+    [Route("{channelId}/update_info")]
+    [MapToApiVersion(1.0)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ChannelDto>> UpdateChannelInfo(long channelId)
+    {
+        var response = await _channelsService.UpdateChannelInfo(channelId);
         if (response.Message == "Channel not found")
         {
             return NotFound(response);
