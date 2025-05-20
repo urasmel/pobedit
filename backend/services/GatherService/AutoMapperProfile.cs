@@ -34,6 +34,8 @@ public class AutoMapperProfile : Profile
 
         CreateMap<Models.Account, AccountDto>();
         CreateMap<UserFull, AccountDto>();
+        CreateMap<PobeditSettings, PobeditSettingsDto>();
+        CreateMap<PobeditSettingsDto, PobeditSettings>();
     }
 
     public class TlgChannelConverter : ITypeConverter<TL.Channel, Models.Channel>

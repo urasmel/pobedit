@@ -15,7 +15,7 @@ using Serilog;
 using SharedCore.Filtering;
 using System.Reflection;
 using System.Text.Json.Serialization;
-using TL;
+using Gather.Services.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,11 +59,10 @@ builder.Logging.AddSimpleConsole();
 builder.Services.AddScoped<IdFilter>();
 builder.Services.AddScoped<UserFilter>();
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped);
-builder.Services.AddControllers()
-        .AddJsonOptions(options =>
+builder.Services.AddControllers().AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        }); ;
+        });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -106,7 +105,7 @@ builder.Services.AddSingleton<IConfigUtils>(sp =>
         apiHash,
         phoneNumber));
 
-
+builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddSingleton<GatherClient>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IUserService, UserService>();

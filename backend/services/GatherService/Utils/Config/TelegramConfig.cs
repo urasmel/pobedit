@@ -1,6 +1,6 @@
 ﻿namespace Gather.Utils.ConfigService;
 
-public class ConfigUtils(string apiId, string apiHash, string phoneNumber) : IConfigUtils
+public class TelegramConfig(string apiId, string apiHash, string phoneNumber) : IConfigUtils
 {
     public Func<string, string> ConfigMethod = what =>
     {
