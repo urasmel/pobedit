@@ -2,14 +2,6 @@
 
 namespace Gather.Models;
 
-public enum SearchType
-{
-    [JsonPropertyName("posts")]
-    Posts,
-    [JsonPropertyName("comments")]
-    Comments
-}
-
 public class SearchQuery
 {
     [JsonPropertyName("query")]

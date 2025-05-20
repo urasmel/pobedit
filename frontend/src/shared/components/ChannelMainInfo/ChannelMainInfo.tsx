@@ -1,5 +1,6 @@
 import { ChannelMainInfoProps } from '@/entities/Props';
 import { Box } from '@mui/material';
+import { NavLink } from 'react-router-dom';
 
 export const ChannelMainInfo = (props: ChannelMainInfoProps) => {
     return (
@@ -20,8 +21,12 @@ export const ChannelMainInfo = (props: ChannelMainInfoProps) => {
             height: "100%",
             boxSizing: "border-box"
         }}>
+
             <Box sx={{ whiteSpace: "pre-wrap", wordWrap: "break-word", color: "rgb(52, 71, 103)" }} >
-                Канал: {props.title}
+                Канал:&nbsp;
+                <NavLink to={`/channels/${props.id}`}>
+                    {props.title}
+                </NavLink>
             </Box>
             <Box sx={{ whiteSpace: "pre-wrap", wordWrap: "break-word", color: "rgb(52, 71, 103)" }}>
                 Ид.: {props.id}

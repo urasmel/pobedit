@@ -160,7 +160,7 @@ export const Users = () => {
                     variant="filled"
                     sx={{ width: '100%' }}
                 >
-                    error?.message
+                    {error?.message}
                 </Alert>
             </Snackbar>
         </Box>

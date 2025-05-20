@@ -83,7 +83,7 @@ export const PostsPage = () => {
         setOffset(ITEMS_PER_PAGE * (page - 1));
     };
 
-    const invalidateCashe = () => {
+    const invalidateCache = () => {
         queryClient.invalidateQueries(postsApi.postsQueries.list(channelId, offset, limit));
     };
 
@@ -131,7 +131,7 @@ export const PostsPage = () => {
                         isFetched &&
                         <PostsLoadingWidget
                             channelId={channelId ? +channelId : undefined}
-                            invalidateCashe={invalidateCashe}
+                            invalidateCache={invalidateCache}
                             setLoadingError={setIsLoadingError}
                         />
                     }
@@ -214,7 +214,7 @@ export const PostsPage = () => {
                     variant="filled"
                     sx={{ width: '100%' }}
                 >
-                    error?.message
+                    {error?.message}
                 </Alert>
             </Snackbar>
 
@@ -230,7 +230,7 @@ export const PostsPage = () => {
                     variant="filled"
                     sx={{ width: '100%' }}
                 >
-                    socketErrorMessage
+                    {socketErrorMessage}
                 </Alert>
             </Snackbar>
 

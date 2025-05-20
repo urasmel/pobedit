@@ -12,7 +12,9 @@ public class Channel
 
     public string? Title { get; set; }
 
-    public List<Account> Subscribers { get; set; } = new List<Account>();
+    public IList<Account> Subscribers { get; set; } = new List<Account>();
+
+    public IList<Post> Posts { get; set; } = new List<Post>();
 
     public string? Image {  get; set; }
 

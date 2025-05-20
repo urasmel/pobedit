@@ -75,7 +75,7 @@ export const PostPage = () => {
         setOffset(limit * (page - 1));
     };
 
-    const invalidateCashe = () => {
+    const invalidateCache = () => {
         queryClient.invalidateQueries(commentsApi.commentsQueries.list(channelId, postId, offset, limit));
     };
 
@@ -119,7 +119,7 @@ export const PostPage = () => {
                 <CommentsUpdatingWidget
                     channelId={channelId ? +channelId : undefined}
                     postId={postId ? +postId : 0}
-                    invalidateCashe={invalidateCashe}
+                    invalidateCache={invalidateCache}
                     setUpdatingError={setIsUpdatingError}
                 />
             }

@@ -1,6 +1,6 @@
 export interface CommentsUpdatingWidgetProps {
     channelId: number | undefined;
     postId: number;
-    invalidateCashe: () => void;
+    invalidateCache: () => void;
     setUpdatingError: (description: string) => void;
 }

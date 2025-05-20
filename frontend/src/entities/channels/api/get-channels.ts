@@ -23,3 +23,14 @@ export const getChannel = async (channelId: string | undefined): Promise<Channel
         mapChannel(result.data)
     );
 };
+
+export const updateChannelInfo = async (channelId: string | undefined): Promise<Channel | null> => {
+    if (channelId == undefined) {
+        return Promise.resolve(null);
+    }
+
+    const result = await apiClient.get<ServiceResponse<ChannelDto>>(`channels/${channelId}/update_info`);
+    return (
+        mapChannel(result.data)
+    );
+};

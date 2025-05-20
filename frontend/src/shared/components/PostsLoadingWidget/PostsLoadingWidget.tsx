@@ -1,5 +1,5 @@
 import { PostsLoadingWidgetProps } from '@/entities/Props';
-import { Box, Button, Snackbar } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { postsApi } from '@/entities/posts';
@@ -16,7 +16,7 @@ class CloseEvent {
     }
 }
 
-export const PostsLoadingWidget = ({ channelId, invalidateCashe, setLoadingError }: PostsLoadingWidgetProps) => {
+export const PostsLoadingWidget = ({ channelId, invalidateCache: invalidateCache, setLoadingError }: PostsLoadingWidgetProps) => {
 
     const URL = `ws://localhost:5037/api/v1/channels/${channelId}/update_posts`;
     const [isWSLoading, setIsWSLoading] = useState(false);
@@ -54,14 +54,13 @@ export const PostsLoadingWidget = ({ channelId, invalidateCashe, setLoadingError
                 setLoadingError(`Запрос завершился ошибкой. ${event.reason}`);
                 console.error(`Запрос завершился ошибкой: ${event.reason}`);
             }
-            else {
-                invalidateCashe();
-            }
+            invalidateCache();
         };
 
         wsRef.current.onerror = (event: Event) => {
             setIsWSLoading(false);
             setLoadingError("Ошибка отправки запроса на обновление данных канала.");
+            invalidateCache();
         };
     };
 

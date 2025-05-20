@@ -14,11 +14,13 @@ public class Post
 
     public long PeerId { get; set; }
 
+    public Channel? Channel { get; set; }
+
     public string Message { get; set; } = string.Empty;
 
     public DateTime Date { get; set; }
 
-    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+    public IList<Comment> Comments { get; set; } = new List<Comment>();
 
     public long CommentsCount { get; set; }
 }
