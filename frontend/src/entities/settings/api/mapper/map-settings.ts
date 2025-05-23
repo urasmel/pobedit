@@ -1,5 +1,5 @@
 import { SettingsDto } from "../dto/settings.dto";
-import { Settings } from "@/entities/settings/model/ttt";
+import { Settings } from "@/entities/settings/model/Settings";
 
 export const mapChannel = (dto: SettingsDto): Settings => ({
     startGatherDate: dto.startGatherDate
