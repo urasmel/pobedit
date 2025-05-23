@@ -1,6 +1,8 @@
-import Badge from '@/shared/components/Badge';
+import { Badge } from '@/shared/components/Badge';
 import SearchIcon from "@mui/icons-material/Search";
-import SettingsIcon from "@mui/icons-material/Settings";
+import ControlIcon from "@mui/icons-material/Settings";
+
+import TuneIcon from "@mui/icons-material/Tune";
 import { Box, Typography } from '@mui/material';
 
 export const Aside = () => {
@@ -53,7 +55,7 @@ export const Aside = () => {
                         gap: 1
                     }}
                 >
-                    <SettingsIcon
+                    <ControlIcon
                         sx={{
                             color: "#344767",
                             fontSize: 24,
@@ -66,6 +68,31 @@ export const Aside = () => {
                         }}
                     >
                         Управление
+                    </Typography>
+                </Box>
+            </Badge>
+
+            <Badge link='/settings'>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1
+                    }}
+                >
+                    <TuneIcon
+                        sx={{
+                            color: "#344767",
+                            fontSize: 24,
+                        }}
+                    />
+                    <Typography
+                        variant="body1"
+                        sx={{
+                            color: "#344767",
+                        }}
+                    >
+                        Настройки
                     </Typography>
                 </Box>
             </Badge>

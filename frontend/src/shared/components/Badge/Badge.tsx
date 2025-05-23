@@ -2,7 +2,7 @@ import { BadgeProps } from "@/entities/Props/BadgeProps";
 import { useNavigate } from "react-router-dom";
 import { Box } from "@mui/material";
 
-const Badge = ({ children, link }: BadgeProps) => {
+export const Badge = ({ children, link }: BadgeProps) => {
     const navigate = useNavigate();
 
 
@@ -35,5 +35,3 @@ const Badge = ({ children, link }: BadgeProps) => {
         </Box>
     );
 };
-
-export default Badge;

@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Route, Routes, useRouteError } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { Loading } from "@/shared/components/Loading";
 import { PostPage } from "@/pages/PostPage";
@@ -11,6 +11,7 @@ import { SearchPage } from "@/pages/SearchPage";
 import { SearchResultPage } from "@/pages/SearchResultPage";
 import { ErrorBoundary } from "@/shared/components/ErrorBoundary/ErrorBoundary";
 import { ChannelPage } from "@/pages/ChannelPage";
+import { SettingsPage } from "@/pages/SettingsPage";
 
 // const Home = lazy(() => import("@/pages/Home"));
 // const Posts = lazy(() => import("@/pages/Posts"));
@@ -84,6 +85,16 @@ export const AppRouter = () => {
                     <ErrorBoundary>
                         <Suspense fallback={<Loading />}>
                             <SearchPage />
+                        </Suspense>
+                    </ErrorBoundary>
+                }
+            />
+            <Route
+                path="/settings"
+                element={
+                    <ErrorBoundary>
+                        <Suspense fallback={<Loading />}>
+                            <SettingsPage />
                         </Suspense>
                     </ErrorBoundary>
                 }
