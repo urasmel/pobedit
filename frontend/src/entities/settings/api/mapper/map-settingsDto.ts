@@ -1,6 +1,6 @@
 import { SettingsDto } from "../dto/settings.dto";
 import { Settings } from "@/entities/settings/model/settings";
 
-export const mapSettings = (dto: SettingsDto): Settings => ({
-    startGatherDate: dto.startGatherDate
+export const mapSettingsDto = (settings: Settings): SettingsDto => ({
+    startGatherDate: settings.startGatherDate
 });

@@ -5,5 +5,5 @@ namespace Gather.Models;
 public class PobeditSettings
 {
     [Required]
-    public DateTime StartGatherTime { get; set; }
+    public DateTime StartGatherDate { get; set; }
 }

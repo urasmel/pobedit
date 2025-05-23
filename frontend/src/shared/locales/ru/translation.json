@@ -1,0 +1,7 @@
+{
+    "errors": {
+        "userNotFound": "User not found.",
+        "networkError": "Сетевая ошибка при попытке запроса ресурса.",
+        "default": "An unexpected error occurred."
+    }
+}

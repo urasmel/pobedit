@@ -9,6 +9,8 @@ import { BrowserRouter } from "react-router-dom";
 import './styles/index.scss';
 import { theme, ThemeContext } from './theme';
 import { Box } from '@mui/material';
+import { I18nextProvider } from 'react-i18next';
+import i18n from './i18n';
 
 
 const rootNode = document.getElementById('root') as Element;
@@ -41,9 +43,11 @@ root.render(
                     borderRadius: ".3rem"
                 }}>
                     <ThemeContext.Provider value={theme}>
-                        <Providers client={queryClient} >
-                            <AppRouter />
-                        </Providers>
+                        <I18nextProvider i18n={i18n}>
+                            <Providers client={queryClient} >
+                                <AppRouter />
+                            </Providers>
+                        </I18nextProvider>
                     </ThemeContext.Provider>
                 </Box>
 

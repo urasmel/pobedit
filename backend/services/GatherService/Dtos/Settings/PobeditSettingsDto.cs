@@ -6,5 +6,5 @@ namespace Gather.Dtos;
 public class PobeditSettingsDto
 {
     [Required]
-    public DateTime StartGatherTime { get; set; }
+    public DateTime StartGatherDate { get; set; }
 }
