@@ -1,10 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
 namespace Gather.Dtos;
 
-public class PobeditSettingsDto
+public record PobeditSettingsDto
 {
     [Required]
     public DateTime StartGatherDate { get; set; }
+
+    [Required]
+    public int ChannelPollingFrequency { get; set; }
+
+    [Required]
+    public int CommentsPollingDelay { get; set; }
 }

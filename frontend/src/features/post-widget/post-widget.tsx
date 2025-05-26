@@ -64,7 +64,7 @@ export const PostWidget = ({ post, showPostLink = true, showTitle = true }: { po
                     {new Date(post.date).toLocaleString()}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                    Id: {post.tlgId}
+                    id: {post.tlgId}
                 </Typography>
                 <Typography variant="body2" sx={{ marginTop: 1, lineHeight: 2 }}>
                     {post.message}

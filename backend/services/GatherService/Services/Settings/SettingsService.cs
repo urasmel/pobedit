@@ -12,24 +12,38 @@ namespace Gather.Services.Settings
         private readonly IMapper _mapper;
         private readonly string _settingsFileName = "pobedit_settings.json";
         private PobeditSettings? _pobeditSettings;
+        JsonSerializerOptions serializeOptions;
 
         public SettingsService(ILogger<SettingsService> logger, IMapper mapper)
         {
             _logger = logger;
             _mapper = mapper;
+            serializeOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true
+            };
             InitializeAsync();
         }
 
 
         private void InitializeAsync()
         {
-            if (!File.Exists("pobedit_settings.json"))
+            try
             {
-                _logger.LogError($"Отсутствует файл настроек приложения '{_settingsFileName}'");
-                Environment.Exit(1);
+                if (!File.Exists("pobedit_settings.json"))
+                {
+                    _logger.LogError($"Отсутствует файл настроек приложения '{_settingsFileName}'");
+                    File.Create(_settingsFileName);
+                }
+                var fileText = File.ReadAllText(_settingsFileName);
+                _pobeditSettings = JsonSerializer.Deserialize<PobeditSettings>(fileText, serializeOptions);
             }
-            var fileText = File.ReadAllText(_settingsFileName);
-            _pobeditSettings = JsonSerializer.Deserialize<PobeditSettings>(fileText);
+            catch (Exception exception)
+            {
+                _logger.LogError($"Ошибка чтения настроек: ${exception.Message}");
+                _pobeditSettings = new PobeditSettings();
+            }
         }
 
         public ServiceResponse<PobeditSettingsDto> GetSettings()
@@ -45,7 +59,7 @@ namespace Gather.Services.Settings
             try
             {
                 _pobeditSettings = _mapper.Map<PobeditSettings>(pobeditSettingsDto);
-                var json = JsonSerializer.Serialize<PobeditSettings>(_pobeditSettings);
+                var json = JsonSerializer.Serialize<PobeditSettings>(_pobeditSettings, serializeOptions);
                 await File.WriteAllTextAsync(_settingsFileName, json);
                 response.Data = true;
             }

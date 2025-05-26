@@ -13,16 +13,34 @@ import { Settings } from "@/entities/settings/model/settings";
 import { Loading } from "@/shared/components/loading/loading-widget";
 import { useTranslation } from 'react-i18next';
 import { getLocalizedErrorMessage } from "@/shared/errors/errorMessages";
+import CustomizedSlider from "@/shared/components/number-input/number-input";
 
 export const SettingsPage = () => {
     const { t } = useTranslation();
-    const { data: settings, isLoading, isError, error } = useQuery(settingsApi.settingsQueries.all());
+    const { data, isLoading, isError, error } = useQuery(settingsApi.settingsQueries.all());
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const errorMsg = getLocalizedErrorMessage(error, t);
+    const [settings, setSettings] = useState<Settings>({ startGatherDate: new Date(), channelPollingFrequency: 3, commentsPollingDelay: 3 });
 
     useEffect(() => {
         if (isError) setSnackbarOpen(true);
     }, [isError]);
+
+    useEffect(() => {
+        if (data) {
+            setSettings(data);
+        }
+    }, [data]);
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            mutation.mutate(settings);
+        }, 500);
+
+        return () => {
+            clearTimeout(timeoutId);
+        };
+    }, [settings]);
 
     const mutation = useMutation({
         mutationFn: (settings: Settings) => { return saveSettings(settings); },
@@ -46,6 +64,7 @@ export const SettingsPage = () => {
                 height: "100%",
                 boxSizing: "border-box",
                 fontFamily: "'Roboto', sans-serif",
+                fontSize: "16px"
             }}
         >
             {
@@ -64,12 +83,37 @@ export const SettingsPage = () => {
                                     <DatePicker
                                         defaultValue={dayjs(settings?.startGatherDate)}
                                         onChange={(newValue) => {
-                                            mutation.mutate({ startGatherDate: newValue as Date });
+                                            let newSettings = { ...settings, startGatherDate: newValue as Date } as Settings;
+                                            setSettings(_ => newSettings);
                                         }}
                                     />
                                 </DemoItem>
                             </DemoContainer>
                         </LocalizationProvider>
+
+                        <CustomizedSlider
+                            caption="Частота опроса каналов (ч.)"
+                            min={1}
+                            max={24}
+                            value={settings?.channelPollingFrequency ? settings?.channelPollingFrequency : 1}
+                            id="channel-polling-frequency"
+                            onChange={(newValue) => {
+                                let newSettings = { ...settings, channelPollingFrequency: newValue as number } as Settings;
+                                setSettings(_ => newSettings);
+                            }}
+                        />
+
+                        <CustomizedSlider
+                            caption="Задержка опроса комментариев (ч.)"
+                            min={1}
+                            max={24}
+                            value={settings?.commentsPollingDelay ? settings?.commentsPollingDelay : 1}
+                            id="comments-polling-delay"
+                            onChange={(newValue) => {
+                                let newSettings = { ...settings, commentsPollingDelay: newValue as number } as Settings;
+                                setSettings(_ => newSettings);
+                            }}
+                        />
                     </>
             }
 
