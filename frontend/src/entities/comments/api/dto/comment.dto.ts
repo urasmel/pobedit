@@ -1,4 +1,4 @@
-import { Account } from "@/entities/account/model/Account";
+import { Account } from "@/entities/account/model/account";
 
 export interface CommentDto {
     tlgId: number;

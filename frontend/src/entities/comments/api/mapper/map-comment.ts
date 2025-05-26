@@ -1,5 +1,5 @@
 import { CommentDto } from "../dto/comment.dto";
-import { Comment } from "../../model/Comment";
+import { Comment } from "../../model/comment";
 
 export const mapComment = (dto: CommentDto): Comment => ({
     tlgId: dto.tlgId,

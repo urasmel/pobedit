@@ -1,5 +1,5 @@
 import { ChannelDto } from "../dto/channel.dto";
-import { Channel } from "@/entities/channels/model/Channel";
+import { Channel } from "@/entities/channels/model/channel";
 
 export const mapChannel = (dto: ChannelDto): Channel => ({
     id: dto.id,

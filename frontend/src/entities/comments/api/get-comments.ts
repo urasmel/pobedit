@@ -1,5 +1,5 @@
 import { ServiceResponse } from "@/entities";
-import { Comment } from "../model/Comment";
+import { Comment } from "../model/comment";
 import { apiClient } from "@/shared/api/base";
 
 import { mapComment, mapComments } from "./mapper/map-comment";

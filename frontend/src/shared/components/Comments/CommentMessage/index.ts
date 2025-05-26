@@ -1,1 +1,0 @@
-export { CommentMessage } from "./CommentMessage";

@@ -3,7 +3,7 @@ import { apiClient } from "@/shared/api/base";
 
 import { mapChannel } from "./mapper/map-channel";
 import { ChannelDto } from "./dto/channel.dto";
-import { Channel } from "../model/Channel";
+import { Channel } from "../model/channel";
 
 export const getChannels = async (): Promise<{ channels: Channel[]; }> => {
     const result = await apiClient.get<ServiceResponse<ChannelDto[]>>(`channels`);

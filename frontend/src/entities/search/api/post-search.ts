@@ -1,12 +1,12 @@
 import { Post, ServiceResponse } from "@/entities";
 import { apiClient } from "@/shared/api/base";
-import { SearchQuery } from "../model/SearchQuery";
+import { SearchQuery } from "../model/search-query";
 import { CommentDto } from "@/entities/comments/api/dto/comment.dto";
 import { PostDto } from "@/entities/posts/api/dto/post.dto";
 import { mapComments } from "@/entities/comments/api/mapper/map-comment";
-import { Comment } from "@/entities/comments/model/Comment";
+import { Comment } from "@/entities/comments/model/comment";
 import { mapPosts } from "@/entities/posts/api/mapper/map-post";
-import { SearchResult } from "../model/SearchResult";
+import { SearchResult } from "../model/search-result";
 
 
 export const postSearch = async (query: SearchQuery | null): Promise<SearchResult<Comment | Post>> => {

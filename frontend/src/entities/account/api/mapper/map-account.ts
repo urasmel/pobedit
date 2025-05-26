@@ -1,4 +1,4 @@
-import { Account } from "../../model/Account";
+import { Account } from "../../model/account";
 import { AccountDto } from "../dto/account.dto";
 
 

@@ -1,1 +1,0 @@
-export { CommentsSearchResults } from './CommentsSearchResults';
