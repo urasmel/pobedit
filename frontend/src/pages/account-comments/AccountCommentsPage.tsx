@@ -34,17 +34,11 @@ export const AccountCommentsPage = () => {
 
     const {
         data: account,
-        isFetching,
-        isLoading,
         isError,
-        error
     } = useQuery(accountApi.accountsQueries.one(accountId));
 
     const {
         data: comments,
-        isFetching: isFetchingComments,
-        isLoading: isLoadingComments,
-        isError: isErrorComments,
     } = useQuery(commentsApi.commentsQueries.allAccountComments(accountId, offset, limit));
 
     const onPageChange = (_event: ChangeEvent<unknown>, page: number) => {

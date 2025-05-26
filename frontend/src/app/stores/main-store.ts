@@ -22,7 +22,7 @@ export interface Action {
     setSearchQuery: (searchQuery: SearchQuery) => void;
 }
 
-export const useMainStore = create<MainState & Action>((set, get) => ({
+export const useMainStore = create<MainState & Action>((set) => ({
     selectedUser: '',
     channels: [],
     channelsInfos: [],

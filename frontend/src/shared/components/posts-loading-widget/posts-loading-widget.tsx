@@ -23,7 +23,7 @@ export const PostsLoadingWidget = ({ channelId, invalidateCache: invalidateCache
     const [response, setResponse] = useState<string>('');
 
 
-    const { data, isFetching, isLoading, isError, error } = useQuery(postsApi.postsQueries.count(channelId?.toString()));
+    const { data, isError } = useQuery(postsApi.postsQueries.count(channelId?.toString()));
 
     const wsRef = useRef<WebSocket>(null);
 
@@ -57,7 +57,7 @@ export const PostsLoadingWidget = ({ channelId, invalidateCache: invalidateCache
             invalidateCache();
         };
 
-        wsRef.current.onerror = (event: Event) => {
+        wsRef.current.onerror = () => {
             setIsWSLoading(false);
             setLoadingError("Ошибка отправки запроса на обновление данных канала.");
             invalidateCache();

@@ -1,4 +1,3 @@
-import { Action, MainState, useMainStore } from "@/app/stores";
 import { Post } from "@/entities";
 import { channelsApi } from "@/entities/channels";
 import { postsApi } from "@/entities/posts";
@@ -17,9 +16,6 @@ import { ITEMS_PER_PAGE } from "@/shared/config";
 export const PostsPage = () => {
 
     const { channelId } = useParams();
-    const selectedUser = useMainStore(
-        (state: MainState & Action) => state.selectedUser
-    );
     const [offset, setOffset] = useState(0);
     const [limit] = useState(ITEMS_PER_PAGE);
     const queryClient = useQueryClient();
@@ -30,7 +26,6 @@ export const PostsPage = () => {
 
     const { data: channelInfo,
         isError: channelInfoIsError,
-        error: channelInfoError,
         isFetched: infoIsFetched }
         = useQuery(channelsApi.channelQueries.details(channelId));
 

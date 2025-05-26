@@ -16,6 +16,7 @@ import {
 } from "@mui/x-data-grid";
 import {
     Suspense,
+    useEffect,
     useMemo,
     useState,
 } from "react";
@@ -30,9 +31,12 @@ import { useQuery } from "@tanstack/react-query";
 import { channelsApi } from "@/entities/channels";
 import { Channel } from "@/entities/channels/model/channel";
 import { ChannelInfoDialog } from "@/features/channel-info-dialog";
+import { useTranslation } from "react-i18next";
+import { getLocalizedErrorMessage } from "@/shared/errors/errorMessages";
 
 export const Channels = () => {
 
+    const { t } = useTranslation();
     const updateChannels = useMainStore((action: Action) => action.fetchUpdatedChannels);
     const [channelId, setChannelId] = useState<string | undefined>(undefined);
 
@@ -41,8 +45,16 @@ export const Channels = () => {
 
     const navigate = useNavigate();
     const [openShowChannelInfo, setOpenShowChannelInfo] = useState(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const errorMsg = getLocalizedErrorMessage(error, t);
 
-    const [openErrorMessage, setOpenErrorMessage] = useState(false);
+    useEffect(() => {
+        if (isError) setSnackbarOpen(true);
+    }, [isError]);
+
+    const closeError = () => {
+        setSnackbarOpen(false);
+    };
 
     function getRowId(row: Channel) {
         return row.tlgId;
@@ -73,10 +85,6 @@ export const Channels = () => {
 
     const handleChannelRowClick = (params: GridRowParams<Channel>) => {
         navigate(`/channels/${params.row.tlgId}/posts`);
-    };
-
-    const handleErrorClose = () => {
-        setOpenErrorMessage(false);
     };
 
     return (
@@ -158,18 +166,18 @@ export const Channels = () => {
 
 
             <Snackbar
-                open={isError}
+                open={snackbarOpen}
                 autoHideDuration={6000}
-                action={ErrorActionButton(handleErrorClose)}
-                onClose={handleErrorClose}
+                action={ErrorActionButton(closeError)}
+                onClose={closeError}
             >
                 <Alert
-                    onClose={handleErrorClose}
+                    onClose={closeError}
                     severity="error"
                     variant="filled"
                     sx={{ width: '100%' }}
                 >
-                    {error?.message}
+                    {errorMsg}
                 </Alert>
             </Snackbar>
         </Box>

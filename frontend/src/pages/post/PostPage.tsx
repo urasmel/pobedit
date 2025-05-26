@@ -61,12 +61,6 @@ export const PostPage = () => {
         }
     }, [isError]);
 
-    useEffect(() => {
-        if (isError) {
-            setCommentsErrorOpen(true);
-        }
-    }, [isError]);
-
     const handleCommentsErrorClose = () => {
         setCommentsErrorOpen(false);
     };

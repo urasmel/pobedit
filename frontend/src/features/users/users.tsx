@@ -4,6 +4,7 @@ import {
     GridRowParams,
 } from "@mui/x-data-grid";
 import {
+    useEffect,
     useMemo,
     useState,
 } from "react";
@@ -25,15 +26,27 @@ import { Action, MainState, useMainStore } from "@/app/stores";
 import { ErrorActionButton } from "@/shared/components/errors/errorr-action-button";
 import { useQuery } from "@tanstack/react-query";
 import { userApi } from "@/entities/users";
+import { useTranslation } from "react-i18next";
+import { getLocalizedErrorMessage } from "@/shared/errors/errorMessages";
 
 
 export const Users = () => {
+    const { t } = useTranslation();
     const { data, isFetching, isLoading, isError, error } = useQuery(userApi.userQueries.list());
-    const [openErrorMessage, setOpenErrorMessage] = useState(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const errorMsg = getLocalizedErrorMessage(error, t);
 
     const setSelectedUser = useMainStore(
         (state: MainState & Action) => state.updateSelectedUser
     );
+
+    useEffect(() => {
+        if (isError) setSnackbarOpen(true);
+    }, [isError]);
+
+    const closeError = () => {
+        setSnackbarOpen(false);
+    };
 
     const columns = useMemo<GridColDef<User>[]>(
         () => [
@@ -46,7 +59,7 @@ export const Users = () => {
                 type: "actions",
                 flex: 1,
                 headerName: "Операции",
-                getActions: (params: GridRowParams) => [
+                getActions: () => [
                     <GridActionsCellItem
                         key={0}
                         icon={<DeleteIcon />}
@@ -86,10 +99,6 @@ export const Users = () => {
         // Загрузка и перерисовка каналов там должна происходить сама собой
         // после выбора другого пользователя.
         // fetchChannels(params.row["username"]);
-    };
-
-    const handleErrorClose = () => {
-        setOpenErrorMessage(false);
     };
 
     return (
@@ -149,18 +158,18 @@ export const Users = () => {
             </Box>
 
             <Snackbar
-                open={isError}
+                open={snackbarOpen}
                 autoHideDuration={6000}
-                action={ErrorActionButton(handleErrorClose)}
-                onClose={handleErrorClose}
+                action={ErrorActionButton(closeError)}
+                onClose={closeError}
             >
                 <Alert
-                    onClose={handleErrorClose}
+                    onClose={closeError}
                     severity="error"
                     variant="filled"
                     sx={{ width: '100%' }}
                 >
-                    {error?.message}
+                    {errorMsg}
                 </Alert>
             </Snackbar>
         </Box>

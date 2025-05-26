@@ -1,5 +1,5 @@
 import { settingsApi } from "@/entities/settings";
-import { Alert, Box, Button, Snackbar } from "@mui/material";
+import { Alert, Box, Snackbar } from "@mui/material";
 import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -17,7 +17,6 @@ import { getLocalizedErrorMessage } from "@/shared/errors/errorMessages";
 export const SettingsPage = () => {
     const { t } = useTranslation();
     const { data: settings, isLoading, isError, error } = useQuery(settingsApi.settingsQueries.all());
-    const [errorMessage, setErrorMessage] = useState("");
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const errorMsg = getLocalizedErrorMessage(error, t);
 
@@ -32,9 +31,7 @@ export const SettingsPage = () => {
         },
     });
 
-
     const closeError = () => {
-        setErrorMessage("");
         setSnackbarOpen(false);
     };
 
