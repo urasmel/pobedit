@@ -14,6 +14,7 @@ import { Loading } from "@/shared/components/loading/loading-widget";
 import { useTranslation } from 'react-i18next';
 import { getLocalizedErrorMessage } from "@/shared/errors/errorMessages";
 import CustomizedSlider from "@/shared/components/number-input/number-input";
+import { ErrorActionButton } from "@/shared/components/errors/errorr-action-button";
 
 export const SettingsPage = () => {
     const { t } = useTranslation();
@@ -29,6 +30,7 @@ export const SettingsPage = () => {
     useEffect(() => {
         if (data) {
             setSettings(data);
+            console.log('data', data);
         }
     }, [data]);
 
@@ -74,14 +76,10 @@ export const SettingsPage = () => {
                     :
                     <>
                         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
-                            <DemoContainer
-                                components={[
-                                    'DatePicker',
-                                ]}
-                            >
+                            <DemoContainer components={['DatePicker',]}>
                                 <DemoItem label="Стартовая дата загрузки">
                                     <DatePicker
-                                        defaultValue={dayjs(settings?.startGatherDate)}
+                                        defaultValue={dayjs(data?.startGatherDate)}
                                         onChange={(newValue) => {
                                             let newSettings = { ...settings, startGatherDate: newValue as Date } as Settings;
                                             setSettings(_ => newSettings);
@@ -117,12 +115,10 @@ export const SettingsPage = () => {
                     </>
             }
 
-
-
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={6000}
-                // action={ErrorAction(closeError)}
+                action={ErrorActionButton(closeError)}
                 onClose={closeError}
             >
                 <Alert

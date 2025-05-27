@@ -1,5 +1,5 @@
-import { Aside } from '../widgets/Aside';
-import { Footer } from "../widgets/Footer/footer";
+import { Aside } from '../widgets/aside';
+import { Footer } from "../widgets/footer";
 import { Header } from "../widgets/header/header";
 import { AppRouter } from "./routers";
 import { queryClient } from "@/shared/api/query-client";
@@ -7,10 +7,7 @@ import { Providers } from './providers';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from "react-router-dom";
 import './styles/index.scss';
-import { theme, ThemeContext } from './theme';
 import { Box } from '@mui/material';
-import { I18nextProvider } from 'react-i18next';
-import i18n from './i18n';
 
 
 const rootNode = document.getElementById('root') as Element;
@@ -28,33 +25,68 @@ root.render(
 
             <Header />
 
-            <Box sx={{
+
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    overflow: 'visible',
+                    gap: "1rem",
+                    flex: "1",
+                    marginTop: "1rem",
+                }}
+            >
+                <Box
+                    sx={{
+                        width: `15%`,
+                    }}
+                >
+                    <Aside />
+                </Box>
+                <Box
+                    sx={{
+                        width: `85%`,
+                        overflow: 'auto',
+                        boxShadow: "var(--shadow)",
+                        borderRadius: ".3rem",
+                        padding: 2
+                    }}
+                >
+                    <Providers client={queryClient} >
+                        <AppRouter />
+                    </Providers>
+                </Box>
+            </Box>
+
+
+
+
+
+
+
+            {/* <Box sx={{
                 display: "flex",
                 gap: "1rem",
                 flex: "3 1 1vw",
                 marginTop: "1rem"
             }}>
 
-                <Aside />
 
                 <Box sx={{
                     flex: "6 6 85vw",
                     boxShadow: "var(--shadow)",
                     borderRadius: ".3rem"
                 }}>
-                    <ThemeContext.Provider value={theme}>
-                        <I18nextProvider i18n={i18n}>
-                            <Providers client={queryClient} >
-                                <AppRouter />
-                            </Providers>
-                        </I18nextProvider>
-                    </ThemeContext.Provider>
+                    <Providers client={queryClient} >
+                        <AppRouter />
+                    </Providers>
                 </Box>
+            </Box> */}
 
-            </Box>
+
 
             <Footer />
-        </Box>
+        </Box >
     </BrowserRouter >
     // </React.StrictMode>
 );

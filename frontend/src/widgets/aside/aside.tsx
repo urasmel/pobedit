@@ -1,4 +1,4 @@
-import { Badge } from '@/shared/components/Badge';
+import { Badge } from '@/shared/components/badge';
 import SearchIcon from "@mui/icons-material/Search";
 import ControlIcon from "@mui/icons-material/Settings";
 
@@ -15,9 +15,8 @@ export const Aside = () => {
                 padding: 1,
                 gap: 1,
                 boxSizing: 'border-box',
-                width: '15%',
-                minWidth: "160px",
-                maxWidth: "200px",
+                minWidth: "10rem",
+                width: "100%",
                 boxShadow: "var(--shadow)",
             }}
         >

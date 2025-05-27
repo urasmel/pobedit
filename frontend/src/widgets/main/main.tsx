@@ -7,12 +7,13 @@ export const Main = () => {
     return (
         <Box
             sx={{
-                padding: 4,
                 display: "flex",
                 alignItems: "start",
-                gap: 2,
+                justifyContent: "space-between",
+                gap: 1,
                 height: "100%",
                 width: "100%",
+                minWidth: "850px",
                 boxSizing: "border-box",
             }}
         >

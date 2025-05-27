@@ -12,6 +12,7 @@ import { SearchResultPage } from "@/pages/search-result";
 import { ErrorBoundary } from "@/shared/components/errors/error-boundary";
 import { ChannelPage } from "@/pages/channel";
 import { SettingsPage } from "@/pages/settings";
+import { ControlPage } from "@/pages/control";
 
 // const Home = lazy(() => import("@/pages/Home"));
 // const Posts = lazy(() => import("@/pages/Posts"));
@@ -95,6 +96,16 @@ export const AppRouter = () => {
                     <ErrorBoundary>
                         <Suspense fallback={<Loading />}>
                             <SettingsPage />
+                        </Suspense>
+                    </ErrorBoundary>
+                }
+            />
+            <Route
+                path="/control"
+                element={
+                    <ErrorBoundary>
+                        <Suspense fallback={<Loading />}>
+                            <ControlPage />
                         </Suspense>
                     </ErrorBoundary>
                 }
