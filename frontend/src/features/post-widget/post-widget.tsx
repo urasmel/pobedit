@@ -43,17 +43,12 @@ export const PostWidget = ({ post, showPostLink = true, showTitle = true }: { po
                     <Typography variant="body1">
                         Канал:&nbsp;
                         <NavLink
-                            style={({ isActive }) =>
-                                isActive
-                                    ? {
-                                        color: theme.palette.primary.dark,
-                                        textDecoration: 'none'
-                                    }
-                                    : {
-                                        color: '#fff',
-                                        textDecoration: 'none'
-                                    }
-                            }
+                            style={_ => {
+                                return {
+                                    color: theme.palette.primary.dark,
+                                    textDecoration: 'none'
+                                };
+                            }}
                             to={`/channels/${post.peerId}/posts`}>
                             <strong>{channelInfo?.title || post.peerId}</strong>
                         </NavLink>

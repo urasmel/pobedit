@@ -94,7 +94,6 @@ export const PostsPage = () => {
     return (
         <Box
             sx={{
-                padding: 4,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "start",

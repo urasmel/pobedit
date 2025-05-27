@@ -85,7 +85,6 @@ export const PostPage = () => {
     return (
         <Box
             sx={{
-                padding: 4,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "start",
@@ -179,7 +178,7 @@ export const PostPage = () => {
                     variant="filled"
                     sx={{ width: '100%' }}
                 >
-                    socketErrorMessage
+                    {socketErrorMessage}
                 </Alert>
             </Snackbar>
 

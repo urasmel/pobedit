@@ -12,9 +12,6 @@ export const SearchPage = () => {
                 alignItems: "center",
                 justifyContent: "center",
                 height: "100%",
-
-
-                padding: 4,
                 boxSizing: "border-box",
                 fontFamily: "'Roboto', sans-serif",
                 fontSize: "16px"

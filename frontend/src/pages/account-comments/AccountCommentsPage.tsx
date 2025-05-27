@@ -47,7 +47,6 @@ export const AccountCommentsPage = () => {
 
     return (
         <Box sx={{
-            padding: 4,
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
