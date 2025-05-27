@@ -1,1 +1,1 @@
-export { ServiceWidget } from './service-widget';
+export { ServiceStateWidget } from './ui/service-state-widget';

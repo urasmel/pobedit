@@ -1,11 +1,10 @@
-import { ServiceWidget } from "@/widgets/service-widget";
+import { ServiceStateWidget } from "@/widgets/service-widget";
 import { Box } from "@mui/material";
 
 export const ControlPage = () => {
     return (
         <Box
             sx={{
-                padding: 4,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "start",
@@ -16,7 +15,7 @@ export const ControlPage = () => {
                 fontSize: "16px"
             }}
         >
-            <ServiceWidget />
+            <ServiceStateWidget />
         </Box>
     );
 };
