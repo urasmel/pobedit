@@ -1,3 +1,4 @@
+import { ServiceWidget } from "@/widgets/service-widget";
 import { Box } from "@mui/material";
 
 export const ControlPage = () => {
@@ -15,7 +16,7 @@ export const ControlPage = () => {
                 fontSize: "16px"
             }}
         >
-            ControlPage
+            <ServiceWidget />
         </Box>
     );
 };
