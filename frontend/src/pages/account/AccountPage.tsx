@@ -96,7 +96,7 @@ const AccountPage = () => {
                             }}
                             alt="User Avatar"
                             onClick={handleClickOpen}
-                            src={`${import.meta.env.BASE_URL}ava.png`}
+                            src={`${import.meta.env.BASE_URL}/images/ava.png`}
                         />
                 }
 
@@ -177,7 +177,7 @@ const AccountPage = () => {
                             :
                             <img
                                 alt="User Avatar"
-                                src={`${import.meta.env.BASE_URL}ava.png`}
+                                src={`${import.meta.env.BASE_URL}/images/ava.png`}
                             />
                     }
                 </DialogContent>

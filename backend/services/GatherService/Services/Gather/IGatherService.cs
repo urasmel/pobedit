@@ -1,12 +1,13 @@
-﻿using Gather.Models;
+﻿using Gather.Dtos.Gather;
+using Gather.Models;
 
 namespace Gather.Services;
 
 public interface IGatherService
 {
-    Task<ServiceResponse<bool>> StartGatherAllAsync(string username);
+    Task<ServiceResponse<bool>> StartGatherAllAsync();
+        
+    Task<ServiceResponse<bool>> StopGatherStatusAsync();
 
-    Task<ServiceResponse<bool>> GetGatherStatusAsync(string username);
-    
-    Task<ServiceResponse<bool>> StopGatherStatusAsync(string username);
+    ServiceResponse<GatherStateDto> GetGatherState();
 }

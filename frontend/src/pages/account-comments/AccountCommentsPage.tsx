@@ -88,7 +88,7 @@ export const AccountCommentsPage = () => {
                                     cursor: "pointer",
                                 }}
                                 alt="User Avatar"
-                                src={`${import.meta.env.BASE_URL}ava.png`}
+                                src={`${import.meta.env.BASE_URL}/images/ava.png`}
                             />
                     }
                 </NavLink>

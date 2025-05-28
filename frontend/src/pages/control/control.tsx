@@ -1,4 +1,4 @@
-import { ServiceStateWidget } from "@/widgets/service-widget";
+import { GatherStateWidget } from "@/widgets/gather-widget";
 import { Box } from "@mui/material";
 
 export const ControlPage = () => {
@@ -15,7 +15,7 @@ export const ControlPage = () => {
                 fontSize: "16px"
             }}
         >
-            <ServiceStateWidget />
+            <GatherStateWidget />
         </Box>
     );
 };

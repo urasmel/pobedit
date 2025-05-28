@@ -1,5 +1,8 @@
-﻿using Gather.Collecting;
+﻿using AutoMapper;
+using Gather.Collecting;
+using Gather.Dtos.Gather;
 using Gather.Models;
+using Gather.Models.Gather;
 using Gather.Utils.ConfigService;
 using SharedCore.Extentions;
 using TL;
@@ -9,17 +12,27 @@ namespace Gather.Services;
 public class GatherService : IGatherService
 {
     ILogger _logger;
+
     WTelegram.Client? _client;
+
     TL.User? user;
+
     IConfigUtils _configUtils;
+
+    IMapper _mapper;
+
+    GatherState _gatherState;
+
     private Dictionary<string, ICollector> _collectors;
 
-    public GatherService(ILogger<GatherService> logger, IConfigUtils configUtils)
+    public GatherService(ILogger<GatherService> logger, IMapper mapper, IConfigUtils configUtils)
     {
-        _collectors = new Dictionary<string, ICollector> { };
         _logger = logger;
+        _mapper = mapper;
         _configUtils = configUtils;
-        _client = new WTelegram.Client(_configUtils.Config());
+        _collectors = new Dictionary<string, ICollector> { };
+        //_client = new WTelegram.Client(_configUtils.Config());
+        _gatherState = new GatherState();
         Init();
     }
 
@@ -43,7 +56,7 @@ public class GatherService : IGatherService
         }
     }
 
-    public async Task<ServiceResponse<bool>> StartGatherAllAsync(string username)
+    public async Task<ServiceResponse<bool>> StartGatherAllAsync()
     {
         var response = new ServiceResponse<bool>();
         try
@@ -52,15 +65,8 @@ public class GatherService : IGatherService
             // TODO Сделать позже для разных пользователей, когда их подвезу.
             // Пока работаем с одним полльзователем, который получается из конфига по умолчанию.
 
-            if (_collectors.ContainsKey(username) && await _collectors[username].GetStatus())
+            if (_client == null)
             {
-                response.Data = false;
-                response.Success = false;
-                response.Message = $"The '{username}' user's chats are already being collected";
-                return response;
-            }
-
-            if (_client == null) {
                 response.Data = false;
                 response.Success = false;
                 response.Message = "Server error";
@@ -75,10 +81,10 @@ public class GatherService : IGatherService
                 chats.Add(chat);
 
             // Запускаем поток сбора.
-            if (!_collectors.ContainsKey(username))
-            { _collectors.Add(username, new Collector()); }
+            //if (!_collectors.ContainsKey(username))
+            //{ _collectors.Add(username, new Collector()); }
 
-            _collectors[username].StartGather(chats).Forget();
+            //_collectors[username].StartGather(chats).Forget();
 
             response.Data = true;
             response.Success = true;
@@ -93,47 +99,19 @@ public class GatherService : IGatherService
         return response;
     }
 
-    public async Task<ServiceResponse<bool>> GetGatherStatusAsync(string username)
+    public async Task<ServiceResponse<bool>> StopGatherStatusAsync()
     {
         var response = new ServiceResponse<bool>();
 
-        if (!_collectors.ContainsKey(username))
-        {
-            response.Success = false;
-            response.Data = false;
-            response.Message = "User does not exists";
-            response.ErrorType = ErrorType.NotFound;
-            return response;
-        }
-
         response.Success = true;
-        response.Data = await _collectors[username].GetStatus();
+        response.Data = await _collectors[""].StopGather();
         return response;
     }
 
-    public async Task<ServiceResponse<bool>> StopGatherStatusAsync(string username)
+    public ServiceResponse<GatherStateDto> GetGatherState()
     {
-        var response = new ServiceResponse<bool>();
-
-        if (!_collectors.ContainsKey(username))
-        {
-            response.Success = false;
-            response.Data = false;
-            response.Message = "User does not exists";
-            response.ErrorType = ErrorType.NotFound;
-            return response;
-        }
-
-        if (await _collectors[username].GetStatus())
-        {
-            response.Success = false;
-            response.Data = false;
-            response.Message = "The '{username}' user's chats are not being collected now";
-            return response;
-        }
-
-        response.Success = true;
-        response.Data = await _collectors[username].StopGather();
+        var response = new ServiceResponse<GatherStateDto>();
+        response.Data = _mapper.Map<GatherStateDto>(_gatherState);
         return response;
     }
 }

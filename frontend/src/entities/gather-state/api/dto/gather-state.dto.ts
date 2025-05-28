@@ -1,4 +1,4 @@
-export interface ServiceStateDto {
+export interface GatherStateDto {
     state: "stopped" | "running";
     toPollingChannels: number;
     toPollingComments: number;

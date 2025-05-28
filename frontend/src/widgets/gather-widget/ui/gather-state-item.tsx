@@ -4,14 +4,14 @@ import CommentIcon from '@mui/icons-material/Comment';
 import TimelapseIcon from '@mui/icons-material/Timelapse';
 import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 
-type ServiceStateItemProps = {
+type GatherStateItemProps = {
     caption: string;
     value: string;
     icon: "Telegram" | "Comment" | "Time",
     color: "primary" | "secondary" | "ternary";
 };
 
-export const ServiceStateItem = (props: ServiceStateItemProps) => {
+export const GatherStateItem = (props: GatherStateItemProps) => {
 
     const IconHelper = (icon: "Telegram" | "Comment" | "Time", color: "primary" | "secondary" | "ternary") => {
         if (icon === "Telegram") {

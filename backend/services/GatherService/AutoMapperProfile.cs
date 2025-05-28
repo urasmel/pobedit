@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Gather.Dtos;
+using Gather.Dtos.Gather;
 using Gather.Models;
+using Gather.Models.Gather;
 using TL;
 
 namespace Gather;
@@ -36,6 +38,7 @@ public class AutoMapperProfile : Profile
         CreateMap<UserFull, AccountDto>();
         CreateMap<PobeditSettings, PobeditSettingsDto>();
         CreateMap<PobeditSettingsDto, PobeditSettings>();
+        CreateMap<GatherState, GatherStateDto>();
     }
 
     public class TlgChannelConverter : ITypeConverter<TL.Channel, Models.Channel>
