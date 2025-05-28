@@ -1,7 +1,7 @@
 import { accountApi } from '@/entities/account';
 import { updateAccountInfo } from '@/entities/account/api/get-accounts';
 import { ErrorActionButton } from '@/shared/components/errors/errorr-action-button';
-import { Loading } from '@/shared/components/loading/loading-widget';
+import { LoadingWidget } from '@/shared/components/loading/loading-widget';
 import { Box, Typography, Button, Snackbar, Alert, Avatar, Dialog, DialogContent } from '@mui/material';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -51,7 +51,7 @@ const AccountPage = () => {
     };
 
     if (isLoading) {
-        return <Loading />;
+        return <LoadingWidget />;
     }
 
     if (isError) {
@@ -120,7 +120,7 @@ const AccountPage = () => {
             {
                 isInfoUpdating
                     ?
-                    <Loading />
+                    <LoadingWidget />
                     :
                     <Box
                         sx={{

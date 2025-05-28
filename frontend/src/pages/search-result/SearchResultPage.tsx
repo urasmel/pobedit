@@ -5,7 +5,7 @@ import { PostsSearchResults } from "@/features/posts-search-results";
 import { CommentsSearchResults } from "@/features/comments-serch-results";
 import { PostDto } from "@/entities/posts/api/dto/post.dto";
 import { CommentDto } from "@/entities/comments/api/dto/comment.dto";
-import { Loading } from "@/shared/components/loading/loading-widget";
+import { LoadingWidget } from "@/shared/components/loading/loading-widget";
 import { useMainStore, MainState, Action } from "@/app/stores";
 import { ScrollToTopButton } from "@/shared/components/scroll-top-button";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -46,7 +46,7 @@ export const SearchResultPage = () => {
     );
 
     if (isLoading) {
-        return (<Loading />);
+        return (<LoadingWidget />);
     }
 
     return (

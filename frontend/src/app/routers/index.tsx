@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import { NotFoundPage } from "@/pages/not-found";
-import { Loading } from "@/shared/components/loading/loading-widget";
+import { LoadingWidget } from "@/shared/components/loading/loading-widget";
 import { PostPage } from "@/pages/post";
 import { HomePage } from "@/pages/home";
 import { PostsPage } from "@/pages/posts";
@@ -24,7 +24,7 @@ export const AppRouter = () => {
                 path="/"
                 element={
                     <ErrorBoundary>
-                        <Suspense fallback={<Loading />}>
+                        <Suspense fallback={<LoadingWidget />}>
                             <HomePage />
                         </Suspense>
                     </ErrorBoundary>
@@ -34,7 +34,7 @@ export const AppRouter = () => {
                 path="/channels/:channelId"
                 element={
                     <ErrorBoundary>
-                        <Suspense fallback={<Loading />}>
+                        <Suspense fallback={<LoadingWidget />}>
                             <ChannelPage />
                         </Suspense>
                     </ErrorBoundary>
@@ -44,7 +44,7 @@ export const AppRouter = () => {
                 path="/channels/:channelId/posts/:postId"
                 element={
                     <ErrorBoundary>
-                        <Suspense fallback={<Loading />}>
+                        <Suspense fallback={<LoadingWidget />}>
                             <PostPage />
                         </Suspense>
                     </ErrorBoundary>
@@ -54,7 +54,7 @@ export const AppRouter = () => {
                 path="/channels/:channelId/posts"
                 element={
                     <ErrorBoundary>
-                        <Suspense fallback={<Loading />}>
+                        <Suspense fallback={<LoadingWidget />}>
                             <PostsPage />
                         </Suspense>
                     </ErrorBoundary>
@@ -64,7 +64,7 @@ export const AppRouter = () => {
                 path="/accounts/:accountId"
                 element={
                     <ErrorBoundary>
-                        <Suspense fallback={<Loading />}>
+                        <Suspense fallback={<LoadingWidget />}>
                             <AccountPage />
                         </Suspense>
                     </ErrorBoundary>
@@ -74,7 +74,7 @@ export const AppRouter = () => {
                 path="/accounts/:accountId/comments"
                 element={
                     <ErrorBoundary>
-                        <Suspense fallback={<Loading />}>
+                        <Suspense fallback={<LoadingWidget />}>
                             <AccountCommentsPage />
                         </Suspense>
                     </ErrorBoundary>
@@ -84,7 +84,7 @@ export const AppRouter = () => {
                 path="/search"
                 element={
                     <ErrorBoundary>
-                        <Suspense fallback={<Loading />}>
+                        <Suspense fallback={<LoadingWidget />}>
                             <SearchPage />
                         </Suspense>
                     </ErrorBoundary>
@@ -94,7 +94,7 @@ export const AppRouter = () => {
                 path="/settings"
                 element={
                     <ErrorBoundary>
-                        <Suspense fallback={<Loading />}>
+                        <Suspense fallback={<LoadingWidget />}>
                             <SettingsPage />
                         </Suspense>
                     </ErrorBoundary>
@@ -104,7 +104,7 @@ export const AppRouter = () => {
                 path="/control"
                 element={
                     <ErrorBoundary>
-                        <Suspense fallback={<Loading />}>
+                        <Suspense fallback={<LoadingWidget />}>
                             <ControlPage />
                         </Suspense>
                     </ErrorBoundary>
@@ -114,7 +114,7 @@ export const AppRouter = () => {
                 path="/result"
                 element={
                     <ErrorBoundary>
-                        <Suspense fallback={<Loading />}>
+                        <Suspense fallback={<LoadingWidget />}>
                             <SearchResultPage />
                         </Suspense>
                     </ErrorBoundary>

@@ -4,7 +4,7 @@ import { postsApi } from "@/entities/posts";
 import { PostWidget } from "@/features/post-widget";
 import { ChannelMainInfo } from "@/shared/components/channel-main-info";
 import { ErrorActionButton } from "@/shared/components/errors/errorr-action-button";
-import { Loading } from "@/shared/components/loading/loading-widget";
+import { LoadingWidget } from "@/shared/components/loading/loading-widget";
 import { PostsLoadingWidget } from "@/shared/components/posts-loading-widget";
 import { ScrollToTopButton } from "@/shared/components/scroll-top-button";
 import { Alert, Box, Pagination, Snackbar } from "@mui/material";
@@ -162,7 +162,7 @@ export const PostsPage = () => {
                 {
                     (isFetching || isLoading) &&
                     <Box sx={{ alignSelf: "center" }}>
-                        <Loading />
+                        <LoadingWidget />
                     </Box>
                 }
 

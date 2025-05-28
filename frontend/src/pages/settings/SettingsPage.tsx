@@ -10,7 +10,7 @@ import { saveSettings } from "@/entities/settings/api";
 import { useEffect, useState } from "react";
 import { queryClient } from "@/shared/api/query-client";
 import { Settings } from "@/entities/settings/model/settings";
-import { Loading } from "@/shared/components/loading/loading-widget";
+import { LoadingWidget } from "@/shared/components/loading/loading-widget";
 import { useTranslation } from 'react-i18next';
 import { getLocalizedErrorMessage } from "@/shared/errors/errorMessages";
 import CustomizedSlider from "@/shared/components/number-input/number-input";
@@ -70,8 +70,17 @@ export const SettingsPage = () => {
         >
             {
                 isLoading
-                    ?
-                    <Loading />
+                    ? <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            height: "100%",
+                            width: "100%",
+                        }}
+                    >
+                        <LoadingWidget />
+                    </Box>
                     :
                     <>
                         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">

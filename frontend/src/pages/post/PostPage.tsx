@@ -1,7 +1,7 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Alert, Box, Pagination, Snackbar, Typography } from "@mui/material";
-import { Loading } from '@/shared/components/loading/loading-widget';
+import { LoadingWidget } from '@/shared/components/loading/loading-widget';
 import { ScrollToTopButton } from "@/shared/components/scroll-top-button";
 import { ErrorActionButton } from "@/shared/components/errors/errorr-action-button";
 import { CommentWidget } from "@/shared/components/Comments/comment-widget";
@@ -134,7 +134,7 @@ export const PostPage = () => {
             }
 
             {
-                (isFetching || isLoading) && <Loading />
+                (isFetching || isLoading) && <LoadingWidget />
             }
 
             {

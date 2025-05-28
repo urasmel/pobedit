@@ -23,7 +23,7 @@ import {
 import { CustomNoRowsOverlay } from "@/shared/components/custom-no-rows-overlay";
 import { Action, useMainStore } from "@/app/stores";
 import { DataGridTitle } from "@/shared/components/data-grid-title";
-import { Loading } from "@/shared/components/loading/loading-widget";
+import { LoadingWidget } from "@/shared/components/loading/loading-widget";
 import InfoIcon from "@mui/icons-material/Info";
 import { useNavigate } from "react-router-dom";
 import { ErrorActionButton } from "@/shared/components/errors/errorr-action-button";
@@ -96,7 +96,7 @@ export const Channels = () => {
             },
         }}>
             <div style={{ height: 400, width: "100%" }}>
-                <Suspense fallback={<Loading />}>
+                <Suspense fallback={<LoadingWidget />}>
                     <DataGrid
                         getRowId={getRowId}
                         sx={{
