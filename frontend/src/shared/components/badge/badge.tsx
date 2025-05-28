@@ -5,10 +5,10 @@ import { Box } from "@mui/material";
 export const Badge = ({ children, link }: BadgeProps) => {
     const navigate = useNavigate();
 
-
     return (
         <Box
             sx={{
+                fontFamily: "Roboto, sans-serif",
                 width: "100%",
                 height: "4vh",
                 backgroundColor: "#f5f5f5",

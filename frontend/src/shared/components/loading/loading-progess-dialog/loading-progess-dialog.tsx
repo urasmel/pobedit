@@ -1,5 +1,4 @@
-import { Button, Typography, Modal, Box } from '@mui/material';
-import { Loading } from '@/shared/components/loading/loading-widget';
+import { Button, Typography, Modal, Box, CircularProgress } from '@mui/material';
 import { LoadingProgessDialogProps } from '@/entities/Props/LoadingProgessDialogProps';
 
 export const LoadingProgessDialog = (props: LoadingProgessDialogProps) => {
@@ -16,12 +15,11 @@ export const LoadingProgessDialog = (props: LoadingProgessDialogProps) => {
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
-                width: 450,
+                width: 350,
                 bgcolor: 'background.paper',
                 boxShadow: 24,
-                p: 4,
-                borderRadius: 3,
-                border: 0,
+                p: 3,
+                borderRadius: 1,
                 borderColor: 'text.primary',
             }}>
 
@@ -41,18 +39,23 @@ export const LoadingProgessDialog = (props: LoadingProgessDialogProps) => {
                     sx={{
                         mt: 2,
                         display: 'flex',
-                        justifyContent: 'space-around'
+                        justifyContent: 'space-around',
+                        height: '40px',
                     }}>
 
                     <Button
                         variant="contained"
                         onClick={cancellLoading}
                         loadingPosition="start"
+                        startIcon={<CircularProgress color="inherit" size={20} />}
+                        sx={{
+                            display: 'flex',
+                            gap: 1,
+                        }}
                     >
                         Прервать загрузку
                     </Button>
 
-                    <Loading />
                 </Box>
             </Box>
         </Modal>
