@@ -1,7 +1,5 @@
-import { Alert, Box, Button, Snackbar } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Snackbar } from '@mui/material';
 import { useRef, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { postsApi } from '@/entities/posts';
 import { LoadingProgessDialog } from '@/shared/components/loading/loading-progess-dialog';
 import { pluralRecords } from '@/shared/utils/plural-records';
 import { WS_API_URL } from "@/shared/config";
@@ -28,9 +26,15 @@ export const PostsLoadingWidget = (props: { channelId: string | undefined; }) =>
     const [isSocketError, setIsSocketError] = useState(false);
     const [socketErrorMessage, setSocketErrorMessage] = useState('');
 
-    const { postsCount, postsCountError, postsCountErrorMsg, handlePostsCountErrorClose } = useFetchPostsCount(props.channelId);
+    const {
+        postsCount,
+        postsCountError,
+        postsCountErrorMsg,
+        handlePostsCountErrorClose,
+        isPostsCountLoading
+    } = useFetchPostsCount(props.channelId);
 
-    const setIsLoadingError = (description: string) => {
+    const setLoadingError = (description: string) => {
         setSocketErrorMessage(description);
         setIsSocketError(true);
     };
@@ -105,15 +109,35 @@ export const PostsLoadingWidget = (props: { channelId: string | undefined; }) =>
             </Box>);
     }
 
+    if (isPostsCountLoading) {
+        return (
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "100%",
+                    boxSizing: "border-box",
+                    borderRadius: 1,
+                    boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px",
+                    padding: 1,
+                }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
     if (postsCountError) {
-        return (<Box sx={{
-            fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
-            fontSize: "medium",
-            fontWeight: "500",
-            color: "rgb(52, 71, 103)"
-        }}>
-            Ошибка загрузки информации о постах канала.
-        </Box>);
+        return (
+            <Box sx={{
+                fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+                fontSize: "medium",
+                fontWeight: "500",
+                color: "rgb(52, 71, 103)"
+            }}>
+                Ошибка загрузки информации о постах канала.
+            </Box>
+        );
     }
 
     return (

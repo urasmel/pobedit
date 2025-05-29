@@ -55,7 +55,7 @@ builder.Services.Configure<RouteOptions>(options =>
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddFile(@".\logs\{Date}_log.txt").SetMinimumLevel(LogLevel.Warning);
-builder.Logging.AddSimpleConsole();
+//builder.Logging.AddSimpleConsole();
 
 builder.Services.AddScoped<IdFilter>();
 builder.Services.AddScoped<UserFilter>();

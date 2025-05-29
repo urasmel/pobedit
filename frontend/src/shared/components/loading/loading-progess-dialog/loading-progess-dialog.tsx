@@ -23,17 +23,23 @@ export const LoadingProgessDialog = (props: LoadingProgessDialogProps) => {
                 borderColor: 'text.primary',
             }}>
 
-                <Typography
-                    id="modal-modal-title"
-                    variant="h6"
-                    component="h2"
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-around'
-                    }}
-                >
-                    Загрузка данных с датой: {date}
-                </Typography>
+                {
+                    date !== undefined
+                        ?
+                        <Typography
+                            id="modal-modal-title"
+                            variant="h6"
+                            component="h2"
+                            sx={{
+                                display: 'flex',
+                                justifyContent: 'space-around'
+                            }}
+                        >
+                            Загрузка данных с датой: {date}
+                        </Typography>
+                        :
+                        <CircularProgress />
+                }
 
                 <Box
                     sx={{

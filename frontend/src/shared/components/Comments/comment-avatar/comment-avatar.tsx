@@ -25,7 +25,7 @@ export const CommentAva = (props: { comment: Comment; }) => {
                         <Avatar
                             sx={{ width: 56, height: 56 }}
                             alt="User Avatar"
-                            src={`${import.meta.env.BASE_URL}/images/ava.png`}
+                            src={`/images/ava.png`}
                         />
                 }
             </NavLink>

@@ -1097,6 +1097,17 @@ public class ChannelsService(
                 CancellationToken.None);
             return;
         }
+        finally
+        {
+            if (webSocket != null && 
+                (webSocket.State == WebSocketState.Open || webSocket.State == WebSocketState.CloseReceived))
+            {
+                await webSocket.CloseAsync(
+                    WebSocketCloseStatus.NormalClosure,
+                    "Closing",
+                    CancellationToken.None);
+            }
+        }
     }
 
     private async Task LoadPostComments(InputPeer peer, Message msg, Post postToDb, WebSocket webSocket)
@@ -1132,7 +1143,7 @@ public class ChannelsService(
             foreach (var comment in client_comments)
             {
                 // Пропускаем комментарии, которые уже есть в базе.
-                if (dbCommentsIds.Contains(comment.From.ID))
+                if (dbCommentsIds.Contains(comment.ID))
                 {
                     continue;
                 }
@@ -1193,14 +1204,21 @@ public class ChannelsService(
                     _logger.LogError(exception.Message);
                     continue;
                 }
-                postToDb.Comments.Add(newComment);
-                SocketHelper.SendAsyncMessage(
-                    webSocket,
-                    newComment.Date.ToString("yyyy:MM:dd HH:mm:ss")
-                    );
 
-                await _context.SaveChangesAsync();
-                Thread.Sleep(Random.Shared.Next(500, 1500));
+                try
+                {
+                    postToDb.Comments.Add(newComment);
+                    SocketHelper.SendAsyncMessage(
+                        webSocket,
+                        newComment.Date.ToString("yyyy:MM:dd HH:mm:ss")
+                        );
+                    await _context.SaveChangesAsync();
+                    Thread.Sleep(Random.Shared.Next(50, 150));
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError("Ошибка добавления комментария: {1}", exception.Message);
+                }
             }
 
             lastCommentId = client_comments.Last().ID;

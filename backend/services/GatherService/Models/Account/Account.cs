@@ -5,6 +5,7 @@ namespace Gather.Models;
 
 public class Account
 {
+    [Key]
     [JsonPropertyName("id")]
     public long Id { get; set; }
 
@@ -12,7 +13,7 @@ public class Account
     public long? TlgId { get; set; }
 
     [JsonPropertyName("main_username")]
-    public string MainUsername { get; set; } = string.Empty;
+    public string? MainUsername { get; set; } = string.Empty;
 
     [JsonPropertyName("is_active")]
     public bool? IsActive { get; set; }

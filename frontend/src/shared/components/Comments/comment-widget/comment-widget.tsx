@@ -12,7 +12,7 @@ export const CommentWidget = ({ comment, showUsername = true, showChannel = true
         }}>
             <CommentAva comment={comment} />
 
-            <CommentInfo comment={comment} showUsername={showUsername} showChannel={showChannel} />
+            <CommentInfo comment={comment} showUsername={showUsername} showChannel={showChannel} showPostLink={false} />
         </Box >
     );
 };

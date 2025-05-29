@@ -9,7 +9,7 @@ import { LoadingProgessDialog } from '../loading/loading-progess-dialog';
 
 export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
 
-    const { channelId, postId, invalidateCache, setUpdatingError } = props;
+    const { channelId, postId, invalidateCache, setUpdatingResult } = props;
     const URL = `ws://localhost:5037/api/v1/channels/${channelId}/posts/${postId}/update_comments`;
     const [isWSLoading, setIsWSLoading] = useState(false);
     const [response, setResponse] = useState<string>('');
@@ -30,7 +30,7 @@ export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
             }
             catch (error) {
                 setIsWSLoading(false);
-                setUpdatingError("Ошибка отправки запроса на обновление комментариев канала.");
+                setUpdatingResult(false, "Ошибка отправки запроса на обновление комментариев канала.");
             }
         };
 
@@ -43,14 +43,15 @@ export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
             setIsWSLoading(false);
             if (1001 <= event.code && event.code <= 1015) {
                 console.error(`Запрос завершился ошибкой. ${event.reason}`);
-                setUpdatingError(`Запрос завершился ошибкой. ${event.reason}`);
+                setUpdatingResult(false, `Запрос завершился ошибкой. ${event.reason}`);
             }
+            setUpdatingResult(true, 'Комментарии успешно обновлены');
             invalidateCache();
         };
 
         wsRef.current.onerror = () => {
             setIsWSLoading(false);
-            setUpdatingError("Ошибка отправки запроса на обновление данных канала.");
+            setUpdatingResult(false, "Ошибка отправки запроса на обновление данных канала.");
         };
     };
 

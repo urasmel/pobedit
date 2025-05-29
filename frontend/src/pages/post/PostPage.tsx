@@ -21,8 +21,9 @@ export const PostPage = () => {
     const queryClient = useQueryClient();
     const [pagesCount, setPagesCount] = useState(0);
     const [commentsErrorOpen, setCommentsErrorOpen] = useState(false);
-    const [isSocketError, setIsSocketError] = useState(false);
-    const [socketErrorMessage, setSocketErrorMessage] = useState('');
+    const [isSocketSuccess, setSocketIsSuccess] = useState(false);
+    const [socketEndMessage, setSocketEndMessage] = useState('');
+    const [openUpdatingInfo, setOpenUpdatingInfo] = useState(false);
 
     const {
         data,
@@ -70,17 +71,35 @@ export const PostPage = () => {
     };
 
     const invalidateCache = () => {
-        queryClient.invalidateQueries(commentsApi.commentsQueries.list(channelId, postId, offset, limit));
+        queryClient.invalidateQueries({ queryKey: ['comments'] });
     };
 
-    const setIsUpdatingError = (description: string) => {
-        setSocketErrorMessage(description);
-        setIsSocketError(true);
+    const setUpdatingResult = (success: boolean, description: string) => {
+        setSocketEndMessage(description);
+        setSocketIsSuccess(success);
+        setOpenUpdatingInfo(true);
     };
 
-    const closeSocketError = () => {
-        setIsSocketError(false);
+    const closeUpdatingInfo = () => {
+        setOpenUpdatingInfo(false);
     };
+
+    if (isLoading) {
+        return (
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "100%",
+                    width: "100%",
+                    boxSizing: "border-box",
+                }}
+            >
+                <LoadingWidget />
+            </Box>
+        );
+    }
 
     return (
         <Box
@@ -113,7 +132,7 @@ export const PostPage = () => {
                     channelId={channelId ? +channelId : undefined}
                     postId={postId ? +postId : 0}
                     invalidateCache={invalidateCache}
-                    setUpdatingError={setIsUpdatingError}
+                    setUpdatingResult={setUpdatingResult}
                 />
             }
 
@@ -167,18 +186,18 @@ export const PostPage = () => {
             </Snackbar>
 
             <Snackbar
-                open={isSocketError}
+                open={openUpdatingInfo}
                 autoHideDuration={6000}
-                action={ErrorActionButton(closeSocketError)}
-                onClose={closeSocketError}
+                action={ErrorActionButton(closeUpdatingInfo)}
+                onClose={closeUpdatingInfo}
             >
                 <Alert
-                    onClose={closeSocketError}
-                    severity="error"
+                    onClose={closeUpdatingInfo}
+                    severity={isSocketSuccess ? "success" : "error"}
                     variant="filled"
                     sx={{ width: '100%' }}
                 >
-                    {socketErrorMessage}
+                    {socketEndMessage}
                 </Alert>
             </Snackbar>
 

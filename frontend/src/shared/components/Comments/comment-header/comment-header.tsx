@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { channelsApi } from "@/entities/channels";
 import { NavLink } from "react-router-dom";
 
-export const CommentHeader = ({ comment, showUsername = true, showChannel = true }: { comment: Comment; showUsername: boolean; showChannel: boolean; }) => {
+export const CommentHeader = ({ comment, showUsername = true, showChannel = true, showPostLink = false }: { comment: Comment; showUsername: boolean; showChannel: boolean; showPostLink: boolean; }) => {
 
     const theme = useContext(ThemeContext);
     const {
@@ -30,24 +30,44 @@ export const CommentHeader = ({ comment, showUsername = true, showChannel = true
         >
             {
                 showChannel &&
-                <NavLink to={`/channels/${comment.peerId}/posts`}
-                    style={({ isActive }) =>
-                        isActive
-                            ? {
-                                color: '#fff',
-                                textDecoration: 'none'
-                            }
-                            : {
-                                color: '#fff',
-                                textDecoration: 'none'
-                            }
-                    }
-                >
-                    {data?.title}&nbsp;
-                </NavLink>
+                <>
+                    <NavLink to={`/channels/${comment.peerId}/posts`}
+                        style={({ isActive }) => {
+                            return {
+                                color: theme.palette.primary.dark,
+                                fontWeight: isActive ? 'bold' : 'normal'
+                            };
+                        }}
+                    >
+                        {data?.title}
+                    </NavLink>
+                    &nbsp;|&nbsp;
+                </>
             }
-            {showUsername && comment.from.username}&nbsp;
-            Ид.: {comment.tlgId}, {" "}
+
+
+            {
+                showPostLink &&
+                <>
+                    <NavLink to={`/channels/${comment.peerId}/posts/${comment.postId}`}
+                        style={({ isActive }) => {
+                            return {
+                                color: theme.palette.primary.dark,
+                                fontWeight: isActive ? 'bold' : 'normal'
+                            };
+                        }}
+                    >
+                        пост: {comment.postId}
+                    </NavLink>
+                    &nbsp;|&nbsp;
+                </>
+            }
+
+
+            {showUsername && comment.from.first_name}
+            &nbsp;|&nbsp;
+            id: {comment.tlgId}
+            &nbsp;|&nbsp;
             {new Date(comment.date).toLocaleString("ru-RU")}
         </Box>
     );

@@ -87,12 +87,11 @@ export const AccountCommentsPage = () => {
                                     height: 56,
                                     cursor: "pointer",
                                 }}
-                                alt="User Avatar"
-                                src={`${import.meta.env.BASE_URL}/images/ava.png`}
+                                alt="User avatar not collected yet or not found"
+                                src={`/images/ava.png`}
                             />
                     }
                 </NavLink>
-
 
                 <Typography variant="h5">{account?.username}</Typography>
 
@@ -109,7 +108,7 @@ export const AccountCommentsPage = () => {
                         key={comment.tlgId}
                         sx={{ marginBottom: 2 }}
                     >
-                        <CommentInfo comment={comment} showUsername={false} showChannel={true} />
+                        <CommentInfo comment={comment} showUsername={false} showChannel={true} showPostLink={true} />
                     </ListItem>
                 ))}
             </List>
