@@ -22,14 +22,18 @@ export const ChannelMainInfo = (props: ChannelMainInfoProps) => {
             boxSizing: "border-box"
         }}>
 
-            <Box sx={{ whiteSpace: "pre-wrap", wordWrap: "break-word", color: "rgb(52, 71, 103)" }} >
+            <Box sx={{
+                whiteSpace: "pre-wrap",
+                wordWrap: "break-word",
+                color: "rgb(52, 71, 103)"
+            }} >
                 Канал:&nbsp;
                 <NavLink to={`/channels/${props.id}`}>
                     {props.title}
                 </NavLink>
             </Box>
             <Box sx={{ whiteSpace: "pre-wrap", wordWrap: "break-word", color: "rgb(52, 71, 103)" }}>
-                Ид.: {props.id}
+                id: {props.id}
             </Box>
         </Box>
     );

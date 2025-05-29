@@ -3,25 +3,26 @@ import { Box, Button } from '@mui/material';
 import { useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { postsApi } from '@/entities/posts';
-import plural from 'plural-ru';
 import { LoadingProgessDialog } from '@/shared/components/loading/loading-progess-dialog';
+import { pluralRecords } from '@/shared/utils/plural-records';
+import { WS_API_URL } from "@/shared/config";
 
-class CloseEvent {
-    readonly code: number;
-    readonly reason?: string;
+// class CloseEvent {
+//     readonly code: number;
+//     readonly reason?: string;
 
-    constructor(code: number, reason?: string) {
-        this.code = code;
-        this.reason = reason;
-    }
-}
+//     constructor(code: number, reason?: string) {
+//         this.code = code;
+//         this.reason = reason;
+//     }
+// }
 
-export const PostsLoadingWidget = ({ channelId, invalidateCache: invalidateCache, setLoadingError }: PostsLoadingWidgetProps) => {
+export const PostsLoadingWidget = (props: PostsLoadingWidgetProps) => {
 
-    const URL = `ws://localhost:5037/api/v1/channels/${channelId}/update_posts`;
+    const { channelId, invalidateCache: invalidateCache, setLoadingError } = props;
+    const URL = `${WS_API_URL}channels/${channelId}/update_posts`;
     const [isWSLoading, setIsWSLoading] = useState(false);
     const [response, setResponse] = useState<string>('');
-
 
     const { data, isError } = useQuery(postsApi.postsQueries.count(channelId?.toString()));
 
@@ -47,7 +48,7 @@ export const PostsLoadingWidget = ({ channelId, invalidateCache: invalidateCache
             wsRef.current?.send('keep going');
         };
 
-        wsRef.current.onclose = (event: CloseEvent) => {
+        wsRef.current.onclose = (event) => {
 
             setIsWSLoading(false);
             if (1001 <= event.code && event.code <= 1015) {
@@ -111,11 +112,15 @@ export const PostsLoadingWidget = ({ channelId, invalidateCache: invalidateCache
 
             <Box sx={{ fontSize: "1rem" }}>
                 {
-                    data?.posts_count == 0
+                    data?.posts_count == undefined
                         ?
-                        `Пока в базе данных нет записей канала с идентификатором ${channelId}`
+                        `Не удалось загрузить информацию о количестве записей канала с идентификатором ${channelId}`
                         :
-                        `В базе данных ${data?.posts_count} ${plural((data?.posts_count ? data.posts_count : 0), 'запись', 'записи', 'записей')} канала с ид. ${channelId}`
+                        data?.posts_count == 0
+                            ?
+                            `Пока в базе данных нет записей канала с идентификатором ${channelId}`
+                            :
+                            `В базе данных ${data?.posts_count} ${pluralRecords(data?.posts_count)} канала с ид. ${channelId}`
 
 
                 }

@@ -12,9 +12,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ITEMS_PER_PAGE } from "@/shared/config";
+import { useTranslation } from "react-i18next";
+import { getLocalizedErrorMessage } from "@/shared/errors/errorMessages";
 
 export const PostsPage = () => {
 
+    const { t } = useTranslation();
     const { channelId } = useParams();
     const [offset, setOffset] = useState(0);
     const [limit] = useState(ITEMS_PER_PAGE);
@@ -23,11 +26,14 @@ export const PostsPage = () => {
     const [postsErrorOpen, setPostsErrorOpen] = useState(false);
     const [isSocketError, setIsSocketError] = useState(false);
     const [socketErrorMessage, setSocketErrorMessage] = useState('');
+    const [pagesCount, setPagesCount] = useState(0);
 
     const { data: channelInfo,
         isError: channelInfoIsError,
-        isFetched: infoIsFetched }
-        = useQuery(channelsApi.channelQueries.details(channelId));
+        isFetched: infoIsFetched,
+        error: channelInfoError
+    } = useQuery(channelsApi.channelQueries.details(channelId));
+
 
     const { data,
         isFetching,
@@ -36,8 +42,11 @@ export const PostsPage = () => {
         error,
         isFetched } = useQuery(postsApi.postsQueries.list(channelId, offset, limit));
 
-    const { data: count } = useQuery(postsApi.postsQueries.count(channelId?.toString()));
-    const [pagesCount, setPagesCount] = useState(0);
+    const { data: count, error: postsCountError } = useQuery(postsApi.postsQueries.count(channelId?.toString()));
+
+    const errorMsg = getLocalizedErrorMessage(error, t);
+    const channelErrorMsg = getLocalizedErrorMessage(channelInfoError, t);
+    const postCountMsg = getLocalizedErrorMessage(postsCountError, t);
 
     useEffect(
         () => {
@@ -192,7 +201,7 @@ export const PostsPage = () => {
                     variant="filled"
                     sx={{ width: '100%' }}
                 >
-                    channelInfoError?.message
+                    {errorMsg}
                 </Alert>
             </Snackbar>
 
@@ -208,7 +217,23 @@ export const PostsPage = () => {
                     variant="filled"
                     sx={{ width: '100%' }}
                 >
-                    {error?.message}
+                    {channelErrorMsg}
+                </Alert>
+            </Snackbar>
+
+            <Snackbar
+                open={postsErrorOpen}
+                autoHideDuration={6000}
+                action={ErrorActionButton(handlePostsErrorClose)}
+                onClose={handlePostsErrorClose}
+            >
+                <Alert
+                    onClose={handlePostsErrorClose}
+                    severity="error"
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {postCountMsg}
                 </Alert>
             </Snackbar>
 
