@@ -45,9 +45,22 @@ export const getPostsCount = async (channelId: string | undefined): Promise<{ po
         return Promise.resolve({ posts_count: 0 });
     }
 
-    const result = await apiClient.get<ServiceResponse<number>>(`channels/${channelId}/posts_count`);
+    try {
+        const result = await apiClient.get<ServiceResponse<number>>(`channels/${channelId}/posts_count`);
 
-    return ({
-        posts_count: result.data
-    });
+        return ({
+            posts_count: result.data
+        });
+    }
+    catch (error: Error | any) {
+        if (error.message.includes('404')) {
+            throw new Error('channelNotFound');
+        }
+        else if (error.message.includes('500')) {
+            throw new Error('serverError');
+        }
+        else {
+            throw new Error('networkError');
+        }
+    }
 };

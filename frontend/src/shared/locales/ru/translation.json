@@ -1,7 +1,21 @@
 {
     "errors": {
-        "userNotFound": "User not found.",
+        "userNotFound": "Пользователь не найден.",
         "networkError": "Сетевая ошибка при попытке запроса ресурса.",
-        "default": "An unexpected error occurred."
+        "default": "Произошла ошибка. Пожалуйста, попробуйте позже.",
+        "internalServerError": "Внутренняя ошибка сервера.",
+        "notFound": "Ресурс не  найден",
+        "channelNotFound": "Канал не найден.",
+        "serverError": "Серверная ошибка",
+        "unauthorized": "Вы не авторизованы для выполнения этого действия.",
+        "forbidden": "У вас нет прав для выполнения этого действия.",
+        "badRequest": "Неверный запрос.",
+        "conflict": "Конфликт данных.",
+        "validationError": "Ошибка валидации данных.",
+        "timeout": "Превышено время ожидания ответа от сервера.",
+        "serviceUnavailable": "Сервис временно недоступен.",
+        "tooManyRequests": "Слишком много запросов. Пожалуйста, попробуйте позже.",
+        "notImplemented": "Этот функционал еще не реализован.",
+        "unsupportedMediaType": "Неподдерживаемый тип медиа."
     }
 }

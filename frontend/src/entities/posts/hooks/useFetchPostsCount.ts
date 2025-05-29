@@ -6,24 +6,24 @@ import { useEffect, useState } from "react";
 
 export const useFetchPostsCount = (channelId: string | undefined) => {
 
-    const { data: count, error: postsCountError } = useQuery(postsApi.postsQueries.count(channelId?.toString()));
-    const [countError, setCountError] = useState(false);
-    const postCountMsg = getLocalizedErrorMessage(postsCountError, t);
+    const { data, error } = useQuery(postsApi.postsQueries.count(channelId?.toString()));
+    const [postsCountError, setPostsCountError] = useState(false);
+    const postsCountErrorMsg = getLocalizedErrorMessage(error, t);
 
     useEffect(() => {
-        if (postsCountError) {
-            setCountError(true);
+        if (error) {
+            setPostsCountError(true);
         }
-    }, [postsCountError]);
+    }, [error]);
 
-    const handlePostCountErrorClose = () => {
-        setCountError(false);
+    const handlePostsCountErrorClose = () => {
+        setPostsCountError(false);
     };
 
     return {
-        count,
-        countError,
-        postCountMsg,
-        handlePostCountErrorClose
+        postsCount: data?.posts_count,
+        postsCountError,
+        postsCountErrorMsg,
+        handlePostsCountErrorClose
     };
 };

@@ -803,6 +803,15 @@ public class ChannelsService(
             return response;
         }
 
+        var channel = await _context.Channels.Where(c => c.TlgId == chatId).FirstOrDefaultAsync();
+        if (channel == null)
+        {
+            response.Success = false;
+            response.Message = "Channel not found.";
+            response.ErrorType = ErrorType.NotFound;
+            return response;
+        }
+
         try
         {
             var count = await _context.Posts.Where(post => post.PeerId == chatId).CountAsync();

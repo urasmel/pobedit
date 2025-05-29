@@ -166,14 +166,13 @@ public class ChannelsController(IChannelsService channelsService) : ControllerBa
     {
         var response = await _channelsService.GetChannelPostsCount(channelId);
 
-        if (response.Message == "Channel not found")
+        if (response.ErrorType == ErrorType.NotFound)
         {
             return NotFound(response);
         }
-
-        if (!response.Success)
+        else if(!response.Success)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, response);
+            StatusCode(StatusCodes.Status500InternalServerError, response);
         }
 
         return Ok(response);

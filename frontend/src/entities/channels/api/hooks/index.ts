@@ -1,0 +1,1 @@
+export { useFetchChannelDetail } from "./useFetchChannelDetail";

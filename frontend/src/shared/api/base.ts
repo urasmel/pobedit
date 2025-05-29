@@ -14,7 +14,8 @@ export class ApiClient {
         }
 
         try {
-            return await response.json() as Promise<TResult>;
+            const result = await response.json() as Promise<TResult>;
+            return result;
         } catch (error) {
             throw new Error('Error parsing JSON response');
         }
