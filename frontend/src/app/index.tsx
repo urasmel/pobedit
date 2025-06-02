@@ -12,6 +12,8 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+import { SnackbarProvider } from 'notistack';
+import { StyledMaterialDesignContent } from '@/shared/styles';
 
 
 const rootNode = document.getElementById('root') as Element;
@@ -19,78 +21,58 @@ const root = createRoot(rootNode);
 root.render(
     // <React.StrictMode>
     <BrowserRouter>
-        <Box sx={{
-            display: "flex",
-            flexDirection: "column",
-            minHeight: "100vh",
-            boxSizing: "border-box",
-            padding: ".5rem"
-        }}>
-
-            <Header />
-
-
-            <Box
-                sx={{
-                    display: 'flex',
-                    height: '100%',
-                    overflow: 'visible',
-                    gap: "1rem",
-                    flex: "1",
-                    marginTop: "1rem",
-                }}
-            >
-                <Box
-                    sx={{
-                        width: `15%`,
-                    }}
-                >
-                    <Aside />
-                </Box>
-                <Box
-                    sx={{
-                        width: `85%`,
-                        overflow: 'auto',
-                        boxShadow: "var(--shadow)",
-                        borderRadius: ".3rem",
-                        padding: 2
-                    }}
-                >
-                    <Providers client={queryClient} >
-                        <AppRouter />
-                    </Providers>
-                </Box>
-            </Box>
-
-
-
-
-
-
-
-            {/* <Box sx={{
+        <SnackbarProvider
+            maxSnack={3}
+            Components={{
+                success: StyledMaterialDesignContent,
+                error: StyledMaterialDesignContent,
+            }}
+        >
+            <Box sx={{
                 display: "flex",
-                gap: "1rem",
-                flex: "3 1 1vw",
-                marginTop: "1rem"
+                flexDirection: "column",
+                minHeight: "100vh",
+                boxSizing: "border-box",
+                padding: ".5rem"
             }}>
 
+                <Header />
 
-                <Box sx={{
-                    flex: "6 6 85vw",
-                    boxShadow: "var(--shadow)",
-                    borderRadius: ".3rem"
-                }}>
-                    <Providers client={queryClient} >
-                        <AppRouter />
-                    </Providers>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        height: '100%',
+                        overflow: 'visible',
+                        gap: "1rem",
+                        flex: "1",
+                        marginTop: "1rem",
+                    }}
+                >
+                    <Box
+                        sx={{
+                            width: `15%`,
+                        }}
+                    >
+                        <Aside />
+                    </Box>
+                    <Box
+                        sx={{
+                            width: `85%`,
+                            overflow: 'auto',
+                            boxShadow: "var(--shadow)",
+                            borderRadius: ".3rem",
+                            padding: 2
+                        }}
+                    >
+                        <Providers client={queryClient} >
+                            <AppRouter />
+                        </Providers>
+                    </Box>
                 </Box>
-            </Box> */}
 
-
-
-            <Footer />
-        </Box >
+                <Footer />
+            </Box >
+        </SnackbarProvider >
     </BrowserRouter >
     // </React.StrictMode>
 );

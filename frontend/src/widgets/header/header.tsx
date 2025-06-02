@@ -1,5 +1,4 @@
-import { Logo } from '@/shared/components/Logo';
-import styles from './styles.module.css';
+import { Logo } from '@/shared/components/logo';
 import { Link, useNavigate } from "react-router-dom";
 import { Box, Button } from '@mui/material';
 
