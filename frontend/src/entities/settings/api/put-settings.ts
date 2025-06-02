@@ -6,8 +6,13 @@ import { mapSettingsDto } from "./mapper/map-settingsDto";
 export const saveSettings = async (settings: Settings): Promise<boolean> => {
 
     const settingsDto = mapSettingsDto(settings);
-    const result = await apiClient.post<ServiceResponse<boolean>>(`settings`, { body: settingsDto });
+    try {
+        const result = await apiClient.post<ServiceResponse<boolean>>(`settings`, { body: settingsDto });
 
-    const success = result.data;
-    return success;
+        const success = result.data;
+        return success;
+
+    } catch (error) {
+        throw new Error("updateSettingsError");
+    }
 };

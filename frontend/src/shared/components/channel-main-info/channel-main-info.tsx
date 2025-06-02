@@ -1,7 +1,8 @@
 import { useFetchChannelDetail } from '@/entities/channels/api/hooks';
-import { Alert, Box, CircularProgress, Snackbar } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import { NavLink } from 'react-router-dom';
-import { ErrorActionButton } from '../errors/errorr-action-button';
+import { useEffect } from 'react';
+import { enqueueSnackbar } from 'notistack';
 
 export const ChannelMainInfo = (props: { channelId: string; }) => {
 
@@ -9,8 +10,14 @@ export const ChannelMainInfo = (props: { channelId: string; }) => {
         channelInfoError,
         channelInfoErrorMsg,
         channelInfoIsLoading,
-        channelInfoIsError,
-        handleChannelInfoErrorClose } = useFetchChannelDetail(props.channelId);
+        channelInfoIsError
+    } = useFetchChannelDetail(props.channelId);
+
+    useEffect(() => {
+        if (channelInfoError) {
+            enqueueSnackbar(channelInfoErrorMsg, { variant: 'error' });
+        }
+    }, [channelInfoError]);
 
     if (channelInfoIsLoading) {
         return (
@@ -64,21 +71,6 @@ export const ChannelMainInfo = (props: { channelId: string; }) => {
                 }}>
                     Не удалось загрузить информацию о канале {props.channelId}
                 </Box>
-                <Snackbar
-                    open={channelInfoError}
-                    autoHideDuration={6000}
-                    action={ErrorActionButton(handleChannelInfoErrorClose)}
-                    onClose={handleChannelInfoErrorClose}
-                >
-                    <Alert
-                        onClose={handleChannelInfoErrorClose}
-                        severity="error"
-                        variant="filled"
-                        sx={{ width: '100%' }}
-                    >
-                        {channelInfoErrorMsg}
-                    </Alert>
-                </Snackbar>
             </>);
     }
 

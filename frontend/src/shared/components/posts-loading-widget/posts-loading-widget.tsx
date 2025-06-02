@@ -1,21 +1,11 @@
-import { Alert, Box, Button, CircularProgress, Snackbar } from '@mui/material';
-import { useRef, useState } from 'react';
+import { Box, Button, CircularProgress } from '@mui/material';
+import { useEffect, useRef, useState } from 'react';
 import { LoadingProgessDialog } from '@/shared/components/loading/loading-progess-dialog';
 import { pluralRecords } from '@/shared/utils/plural-records';
 import { WS_API_URL } from "@/shared/config";
 import { queryClient } from '@/shared/api/query-client';
-import { ErrorActionButton } from '../errors/errorr-action-button';
 import { useFetchPostsCount } from '@/entities/posts/hooks/useFetchPostsCount';
-
-// class CloseEvent {
-//     readonly code: number;
-//     readonly reason?: string;
-
-//     constructor(code: number, reason?: string) {
-//         this.code = code;
-//         this.reason = reason;
-//     }
-// }
+import { enqueueSnackbar } from 'notistack';
 
 export const PostsLoadingWidget = (props: { channelId: string | undefined; }) => {
 
@@ -23,24 +13,16 @@ export const PostsLoadingWidget = (props: { channelId: string | undefined; }) =>
     const [isWSLoading, setIsWSLoading] = useState(false);
     const [response, setResponse] = useState<string>('');
 
-    const [isSocketError, setIsSocketError] = useState(false);
-    const [socketErrorMessage, setSocketErrorMessage] = useState('');
 
     const {
         postsCount,
         postsCountError,
         postsCountErrorMsg,
-        handlePostsCountErrorClose,
         isPostsCountLoading
     } = useFetchPostsCount(props.channelId);
 
     const setLoadingError = (description: string) => {
-        setSocketErrorMessage(description);
-        setIsSocketError(true);
-    };
-
-    const closeSocketError = () => {
-        setIsSocketError(false);
+        enqueueSnackbar(description, { variant: 'error' });
     };
 
 
@@ -108,6 +90,12 @@ export const PostsLoadingWidget = (props: { channelId: string | undefined; }) =>
                 Ошибка. Не определен идентификатор канала.
             </Box>);
     }
+
+    useEffect(() => {
+        if (postsCountError) {
+            enqueueSnackbar(postsCountErrorMsg, { variant: 'error' });
+        }
+    }, [postsCountError]);
 
     if (isPostsCountLoading) {
         return (
@@ -182,37 +170,6 @@ export const PostsLoadingWidget = (props: { channelId: string | undefined; }) =>
                 open={isWSLoading}
             />
 
-            <Snackbar
-                open={postsCountError}
-                autoHideDuration={6000}
-                action={ErrorActionButton(handlePostsCountErrorClose)}
-                onClose={handlePostsCountErrorClose}
-            >
-                <Alert
-                    onClose={handlePostsCountErrorClose}
-                    severity="error"
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                >
-                    {postsCountErrorMsg}
-                </Alert>
-            </Snackbar>
-
-            <Snackbar
-                open={isSocketError}
-                autoHideDuration={6000}
-                action={ErrorActionButton(closeSocketError)}
-                onClose={closeSocketError}
-            >
-                <Alert
-                    onClose={closeSocketError}
-                    severity="error"
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                >
-                    {socketErrorMessage}
-                </Alert>
-            </Snackbar>
         </Box>
     );
 };

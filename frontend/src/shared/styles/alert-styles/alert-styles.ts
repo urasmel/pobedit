@@ -3,11 +3,11 @@ import { MaterialDesignContent } from 'notistack';
 
 export const StyledMaterialDesignContent = styled(MaterialDesignContent)(() => ({
     '&.notistack-MuiContent-success': {
-        backgroundColor: '#2D7738',
+        backgroundColor: '#388e3c',
         fontFamily: "Roboto",
     },
     '&.notistack-MuiContent-error': {
-        backgroundColor: '#970C0C',
+        backgroundColor: '#d32f2f',
         fontFamily: "Roboto",
     },
 }));

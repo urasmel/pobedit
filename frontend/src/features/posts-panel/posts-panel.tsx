@@ -1,12 +1,12 @@
 import { Post } from '@/entities';
 import { LoadingWidget } from '@/shared/components/loading/loading-widget';
-import { Alert, Box, Pagination, Snackbar } from '@mui/material';
+import { Box, Pagination } from '@mui/material';
 import { PostWidget } from '../post-widget';
 import { ITEMS_PER_PAGE } from '@/shared/config';
 import { ChangeEvent, useEffect, useState } from 'react';
-import { ErrorActionButton } from '@/shared/components/errors/errorr-action-button';
 import { useFetchPostsCount } from '@/entities/posts/hooks/useFetchPostsCount';
 import { useFetchPosts } from '@/entities/posts/hooks/useFetchPosts';
+import { enqueueSnackbar } from 'notistack';
 
 export const PostsPanel = (props: { channelId: string; }) => {
 
@@ -14,15 +14,15 @@ export const PostsPanel = (props: { channelId: string; }) => {
     const [limit] = useState(ITEMS_PER_PAGE);
     const [pagesCount, setPagesCount] = useState(0);
 
-    const { postsCount, postsCountError, postsCountErrorMsg, handlePostsCountErrorClose } = useFetchPostsCount(props.channelId);
+    const { postsCount, postsCountError, postsCountErrorMsg } = useFetchPostsCount(props.channelId);
     const {
         posts,
         postsError,
         postsErrorMsg,
         isFetching,
         isLoading,
-        isError,
-        handlePostsErrorClose } = useFetchPosts(props.channelId, offset, limit);
+        isError
+    } = useFetchPosts(props.channelId, offset, limit);
 
     useEffect(
         () => {
@@ -39,6 +39,18 @@ export const PostsPanel = (props: { channelId: string; }) => {
             }
         }, [postsCount]
     );
+
+    useEffect(() => {
+        if (postsCountError) {
+            enqueueSnackbar(postsCountErrorMsg, { variant: 'error' });
+        }
+    }, [postsCountError]);
+
+    useEffect(() => {
+        if (postsError) {
+            enqueueSnackbar(postsErrorMsg, { variant: 'error' });
+        }
+    }, [postsError]);
 
 
     const onPageChange = (_event: ChangeEvent<unknown>, page: number) => {
@@ -89,38 +101,6 @@ export const PostsPanel = (props: { channelId: string; }) => {
                     onChange={onPageChange}
                 />
             }
-
-            <Snackbar
-                open={postsCountError}
-                autoHideDuration={6000}
-                action={ErrorActionButton(handlePostsCountErrorClose)}
-                onClose={handlePostsCountErrorClose}
-            >
-                <Alert
-                    onClose={handlePostsCountErrorClose}
-                    severity="error"
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                >
-                    {postsCountErrorMsg}
-                </Alert>
-            </Snackbar>
-
-            <Snackbar
-                open={postsError}
-                autoHideDuration={6000}
-                action={ErrorActionButton(handlePostsErrorClose)}
-                onClose={handlePostsErrorClose}
-            >
-                <Alert
-                    onClose={handlePostsErrorClose}
-                    severity="error"
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                >
-                    {postsErrorMsg}
-                </Alert>
-            </Snackbar>
         </Box>
     );
 };

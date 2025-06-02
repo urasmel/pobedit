@@ -9,17 +9,23 @@ export const getPosts = async (
     offset = 0,
     limit = ITEMS_PER_PAGE)
     : Promise<{ posts: Post[]; }> => {
-    if (channelId == undefined) {
-        return Promise.resolve({ posts: [] });
+
+    try {
+        if (channelId == undefined) {
+            return Promise.resolve({ posts: [] });
+        }
+
+        const result = await apiClient
+            .get<ServiceResponse<PostDto[]>>
+            (`channels/${channelId}/posts?offset=${offset}&limit=${limit}`);
+
+        return ({
+            posts: result.data.map((post: PostDto) => mapPost(post))
+        });
+    } catch (error) {
+        throw new Error("fetchPostsError");
     }
 
-    const result = await apiClient
-        .get<ServiceResponse<PostDto[]>>
-        (`channels/${channelId}/posts?offset=${offset}&limit=${limit}`);
-
-    return ({
-        posts: result.data.map((post: PostDto) => mapPost(post))
-    });
 };
 
 export const getPost = async (
@@ -27,17 +33,21 @@ export const getPost = async (
     postId: number | undefined)
     : Promise<{ post: Post; } | null> => {
 
-    if (channelId == undefined) {
-        return Promise.resolve(null);
+    try {
+        if (channelId == undefined) {
+            return Promise.resolve(null);
+        }
+
+        const result = await apiClient
+            .get<ServiceResponse<PostDto>>
+            (`channels/${channelId}/posts/${postId}`);
+
+        return ({
+            post: mapPost(result.data)
+        });
+    } catch (error) {
+        throw new Error("fetchPostError");
     }
-
-    const result = await apiClient
-        .get<ServiceResponse<PostDto>>
-        (`channels/${channelId}/posts/${postId}`);
-
-    return ({
-        post: mapPost(result.data)
-    });
 };
 
 export const getPostsCount = async (channelId: string | undefined): Promise<{ posts_count: number; }> => {
@@ -60,7 +70,7 @@ export const getPostsCount = async (channelId: string | undefined): Promise<{ po
             throw new Error('serverError');
         }
         else {
-            throw new Error('networkError');
+            throw new Error('fetchPostsCountError');
         }
     }
 };

@@ -6,8 +6,12 @@ import { GatherState } from "../model/gather-state";
 import { GatherStateDto } from "./dto/gather-state.dto";
 
 export const getGatherState = async (): Promise<GatherState> => {
-    const result = await apiClient.get<ServiceResponse<GatherStateDto>>(`gather/state`);
+    try {
+        const result = await apiClient.get<ServiceResponse<GatherStateDto>>(`gather/state`);
 
-    const set = mapGatherState(result.data);
-    return (set);
+        const set = mapGatherState(result.data);
+        return (set);
+    } catch (error) {
+        throw new Error("fetchGatherStateError");
+    }
 };

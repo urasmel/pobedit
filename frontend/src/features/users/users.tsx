@@ -6,15 +6,12 @@ import {
 import {
     useEffect,
     useMemo,
-    useState,
 } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import LoginIcon from "@mui/icons-material/Login";
 import {
-    Alert,
     Box,
-    Snackbar,
 } from "@mui/material";
 import { Button } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
@@ -23,17 +20,16 @@ import { CustomNoRowsOverlay } from "@/shared/components/custom-no-rows-overlay"
 import { DataGridTitle } from "@/shared/components/data-grid-title";
 import { UserRow } from "@/entities";
 import { Action, MainState, useMainStore } from "@/app/stores";
-import { ErrorActionButton } from "@/shared/components/errors/errorr-action-button";
 import { useQuery } from "@tanstack/react-query";
 import { userApi } from "@/entities/users";
 import { useTranslation } from "react-i18next";
 import { getLocalizedErrorMessage } from "@/shared/errors/errorMessages";
+import { enqueueSnackbar } from "notistack";
 
 
 export const Users = () => {
     const { t } = useTranslation();
     const { data, isFetching, isLoading, isError, error } = useQuery(userApi.userQueries.list());
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
     const errorMsg = getLocalizedErrorMessage(error, t);
 
     const setSelectedUser = useMainStore(
@@ -41,12 +37,10 @@ export const Users = () => {
     );
 
     useEffect(() => {
-        if (isError) setSnackbarOpen(true);
+        if (isError) {
+            enqueueSnackbar(errorMsg, { variant: 'error' });
+        }
     }, [isError]);
-
-    const closeError = () => {
-        setSnackbarOpen(false);
-    };
 
     const columns = useMemo<GridColDef<User>[]>(
         () => [
@@ -82,15 +76,6 @@ export const Users = () => {
         ],
         []
     );
-
-    const loadUsers = async () => {
-        // const data = await fetchUsers();
-        // setUsers(() => data);
-    };
-
-    const onClickBtnLoadAccounts = async () => {
-        await loadUsers();
-    };
 
     const handleRowClick = (params: GridRowParams<UserRow>) => {
         setSelectedUser(params.row.username);
@@ -142,7 +127,6 @@ export const Users = () => {
                         width: "100px",
                     }}
                     variant="contained"
-                    onClick={() => onClickBtnLoadAccounts}
                 >
                     Обновить
                 </Button>
@@ -156,22 +140,6 @@ export const Users = () => {
                     Добавить
                 </Button>
             </Box>
-
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={6000}
-                action={ErrorActionButton(closeError)}
-                onClose={closeError}
-            >
-                <Alert
-                    onClose={closeError}
-                    severity="error"
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                >
-                    {errorMsg}
-                </Alert>
-            </Snackbar>
         </Box>
     );
 };

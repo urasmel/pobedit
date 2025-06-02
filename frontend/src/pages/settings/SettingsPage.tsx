@@ -1,5 +1,5 @@
 import { settingsApi } from "@/entities/settings";
-import { Alert, Box, Snackbar } from "@mui/material";
+import { Box } from "@mui/material";
 import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -14,17 +14,17 @@ import { LoadingWidget } from "@/shared/components/loading/loading-widget";
 import { useTranslation } from 'react-i18next';
 import { getLocalizedErrorMessage } from "@/shared/errors/errorMessages";
 import CustomizedSlider from "@/shared/components/number-input/number-input";
-import { ErrorActionButton } from "@/shared/components/errors/errorr-action-button";
+import { enqueueSnackbar } from "notistack";
 
 export const SettingsPage = () => {
     const { t } = useTranslation();
     const { data, isLoading, isError, error } = useQuery(settingsApi.settingsQueries.all());
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const errorMsg = getLocalizedErrorMessage(error, t);
     const [settings, setSettings] = useState<Settings>({ startGatherDate: new Date(), channelPollingFrequency: 3, commentsPollingDelay: 3 });
 
     useEffect(() => {
-        if (isError) setSnackbarOpen(true);
+        if (isError) {
+            enqueueSnackbar(getLocalizedErrorMessage(error, t), { variant: 'error' });
+        }
     }, [isError]);
 
     useEffect(() => {
@@ -50,10 +50,6 @@ export const SettingsPage = () => {
             queryClient.invalidateQueries({ queryKey: settingsApi.settingsQueries.all() });
         },
     });
-
-    const closeError = () => {
-        setSnackbarOpen(false);
-    };
 
     return (
         <Box
@@ -123,21 +119,6 @@ export const SettingsPage = () => {
                     </>
             }
 
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={6000}
-                action={ErrorActionButton(closeError)}
-                onClose={closeError}
-            >
-                <Alert
-                    onClose={closeError}
-                    severity="error"
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                >
-                    {errorMsg}
-                </Alert>
-            </Snackbar>
         </Box>
     );
 };

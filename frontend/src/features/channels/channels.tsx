@@ -1,12 +1,10 @@
 import {
-    Alert,
     Box,
     Button,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    Snackbar,
 } from "@mui/material";
 import {
     DataGrid,
@@ -26,17 +24,18 @@ import { DataGridTitle } from "@/shared/components/data-grid-title";
 import { LoadingWidget } from "@/shared/components/loading/loading-widget";
 import InfoIcon from "@mui/icons-material/Info";
 import { useNavigate } from "react-router-dom";
-import { ErrorActionButton } from "@/shared/components/errors/errorr-action-button";
 import { useQuery } from "@tanstack/react-query";
 import { channelsApi } from "@/entities/channels";
 import { Channel } from "@/entities/channels/model/channel";
 import { ChannelInfoDialog } from "@/features/channel-info-dialog";
 import { useTranslation } from "react-i18next";
 import { getLocalizedErrorMessage } from "@/shared/errors/errorMessages";
+import { useSnackbar } from 'notistack';
 
 export const Channels = () => {
 
     const { t } = useTranslation();
+    const { enqueueSnackbar } = useSnackbar();
     const updateChannels = useMainStore((action: Action) => action.fetchUpdatedChannels);
     const [channelId, setChannelId] = useState<string | undefined>(undefined);
 
@@ -45,16 +44,13 @@ export const Channels = () => {
 
     const navigate = useNavigate();
     const [openShowChannelInfo, setOpenShowChannelInfo] = useState(false);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
     const errorMsg = getLocalizedErrorMessage(error, t);
 
     useEffect(() => {
-        if (isError) setSnackbarOpen(true);
+        if (isError) {
+            enqueueSnackbar(errorMsg, { variant: 'error' });
+        }
     }, [isError]);
-
-    const closeError = () => {
-        setSnackbarOpen(false);
-    };
 
     function getRowId(row: Channel) {
         return row.tlgId;
@@ -86,6 +82,7 @@ export const Channels = () => {
     const handleChannelRowClick = (params: GridRowParams<Channel>) => {
         navigate(`/channels/${params.row.tlgId}/posts`);
     };
+
 
     return (
         <Box sx={{
@@ -164,22 +161,6 @@ export const Channels = () => {
                     </DialogActions>
                 </Dialog>}
 
-
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={6000}
-                action={ErrorActionButton(closeError)}
-                onClose={closeError}
-            >
-                <Alert
-                    onClose={closeError}
-                    severity="error"
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                >
-                    {errorMsg}
-                </Alert>
-            </Snackbar>
         </Box>
     );
 };

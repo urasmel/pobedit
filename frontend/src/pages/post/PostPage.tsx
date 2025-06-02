@@ -1,9 +1,8 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Alert, Box, Pagination, Snackbar, Typography } from "@mui/material";
+import { Box, Pagination, Typography } from "@mui/material";
 import { LoadingWidget } from '@/shared/components/loading/loading-widget';
 import { ScrollToTopButton } from "@/shared/components/scroll-top-button";
-import { ErrorActionButton } from "@/shared/components/errors/errorr-action-button";
 import { CommentWidget } from "@/shared/components/Comments/comment-widget";
 import { CommentsUpdatingWidget } from "@/shared/components/comments-updating-widget";
 import { commentsApi } from "@/entities/comments";
@@ -12,6 +11,7 @@ import { ITEMS_PER_PAGE } from '@/shared/config';
 import { PostWidget } from "@/features/post-widget";
 import { postsApi } from "@/entities/posts";
 import { ErrorBoundary } from "@/shared/components/errors/error-boundary";
+import { enqueueSnackbar } from "notistack";
 
 export const PostPage = () => {
 
@@ -20,10 +20,8 @@ export const PostPage = () => {
     const [limit] = useState(ITEMS_PER_PAGE);
     const queryClient = useQueryClient();
     const [pagesCount, setPagesCount] = useState(0);
-    const [commentsErrorOpen, setCommentsErrorOpen] = useState(false);
     const [isSocketSuccess, setSocketIsSuccess] = useState(false);
     const [socketEndMessage, setSocketEndMessage] = useState('');
-    const [openUpdatingInfo, setOpenUpdatingInfo] = useState(false);
 
     const {
         data,
@@ -58,13 +56,9 @@ export const PostPage = () => {
 
     useEffect(() => {
         if (isError) {
-            setCommentsErrorOpen(true);
+            enqueueSnackbar(error?.message, { variant: 'error' });
         }
     }, [isError]);
-
-    const handleCommentsErrorClose = () => {
-        setCommentsErrorOpen(false);
-    };
 
     const onPageChange = (_event: ChangeEvent<unknown>, page: number) => {
         setOffset(limit * (page - 1));
@@ -77,11 +71,7 @@ export const PostPage = () => {
     const setUpdatingResult = (success: boolean, description: string) => {
         setSocketEndMessage(description);
         setSocketIsSuccess(success);
-        setOpenUpdatingInfo(true);
-    };
-
-    const closeUpdatingInfo = () => {
-        setOpenUpdatingInfo(false);
+        enqueueSnackbar(socketEndMessage, { variant: isSocketSuccess ? "success" : "error" });
     };
 
     if (isLoading) {
@@ -168,38 +158,6 @@ export const PostPage = () => {
             }
 
             <ScrollToTopButton />
-
-            <Snackbar
-                open={commentsErrorOpen}
-                autoHideDuration={6000}
-                action={ErrorActionButton(handleCommentsErrorClose)}
-                onClose={handleCommentsErrorClose}
-            >
-                <Alert
-                    onClose={handleCommentsErrorClose}
-                    severity="error"
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                >
-                    {error?.message}
-                </Alert>
-            </Snackbar>
-
-            <Snackbar
-                open={openUpdatingInfo}
-                autoHideDuration={6000}
-                action={ErrorActionButton(closeUpdatingInfo)}
-                onClose={closeUpdatingInfo}
-            >
-                <Alert
-                    onClose={closeUpdatingInfo}
-                    severity={isSocketSuccess ? "success" : "error"}
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                >
-                    {socketEndMessage}
-                </Alert>
-            </Snackbar>
 
         </Box>
     );

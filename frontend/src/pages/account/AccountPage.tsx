@@ -1,9 +1,9 @@
 import { accountApi } from '@/entities/account';
 import { updateAccountInfo } from '@/entities/account/api/get-accounts';
-import { ErrorActionButton } from '@/shared/components/errors/errorr-action-button';
 import { LoadingWidget } from '@/shared/components/loading/loading-widget';
-import { Box, Typography, Button, Snackbar, Alert, Avatar, Dialog, DialogContent } from '@mui/material';
+import { Box, Typography, Button, Avatar, Dialog, DialogContent } from '@mui/material';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { enqueueSnackbar } from 'notistack';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -12,7 +12,6 @@ const AccountPage = () => {
     const queryClient = useQueryClient();
     const { accountId } = useParams();
     const navigate = useNavigate();
-    const [updateWithError, setUpdatingWithError] = useState(false);
     const [isInfoUpdating, setIsInfoUpdating] = useState(false);
     const [avaOpen, setAvaOpen] = useState(false);
 
@@ -31,15 +30,11 @@ const AccountPage = () => {
                 queryClient.invalidateQueries(accountApi.accountsQueries.one(accountId));
             });
         } catch (error) {
-            setUpdatingWithError(true);
+            enqueueSnackbar('Не удалось обновить информацию о пользователе', { variant: 'error' });
         }
         finally {
             setIsInfoUpdating(false);
         }
-    };
-
-    const handleErrorClose = () => {
-        setUpdatingWithError(false);
     };
 
     const handleClickOpen = () => {
@@ -143,22 +138,6 @@ const AccountPage = () => {
                         </Button>
                     </Box>
             }
-
-            <Snackbar
-                open={updateWithError}
-                autoHideDuration={6000}
-                action={ErrorActionButton(handleErrorClose)}
-                onClose={handleErrorClose}
-            >
-                <Alert
-                    onClose={handleErrorClose}
-                    severity="error"
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                >
-                    Не удалось обновить информацию о пользователе
-                </Alert>
-            </Snackbar>
 
             <Dialog
                 open={avaOpen}

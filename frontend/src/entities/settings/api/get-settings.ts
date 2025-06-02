@@ -6,8 +6,13 @@ import { SettingsDto } from "./dto/settings.dto";
 import { Settings } from "../model/settings";
 
 export const getSettings = async (): Promise<Settings> => {
-    const result = await apiClient.get<ServiceResponse<SettingsDto>>(`settings`);
+    try {
+        const result = await apiClient.get<ServiceResponse<SettingsDto>>(`settings`);
 
-    const set = mapSettings(result.data);
-    return (set);
+        const set = mapSettings(result.data);
+        return (set);
+
+    } catch (error) {
+        throw new Error("fetchSettingsError");
+    }
 };

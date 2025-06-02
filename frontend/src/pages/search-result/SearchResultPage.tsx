@@ -10,6 +10,7 @@ import { useMainStore, MainState, Action } from "@/app/stores";
 import { ScrollToTopButton } from "@/shared/components/scroll-top-button";
 import { ChangeEvent, useEffect, useState } from "react";
 import { ITEMS_PER_PAGE } from "@/shared/config";
+import { enqueueSnackbar } from "notistack";
 
 export const SearchResultPage = () => {
 
@@ -23,7 +24,8 @@ export const SearchResultPage = () => {
     );
 
     const { data: result,
-        isLoading, isError }
+        isLoading,
+        isError }
         = useQuery(searchApi.searchQueries.search(searchQuery));
 
     const onPageChange = (_event: ChangeEvent<unknown>, page: number) => {
@@ -45,8 +47,27 @@ export const SearchResultPage = () => {
         }, [result?.totalCount]
     );
 
+    useEffect(() => {
+        if (isError) {
+            enqueueSnackbar("Поиск завершился ошибкой. Попробуйте повторить позже.", { variant: 'error' });
+        }
+    }, [isError]);
+
     if (isLoading) {
-        return (<LoadingWidget />);
+        return (
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 2,
+                    height: "100%",
+                    width: "100%",
+                    boxSizing: "border-box",
+                }}
+            >
+                <LoadingWidget />
+            </Box>);
     }
 
     return (

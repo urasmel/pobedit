@@ -81,6 +81,7 @@ export const GatherStateItem = (props: GatherStateItemProps) => {
                 alignItems: "center",
                 gap: 1
             }}>
+
             <Box sx={{
                 borderRadius: "50%",
                 overflow: "hidden",
@@ -93,6 +94,7 @@ export const GatherStateItem = (props: GatherStateItemProps) => {
             }}>
                 {IconHelper(props.icon, props.color)}
             </Box>
+
             <Box
                 sx={{
                     display: "flex",
@@ -107,6 +109,7 @@ export const GatherStateItem = (props: GatherStateItemProps) => {
                 >
                     {props.value}
                 </Typography>
+
                 <Typography
                     lineHeight={"1.2rem"}
                     fontSize={"1.1rem"}
