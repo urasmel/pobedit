@@ -1,3 +1,1 @@
-import AccountPage from './AccountPage';
-
-export { AccountPage as AccountPage };
+export { AccountPage } from './account';

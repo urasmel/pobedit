@@ -7,7 +7,7 @@ import { CommentWidget } from "@/shared/components/Comments/comment-widget";
 import { CommentsUpdatingWidget } from "@/shared/components/comments-updating-widget";
 import { commentsApi } from "@/entities/comments";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ITEMS_PER_PAGE } from '@/shared/config';
+import { PAGE_SIZE } from '@/shared/config';
 import { PostWidget } from "@/features/post-widget";
 import { postsApi } from "@/entities/posts";
 import { ErrorBoundary } from "@/shared/components/errors/error-boundary";
@@ -17,7 +17,7 @@ export const PostPage = () => {
 
     const { channelId, postId } = useParams();
     const [offset, setOffset] = useState(0);
-    const [limit] = useState(ITEMS_PER_PAGE);
+    const [limit] = useState(PAGE_SIZE);
     const queryClient = useQueryClient();
     const [pagesCount, setPagesCount] = useState(0);
     const [isSocketSuccess, setSocketIsSuccess] = useState(false);

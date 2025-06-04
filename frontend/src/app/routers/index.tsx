@@ -6,7 +6,7 @@ import { PostPage } from "@/pages/post";
 import { HomePage } from "@/pages/home";
 import { PostsPage } from "@/pages/posts";
 import { AccountPage } from "@/pages/account";
-import { AccountCommentsPage } from "@/pages/account-comments";
+import { AccountComments } from "@/pages/account-comments";
 import { SearchPage } from "@/pages/search";
 import { SearchResultPage } from "@/pages/search-result";
 import { ErrorBoundary } from "@/shared/components/errors/error-boundary";
@@ -75,7 +75,7 @@ export const AppRouter = () => {
                 element={
                     <ErrorBoundary>
                         <Suspense fallback={<LoadingWidget />}>
-                            <AccountCommentsPage />
+                            <AccountComments />
                         </Suspense>
                     </ErrorBoundary>
                 }

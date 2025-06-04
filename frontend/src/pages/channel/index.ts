@@ -1,1 +1,1 @@
-export { ChannelPage } from './ChannelPage';
+export { ChannelPage } from './channel';

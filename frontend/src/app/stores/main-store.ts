@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { API_URL, ITEMS_PER_PAGE } from '@/shared/config';
+import { API_URL, PAGE_SIZE } from '@/shared/config';
 import { Channel, ServiceResponse } from '@/entities';
 import { Post } from '@/entities';
 import { SearchQuery, SearchType } from '@/entities/search/model/search-query';
@@ -35,7 +35,7 @@ export const useMainStore = create<MainState & Action>((set) => ({
         searchType: SearchType.posts,
         startDate: null,
         endDate: null,
-        limit: ITEMS_PER_PAGE,
+        limit: PAGE_SIZE,
         offset: 0,
     },
 

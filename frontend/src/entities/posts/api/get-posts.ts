@@ -2,12 +2,12 @@ import { ServiceResponse, Post } from "@/entities";
 import { apiClient } from "@/shared/api/base";
 import { PostDto } from "./dto/post.dto";
 import { mapPost } from "./mapper/map-post";
-import { ITEMS_PER_PAGE } from "@/shared/config";
+import { PAGE_SIZE } from "@/shared/config";
 
 export const getPosts = async (
     channelId: string | undefined,
     offset = 0,
-    limit = ITEMS_PER_PAGE)
+    limit = PAGE_SIZE)
     : Promise<{ posts: Post[]; }> => {
 
     try {

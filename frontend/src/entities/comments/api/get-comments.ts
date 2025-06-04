@@ -4,13 +4,13 @@ import { apiClient } from "@/shared/api/base";
 
 import { mapComment, mapComments } from "./mapper/map-comment";
 import { CommentDto } from "./dto/comment.dto";
-import { ITEMS_PER_PAGE } from "@/shared/config";
+import { PAGE_SIZE } from "@/shared/config";
 
 export const getComments = async (
     channelId: string | undefined,
     postId: string | undefined,
     offset = 0,
-    limit = ITEMS_PER_PAGE)
+    limit = PAGE_SIZE)
     : Promise<{ comments: Comment[]; }> => {
 
     try {
@@ -62,7 +62,7 @@ export const getPostCommentsCount = async (channelId: string | undefined, postId
     }
 };
 
-export const getAllAccountComments = async (accountId: string | undefined, offset = 0, limit = ITEMS_PER_PAGE): Promise<Comment[]> => {
+export const getAllAccountComments = async (accountId: string | undefined, offset = 0, limit = PAGE_SIZE): Promise<Comment[]> => {
     try {
         if (accountId == undefined) {
             return Promise.resolve([]);

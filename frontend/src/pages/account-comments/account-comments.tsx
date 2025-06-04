@@ -5,15 +5,15 @@ import { Box, Typography, Avatar, List, ListItem, Pagination } from '@mui/materi
 import { useQuery } from '@tanstack/react-query';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
-import { ITEMS_PER_PAGE } from '@/shared/config';
+import { PAGE_SIZE } from '@/shared/config';
 import { CommentInfo } from '@/shared/components/Comments/comment-info';
 
-export const AccountCommentsPage = () => {
+export const AccountComments = () => {
 
     const { accountId } = useParams();
     const [pagesCount, setPagesCount] = useState(0);
     const [offset, setOffset] = useState(0);
-    const [limit] = useState(ITEMS_PER_PAGE);
+    const [limit] = useState(PAGE_SIZE);
 
     const { data: count } = useQuery(commentsApi.commentsQueries.allAccountCommentsCount(accountId));
 

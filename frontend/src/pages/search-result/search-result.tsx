@@ -9,13 +9,13 @@ import { LoadingWidget } from "@/shared/components/loading/loading-widget";
 import { useMainStore, MainState, Action } from "@/app/stores";
 import { ScrollToTopButton } from "@/shared/components/scroll-top-button";
 import { ChangeEvent, useEffect, useState } from "react";
-import { ITEMS_PER_PAGE } from "@/shared/config";
+import { PAGE_SIZE } from "@/shared/config";
 import { enqueueSnackbar } from "notistack";
 
 export const SearchResultPage = () => {
 
     const [pagesCount, setPagesCount] = useState(0);
-    const [limit] = useState(ITEMS_PER_PAGE);
+    const [limit] = useState(PAGE_SIZE);
     const searchQuery = useMainStore(
         (state: MainState & Action) => state.searchQuery
     );

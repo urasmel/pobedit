@@ -30,7 +30,6 @@ export const SettingsPage = () => {
     useEffect(() => {
         if (data) {
             setSettings(data);
-            console.log('data', data);
         }
     }, [data]);
 

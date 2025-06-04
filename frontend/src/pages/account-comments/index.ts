@@ -1,1 +1,1 @@
-export { AccountCommentsPage } from './AccountCommentsPage';
+export { AccountComments } from './account-comments';

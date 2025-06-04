@@ -7,7 +7,7 @@ import { enqueueSnackbar } from 'notistack';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-const AccountPage = () => {
+export const AccountPage = () => {
 
     const queryClient = useQueryClient();
     const { accountId } = useParams();
@@ -163,5 +163,3 @@ const AccountPage = () => {
         </Box>
     );
 };
-
-export default AccountPage;

@@ -2,7 +2,7 @@ import { Post } from '@/entities';
 import { LoadingWidget } from '@/shared/components/loading/loading-widget';
 import { Box, Pagination } from '@mui/material';
 import { PostWidget } from '../post-widget';
-import { ITEMS_PER_PAGE } from '@/shared/config';
+import { PAGE_SIZE } from '@/shared/config';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useFetchPostsCount } from '@/entities/posts/hooks/useFetchPostsCount';
 import { useFetchPosts } from '@/entities/posts/hooks/useFetchPosts';
@@ -11,7 +11,7 @@ import { enqueueSnackbar } from 'notistack';
 export const PostsPanel = (props: { channelId: string; }) => {
 
     const [offset, setOffset] = useState(0);
-    const [limit] = useState(ITEMS_PER_PAGE);
+    const [limit] = useState(PAGE_SIZE);
     const [pagesCount, setPagesCount] = useState(0);
 
     const { postsCount, postsCountError, postsCountErrorMsg } = useFetchPostsCount(props.channelId);
@@ -31,11 +31,11 @@ export const PostsPanel = (props: { channelId: string; }) => {
                 return;
             }
 
-            if (postsCount % ITEMS_PER_PAGE == 0) {
-                setPagesCount(postsCount / ITEMS_PER_PAGE);
+            if (postsCount % PAGE_SIZE == 0) {
+                setPagesCount(postsCount / PAGE_SIZE);
             }
             else {
-                setPagesCount(Math.ceil(postsCount / ITEMS_PER_PAGE));
+                setPagesCount(Math.ceil(postsCount / PAGE_SIZE));
             }
         }, [postsCount]
     );
@@ -54,7 +54,7 @@ export const PostsPanel = (props: { channelId: string; }) => {
 
 
     const onPageChange = (_event: ChangeEvent<unknown>, page: number) => {
-        setOffset(ITEMS_PER_PAGE * (page - 1));
+        setOffset(PAGE_SIZE * (page - 1));
     };
 
     return (
