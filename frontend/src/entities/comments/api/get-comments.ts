@@ -26,7 +26,7 @@ export const getComments = async (
             comments: result.data.map((comment: CommentDto) => mapComment(comment))
         });
     } catch (error) {
-        throw new Error("fetchPostCommentsError");
+        throw new Error("error.fetchPostComments");
     }
 };
 
@@ -42,7 +42,7 @@ export const getComment = async (channelId: string | undefined, postId: string |
             comment: mapComment(result.data)
         });
     } catch (error) {
-        throw new Error("fetchCommentError");
+        throw new Error("error.fetchComment");
     }
 };
 
@@ -58,7 +58,7 @@ export const getPostCommentsCount = async (channelId: string | undefined, postId
             result.data as number
         );
     } catch (error) {
-        throw new Error("fetchPostCommentsCountError");
+        throw new Error("error.fetchPostCommentsCount");
     }
 };
 
@@ -74,7 +74,7 @@ export const getAllAccountComments = async (accountId: string | undefined, offse
 
         return mapComments(result.data);
     } catch (error) {
-        throw new Error("fetchAccountAllCommentsError");
+        throw new Error("error.fetchAccountAllComments");
     }
 };
 
@@ -90,6 +90,6 @@ export const getAllAccountCommentsCount = async (accountId: string | undefined):
 
         return result.data;
     } catch (error) {
-        throw new Error("fetchAccountCommentsCountError");
+        throw new Error("error.fetchAccountCommentsCount");
     }
 };

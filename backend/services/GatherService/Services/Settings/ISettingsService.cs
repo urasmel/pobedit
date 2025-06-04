@@ -1,12 +1,11 @@
 ﻿using Gather.Dtos;
 using Gather.Models;
 
-namespace Gather.Services.Settings
-{
-    public interface ISettingsService
-    {
-        public ServiceResponse<PobeditSettingsDto> GetSettings();
+namespace Gather.Services;
 
-        public Task<ServiceResponse<bool>> SaveSettings(PobeditSettingsDto pobeditSettingsDto);
-    }
+public interface ISettingsService
+{
+    public ServiceResponse<PobeditSettingsDto> GetSettings();
+
+    public ServiceResponse<bool> SaveSettings(PobeditSettingsDto pobeditSettingsDto);
 }

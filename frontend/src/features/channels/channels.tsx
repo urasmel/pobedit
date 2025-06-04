@@ -29,7 +29,7 @@ import { channelsApi } from "@/entities/channels";
 import { Channel } from "@/entities/channels/model/channel";
 import { ChannelInfoDialog } from "@/features/channel-info-dialog";
 import { useTranslation } from "react-i18next";
-import { getLocalizedErrorMessage } from "@/shared/errors/errorMessages";
+import { getLocalizedString } from "@/shared/locales/localizing";
 import { useSnackbar } from 'notistack';
 
 export const Channels = () => {
@@ -44,7 +44,7 @@ export const Channels = () => {
 
     const navigate = useNavigate();
     const [openShowChannelInfo, setOpenShowChannelInfo] = useState(false);
-    const errorMsg = getLocalizedErrorMessage(error, t);
+    const errorMsg = getLocalizedString(error, t);
 
     useEffect(() => {
         if (isError) {

@@ -13,6 +13,6 @@ export const saveSettings = async (settings: Settings): Promise<boolean> => {
         return success;
 
     } catch (error) {
-        throw new Error("updateSettingsError");
+        throw new Error("error.updateSettings");
     }
 };

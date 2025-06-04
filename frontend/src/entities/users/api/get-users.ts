@@ -12,6 +12,6 @@ export const getUsers = async (): Promise<{ users: User[]; }> => {
             users: result.data.map((user: UserDto) => mapUser(user))
         });
     } catch (error) {
-        throw new Error("fetchUsersError");
+        throw new Error("error.fetchUsers");
     }
 };

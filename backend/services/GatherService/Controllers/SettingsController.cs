@@ -1,7 +1,7 @@
 ﻿using Asp.Versioning;
 using Gather.Dtos;
 using Gather.Models;
-using Gather.Services.Settings;
+using Gather.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gather.Controllers;
@@ -44,9 +44,9 @@ public class SettingsController:ControllerBase
     [MapToApiVersion(1.0)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ServiceResponse<bool>>> SaveSettings([FromBody]PobeditSettingsDto pobeditSettingsDto)
+    public ActionResult<ServiceResponse<bool>> SaveSettings([FromBody]PobeditSettingsDto pobeditSettingsDto)
     {
-        var response = await _settingsService.SaveSettings(pobeditSettingsDto);
+        var response = _settingsService.SaveSettings(pobeditSettingsDto);
         if (!response.Success)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, response);

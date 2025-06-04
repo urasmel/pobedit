@@ -23,14 +23,14 @@ import { Action, MainState, useMainStore } from "@/app/stores";
 import { useQuery } from "@tanstack/react-query";
 import { userApi } from "@/entities/users";
 import { useTranslation } from "react-i18next";
-import { getLocalizedErrorMessage } from "@/shared/errors/errorMessages";
+import { getLocalizedString } from "@/shared/locales/localizing";
 import { enqueueSnackbar } from "notistack";
 
 
 export const Users = () => {
     const { t } = useTranslation();
     const { data, isFetching, isLoading, isError, error } = useQuery(userApi.userQueries.list());
-    const errorMsg = getLocalizedErrorMessage(error, t);
+    const errorMsg = getLocalizedString(error, t);
 
     const setSelectedUser = useMainStore(
         (state: MainState & Action) => state.updateSelectedUser

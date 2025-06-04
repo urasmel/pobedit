@@ -23,7 +23,7 @@ export const getPosts = async (
             posts: result.data.map((post: PostDto) => mapPost(post))
         });
     } catch (error) {
-        throw new Error("fetchPostsError");
+        throw new Error("error.fetchPosts");
     }
 
 };
@@ -46,7 +46,7 @@ export const getPost = async (
             post: mapPost(result.data)
         });
     } catch (error) {
-        throw new Error("fetchPostError");
+        throw new Error("error.fetchPost");
     }
 };
 
@@ -64,13 +64,13 @@ export const getPostsCount = async (channelId: string | undefined): Promise<{ po
     }
     catch (error: Error | any) {
         if (error.message.includes('404')) {
-            throw new Error('channelNotFound');
+            throw new Error('error.channelNotFound');
         }
         else if (error.message.includes('500')) {
-            throw new Error('serverError');
+            throw new Error('error.server');
         }
         else {
-            throw new Error('fetchPostsCountError');
+            throw new Error('error.fetchPostsCount');
         }
     }
 };

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { postsApi } from "..";
-import { getLocalizedErrorMessage } from "@/shared/errors/errorMessages";
+import { getLocalizedString } from "@/shared/locales/localizing";
 import { t } from "i18next";
 import { useEffect, useState } from "react";
 
@@ -14,7 +14,7 @@ export const useFetchPosts = (channelId: string | undefined, offset: number, lim
         isFetched } = useQuery(postsApi.postsQueries.list(channelId, offset, limit));
 
     const [postsError, setPostsError] = useState(false);
-    const postsErrorMsg = getLocalizedErrorMessage(error, t);
+    const postsErrorMsg = getLocalizedString(error, t);
 
     useEffect(() => {
         if (error) {

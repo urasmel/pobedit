@@ -8,13 +8,13 @@ import { numToTime } from "@/shared/utils/num-to-time";
 import { useEffect, useMemo } from "react";
 import { LoadingWidget } from "@/shared/components/loading/loading-widget";
 import { enqueueSnackbar } from "notistack";
-import { getLocalizedErrorMessage } from "@/shared/errors/errorMessages";
+import { getLocalizedString } from "@/shared/locales/localizing";
 import { t } from "i18next";
 
 export const GatherStateWidget = () => {
 
     const { data: gatherState, isLoading, isError, error } = useQuery(gatherStateApi.gatherStateQueries.all());
-    const errorMsg = getLocalizedErrorMessage(error, t);
+    const errorMsg = getLocalizedString(error, t);
 
     const frendlyState = useMemo(() => {
         return gatherState?.state === "running" ? "Работает" :

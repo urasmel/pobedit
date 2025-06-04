@@ -7,48 +7,74 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
 import { saveSettings } from "@/entities/settings/api";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { queryClient } from "@/shared/api/query-client";
 import { Settings } from "@/entities/settings/model/settings";
 import { LoadingWidget } from "@/shared/components/loading/loading-widget";
 import { useTranslation } from 'react-i18next';
-import { getLocalizedErrorMessage } from "@/shared/errors/errorMessages";
+import { getLocalizedString } from "@/shared/locales/localizing";
 import CustomizedSlider from "@/shared/components/number-input/number-input";
 import { enqueueSnackbar } from "notistack";
+import { debounce } from 'lodash';
 
 export const SettingsPage = () => {
     const { t } = useTranslation();
     const { data, isLoading, isError, error } = useQuery(settingsApi.settingsQueries.all());
-    const [settings, setSettings] = useState<Settings>({ startGatherDate: new Date(), channelPollingFrequency: 3, commentsPollingDelay: 3 });
 
     useEffect(() => {
         if (isError) {
-            enqueueSnackbar(getLocalizedErrorMessage(error, t), { variant: 'error' });
+            enqueueSnackbar(getLocalizedString(error, t), { variant: 'error' });
         }
     }, [isError]);
 
-    useEffect(() => {
-        if (data) {
-            setSettings(data);
-        }
-    }, [data]);
-
-    useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            mutation.mutate(settings);
-        }, 500);
-
-        return () => {
-            clearTimeout(timeoutId);
-        };
-    }, [settings]);
-
-    const mutation = useMutation({
-        mutationFn: (settings: Settings) => { return saveSettings(settings); },
+    const settingsMutation = useMutation({
+        mutationFn: saveSettings,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: settingsApi.settingsQueries.all() });
+            enqueueSnackbar(t('success.updateSettings'), { variant: 'success' });
+            queryClient.invalidateQueries({ queryKey: settingsApi.settingsQueries.prefix });
+        },
+        onError: (error) => {
+            enqueueSnackbar(getLocalizedString(error, t), { variant: 'error' });
         },
     });
+
+    const handleUpdate = (partialSettings: Partial<Settings>) => {
+        if (!data) return;
+        settingsMutation.mutate({ ...data, ...partialSettings });
+    };
+
+    const debouncedUpdate = debounce(handleUpdate, 300);
+
+    if (isLoading) {
+        return (<Box
+            sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "100%",
+                height: "100%",
+            }}
+        >
+            <LoadingWidget />
+
+        </Box>);
+    }
+
+    if (!data) {
+        enqueueSnackbar(t('error.fetchSettings'), { variant: 'error' });
+        return <Box
+            sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "100%",
+                height: "100%",
+                fontSize: "16px",
+            }}
+        >
+            Не удалось получить настройки
+        </Box>;
+    }
 
     return (
         <Box
@@ -63,60 +89,47 @@ export const SettingsPage = () => {
                 fontSize: "16px"
             }}
         >
-            {
-                isLoading
-                    ? <Box
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            height: "100%",
-                            width: "100%",
-                        }}
-                    >
-                        <LoadingWidget />
-                    </Box>
-                    :
-                    <>
-                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
-                            <DemoContainer components={['DatePicker',]}>
-                                <DemoItem label="Стартовая дата загрузки">
-                                    <DatePicker
-                                        defaultValue={dayjs(data?.startGatherDate)}
-                                        onChange={(newValue) => {
-                                            let newSettings = { ...settings, startGatherDate: newValue as Date } as Settings;
-                                            setSettings(_ => newSettings);
-                                        }}
-                                    />
-                                </DemoItem>
-                            </DemoContainer>
-                        </LocalizationProvider>
-
-                        <CustomizedSlider
-                            caption="Частота опроса каналов (ч.)"
-                            min={1}
-                            max={24}
-                            value={settings?.channelPollingFrequency ? settings?.channelPollingFrequency : 1}
-                            id="channel-polling-frequency"
-                            onChange={(newValue) => {
-                                let newSettings = { ...settings, channelPollingFrequency: newValue as number } as Settings;
-                                setSettings(_ => newSettings);
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
+                <DemoContainer components={['DatePicker',]}>
+                    <DemoItem label="Стартовая дата загрузки">
+                        <DatePicker
+                            value={dayjs(data.startGatherDate)}
+                            onChange={(value) => {
+                                if (!value) return;
+                                debouncedUpdate({
+                                    startGatherDate: value.toDate()
+                                });
                             }}
+                            disabled={settingsMutation.isPending}
                         />
+                    </DemoItem>
+                </DemoContainer>
+            </LocalizationProvider>
 
-                        <CustomizedSlider
-                            caption="Задержка опроса комментариев (ч.)"
-                            min={1}
-                            max={24}
-                            value={settings?.commentsPollingDelay ? settings?.commentsPollingDelay : 1}
-                            id="comments-polling-delay"
-                            onChange={(newValue) => {
-                                let newSettings = { ...settings, commentsPollingDelay: newValue as number } as Settings;
-                                setSettings(_ => newSettings);
-                            }}
-                        />
-                    </>
-            }
+            <CustomizedSlider
+                caption="Частота опроса каналов (ч.)"
+                min={1}
+                max={24}
+                // value={data?.channelPollingFrequency ? data?.channelPollingFrequency : 1}
+                id="channel-polling-frequency"
+
+                value={data?.channelPollingFrequency ?? 1}
+                onChange={(value) => {
+                    debouncedUpdate({ channelPollingFrequency: value });
+                }}
+            />
+
+            <CustomizedSlider
+                caption="Задержка опроса комментариев (ч.)"
+                min={1}
+                max={24}
+                // value={data?.commentsPollingDelay ? data?.commentsPollingDelay : 1}
+                id="comments-polling-delay"
+                value={data?.commentsPollingDelay ?? 1}
+                onChange={(value) => {
+                    debouncedUpdate({ commentsPollingDelay: value });
+                }}
+            />
 
         </Box>
     );

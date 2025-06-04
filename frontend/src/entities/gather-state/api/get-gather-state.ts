@@ -12,6 +12,6 @@ export const getGatherState = async (): Promise<GatherState> => {
         const set = mapGatherState(result.data);
         return (set);
     } catch (error) {
-        throw new Error("fetchGatherStateError");
+        throw new Error("error.fetchGatherState");
     }
 };

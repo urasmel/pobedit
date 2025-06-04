@@ -31,6 +31,6 @@ export const postSearch = async (query: SearchQuery | null): Promise<SearchResul
             return { totalCount: result.data.totalCount, data: comments };
         }
     } catch (error) {
-        throw new Error("fetchSerchQueryError");
+        throw new Error("error.fetchSerchQuery");
     }
 };

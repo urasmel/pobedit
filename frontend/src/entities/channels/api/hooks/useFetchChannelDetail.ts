@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getLocalizedErrorMessage } from "@/shared/errors/errorMessages";
+import { getLocalizedString } from "@/shared/locales/localizing";
 import { t } from "i18next";
 import { useEffect, useState } from "react";
 import { channelsApi } from "../..";
@@ -13,7 +13,7 @@ export const useFetchChannelDetail = (channelId: string | undefined) => {
     } = useQuery(channelsApi.channelQueries.details(channelId));
 
     const [channelInfoError, setChannelInfoError] = useState(false);
-    const channelInfoErrorMsg = getLocalizedErrorMessage(error, t);
+    const channelInfoErrorMsg = getLocalizedString(error, t);
 
     useEffect(() => {
         if (error) {

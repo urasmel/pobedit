@@ -15,7 +15,6 @@ using Serilog;
 using SharedCore.Filtering;
 using System.Reflection;
 using System.Text.Json.Serialization;
-using Gather.Services.Settings;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -106,6 +105,7 @@ builder.Services.AddSingleton<IConfigUtils>(sp =>
         apiHash,
         phoneNumber));
 
+builder.Services.AddSingleton<ISettingsConfig, SettingsConfig>();
 builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddSingleton<GatherClient>();
 builder.Services.AddScoped<IAccountService, AccountService>();

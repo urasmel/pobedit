@@ -14,10 +14,11 @@ public class ChannelsService(
     GatherClient client,
     DataContext context,
     IMapper mapper,
-    ILogger<ChannelsService> logger) : IChannelsService
+    ILogger<ChannelsService> logger,
+    ISettingsConfig settingsconfig) : IChannelsService
 {
     // Дата, с которой начинаем загружать данные.
-    private readonly DateTime startLoadingDate = DateTime.Parse("May 15, 2025");
+    //private readonly DateTime startLoadingDate = DateTime.Parse("May 15, 2025");
     readonly ILogger _logger = logger;
     readonly GatherClient _client = client;
     TL.User? user;
@@ -25,6 +26,7 @@ public class ChannelsService(
     private readonly DataContext _context = context;
     readonly Object lockObject = new();
     static bool updateChannelsEnable = true;
+    PobeditSettings pobeditSettings = settingsconfig.PobeditSettings;
 
 
     public async Task<ServiceResponse<IEnumerable<ChannelDto>>> GetAllChannels()
@@ -654,7 +656,7 @@ public class ChannelsService(
                 var msgBase = channelMessages.messages[0];
                 startOffsetId = msgBase.ID;
 
-                lastMessagesBase = await _client.Messages_GetHistory(peer, 0, startLoadingDate, 0, 1);
+                lastMessagesBase = await _client.Messages_GetHistory(peer, 0, pobeditSettings.StartGatherDate, 0, 1);
                 if (lastMessagesBase is not Messages_ChannelMessages end_channelMessages)
                 {
                     await webSocket.CloseAsync(

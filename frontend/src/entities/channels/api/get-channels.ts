@@ -13,7 +13,7 @@ export const getChannels = async (): Promise<{ channels: Channel[]; }> => {
             channels: result.data.map((channel: ChannelDto) => mapChannel(channel))
         });
     } catch (error) {
-        throw new Error("fetchAllChannelsError");
+        throw new Error("error.fetchAllChannels");
     }
 };
 
@@ -28,7 +28,7 @@ export const getChannel = async (channelId: string | undefined): Promise<Channel
             mapChannel(result.data)
         );
     } catch (error) {
-        throw new Error("fetchChannelError");
+        throw new Error("error.fetchChannel");
     }
 };
 
@@ -43,6 +43,6 @@ export const updateChannelInfo = async (channelId: string | undefined): Promise<
             mapChannel(result.data)
         );
     } catch (error) {
-        throw new Error("fetchChannelInfoError");
+        throw new Error("error.fetchChannelInfo");
     }
 };

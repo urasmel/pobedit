@@ -13,6 +13,6 @@ export const getSettings = async (): Promise<Settings> => {
         return (set);
 
     } catch (error) {
-        throw new Error("fetchSettingsError");
+        throw new Error("error.fetchSettings");
     }
 };
