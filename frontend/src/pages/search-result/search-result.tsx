@@ -88,7 +88,7 @@ export const SearchResultPage = () => {
                     maxWidth: "800px",
                     padding: 2,
                     border: "1px solid #ccc",
-                    borderRadius: 2,
+                    borderRadius: "var(--radius-md)",
                     backgroundColor: "#f9f9f9",
                 }}
             >

@@ -71,7 +71,7 @@ export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
                 display: "flex",
                 flexDirection: "column",
                 rowGap: "1rem",
-                borderRadius: "1rem",
+                borderRadius: "var(--radius-md)",
                 padding: "1rem",
                 boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;",
                 fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",

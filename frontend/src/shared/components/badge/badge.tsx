@@ -19,7 +19,7 @@ export const Badge = ({ children, link }: BadgeProps) => {
                 padding: 1,
                 gap: 1,
                 cursor: "pointer",
-                borderRadius: 1,
+                borderRadius: "var(--radius-sm)",
                 transition: "background-color 0.3s ease, transform 0.3s ease",
                 boxSizing: "border-box",
                 "&:hover": {

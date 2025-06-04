@@ -59,8 +59,8 @@ root.render(
                         sx={{
                             width: `85%`,
                             overflow: 'auto',
-                            boxShadow: "var(--shadow)",
-                            borderRadius: ".3rem",
+                            boxShadow: "var(--strong-shadow)",
+                            borderRadius: "var(--radius-md)",
                             padding: 2
                         }}
                     >

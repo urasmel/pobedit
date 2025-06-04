@@ -1,3 +1,7 @@
 :root {
-    --shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    --strong-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    --weak-shadow: rgba(0, 0, 0, 0.35) 0px 2px 5px;
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 1rem;
 }

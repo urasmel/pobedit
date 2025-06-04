@@ -39,7 +39,7 @@ export const UserWidget = () => {
             padding: "1rem",
             backgroundColor: "#fff",
             border: "1px solid #ccc",
-            boxShadow: "var(--shadow)",
+            boxShadow: "var(--strong-shadow)",
             textAlign: "center"
         }}>
             <h2>User Information</h2>

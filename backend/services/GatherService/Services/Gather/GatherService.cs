@@ -4,7 +4,6 @@ using Gather.Dtos.Gather;
 using Gather.Models;
 using Gather.Models.Gather;
 using Gather.Utils.ConfigService;
-using SharedCore.Extentions;
 using TL;
 
 namespace Gather.Services;

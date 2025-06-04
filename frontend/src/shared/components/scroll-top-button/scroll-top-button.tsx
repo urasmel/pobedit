@@ -36,7 +36,7 @@ export const ScrollToTopButton = () => {
                     right: "2rem",
                     backgroundColor: "#f1f1f1",
                     border: "none",
-                    borderRadius: ".25rem",
+                    borderRadius: "var(--radius-sm)",
                     cursor: "pointer",
                     boxShadow: "0 2px 5px rgba(0, 0, 0, 0.5)"
                 }}>

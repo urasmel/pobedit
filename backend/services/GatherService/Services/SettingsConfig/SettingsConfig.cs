@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using Gather.Dtos;
-using Gather.Models;
+﻿using Gather.Models;
 using System.Text.Json;
 
 namespace Gather.Services;

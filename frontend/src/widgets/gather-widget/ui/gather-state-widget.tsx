@@ -32,8 +32,8 @@ export const GatherStateWidget = () => {
         return (<Box
             sx={{
                 p: 2,
-                borderRadius: 1,
-                boxShadow: "var(--shadow)",
+                borderRadius: "var(--radius-md)",
+                boxShadow: "var(--strong-shadow)",
                 gap: 2,
                 minHeight: "18rem",
                 minWidth: "15rem",
@@ -50,8 +50,8 @@ export const GatherStateWidget = () => {
         <Box
             sx={{
                 p: 2,
-                borderRadius: 1,
-                boxShadow: "var(--shadow)",
+                borderRadius: "var(--radius-md)",
+                boxShadow: "var(--weak-shadow)",
                 display: "flex",
                 flexDirection: "column",
                 gap: 2

@@ -60,7 +60,7 @@ export const AccountComments = () => {
                     marginBottom: 3,
                     padding: 2,
                     backgroundColor: 'primary.light',
-                    borderRadius: 2,
+                    borderRadius: "var(--radius-md)",
                     gap: 2,
                 }}
             >

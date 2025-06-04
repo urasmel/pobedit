@@ -11,13 +11,13 @@ export const Aside = () => {
             sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                borderRadius: 2,
+                borderRadius: "var(--radius-md)",
                 padding: 1,
                 gap: 1,
                 boxSizing: 'border-box',
                 minWidth: "10rem",
                 width: "100%",
-                boxShadow: "var(--shadow)",
+                boxShadow: "var(--strong-shadow)",
             }}
         >
 

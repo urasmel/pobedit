@@ -13,7 +13,7 @@ export const CommentInfo = (
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "start",
-                borderRadius: 2,
+                borderRadius: "var(--radius-md)",
                 overflow: "hidden",
                 boxShadow: 5,
                 fontFamily: "Roboto, Helvetica Neue, Helvetica, Arial, sans-serif",

@@ -13,7 +13,7 @@ export const Header = () => {
             boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
             position: "sticky",
             color: "rgba(0, 0, 0, 0.87)",
-            borderRadius: "1rem",
+            borderRadius: "var(--radius-md)",
             border: "0 solid rgba(0, 0, 0, 0.125)",
             padding: "1rem",
             display: "flex",

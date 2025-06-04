@@ -19,7 +19,7 @@ export const LoadingProgessDialog = (props: LoadingProgessDialogProps) => {
                 bgcolor: 'background.paper',
                 boxShadow: 24,
                 p: 3,
-                borderRadius: 1,
+                borderRadius: "var(--radius-md)",
                 borderColor: 'text.primary',
             }}>
 
