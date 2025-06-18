@@ -5,6 +5,8 @@ using Gather.Dtos;
 using Gather.Models;
 using Gather.Utils;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Net.WebSockets;
 using TL;
 
@@ -624,14 +626,13 @@ public class ChannelsService(
                 .OrderBy(post => post.TlgId)
                 .LastOrDefault();
             int startOffsetId = 0;
-            int endOffsetId = 0;
 
             // Если пусто, запрашиваем у телеграмма последний пост и
             // используем его как начала для скачивания постов в прошлом.
             InputPeer peer = peersWithKey.First().Value;
             if (postFromDb == null)
             {
-                var lastMessagesBase = await _client.Messages_GetHistory(peer, 0, DateTime.Now, 0, 1);
+                var lastMessagesBase = await _client.Messages_GetHistory(peer, offset_date: pobeditSettings.StartGatherDate, limit: 1);
 
                 if (lastMessagesBase is not Messages_ChannelMessages channelMessages)
                 {
@@ -655,36 +656,11 @@ public class ChannelsService(
 
                 var msgBase = channelMessages.messages[0];
                 startOffsetId = msgBase.ID;
-
-                lastMessagesBase = await _client.Messages_GetHistory(peer, 0, pobeditSettings.StartGatherDate, 0, 1);
-                if (lastMessagesBase is not Messages_ChannelMessages end_channelMessages)
-                {
-                    await webSocket.CloseAsync(
-                        WebSocketCloseStatus.NormalClosure,
-                        "Channel peer is not ChannelMessages.",
-                        CancellationToken.None);
-                    _logger.LogInformation("Channel peer is not ChannelMessages.");
-                    return;
-                }
-
-                if (channelMessages.count == 0)
-                {
-                    await webSocket.CloseAsync(
-                        WebSocketCloseStatus.NormalClosure,
-                        "No data",
-                        CancellationToken.None);
-                    _logger.LogInformation($"No data in the channel {peer.ID}.");
-                    return;
-                }
-
-                msgBase = end_channelMessages.messages[0];
-                endOffsetId = msgBase.ID;
             }
-
             // Если не пусто, то его id используем для запроса новых постов канала как смещение.
             else
             {
-                endOffsetId = (int)postFromDb.TlgId;
+                startOffsetId = (int)postFromDb.TlgId;
             }
 
             // Возможно потом пригодится.
@@ -694,17 +670,17 @@ public class ChannelsService(
             {
                 var messagesBase = await _client.Messages_GetHistory(
                     peer,
-                    startOffsetId);
+                    min_id: startOffsetId);
 
                 if (messagesBase is not Messages_ChannelMessages channelMessages) break;
 
+                if (channelMessages.messages.Count() == 0)
+                {
+                    break;
+                }
+
                 for (int index = 0; index < channelMessages.messages.Length; index++)
                 {
-                    if (channelMessages.messages[index].ID <= endOffsetId)
-                    {
-                        needBreak = true;
-                        break;
-                    }
 
                     // TODO Тестируем этот код.
                     // TODO Если текста нет, то отбрасываем. Исправить потом, чтобы все ел.
@@ -716,39 +692,42 @@ public class ChannelsService(
                         try
                         {
                             // Получаем комментарии.
-                            var replies = await _client.Messages_GetReplies(peer, msg.ID);
-                            postToDb.CommentsCount = replies.Count;
-                            postDto.CommentsCount = replies.Count;
+                            //var replies = await _client.Messages_GetReplies(peer, msg.ID);
+                            postToDb.CommentsCount = 0;// replies.Count;
+                            postDto.CommentsCount = 0;// replies.Count;
 
-                            //await LoadPostComments(peer, msg, postToDb, replies);
-
+                            await _context.Posts.AddAsync(postToDb);
+                            await _context.SaveChangesAsync();
                         }
                         catch (Exception exception)
                         {
                             var errorMessage = "UpdateChannelPosts";
                             _logger.LogError(exception, errorMessage);
                         }
-                        finally
-                        {
-                            await _context.Posts.AddAsync(postToDb);
-                            await _context.SaveChangesAsync();
 
-                            if (index % 20 == 0 || index == channelMessages.messages.Length - 1)
+                        if (index % 20 == 0 || index == channelMessages.messages.Length - 1)
+                        {
+                            SocketHelper.SendAsyncMessage(
+                                webSocket,
+                                postDto.Date.ToString("yyyy:MM:dd HH:mm:ss")
+                                );
+
+                            var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+
+                            if (result.MessageType == WebSocketMessageType.Close)
                             {
-                                SocketHelper.SendAsyncMessage(
-                                    webSocket,
-                                    postDto.Date.ToString("yyyy:MM:dd HH:mm:ss")
-                                    );
+                                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by client", CancellationToken.None);
+                                return;
                             }
                         }
                     }
 
                     if (index == channelMessages.messages.Length - 1)
                     {
-                        startOffsetId = channelMessages.messages[index].ID;
+                        startOffsetId = channelMessages.messages[0].ID + 1;
                     }
 
-                    Thread.Sleep(500);
+                    Thread.Sleep(100);
                 }
 
                 if (needBreak)
@@ -1074,7 +1053,6 @@ public class ChannelsService(
                 return;
             }
 
-
             var msg = messages.Messages[0] as TL.Message;
             if (msg == null)
             {
@@ -1101,7 +1079,7 @@ public class ChannelsService(
         }
         finally
         {
-            if (webSocket != null && 
+            if (webSocket != null &&
                 (webSocket.State == WebSocketState.Open || webSocket.State == WebSocketState.CloseReceived))
             {
                 await webSocket.CloseAsync(
@@ -1199,7 +1177,6 @@ public class ChannelsService(
                     {
                         newComment.From = user;
                     }
-
                 }
                 catch (Exception exception)
                 {
@@ -1210,12 +1187,25 @@ public class ChannelsService(
                 try
                 {
                     postToDb.Comments.Add(newComment);
+                    await _context.SaveChangesAsync();
+                    Thread.Sleep(Random.Shared.Next(50, 150));
+
                     SocketHelper.SendAsyncMessage(
                         webSocket,
                         newComment.Date.ToString("yyyy:MM:dd HH:mm:ss")
                         );
-                    await _context.SaveChangesAsync();
-                    Thread.Sleep(Random.Shared.Next(50, 150));
+
+                    var buffer = new byte[1024 * 4];
+                    var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+
+                    if (result.MessageType == WebSocketMessageType.Close)
+                    {
+                        await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by client", CancellationToken.None);
+                        postToDb.CommentsCount = replies.Count;
+                        await _context.SaveChangesAsync();
+                        return;
+                    }
+
                 }
                 catch (Exception exception)
                 {
@@ -1226,8 +1216,8 @@ public class ChannelsService(
             lastCommentId = client_comments.Last().ID;
         }
         while (true);
+
         postToDb.CommentsCount = replies.Count;
         await _context.SaveChangesAsync();
     }
-
 }

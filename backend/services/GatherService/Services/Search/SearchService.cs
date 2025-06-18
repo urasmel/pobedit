@@ -46,7 +46,7 @@ public class SearchService : ISearchService
         {
             if (query.SearchType == SearchType.Posts)
             {
-                IQueryable<Post> dbQuery = _context.Posts;
+                IQueryable<Post> dbQuery = _context.Posts.AsNoTracking();
                 if (query.StartDate != null)
                 {
                     dbQuery = dbQuery.Where(p => p.Date >= query.StartDate);
@@ -74,7 +74,7 @@ public class SearchService : ISearchService
             else if (query.SearchType == SearchType.Comments)
             {
 
-                IQueryable<Comment> dbQuery = _context.Comments;
+                IQueryable<Comment> dbQuery = _context.Comments.AsNoTracking();
                 if (query.StartDate != null)
                 {
                     dbQuery = dbQuery.Where(p => p.Date >= query.StartDate);

@@ -16,6 +16,7 @@ import { getLocalizedString } from "@/shared/locales/localizing";
 import CustomizedSlider from "@/shared/components/number-input/number-input";
 import { enqueueSnackbar } from "notistack";
 import { debounce } from 'lodash';
+import { t } from "i18next";
 
 export const SettingsPage = () => {
     const { t } = useTranslation();
@@ -61,7 +62,6 @@ export const SettingsPage = () => {
     }
 
     if (!data) {
-        enqueueSnackbar(t('error.fetchSettings'), { variant: 'error' });
         return <Box
             sx={{
                 display: "flex",
@@ -69,10 +69,12 @@ export const SettingsPage = () => {
                 justifyContent: "center",
                 width: "100%",
                 height: "100%",
-                fontSize: "16px",
+                fontSize: "1.2rem",
+                fontFamily: "'Roboto', sans-serif",
             }}
         >
             Не удалось получить настройки
+            {getLocalizedString(new Error('error.fetchSettings'), t)}
         </Box>;
     }
 

@@ -32,6 +32,7 @@ root.render(
                 display: "flex",
                 flexDirection: "column",
                 minHeight: "100vh",
+                minWidth: "720px",
                 boxSizing: "border-box",
                 padding: ".5rem"
             }}>
@@ -40,25 +41,25 @@ root.render(
 
                 <Box
                     sx={{
-                        display: 'flex',
+                        display: 'grid',
+                        gridTemplateColumns: '180px 1fr',
                         height: '100%',
                         overflow: 'visible',
-                        gap: "1rem",
+                        gap: ".5rem",
                         flex: "1",
                         marginTop: "1rem",
                     }}
                 >
                     <Box
                         sx={{
-                            width: `15%`,
+                            gridRowStart: 1,
                         }}
                     >
                         <Aside />
                     </Box>
+
                     <Box
                         sx={{
-                            width: `85%`,
-                            overflow: 'auto',
                             boxShadow: "var(--strong-shadow)",
                             borderRadius: "var(--radius-md)",
                             padding: 2

@@ -12,16 +12,17 @@ import { PostWidget } from "@/features/post-widget";
 import { postsApi } from "@/entities/posts";
 import { ErrorBoundary } from "@/shared/components/errors/error-boundary";
 import { enqueueSnackbar } from "notistack";
+import { getLocalizedString } from "@/shared/locales/localizing";
+import { useTranslation } from "react-i18next";
 
 export const PostPage = () => {
 
+    const { t } = useTranslation();
     const { channelId, postId } = useParams();
     const [offset, setOffset] = useState(0);
     const [limit] = useState(PAGE_SIZE);
     const queryClient = useQueryClient();
     const [pagesCount, setPagesCount] = useState(0);
-    const [isSocketSuccess, setSocketIsSuccess] = useState(false);
-    const [socketEndMessage, setSocketEndMessage] = useState('');
 
     const {
         data,
@@ -56,7 +57,7 @@ export const PostPage = () => {
 
     useEffect(() => {
         if (isError) {
-            enqueueSnackbar(error?.message, { variant: 'error' });
+            enqueueSnackbar(getLocalizedString(error, t), { variant: 'error' });
         }
     }, [isError]);
 
@@ -69,9 +70,9 @@ export const PostPage = () => {
     };
 
     const setUpdatingResult = (success: boolean, description: string) => {
-        setSocketEndMessage(description);
-        setSocketIsSuccess(success);
-        enqueueSnackbar(socketEndMessage, { variant: isSocketSuccess ? "success" : "error" });
+        // setSocketEndMessage(description);
+        // setSocketIsSuccess(success);
+        enqueueSnackbar(description, { variant: success ? "success" : "error" });
     };
 
     if (isLoading) {

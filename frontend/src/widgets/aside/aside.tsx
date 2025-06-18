@@ -13,7 +13,7 @@ export const Aside = () => {
                 flexDirection: 'column',
                 borderRadius: "var(--radius-md)",
                 padding: 1,
-                gap: 1,
+                gap: 1.5,
                 boxSizing: 'border-box',
                 minWidth: "10rem",
                 width: "100%",

@@ -1,5 +1,5 @@
 import { ChannelMainInfo } from "@/shared/components/channel-main-info";
-import { PostsLoadingWidget } from "@/shared/components/posts-loading-widget";
+import { PostsUpdatingWidget } from "@/shared/components/posts-updating-widget";
 import { ScrollToTopButton } from "@/shared/components/scroll-top-button";
 import { Box } from "@mui/material";
 import { useParams } from "react-router-dom";
@@ -30,7 +30,7 @@ export const PostsPage = () => {
             >
                 <ChannelMainInfo channelId={channelId === undefined ? "0" : channelId} />
 
-                <PostsLoadingWidget
+                <PostsUpdatingWidget
                     channelId={channelId ? channelId : undefined}
                 />
             </Box>

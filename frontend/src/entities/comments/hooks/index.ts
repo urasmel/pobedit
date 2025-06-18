@@ -1,0 +1,1 @@
+export { useFetchCommentsCount } from './useFetchCommentsCount';

@@ -7,12 +7,11 @@ import { queryClient } from '@/shared/api/query-client';
 import { useFetchPostsCount } from '@/entities/posts/hooks/useFetchPostsCount';
 import { enqueueSnackbar } from 'notistack';
 
-export const PostsLoadingWidget = (props: { channelId: string | undefined; }) => {
+export const PostsUpdatingWidget = (props: { channelId: string | undefined; }) => {
 
     const URL = `${WS_API_URL}channels/${props.channelId}/update_posts`;
     const [isWSLoading, setIsWSLoading] = useState(false);
     const [response, setResponse] = useState<string>('');
-
 
     const {
         postsCount,
@@ -24,7 +23,6 @@ export const PostsLoadingWidget = (props: { channelId: string | undefined; }) =>
     const setLoadingError = (description: string) => {
         enqueueSnackbar(description, { variant: 'error' });
     };
-
 
     const invalidateCache = () => {
         queryClient.invalidateQueries({ queryKey: ['posts'] });
@@ -53,18 +51,24 @@ export const PostsLoadingWidget = (props: { channelId: string | undefined; }) =>
         };
 
         wsRef.current.onclose = (event) => {
-
             setIsWSLoading(false);
             if (1001 <= event.code && event.code <= 1015) {
                 setLoadingError(`Запрос завершился ошибкой. ${event.reason}`);
                 console.error(`Запрос завершился ошибкой: ${event.reason}`);
+            }
+            else {
+                if (event.reason === "Closed by client") {
+                    enqueueSnackbar('Загрузка постов остановлена пользователем', { variant: 'success' });
+                }
+                else
+                    enqueueSnackbar('Посты успешно обновлены', { variant: 'success' });
             }
             invalidateCache();
         };
 
         wsRef.current.onerror = () => {
             setIsWSLoading(false);
-            setLoadingError("Ошибка отправки запроса на обновление данных канала.");
+            setLoadingError("Ошибка отправки запроса на обновление постов канала.");
             invalidateCache();
         };
     };
@@ -137,7 +141,8 @@ export const PostsLoadingWidget = (props: { channelId: string | undefined; }) =>
             boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px",
             padding: "1rem",
             width: "100%",
-            boxSizing: "border-box"
+            boxSizing: "border-box",
+            borderRadius: "var(--radius-md)",
         }}>
 
             <Box sx={{ fontSize: "1rem" }}>

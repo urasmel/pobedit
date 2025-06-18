@@ -15,7 +15,7 @@ export const LoadingProgessDialog = (props: LoadingProgessDialogProps) => {
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
-                width: 350,
+                width: "fillContent",
                 bgcolor: 'background.paper',
                 boxShadow: 24,
                 p: 3,
@@ -24,21 +24,19 @@ export const LoadingProgessDialog = (props: LoadingProgessDialogProps) => {
             }}>
 
                 {
-                    date !== undefined
-                        ?
-                        <Typography
-                            id="modal-modal-title"
-                            variant="h6"
-                            component="h2"
-                            sx={{
-                                display: 'flex',
-                                justifyContent: 'space-around'
-                            }}
-                        >
-                            Загрузка данных с датой: {date}
-                        </Typography>
-                        :
-                        <CircularProgress />
+                    date !== undefined && date !== "" &&
+                    <Typography
+                        id="modal-modal-title"
+                        variant="h6"
+                        component="h2"
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}
+                    >
+                        Загружен комментарий от: {date}
+                    </Typography>
                 }
 
                 <Box

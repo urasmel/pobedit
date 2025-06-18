@@ -1,21 +1,27 @@
-import { Box, Button, Typography } from '@mui/material';
-import { useRef, useState } from 'react';
+import { Box, Button, CircularProgress, Typography } from '@mui/material';
+import { useEffect, useRef, useState } from 'react';
 import { CommentsUpdatingWidgetProps } from '@/entities/Props/CommentsUpdatingWidgetProps';
-import { commentsApi } from '@/entities/comments';
-import { useQuery } from '@tanstack/react-query';
 import plural from 'plural-ru';
 import { LoadingProgessDialog } from '../loading/loading-progess-dialog';
-
+import { WS_API_URL } from "@/shared/config";
+import { useFetchCommentsCount } from '@/entities/comments/hooks';
+import { enqueueSnackbar } from 'notistack';
 
 export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
 
     const { channelId, postId, invalidateCache, setUpdatingResult } = props;
-    const URL = `ws://localhost:5037/api/v1/channels/${channelId}/posts/${postId}/update_comments`;
+    const URL = `${WS_API_URL}channels/${channelId}/posts/${postId}/update_comments`;
     const [isWSLoading, setIsWSLoading] = useState(false);
     const [response, setResponse] = useState<string>('');
 
-    const { data: comments_count }
-        = useQuery(commentsApi.commentsQueries.count(channelId?.toString(), postId?.toString()));
+    const {
+        commentsCount,
+        commentsCountError,
+        commentsCountErrorMsg,
+        isCommentsCountLoading,
+        handleCommentsCountErrorClose
+
+    } = useFetchCommentsCount(channelId?.toString(), postId.toString());
 
     const wsRef = useRef<WebSocket>(null);
 
@@ -45,13 +51,20 @@ export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
                 console.error(`Запрос завершился ошибкой. ${event.reason}`);
                 setUpdatingResult(false, `Запрос завершился ошибкой. ${event.reason}`);
             }
-            setUpdatingResult(true, 'Комментарии успешно обновлены');
+            else {
+                if (event.reason === "Closed by client") {
+                    setUpdatingResult(true, 'Загрузка комментариев остановлена пользователем');
+                }
+                else
+                    setUpdatingResult(true, 'Комментарии успешно обновлены');
+            }
             invalidateCache();
         };
 
         wsRef.current.onerror = () => {
             setIsWSLoading(false);
-            setUpdatingResult(false, "Ошибка отправки запроса на обновление данных канала.");
+            setUpdatingResult(false, "Ошибка отправки запроса на обновление комментариев.");
+            invalidateCache();
         };
     };
 
@@ -64,6 +77,67 @@ export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
     const btnSendRequest_handler = () => {
         SyncPostComments();
     };
+
+    if (props.channelId == undefined) {
+        return (
+            <Box sx={{
+                fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+                fontSize: "medium",
+                fontWeight: "500",
+                color: "rgb(52, 71, 103)"
+            }}>
+                Ошибка. Не определен идентификатор канала.
+            </Box>);
+    }
+
+    if (props.postId == undefined) {
+        return (
+            <Box sx={{
+                fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+                fontSize: "medium",
+                fontWeight: "500",
+                color: "rgb(52, 71, 103)"
+            }}>
+                Ошибка. Не определен идентификатор поста.
+            </Box>);
+    }
+
+    useEffect(() => {
+        if (commentsCountError) {
+            enqueueSnackbar(commentsCountErrorMsg, { variant: 'error' });
+        }
+    }, [commentsCountError]);
+
+    if (isCommentsCountLoading) {
+        return (
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "100%",
+                    boxSizing: "border-box",
+                    borderRadius: "var(--radius-md)",
+                    boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px",
+                    padding: 1,
+                }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (commentsCountError) {
+        return (
+            <Box sx={{
+                fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+                fontSize: "medium",
+                fontWeight: "500",
+                color: "rgb(52, 71, 103)"
+            }}>
+                Ошибка загрузки информации о комментариях поста.
+            </Box>
+        );
+    }
 
     return (
         <Box
@@ -79,15 +153,15 @@ export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
         >
 
             {
-                comments_count == 0
+                commentsCount == 0
                     ?
                     <Typography>
                         Пока в базе данных нет комментариев к посту с идентификатором <b>{postId}</b>
                     </Typography>
                     :
                     <Typography>
-                        В базе данных {comments_count}&nbsp;
-                        {plural((comments_count ? comments_count : 0), 'комментарий', 'комментария', 'комментариев')}&nbsp;
+                        В базе данных {commentsCount}&nbsp;
+                        {plural((commentsCount ? commentsCount : 0), 'комментарий', 'комментария', 'комментариев')}&nbsp;
                         к посту с ид. {postId}
                     </Typography>
             }

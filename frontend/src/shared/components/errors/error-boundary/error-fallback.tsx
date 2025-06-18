@@ -1,6 +1,9 @@
+import { getLocalizedString } from "@/shared/locales";
 import { Box, Typography, Button } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 export const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void; }) => {
+    const { t } = useTranslation();
     return (
         <Box
             sx={{
@@ -17,7 +20,7 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; res
                 Что-то пошло не так
             </Typography>
             <Typography variant="body1" color="text.secondary" gutterBottom>
-                {error.message}
+                {getLocalizedString(error, t)}
             </Typography>
             <Button variant="contained" color="primary" onClick={resetErrorBoundary}>
                 Попробуйте повторить
