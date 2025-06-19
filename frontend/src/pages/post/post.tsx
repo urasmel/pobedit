@@ -14,6 +14,7 @@ import { ErrorBoundary } from "@/shared/components/errors/error-boundary";
 import { enqueueSnackbar } from "notistack";
 import { getLocalizedString } from "@/shared/locales/localizing";
 import { useTranslation } from "react-i18next";
+import { commentsKeys } from "@/entities/comments/api/comments.keys";
 
 export const PostPage = () => {
 
@@ -66,7 +67,9 @@ export const PostPage = () => {
     };
 
     const invalidateCache = () => {
-        queryClient.invalidateQueries({ queryKey: ['comments'] });
+        queryClient.invalidateQueries({ queryKey: [...commentsKeys.list, channelId, postId, offset, limit] });
+        queryClient.invalidateQueries({ queryKey: [...commentsKeys.count, channelId, postId] });
+        queryClient.invalidateQueries({ queryKey: ["posts", channelId] });
     };
 
     const setUpdatingResult = (success: boolean, description: string) => {

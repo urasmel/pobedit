@@ -1,4 +1,4 @@
-export interface LoadingProgessDialogProps {
+export interface LoadingProgressDialogProps {
     open: boolean;
     date: string;
     cancellLoading: () => void;

@@ -1,24 +1,24 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { LoadingProgessDialog } from './loading-progess-dialog';
+import { LoadingProgressDialog } from './loading-progress-dialog';
 
 const meta = {
-    title: 'Pobedit/LoadingProgessDialog',
-    component: LoadingProgessDialog,
+    title: 'Pobedit/LoadingProgressDialog',
+    component: LoadingProgressDialog,
     parameters: {
         layout: 'centered',
     },
     tags: ['autodocs'],
     argTypes: {
     },
-} satisfies Meta<typeof LoadingProgessDialog>;
+} satisfies Meta<typeof LoadingProgressDialog>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Open: Story = {
     render: (args) => (
-        <LoadingProgessDialog {...args} />
+        <LoadingProgressDialog {...args} />
     ),
     args: {
         open: true,

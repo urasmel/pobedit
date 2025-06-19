@@ -1,4 +1,4 @@
-import { BadgeProps } from "@/entities/Props/BadgeProps";
+import { BadgeProps } from "@/entities/Props/badge-props";
 import { useNavigate } from "react-router-dom";
 import { Box } from "@mui/material";
 

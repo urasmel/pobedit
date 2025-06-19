@@ -1,8 +1,8 @@
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
-import { CommentsUpdatingWidgetProps } from '@/entities/Props/CommentsUpdatingWidgetProps';
+import { CommentsUpdatingWidgetProps } from '@/entities/Props/comments-updating-widget-props';
 import plural from 'plural-ru';
-import { LoadingProgessDialog } from '../loading/loading-progess-dialog';
+import { LoadingProgressDialog } from '../loading/loading-progress-dialog';
 import { WS_API_URL } from "@/shared/config";
 import { useFetchCommentsCount } from '@/entities/comments/hooks';
 import { enqueueSnackbar } from 'notistack';
@@ -59,12 +59,14 @@ export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
                     setUpdatingResult(true, 'Комментарии успешно обновлены');
             }
             invalidateCache();
+            setResponse("");
         };
 
         wsRef.current.onerror = () => {
             setIsWSLoading(false);
             setUpdatingResult(false, "Ошибка отправки запроса на обновление комментариев.");
             invalidateCache();
+            setResponse("");
         };
     };
 
@@ -174,7 +176,7 @@ export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
                 Обновить комментарии поста
             </Button>
 
-            <LoadingProgessDialog
+            <LoadingProgressDialog
                 date={response}
                 cancellLoading={btnStopDownloading_handler}
                 open={isWSLoading}

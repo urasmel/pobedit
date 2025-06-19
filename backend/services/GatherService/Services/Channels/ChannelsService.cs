@@ -1112,7 +1112,7 @@ public class ChannelsService(
 
         do
         {
-            replies = await _client.Messages_GetReplies(peer, msg.ID, lastCommentId);
+            replies = await _client.Messages_GetReplies(peer, msg.ID, min_id: lastCommentId);
 
             if (replies.Messages.Length == 0)
             {
@@ -1129,17 +1129,17 @@ public class ChannelsService(
                 }
 
                 var newComment = _mapper.Map<Comment>(comment);
-                if (newComment == null)
-                {
-                    continue;
-                }
-
-                newComment.PeerId = peer.ID;
-                newComment.From = new Account();
-                newComment.From.TlgId = comment.From.ID;
-
                 try
                 {
+                    if (newComment == null)
+                    {
+                        continue;
+                    }
+
+                    newComment.PeerId = peer.ID;
+                    newComment.From = new Account();
+                    newComment.From.TlgId = comment.From.ID;
+
                     newComment.PostId = msg.ID;
 
                     var user = await _context.Accounts

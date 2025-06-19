@@ -1,6 +1,6 @@
 import { Box, Button, CircularProgress } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
-import { LoadingProgessDialog } from '@/shared/components/loading/loading-progess-dialog';
+import { LoadingProgressDialog } from '@/shared/components/loading/loading-progress-dialog';
 import { pluralRecords } from '@/shared/utils/plural-records';
 import { WS_API_URL } from "@/shared/config";
 import { queryClient } from '@/shared/api/query-client';
@@ -169,7 +169,7 @@ export const PostsUpdatingWidget = (props: { channelId: string | undefined; }) =
                 Обновить записи канала
             </Button>
 
-            <LoadingProgessDialog
+            <LoadingProgressDialog
                 date={response}
                 cancellLoading={btnStopDownloading_handler}
                 open={isWSLoading}

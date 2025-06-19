@@ -1,7 +1,7 @@
 import { Button, Typography, Modal, Box, CircularProgress } from '@mui/material';
-import { LoadingProgessDialogProps } from '@/entities/Props/LoadingProgessDialogProps';
+import { LoadingProgressDialogProps } from '@/entities/Props/loading-progress-dialog-props';
 
-export const LoadingProgessDialog = (props: LoadingProgessDialogProps) => {
+export const LoadingProgressDialog = (props: LoadingProgressDialogProps) => {
     const { date, open, cancellLoading } = props;
 
     return (
