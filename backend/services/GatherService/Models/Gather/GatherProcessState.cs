@@ -7,5 +7,7 @@ public enum GatherProcessState
     [JsonPropertyName("stopped")]
     Stopped,
     [JsonPropertyName("running")]
-    Running
+    Running,
+    [JsonPropertyName("paused")]
+    Paused
 }

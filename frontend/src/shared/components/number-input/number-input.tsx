@@ -3,9 +3,7 @@ import Box from '@mui/material/Box';
 import { NumberInputProps } from './number-input-props';
 import { Slider } from '@mui/material';
 
-
-
-export default function CustomizedSlider(props: NumberInputProps) {
+export function CustomizedSlider(props: NumberInputProps) {
 
     const handleChange = (_: Event, newValue: number) => {
         props.onChange(newValue);
@@ -14,7 +12,10 @@ export default function CustomizedSlider(props: NumberInputProps) {
     return (
         <Box sx={{ width: 250 }}>
             <Typography id={props.id}
-                variant="body2" gutterBottom>
+                fontSize={"1.1rem"}
+                color="#717275"
+                lineHeight="1.1"
+            >
                 {props.caption}
             </Typography>
             <Slider

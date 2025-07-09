@@ -1,40 +1,45 @@
 ﻿using AutoMapper;
-using Gather.Collecting;
 using Gather.Dtos.Gather;
 using Gather.Models;
 using Gather.Models.Gather;
+using Gather.Services.Gather;
 using Gather.Utils.ConfigService;
+using System.Threading.Channels;
 using TL;
 
 namespace Gather.Services;
 
+//?public class GatherService : BackgroundService
 public class GatherService : IGatherService
 {
     ILogger _logger;
-
     WTelegram.Client? _client;
-
     TL.User? user;
-
     IConfigUtils _configUtils;
-
     IMapper _mapper;
-
     GatherState _gatherState;
+    private readonly Channel<BackgroundTask> _queue;
+    bool _needClose = false;
+    ISettingsConfig _settingsConfig;
+    DateTime _postLastUpdateTime = DateTime.MinValue;
+    DateTime _commentsLastUpdateTime = DateTime.MinValue;
 
-    private Dictionary<string, ICollector> _collectors;
-
-    public GatherService(ILogger<GatherService> logger, IMapper mapper, IConfigUtils configUtils)
+    public GatherService(ISettingsConfig settingsConfig, ILogger<GatherService> logger, IMapper mapper, IConfigUtils configUtils)
     {
+        _settingsConfig = settingsConfig;
         _logger = logger;
         _mapper = mapper;
         _configUtils = configUtils;
-        _collectors = new Dictionary<string, ICollector> { };
         //_client = new WTelegram.Client(_configUtils.Config());
         _gatherState = new GatherState();
+        var options = new BoundedChannelOptions(1)
+        {
+            FullMode = BoundedChannelFullMode.Wait
+        };
+        _queue = System.Threading.Channels.Channel.CreateBounded<BackgroundTask>(options);
         Init();
+        ThreadPool.QueueUserWorkItem(_ => StartGatherAsync());
     }
-
 
     private async void Init()
     {
@@ -55,55 +60,109 @@ public class GatherService : IGatherService
         }
     }
 
-    public async Task<ServiceResponse<bool>> StartGatherAllAsync()
+    private async void StartGatherAsync()
     {
-        var response = new ServiceResponse<bool>();
+        _logger.LogInformation("LongRunningTaskService is starting.");
+
         try
         {
-            // Получаем пользователя.
-            // TODO Сделать позже для разных пользователей, когда их подвезу.
-            // Пока работаем с одним полльзователем, который получается из конфига по умолчанию.
+            while (true)
+            {
+                if (_queue.Reader.TryRead(out var task))
+                {
+                    // Переключение обратно после предыдущего выключения задачи сбора.
+                    _needClose = false;
 
-            if (_client == null)
+                    _logger.LogInformation("Processing task {TaskId}: {Description}", task.Id, task.Description);
+                    while (!_needClose)
+                    {
+                        _gatherState.State = GatherProcessState.Paused;
+
+                        // Загружаем все посты.
+                        // У постов, которые были загружены более, чем определенное время назад
+                        // и у которых не качались комментарии закачиваем комментарии.
+                        // Заходим в цикл, в котором ждем когда наступит момент нового опроса
+                        // каналов и закачки постов и комментариев или установки флага прекращения опроса.
+
+                        // Загружаем посты. Пока грузим - внутри проверяем флаг прекращения загрузки.
+                        if (_postLastUpdateTime.AddHours(_settingsConfig.PobeditSettings.ChannelPollingFrequency) <= DateTime.UtcNow)
+                        {
+                            _logger.LogInformation($"Channels processing started at {DateTime.Now}.");
+                            _gatherState.State = GatherProcessState.Running;
+                            _postLastUpdateTime = DateTime.UtcNow;
+                            // ...
+                            _gatherState.State = GatherProcessState.Paused;
+                        }
+                        else
+                        {
+                            _gatherState.ToPollingChannelsSecs =
+                                (int)_postLastUpdateTime
+                                .AddHours(_settingsConfig.PobeditSettings.ChannelPollingFrequency)
+                                .Subtract(DateTime.UtcNow).TotalSeconds;
+                        }
+
+
+                        // Загружаем очень нежно комментарии. Пока грузим - внутри проверяем флаг прекращения загрузки.
+                        if (_commentsLastUpdateTime.AddHours(_settingsConfig.PobeditSettings.CommentsPollingDelay) <= DateTime.UtcNow)
+                        {
+                            _logger.LogInformation($"Comments processing started at {DateTime.Now}.");
+                            _gatherState.State = GatherProcessState.Running;
+                            _commentsLastUpdateTime = DateTime.UtcNow;
+                            // ...
+                            _gatherState.State = GatherProcessState.Paused;
+                        }
+                        else
+                        {
+                            _gatherState.ToPollingCommentsSecs =
+                                (int)_commentsLastUpdateTime
+                                .AddHours(_settingsConfig.PobeditSettings.CommentsPollingDelay)
+                                .Subtract(DateTime.UtcNow).TotalSeconds;
+                        }
+
+                        await Task.Delay(TimeSpan.FromSeconds(10));
+                        if (_needClose)
+                        {
+                            _logger.LogInformation("LongRunningTaskService is stopped.");
+                            _gatherState.State = GatherProcessState.Stopped;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    Thread.Sleep(1000);
+                }
+            }
+
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("Task processing was canceled.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while processing task.");
+        }
+    }
+
+    public ServiceResponse<bool> StopGatherAsync()
+    {
+        _needClose = true;
+        var response = new ServiceResponse<bool>();
+        int counter = 0;
+        while (_gatherState.State != GatherProcessState.Stopped)
+        {
+            if (counter == 10)
             {
                 response.Data = false;
                 response.Success = false;
-                response.Message = "Server error";
-                response.ErrorType = ErrorType.ServerError;
                 return response;
             }
-
-            // Получаем все его чаты.
-            var chats = new List<ChatBase>();
-            var chatBases = await _client.Messages_GetAllChats();
-            foreach (var (id, chat) in chatBases.chats)
-                chats.Add(chat);
-
-            // Запускаем поток сбора.
-            //if (!_collectors.ContainsKey(username))
-            //{ _collectors.Add(username, new Collector()); }
-
-            //_collectors[username].StartGather(chats).Forget();
-
-            response.Data = true;
-            response.Success = true;
+            Thread.Sleep(1000);
+            counter++;
         }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception.Message, exception);
-            response.Data = false;
-            response.Success = false;
-        }
-
-        return response;
-    }
-
-    public async Task<ServiceResponse<bool>> StopGatherStatusAsync()
-    {
-        var response = new ServiceResponse<bool>();
-
+        response.Data = true;
         response.Success = true;
-        response.Data = await _collectors[""].StopGather();
         return response;
     }
 
@@ -113,4 +172,19 @@ public class GatherService : IGatherService
         response.Data = _mapper.Map<GatherStateDto>(_gatherState);
         return response;
     }
+
+    public async Task<bool> StartGatherAsync(BackgroundTask task)
+    {
+        if (task == null)
+            throw new ArgumentNullException(nameof(task));
+
+        if (_gatherState.State == GatherProcessState.Running || _gatherState.State == GatherProcessState.Paused)
+        {
+            return false;
+        }
+
+        await _queue.Writer.WriteAsync(task);
+        return true;
+    }
+
 }

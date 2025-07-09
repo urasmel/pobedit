@@ -11,10 +11,10 @@ public class GatherStateDto
     public GatherProcessState State { get; set; } = GatherProcessState.Stopped;
 
     [Required]
-    [JsonPropertyName("toPollingChannels")]
-    public int ToPollingChannels { get; set; } = 0;
+    [JsonPropertyName("toPollingChannelsSecs")]
+    public int ToPollingChannelsSecs { get; set; } = 0;
 
     [Required]
-    [JsonPropertyName("toPollingComments")]
-    public int ToPollingComments { get; set; } = 0;
+    [JsonPropertyName("toPollingCommentsSecs")]
+    public int ToPollingCommentsSecs { get; set; } = 0;
 }

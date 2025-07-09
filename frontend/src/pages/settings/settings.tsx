@@ -1,6 +1,6 @@
 import { settingsApi } from "@/entities/settings";
-import { Box } from "@mui/material";
-import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
+import { Box, Typography } from "@mui/material";
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -13,10 +13,9 @@ import { Settings } from "@/entities/settings/model/settings";
 import { LoadingWidget } from "@/shared/components/loading/loading-widget";
 import { useTranslation } from 'react-i18next';
 import { getLocalizedString } from "@/shared/locales/localizing";
-import CustomizedSlider from "@/shared/components/number-input/number-input";
+import { CustomizedSlider } from "@/shared/components/number-input";
 import { enqueueSnackbar } from "notistack";
 import { debounce } from 'lodash';
-import { t } from "i18next";
 
 export const SettingsPage = () => {
     const { t } = useTranslation();
@@ -92,20 +91,26 @@ export const SettingsPage = () => {
             }}
         >
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
-                <DemoContainer components={['DatePicker',]}>
-                    <DemoItem label="Стартовая дата загрузки">
-                        <DatePicker
-                            value={dayjs(data.startGatherDate)}
-                            onChange={(value) => {
-                                if (!value) return;
-                                debouncedUpdate({
-                                    startGatherDate: value.toDate()
-                                });
-                            }}
-                            disabled={settingsMutation.isPending}
-                        />
-                    </DemoItem>
-                </DemoContainer>
+                <Typography
+                    lineHeight={"1rem"}
+                    fontSize={"1.1rem"}
+                    color="#717275"
+                >
+                    Стартовая дата загрузки
+                </Typography>
+                {/* <DemoContainer components={['DatePicker',]}> */}
+
+                <DatePicker
+                    value={dayjs(data.startGatherDate)}
+                    onChange={(value) => {
+                        if (!value) return;
+                        debouncedUpdate({
+                            startGatherDate: value.toDate()
+                        });
+                    }}
+                    disabled={settingsMutation.isPending}
+                />
+                {/* </DemoContainer> */}
             </LocalizationProvider>
 
             <CustomizedSlider

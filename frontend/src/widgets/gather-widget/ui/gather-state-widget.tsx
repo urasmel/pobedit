@@ -17,8 +17,13 @@ export const GatherStateWidget = () => {
     const errorMsg = getLocalizedString(error, t);
 
     const frendlyState = useMemo(() => {
-        return gatherState?.state === "running" ? "Работает" :
-            gatherState?.state === "stopped" ? "Остановлено" : "Неизвестно";
+        if (gatherState?.state === "running")
+            return "Работает";
+        else if (gatherState?.state === "stopped")
+            return "Остановлено";
+        else if (gatherState?.state === "paused")
+            return "Пауза";
+        return "Неизвестно";
     }, [gatherState?.state]);
 
     useEffect(() => {
@@ -66,18 +71,18 @@ export const GatherStateWidget = () => {
 
             <GatherStateItem
                 caption="До опроса каналов"
-                value={numToTime(gatherState?.toPollingChannels ?? 0)}
+                value={numToTime(gatherState?.toPollingChannelsSecs ?? 0)}
                 icon="Time"
                 color="secondary" />
 
             <GatherStateItem
                 caption="До опроса комментариев"
-                value={numToTime(gatherState?.toPollingComments ?? 0)}
+                value={numToTime(gatherState?.toPollingCommentsSecs ?? 0)}
                 icon="Comment"
                 color="ternary" />
 
             {
-                gatherState?.state === "running" ?
+                gatherState?.state === "running" || gatherState?.state === "paused" ?
                     (!isError && <Button variant="outlined" startIcon={<StopCircleIcon />}>
                         Остановить
                     </Button>)

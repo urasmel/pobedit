@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Gather.Services;
-using Asp.Versioning;
-using Gather.Models;
+﻿using Asp.Versioning;
 using Gather.Dtos.Gather;
+using Gather.Models;
+using Gather.Services;
+using Gather.Services.Gather;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Net;
 
 namespace Gather.Controllers;
 
@@ -12,11 +15,15 @@ namespace Gather.Controllers;
 [Route("api/v{v:apiVersion}/[controller]")]
 public class GatherController : ControllerBase
 {
-    private readonly IGatherService _gatherService;
+    private readonly ILogger<GatherController> _logger;
+    IGatherService _gatherService;
 
-    public GatherController(IGatherService gatherService)
+    public GatherController(
+        IGatherService gatherService,
+        ILogger<GatherController> logger)
     {
         _gatherService = gatherService;
+        _logger = logger;
     }
 
     /// <summary>
@@ -24,15 +31,49 @@ public class GatherController : ControllerBase
     /// </summary>
     [MapToApiVersion(1.0)]
     [HttpPost("start")]
-    public async Task<ActionResult<bool>> StartGatherAll()
+    public async Task<ActionResult<ServiceResponse<int>>> StartGather()
     {
-        var response = await _gatherService.StartGatherAllAsync();
-        if (!response.Success)
-        {
-            return BadRequest(response);
-        }
+        var task = new BackgroundTask();
 
-        return Ok(response);
+        try
+        {
+            bool success = await _gatherService.StartGatherAsync(task);
+
+            if (success)
+            {
+                _logger.LogInformation("Task {TaskId} enqueued.", task.Id);
+                return Accepted();
+            }
+            else
+            {
+                _logger.LogInformation("Task {TaskId} not enqueued.", task.Id);
+                return StatusCode(StatusCodes.Status429TooManyRequests);
+            }
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception.Message, exception);
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    /// <summary>
+    /// Останавливает процесс сбора информации в БД.
+    /// </summary>
+    [MapToApiVersion(1.0)]
+    [HttpPost("stop")]
+    public ActionResult<ServiceResponse<bool>> StopGather()
+    {
+        try
+        {
+            var result = _gatherService.StopGatherAsync();
+            return result;
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception.Message, exception);
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
     }
 
 

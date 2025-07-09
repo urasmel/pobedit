@@ -3,6 +3,6 @@ import { GatherState } from "@/entities/gather-state/model/gather-state";
 
 export const mapGatherState = (dto: GatherStateDto): GatherState => ({
     state: dto.state,
-    toPollingChannels: dto.toPollingChannels,
-    toPollingComments: dto.toPollingComments
+    toPollingChannelsSecs: dto.toPollingChannelsSecs,
+    toPollingCommentsSecs: dto.toPollingCommentsSecs
 });

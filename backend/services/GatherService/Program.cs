@@ -5,17 +5,17 @@ using Gather.ServiceFactories;
 using Gather.Services;
 using Gather.Services.Accounts;
 using Gather.Services.Channels;
+using Gather.Services.Login;
 using Gather.Services.Search;
 using Gather.Services.Users;
-using Gather.Services.Login;
 using Gather.Utils.ConfigService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using SharedCore.Filtering;
 using System.Reflection;
-using System.Text.Json.Serialization;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,8 +53,8 @@ builder.Services.Configure<RouteOptions>(options =>
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-builder.Logging.AddFile(@".\logs\{Date}_log.txt").SetMinimumLevel(LogLevel.Warning);
-//builder.Logging.AddSimpleConsole();
+builder.Logging.AddFile(@".\logs\{Date}_log.txt").SetMinimumLevel(LogLevel.None);
+builder.Logging.AddSimpleConsole();
 
 builder.Services.AddScoped<IdFilter>();
 builder.Services.AddScoped<UserFilter>();
@@ -76,17 +76,15 @@ builder.Services.AddSwaggerGen(options =>
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
-
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
-var allowedOriginsForCors = "_myAllowSpecificOrigins";
 
+var allowedOriginsForCors = "_myAllowSpecificOrigins";
 var alloedHosts = builder.Configuration["AppSettings:AllowedHosts"];
 if (alloedHosts == null)
 {
     Console.WriteLine("There are no 'AllowedHosts' configuration in app settings");
     return;
 }
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: allowedOriginsForCors,
@@ -99,19 +97,19 @@ builder.Services.AddCors(options =>
 });
 
 //builder.Services.AddSingleton<IConfigUtils, ConfigUtils>();
+//builder.Services.AddHostedService<GatherService>();
+builder.Services.AddSingleton<IGatherService,GatherService>();
 builder.Services.AddSingleton<IConfigUtils>(sp =>
     ConfigUtilsFactory.Create(
         apiId,
         apiHash,
         phoneNumber));
-
 builder.Services.AddSingleton<ISettingsConfig, SettingsConfig>();
 builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddSingleton<GatherClient>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
-builder.Services.AddScoped<IGatherService, GatherService>();
 builder.Services.AddScoped<IChannelsService, ChannelsService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
 

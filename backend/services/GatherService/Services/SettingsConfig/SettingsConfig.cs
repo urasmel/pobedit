@@ -7,7 +7,7 @@ public class SettingsConfig : ISettingsConfig
 {
     private readonly ILogger<SettingsConfig> _logger;
     private readonly string _settingsFileName = "pobedit_settings.json";
-    private PobeditSettings _pobeditSettings;
+    private PobeditSettings? _pobeditSettings;
     JsonSerializerOptions serializeOptions;
 
     public SettingsConfig(ILogger<SettingsConfig> logger)
@@ -23,7 +23,14 @@ public class SettingsConfig : ISettingsConfig
 
     public PobeditSettings PobeditSettings
     {
-        get { return _pobeditSettings; }
+        get
+        {
+            if (_pobeditSettings == null)
+            {
+                _pobeditSettings = new PobeditSettings();
+            }
+            return _pobeditSettings;
+        }
         set
         {
             _pobeditSettings = value;
@@ -48,12 +55,16 @@ public class SettingsConfig : ISettingsConfig
             {
                 var fileText = File.ReadAllText(_settingsFileName);
                 _pobeditSettings = JsonSerializer.Deserialize<PobeditSettings>(fileText, serializeOptions);
+                if (_pobeditSettings == null)
+                {
+                    PobeditSettings = new PobeditSettings();
+                }
             }
         }
         catch (Exception exception)
         {
             _logger.LogError($"Ошибка чтения настроек: ${exception.Message}");
-            _pobeditSettings = new PobeditSettings();
+            PobeditSettings = new PobeditSettings();
         }
     }
 }

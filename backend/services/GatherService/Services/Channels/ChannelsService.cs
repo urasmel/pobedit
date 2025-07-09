@@ -1105,14 +1105,21 @@ public class ChannelsService(
         {
             lastCommentId = (int)_context.Comments
                 .Where(c => c.PostId == postToDb.TlgId && c.PeerId == peer.ID)
-                .Select(c => c.TlgId).Max();
+                .Select(c => c.TlgId).Min();
         }
 
         Messages_MessagesBase replies;
 
         do
         {
-            replies = await _client.Messages_GetReplies(peer, msg.ID, min_id: lastCommentId);
+            if (lastCommentId != 0)
+            {
+                replies = await _client.Messages_GetReplies(peer, msg.ID, max_id: lastCommentId);
+            }
+            else
+            {
+                replies = await _client.Messages_GetReplies(peer, msg.ID, offset_id: lastCommentId);
+            }
 
             if (replies.Messages.Length == 0)
             {
