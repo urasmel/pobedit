@@ -173,6 +173,7 @@ export const PostsUpdatingWidget = (props: { channelId: string | undefined; }) =
                 date={response}
                 cancellLoading={btnStopDownloading_handler}
                 open={isWSLoading}
+                type='post'
             />
 
         </Box>

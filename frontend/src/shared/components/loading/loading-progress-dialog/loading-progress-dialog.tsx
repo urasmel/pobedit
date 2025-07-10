@@ -35,7 +35,7 @@ export const LoadingProgressDialog = (props: LoadingProgressDialogProps) => {
                             alignItems: 'center'
                         }}
                     >
-                        Загружен комментарий от: {date}
+                        Загружен {props.type === "comment" ? "комментарий" : "пост"} от: {date}
                     </Typography>
                 }
 

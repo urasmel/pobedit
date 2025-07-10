@@ -4,8 +4,6 @@ using Gather.Models;
 using Gather.Services;
 using Gather.Services.Gather;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Net;
 
 namespace Gather.Controllers;
 

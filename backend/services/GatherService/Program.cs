@@ -9,7 +9,9 @@ using Gather.Services.Login;
 using Gather.Services.Search;
 using Gather.Services.Users;
 using Gather.Utils.ConfigService;
+using Gather.Utils.Loading;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using SharedCore.Filtering;
@@ -98,6 +100,7 @@ builder.Services.AddCors(options =>
 
 //builder.Services.AddSingleton<IConfigUtils, ConfigUtils>();
 //builder.Services.AddHostedService<GatherService>();
+builder.Services.TryAddSingleton<IGatherNotifierFabric, GatherNotifierFabric>();
 builder.Services.AddSingleton<IGatherService,GatherService>();
 builder.Services.AddSingleton<IConfigUtils>(sp =>
     ConfigUtilsFactory.Create(

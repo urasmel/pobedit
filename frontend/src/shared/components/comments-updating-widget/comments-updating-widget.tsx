@@ -180,6 +180,7 @@ export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
                 date={response}
                 cancellLoading={btnStopDownloading_handler}
                 open={isWSLoading}
+                type='comment'
             />
         </Box>
     );

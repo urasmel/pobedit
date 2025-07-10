@@ -58,9 +58,20 @@ export const PostWidget = ({ post, showPostLink = true, showTitle = true }: { po
                 <Typography variant="body2" color="text.secondary">
                     {new Date(post.date).toLocaleString()}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+
+                <NavLink
+                    style={_ => {
+                        return {
+                            color: "rgb(52, 71, 103)",
+                            fontFamily: "Roboto",
+                            fontSize: "14px"
+                        };
+                    }}
+                    to={`/channels/${post.peerId}/posts/${post.tlgId}`}
+                >
                     id: {post.tlgId}
-                </Typography>
+                </NavLink>
+
                 <Typography variant="body2" sx={{ marginTop: 1, lineHeight: 2 }}>
                     {post.message}
                 </Typography>
@@ -94,6 +105,7 @@ export const PostWidget = ({ post, showPostLink = true, showTitle = true }: { po
                         </Typography>
                     </>
                 }
+
             </CardContent>
         </Card>);
 };
