@@ -10,7 +10,7 @@ import { enqueueSnackbar } from 'notistack';
 export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
 
     const { channelId, postId, invalidateCache, setUpdatingResult } = props;
-    const URL = `${WS_API_URL}channels/${channelId}/posts/${postId}/update_comments`;
+    const URL = `${WS_API_URL}comments/${channelId}/${postId}/update`;
     const [isWSLoading, setIsWSLoading] = useState(false);
     const [response, setResponse] = useState<string>('');
 

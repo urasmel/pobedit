@@ -44,7 +44,7 @@ export const useMainStore = create<MainState & Action>((set) => ({
     },
 
     fetchUpdatedChannels: async () => {
-        const url = `${API_URL}channels/updated_channels`;
+        const url = `${API_URL}channels/update`;
         const request = new Request(url,
             {
                 method: 'GET',

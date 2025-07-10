@@ -38,8 +38,8 @@ public class ChannelsController(IChannelsService channelsService) : ControllerBa
     /// <summary>
     /// Возвращает каналы пользователя по его username, запрашивая API телеграмма, одновляет их в БД и возвращает в ответе запроса.
     /// </summary>
-    [HttpGet]
-    [Route("updated_channels")]
+    [HttpPost]
+    [Route("update")]
     [MapToApiVersion(1.0)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -81,8 +81,8 @@ public class ChannelsController(IChannelsService channelsService) : ControllerBa
         return Ok(response);
     }
 
-    [HttpGet]
-    [Route("{channelId}/update_info")]
+    [HttpPost]
+    [Route("{channelId}/update")]
     [MapToApiVersion(1.0)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -103,156 +103,4 @@ public class ChannelsController(IChannelsService channelsService) : ControllerBa
         return Ok(response);
     }
 
-    /// <summary>
-    /// Возвращает посты канала, которые есть в БД, по его id.
-    /// </summary>
-    /// <param name="channelId">Идентификатор канала</param>
-    /// <param name="offset">Смещение относительно последнего сообщения данного канала, находящегося в базе</param>
-    /// <param name="count">Количество записей, которые необходимо вернуть</param>
-    [HttpGet]
-    [Route("{channelId}/posts")]
-    [MapToApiVersion(1.0)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<PostDto>>> GetAllChannelPosts(long channelId, int offset = 0, int count = 20)
-    {
-        var response = await _channelsService.GetChannelPosts(channelId, offset, count);
-
-        if (response.Message == "Channel not found")
-        {
-            return NotFound(response);
-        }
-
-        if (!response.Success)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, response);
-        }
-
-        return Ok(response);
-    }
-
-    [HttpGet]
-    [Route("{channelId}/posts/{postId}")]
-    [MapToApiVersion(1.0)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<PostDto>> GetAllChannelPosts(long channelId, long postId)
-    {
-        var response = await _channelsService.GetChannelPost(channelId, postId);
-
-        if (response.Message == "Channel not found")
-        {
-            return NotFound(response);
-        }
-
-        if (!response.Success)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, response);
-        }
-
-        return Ok(response);
-    }
-
-
-    [HttpGet]
-    [Route("{channelId}/posts_count")]
-    [MapToApiVersion(1.0)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<long>> GetChannelPostsCount(long channelId)
-    {
-        var response = await _channelsService.GetChannelPostsCount(channelId);
-
-        if (response.ErrorType == ErrorType.NotFound)
-        {
-            return NotFound(response);
-        }
-        else if(!response.Success)
-        {
-            StatusCode(StatusCodes.Status500InternalServerError, response);
-        }
-
-        return Ok(response);
-    }
-
-    [HttpGet()]
-    [Route("{channelId}/update_posts")]
-    public async Task UpdateChannelPosts(long channelId)
-    {
-        if (HttpContext.WebSockets.IsWebSocketRequest)
-        {
-            using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-            await _channelsService.UpdateChannelPosts(channelId, webSocket);
-        }
-        else
-        {
-            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-        }
-    }
-
-
-
-    [HttpGet]
-    [Route("{channelId}/posts/{postId}/comments")]
-    [MapToApiVersion(1.0)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<CommentDto>>> GetAllPostComments(long channelId, long postId, int offset = 0, int count = 20)
-    {
-        var response = await _channelsService.GetComments(channelId, postId, offset, count);
-
-        if (response.Message == "Channel not found")
-        {
-            return NotFound(response);
-        }
-
-        if (!response.Success)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, response);
-        }
-
-        return Ok(response);
-    }
-
-    [HttpGet()]
-    [Route("{channelId}/posts/{postId}/update_comments")]
-    public async Task UpdatePostComments(long channelId, long postId)
-    {
-        if (HttpContext.WebSockets.IsWebSocketRequest)
-        {
-            using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-            await _channelsService.UpdatePostComments(channelId, postId, webSocket);
-        }
-        else
-        {
-            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-        }
-    }
-
-    [HttpGet]
-    [Route("{channelId}/posts/{postId}/comments_count")]
-    [MapToApiVersion(1.0)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<long>> GetPostCommentsCount(long channelId, long postId)
-    {
-        var response = await _channelsService.GetCommentsCount(channelId, postId);
-
-        if (response.Message == "Channel not found")
-        {
-            return NotFound(response);
-        }
-
-        if (!response.Success)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, response);
-        }
-
-        return Ok(response);
-    }
 }

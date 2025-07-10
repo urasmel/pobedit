@@ -5,11 +5,13 @@ using Gather.ServiceFactories;
 using Gather.Services;
 using Gather.Services.Accounts;
 using Gather.Services.Channels;
+using Gather.Services.Comments;
 using Gather.Services.Login;
+using Gather.Services.Posts;
 using Gather.Services.Search;
 using Gather.Services.Users;
 using Gather.Utils.ConfigService;
-using Gather.Utils.Loading;
+using Gather.Utils.Gather.Notification;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
@@ -107,13 +109,14 @@ builder.Services.AddSingleton<IConfigUtils>(sp =>
         apiId,
         apiHash,
         phoneNumber));
-builder.Services.AddSingleton<ISettingsConfig, SettingsConfig>();
 builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddSingleton<GatherClient>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IChannelsService, ChannelsService>();
+builder.Services.AddScoped<IPostsService, PostsService>();
+builder.Services.AddScoped<ICommentsService, CommentsService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
 
 var app = builder.Build();

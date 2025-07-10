@@ -5,6 +5,8 @@ namespace Gather.Services;
 
 public interface ISettingsService
 {
+    public PobeditSettings PobeditSettings { get; set; }
+
     public ServiceResponse<PobeditSettingsDto> GetSettings();
 
     public ServiceResponse<bool> SaveSettings(PobeditSettingsDto pobeditSettingsDto);

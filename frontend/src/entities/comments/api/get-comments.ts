@@ -20,7 +20,7 @@ export const getComments = async (
 
         const result = await apiClient
             .get<ServiceResponse<CommentDto[]>>
-            (`channels/${channelId}/posts/${postId}/comments?offset=${offset}&limit=${limit}`);
+            (`comments/${channelId}/${postId}?offset=${offset}&limit=${limit}`);
 
         return ({
             comments: result.data.map((comment: CommentDto) => mapComment(comment))
@@ -36,7 +36,7 @@ export const getComment = async (channelId: string | undefined, postId: string |
             return Promise.resolve({ comment: null });
         }
 
-        const result = await apiClient.get<ServiceResponse<CommentDto>>(`channels/${channelId}/posts/${postId}/comments/${commentId}`);
+        const result = await apiClient.get<ServiceResponse<CommentDto>>(`comments/${channelId}/${postId}/${commentId}`);
 
         return ({
             comment: mapComment(result.data)
@@ -52,7 +52,7 @@ export const getPostCommentsCount = async (channelId: string | undefined, postId
             return Promise.resolve(0);
         }
 
-        const result = await apiClient.get<ServiceResponse<number>>(`channels/${channelId}/posts/${postId}/comments_count`);
+        const result = await apiClient.get<ServiceResponse<number>>(`comments/${channelId}/${postId}/count`);
 
         return (
             result.data as number

@@ -20,13 +20,13 @@ public class GatherService : IGatherService
     GatherState _gatherState;
     private readonly Channel<BackgroundTask> _queue;
     bool _needClose = false;
-    ISettingsConfig _settingsConfig;
+    ISettingsService _settingsService;
     DateTime _postLastUpdateTime = DateTime.MinValue;
     DateTime _commentsLastUpdateTime = DateTime.MinValue;
 
-    public GatherService(ISettingsConfig settingsConfig, ILogger<GatherService> logger, IMapper mapper, IConfigUtils configUtils)
+    public GatherService(ISettingsService settingsService, ILogger<GatherService> logger, IMapper mapper, IConfigUtils configUtils)
     {
-        _settingsConfig = settingsConfig;
+        _settingsService = settingsService;
         _logger = logger;
         _mapper = mapper;
         _configUtils = configUtils;
@@ -85,7 +85,7 @@ public class GatherService : IGatherService
                         // каналов и закачки постов и комментариев или установки флага прекращения опроса.
 
                         // Загружаем посты. Пока грузим - внутри проверяем флаг прекращения загрузки.
-                        if (_postLastUpdateTime.AddHours(_settingsConfig.PobeditSettings.ChannelPollingFrequency) <= DateTime.UtcNow)
+                        if (_postLastUpdateTime.AddHours(_settingsService.PobeditSettings.ChannelPollingFrequency) <= DateTime.UtcNow)
                         {
                             _logger.LogInformation($"Channels processing started at {DateTime.Now}.");
                             _gatherState.State = GatherProcessState.Running;
@@ -97,13 +97,13 @@ public class GatherService : IGatherService
                         {
                             _gatherState.ToPollingChannelsSecs =
                                 (int)_postLastUpdateTime
-                                .AddHours(_settingsConfig.PobeditSettings.ChannelPollingFrequency)
+                                .AddHours(_settingsService.PobeditSettings.ChannelPollingFrequency)
                                 .Subtract(DateTime.UtcNow).TotalSeconds;
                         }
 
 
                         // Загружаем очень нежно комментарии. Пока грузим - внутри проверяем флаг прекращения загрузки.
-                        if (_commentsLastUpdateTime.AddHours(_settingsConfig.PobeditSettings.CommentsPollingDelay) <= DateTime.UtcNow)
+                        if (_commentsLastUpdateTime.AddHours(_settingsService.PobeditSettings.CommentsPollingDelay) <= DateTime.UtcNow)
                         {
                             _logger.LogInformation($"Comments processing started at {DateTime.Now}.");
                             _gatherState.State = GatherProcessState.Running;
@@ -115,7 +115,7 @@ public class GatherService : IGatherService
                         {
                             _gatherState.ToPollingCommentsSecs =
                                 (int)_commentsLastUpdateTime
-                                .AddHours(_settingsConfig.PobeditSettings.CommentsPollingDelay)
+                                .AddHours(_settingsService.PobeditSettings.CommentsPollingDelay)
                                 .Subtract(DateTime.UtcNow).TotalSeconds;
                         }
 

@@ -9,7 +9,7 @@ import { enqueueSnackbar } from 'notistack';
 
 export const PostsUpdatingWidget = (props: { channelId: string | undefined; }) => {
 
-    const URL = `${WS_API_URL}channels/${props.channelId}/update_posts`;
+    const URL = `${WS_API_URL}posts/${props.channelId}/update`;
     const [isWSLoading, setIsWSLoading] = useState(false);
     const [response, setResponse] = useState<string>('');
 

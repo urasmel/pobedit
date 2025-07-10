@@ -38,7 +38,7 @@ export const updateChannelInfo = async (channelId: string | undefined): Promise<
             return Promise.resolve(null);
         }
 
-        const result = await apiClient.get<ServiceResponse<ChannelDto>>(`channels/${channelId}/update_info`);
+        const result = await apiClient.post<ServiceResponse<ChannelDto>>(`channels/${channelId}/update`, { body: "" });
         return (
             mapChannel(result.data)
         );

@@ -34,7 +34,6 @@
 	<ItemGroup>
 	  <Folder Include="logs\" />
 	  <Folder Include="Migrations\" />
-	  <Folder Include="Services\Comments\" />
 	</ItemGroup>
 
 	<PropertyGroup>
