@@ -1,63 +1,57 @@
 ﻿using AutoMapper;
+using Gather.Client;
+using Gather.Data;
 using Gather.Dtos.Gather;
 using Gather.Models;
 using Gather.Models.Gather;
 using Gather.Services.Gather;
-using Gather.Utils.ConfigService;
+using Gather.Utils.Gather;
+using Gather.Utils.Gather.Notification;
 using System.Threading.Channels;
-using TL;
 
 namespace Gather.Services;
 
-//?public class GatherService : BackgroundService
 public class GatherService : IGatherService
 {
-    ILogger _logger;
-    WTelegram.Client? _client;
-    TL.User? user;
-    IConfigUtils _configUtils;
+
+    private readonly IServiceScopeFactory _scopeFactory;
+
+    GatherClient _client;
     IMapper _mapper;
+    ILogger _logger;
+    PobeditSettings _pobeditSettings;
+    readonly IGatherNotifierFabric _loadingHelperFabric;
+    TL.User? user;
     GatherState _gatherState;
     private readonly Channel<BackgroundTask> _queue;
     bool _needClose = false;
-    ISettingsService _settingsService;
     DateTime _postLastUpdateTime = DateTime.MinValue;
     DateTime _commentsLastUpdateTime = DateTime.MinValue;
+    IGatherNotifier _loadingHelper;
 
-    public GatherService(ISettingsService settingsService, ILogger<GatherService> logger, IMapper mapper, IConfigUtils configUtils)
+    public GatherService(
+        GatherClient client,
+        IMapper mapper,
+        ILogger<GatherService> logger,
+        ISettingsService settingsService,
+        IGatherNotifierFabric loadingHelperFabric,
+        IServiceScopeFactory scopeFactory)
     {
-        _settingsService = settingsService;
-        _logger = logger;
+        _client = client;
         _mapper = mapper;
-        _configUtils = configUtils;
-        //_client = new WTelegram.Client(_configUtils.Config());
+        _logger = logger;
+
+        _pobeditSettings = settingsService.PobeditSettings;
+        _loadingHelperFabric = loadingHelperFabric;
         _gatherState = new GatherState();
         var options = new BoundedChannelOptions(1)
         {
             FullMode = BoundedChannelFullMode.Wait
         };
         _queue = System.Threading.Channels.Channel.CreateBounded<BackgroundTask>(options);
-        Init();
         ThreadPool.QueueUserWorkItem(_ => StartGatherAsync());
-    }
-
-    private async void Init()
-    {
-        if (_client == null)
-        {
-            _logger.LogError("Error to init telegram client. Client is not initialized.");
-            return;
-        }
-
-        try
-        {
-            user = await _client.LoginUserIfNeeded();
-        }
-        catch (Exception)
-        {
-            _logger.LogError("Error to login user.");
-            System.Environment.Exit(1);
-        }
+        _loadingHelper = loadingHelperFabric.Create();
+        _scopeFactory = scopeFactory;
     }
 
     private async void StartGatherAsync()
@@ -68,10 +62,14 @@ public class GatherService : IGatherService
         {
             while (true)
             {
+                // Ждем команды от пользователя.
                 if (_queue.Reader.TryRead(out var task))
                 {
                     // Переключение обратно после предыдущего выключения задачи сбора.
                     _needClose = false;
+
+                    // При первом запуске сбора по команде пользователя не смотрим на время последней обработки.
+                    int cicleCounter = 0;
 
                     _logger.LogInformation("Processing task {TaskId}: {Description}", task.Id, task.Description);
                     while (!_needClose)
@@ -85,37 +83,103 @@ public class GatherService : IGatherService
                         // каналов и закачки постов и комментариев или установки флага прекращения опроса.
 
                         // Загружаем посты. Пока грузим - внутри проверяем флаг прекращения загрузки.
-                        if (_postLastUpdateTime.AddHours(_settingsService.PobeditSettings.ChannelPollingFrequency) <= DateTime.UtcNow)
+                        if (cicleCounter == 0 || _postLastUpdateTime.AddHours(_pobeditSettings.ChannelPollingFrequency) <= DateTime.UtcNow)
                         {
+                            cicleCounter++;
                             _logger.LogInformation($"Channels processing started at {DateTime.Now}.");
                             _gatherState.State = GatherProcessState.Running;
+
+                            #region Posts loading.
+
+                            using (var scope = _scopeFactory.CreateScope())
+                            {
+                                var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+                                var channels = context.Channels;
+                                foreach (var channel in channels)
+                                {
+                                    await Gatherer.UpdateChannelPosts(channel.TlgId, _loadingHelper, _client, context, _mapper, _pobeditSettings, _logger);
+                                    if (_needClose)
+                                    {
+                                        _gatherState.State = GatherProcessState.Stopped;
+
+                                        // Останавливаем foreach. Потом проверим еще раз и выйдем из вложенного while.
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (_needClose)
+                            {
+                                _gatherState.State = GatherProcessState.Stopped;
+                                break;
+                            }
+
+                            #endregion
+
+
                             _postLastUpdateTime = DateTime.UtcNow;
-                            // ...
                             _gatherState.State = GatherProcessState.Paused;
                         }
                         else
                         {
                             _gatherState.ToPollingChannelsSecs =
                                 (int)_postLastUpdateTime
-                                .AddHours(_settingsService.PobeditSettings.ChannelPollingFrequency)
+                                .AddHours(_pobeditSettings.ChannelPollingFrequency)
                                 .Subtract(DateTime.UtcNow).TotalSeconds;
                         }
 
 
                         // Загружаем очень нежно комментарии. Пока грузим - внутри проверяем флаг прекращения загрузки.
-                        if (_commentsLastUpdateTime.AddHours(_settingsService.PobeditSettings.CommentsPollingDelay) <= DateTime.UtcNow)
+                        if (_commentsLastUpdateTime.AddHours(_pobeditSettings.CommentsPollingDelay) <= DateTime.UtcNow)
                         {
                             _logger.LogInformation($"Comments processing started at {DateTime.Now}.");
                             _gatherState.State = GatherProcessState.Running;
+
+
+                            #region Comments loading.
+
+                            using (var scope = _scopeFactory.CreateScope())
+                            {
+                                var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+                                var channels = context.Channels;
+                                foreach (var channel in channels)
+                                {
+                                    var posts = channel.Posts.Where(p => !p.AreCommentsLoaded);
+
+                                    foreach (var post in posts)
+                                    {
+                                        await Gatherer.UpdatePostComments(channel.TlgId, post.TlgId,_loadingHelper, _client, context, _mapper, _pobeditSettings, _logger);
+                                    }
+
+                                    if (_needClose)
+                                    {
+                                        _gatherState.State = GatherProcessState.Stopped;
+
+                                        // Останавливаем foreach. Потом проверим еще раз и выйдем из вложенного while.
+                                        break;
+                                    }
+
+                                    // Нежно качаем.
+                                    Thread.Sleep(10000);
+                                }
+                            }
+
+                            if (_needClose)
+                            {
+                                _gatherState.State = GatherProcessState.Stopped;
+                                break;
+                            }
+
+                            #endregion
+
                             _commentsLastUpdateTime = DateTime.UtcNow;
-                            // ...
                             _gatherState.State = GatherProcessState.Paused;
                         }
                         else
                         {
                             _gatherState.ToPollingCommentsSecs =
                                 (int)_commentsLastUpdateTime
-                                .AddHours(_settingsService.PobeditSettings.CommentsPollingDelay)
+                                .AddHours(_pobeditSettings.CommentsPollingDelay)
                                 .Subtract(DateTime.UtcNow).TotalSeconds;
                         }
 
@@ -156,6 +220,7 @@ public class GatherService : IGatherService
             {
                 response.Data = false;
                 response.Success = false;
+                response.Message = "The service did not stop in the expected time";
                 return response;
             }
             Thread.Sleep(1000);
@@ -178,6 +243,8 @@ public class GatherService : IGatherService
         if (task == null)
             throw new ArgumentNullException(nameof(task));
 
+        Init();
+
         if (_gatherState.State == GatherProcessState.Running || _gatherState.State == GatherProcessState.Paused)
         {
             return false;
@@ -185,6 +252,25 @@ public class GatherService : IGatherService
 
         await _queue.Writer.WriteAsync(task);
         return true;
+    }
+
+    private async void Init()
+    {
+        if (_client == null)
+        {
+            _logger.LogError("Error to init telegram client. Client is not initialized.");
+            return;
+        }
+
+        try
+        {
+            user = await _client.LoginUserIfNeeded();
+        }
+        catch (Exception)
+        {
+            _logger.LogError("Error to login user.");
+            System.Environment.Exit(1);
+        }
     }
 
 }

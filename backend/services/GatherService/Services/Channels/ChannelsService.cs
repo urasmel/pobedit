@@ -5,7 +5,7 @@ using Gather.Dtos;
 using Gather.Models;
 using Gather.Utils.Gather.Notification;
 using Microsoft.EntityFrameworkCore;
-using System.Net.WebSockets;
+using System.Threading.Channels;
 using TL;
 
 namespace Gather.Services.Channels;
@@ -22,7 +22,6 @@ public class ChannelsService(
     //private readonly DateTime startLoadingDate = DateTime.Parse("May 15, 2025");
     readonly ILogger _logger = logger;
     readonly GatherClient _client = client;
-    TL.User? user;
     private readonly IMapper _mapper = mapper;
     private readonly DataContext _context = context;
     readonly Object lockObject = new();
@@ -86,6 +85,7 @@ public class ChannelsService(
     public async Task<ServiceResponse<IEnumerable<long>>> UpdateChannels()
     {
         var response = new ServiceResponse<IEnumerable<long>>();
+
         if (_context.Users == null
             || _context.Channels == null
             || _context.Accounts == null)
@@ -98,13 +98,12 @@ public class ChannelsService(
 
         try
         {
-            user ??= await _client.LoginUserIfNeeded();
+            await _client.LoginUserIfNeeded();
         }
         catch (Exception exception)
         {
             _logger.LogError(exception,
-                "UpdateChannels" +
-                Environment.NewLine +
+                "UpdateChannels" + Environment.NewLine +
                 "The error while logging telegram user.");
 
             response.Success = false;
@@ -153,9 +152,8 @@ public class ChannelsService(
 
             // Добавляем новые в БД.
             var random = new Random();
-            _logger.LogInformation("Channels update is started");
             int channelCount = 0;
-            //foreach (var chat in chatsFromTG)
+
             for (int i = 0; i < chatsFromTG.Count; i++)
             {
                 try
@@ -171,10 +169,10 @@ public class ChannelsService(
                             var addedChat = _mapper.Map<Models.Channel>(chatsFromTG[i]);
                             var channelFullInfo = await _client.GetFullChat(chatsFromTG[i]);
 
-
-                            //addedChat.Owner = channelFullInfo.
                             addedChat.About = channelFullInfo.full_chat.About;
                             addedChat.ParticipantsCount = channelFullInfo.full_chat.ParticipantsCount;
+                            addedChat.HasCommnets = HasComments(chatsFromTG[i]);
+
 
                             if (chatsFromTG[i].Photo != null)
                             {
@@ -238,9 +236,9 @@ public class ChannelsService(
         {
             _logger.LogError(exception, "UpdateChannels");
             response.Success = false;
-            response.Message = "The error while getting all updated channels occurred."
-                + Environment.NewLine
-                + exception.Message;
+            response.Message =
+                "The error while getting all updated channels occurred."
+                + Environment.NewLine + exception.Message;
             response.ErrorType = ErrorType.ServerError;
             response.Data = [];
             return response;
@@ -303,7 +301,7 @@ public class ChannelsService(
 
         try
         {
-            user ??= await _client.LoginUserIfNeeded();
+            await _client.LoginUserIfNeeded();
         }
         catch (Exception exception)
         {
@@ -369,6 +367,7 @@ public class ChannelsService(
             channelDB.About = channelFullInfoDto.About;
             channelDB.Image = channelFullInfoDto.Image;
             channelDB.ParticipantsCount = channelFullInfoDto.ParticipantsCount;
+            channelDB.HasCommnets = HasComments(chat);
             await _context.SaveChangesAsync();
 
             response.Data = channelFullInfoDto;
@@ -385,4 +384,15 @@ public class ChannelsService(
         }
     }
 
+    private bool HasComments(ChatBase channel)
+    {
+        try
+        {
+            return (channel as TL.Channel).flags.HasFlag(TL.Channel.Flags.has_link);
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
 }

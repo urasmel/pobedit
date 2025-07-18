@@ -89,7 +89,7 @@ namespace Gather.Controllers
             return Ok(response);
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("{channelId}/update")]
         public async Task UpdateChannelPosts(long channelId)
         {
@@ -103,6 +103,5 @@ namespace Gather.Controllers
                 HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
             }
         }
-
     }
 }

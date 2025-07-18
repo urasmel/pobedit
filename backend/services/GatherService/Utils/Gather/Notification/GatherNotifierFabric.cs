@@ -6,7 +6,7 @@ public class GatherNotifierFabric : IGatherNotifierFabric
 {
     public IGatherNotifier Create()
     {
-        throw new NotImplementedException();
+        return new SimpleGatherNotifier();
     }
 
     public IGatherNotifier Create(WebSocket socket)

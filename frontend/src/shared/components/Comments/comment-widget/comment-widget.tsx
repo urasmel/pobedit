@@ -3,7 +3,7 @@ import { CommentAva } from '../comment-avatar';
 import { CommentInfo } from '../comment-info';
 import { Box } from '@mui/material';
 
-export const CommentWidget = ({ comment, showUsername = true, showChannel = true }: { comment: Comment; showUsername: boolean; showChannel: boolean; }) => {
+export const CommentWidget = ({ comment, showUsername = true, showChannel = true, showPostLink = false }: { comment: Comment; showUsername: boolean; showChannel: boolean; showPostLink: boolean; }) => {
 
     return (
         <Box sx={{
@@ -12,7 +12,7 @@ export const CommentWidget = ({ comment, showUsername = true, showChannel = true
         }}>
             <CommentAva comment={comment} />
 
-            <CommentInfo comment={comment} showUsername={showUsername} showChannel={showChannel} showPostLink={false} />
+            <CommentInfo comment={comment} showUsername={showUsername} showChannel={showChannel} showPostLink={showPostLink} />
         </Box >
     );
 };

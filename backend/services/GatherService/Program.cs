@@ -63,6 +63,7 @@ builder.Logging.AddSimpleConsole();
 builder.Services.AddScoped<IdFilter>();
 builder.Services.AddScoped<UserFilter>();
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped);
+//builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Singleton);
 builder.Services.AddControllers().AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
@@ -100,15 +101,18 @@ builder.Services.AddCors(options =>
         });
 });
 
-//builder.Services.AddSingleton<IConfigUtils, ConfigUtils>();
-//builder.Services.AddHostedService<GatherService>();
 builder.Services.TryAddSingleton<IGatherNotifierFabric, GatherNotifierFabric>();
-builder.Services.AddSingleton<IGatherService,GatherService>();
 builder.Services.AddSingleton<IConfigUtils>(sp =>
-    ConfigUtilsFactory.Create(
-        apiId,
-        apiHash,
-        phoneNumber));
+ConfigUtilsFactory.Create(
+    apiId,
+    apiHash,
+    phoneNumber));
+//builder.Services.AddScoped<IConfigUtils>(sp =>
+//ConfigUtilsFactory.Create(
+//    apiId,
+//    apiHash,
+//    phoneNumber));
+builder.Services.AddSingleton<IGatherService, GatherService>();
 builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddSingleton<GatherClient>();
 builder.Services.AddScoped<IAccountService, AccountService>();

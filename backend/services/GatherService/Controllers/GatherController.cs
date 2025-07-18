@@ -28,8 +28,8 @@ public class GatherController : ControllerBase
     /// Запускает процесс сбора информации в БД.
     /// </summary>
     [MapToApiVersion(1.0)]
-    [HttpPost("start")]
-    public async Task<ActionResult<ServiceResponse<int>>> StartGather()
+    [HttpGet("start")]
+    public async Task<ActionResult<ServiceResponse<bool>>> StartGather()
     {
         var task = new BackgroundTask();
 
@@ -59,7 +59,7 @@ public class GatherController : ControllerBase
     /// Останавливает процесс сбора информации в БД.
     /// </summary>
     [MapToApiVersion(1.0)]
-    [HttpPost("stop")]
+    [HttpGet("stop")]
     public ActionResult<ServiceResponse<bool>> StopGather()
     {
         try

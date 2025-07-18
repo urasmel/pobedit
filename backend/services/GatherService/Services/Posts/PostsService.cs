@@ -3,6 +3,7 @@ using Gather.Client;
 using Gather.Data;
 using Gather.Dtos;
 using Gather.Models;
+using Gather.Utils.Gather;
 using Gather.Utils.Gather.Notification;
 using Microsoft.EntityFrameworkCore;
 using System.Net.WebSockets;
@@ -19,10 +20,9 @@ public class PostsService(
     IGatherNotifierFabric loadingHelperFabric) : IPostsService
 {
     // Дата, с которой начинаем загружать данные.
-    //private readonly DateTime startLoadingDate = DateTime.Parse("May 15, 2025");
     readonly ILogger _logger = logger;
     readonly GatherClient _client = client;
-    TL.User? user;
+    //TL.User? user;
     private readonly IMapper _mapper = mapper;
     private readonly DataContext _context = context;
     PobeditSettings pobeditSettings = _settingsService.PobeditSettings;
@@ -156,22 +156,23 @@ public class PostsService(
     public async Task UpdateChannelPosts(long chatId, WebSocket webSocket)
     {
         IGatherNotifier loadingHelper = _loadingHelperFabric.Create(webSocket);
-        await UpdateChannelPosts(chatId, loadingHelper);
+        //await UpdateChannelPosts(chatId, loadingHelper);
+        await Gatherer.UpdateChannelPosts(chatId, loadingHelper, _client, _context, mapper, pobeditSettings, _logger);
     }
 
     private async Task UpdateChannelPosts(long chatId, IGatherNotifier loadingHelper)
     {
-        try
-        {
-            user ??= await _client.LoginUserIfNeeded();
-        }
-        catch (Exception exception)
-        {
-            var errorMessage = "The error while logging telegram user.";
-            _logger.LogError(exception, errorMessage);
-            await loadingHelper.NotifyFailureEndingAsync(errorMessage);
-            return;
-        }
+        //try
+        //{
+        //    user ??= await _client.LoginUserIfNeeded();
+        //}
+        //catch (Exception exception)
+        //{
+        //    var errorMessage = "The error while logging telegram user.";
+        //    _logger.LogError(exception, errorMessage);
+        //    await loadingHelper.NotifyFailureEndingAsync(errorMessage);
+        //    return;
+        //}
 
         if (_context.Channels == null)
         {

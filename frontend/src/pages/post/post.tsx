@@ -140,6 +140,7 @@ export const PostPage = () => {
                                 comment={comment}
                                 showChannel={false}
                                 showUsername={true}
+                                showPostLink={false}
                             />
                         ))
                     }

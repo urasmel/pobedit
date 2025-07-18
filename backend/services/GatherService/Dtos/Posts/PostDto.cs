@@ -15,4 +15,6 @@ public class PostDto
     public DateTime Date { get; set; }
 
     public long CommentsCount { get; set; }
+
+    public bool AreCommentsLoaded { get; set; }
 }

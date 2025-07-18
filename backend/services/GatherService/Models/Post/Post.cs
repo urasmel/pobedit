@@ -23,4 +23,6 @@ public class Post
     public IList<Comment> Comments { get; set; } = new List<Comment>();
 
     public long CommentsCount { get; set; }
+
+    public bool AreCommentsLoaded { get; set; } = false;
 }

@@ -3,6 +3,7 @@ using Gather.Client;
 using Gather.Data;
 using Gather.Dtos;
 using Gather.Models;
+using Gather.Utils.Gather;
 using Gather.Utils.Gather.Notification;
 using Microsoft.EntityFrameworkCore;
 using System.Net.WebSockets;
@@ -117,10 +118,10 @@ public class CommentsService(
     public async Task UpdatePostComments(long chatId, long postId, WebSocket webSocket)
     {
         IGatherNotifier loadingHelper = _loadingHelperFabric.Create(webSocket);
-        await UpdatePostComments(chatId, postId, loadingHelper);
+        await Gatherer.UpdatePostComments(chatId, postId, loadingHelper, _client, _context, _mapper, pobeditSettings, _logger);
     }
 
-    public async Task UpdatePostComments(long chatId, long postId, IGatherNotifier loadingHelper)
+    private async Task UpdatePostComments(long chatId, long postId, IGatherNotifier loadingHelper)
     {
         try
         {

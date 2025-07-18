@@ -38,7 +38,7 @@ namespace Gather.Controllers
             return Ok(response);
         }
 
-        [HttpPost()]
+        [HttpGet()]
         [Route("{channelId}/{postId}/update")]
         public async Task UpdatePostComments(long channelId, long postId)
         {

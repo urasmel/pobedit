@@ -5,15 +5,19 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { useQuery } from "@tanstack/react-query";
 import { gatherStateApi } from "@/entities/gather-state";
 import { numToTime } from "@/shared/utils/num-to-time";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LoadingWidget } from "@/shared/components/loading/loading-widget";
 import { enqueueSnackbar } from "notistack";
 import { getLocalizedString } from "@/shared/locales/localizing";
 import { t } from "i18next";
+import { gatherStart } from "@/entities/gather-state/api";
+import { gatherStop } from "@/entities/gather-state/api";
 
 export const GatherStateWidget = () => {
 
     const { data: gatherState, isLoading, isError, error } = useQuery(gatherStateApi.gatherStateQueries.all());
+    const [startResult, setStartResult] = useState(false);
+
     const errorMsg = getLocalizedString(error, t);
 
     const frendlyState = useMemo(() => {
@@ -32,6 +36,28 @@ export const GatherStateWidget = () => {
         }
 
     }, [isError]);
+
+    const start = async () => {
+        const result = await gatherStart();
+        setStartResult(result);
+        if (result) {
+            enqueueSnackbar("Скачивание успешно запущено", { variant: 'success' });
+        }
+        else {
+            enqueueSnackbar("Запуск скачивания завершился неудачей", { variant: 'error' });
+        }
+    };
+
+    const stop = async () => {
+        const result = await gatherStop();
+        setStartResult(result);
+        if (result) {
+            enqueueSnackbar("Скачивание успешно сотановлено", { variant: 'success' });
+        }
+        else {
+            enqueueSnackbar("Остановка скачивания завершилось неудачей", { variant: 'error' });
+        }
+    };
 
     if (isLoading) {
         return (<Box
@@ -83,11 +109,11 @@ export const GatherStateWidget = () => {
 
             {
                 gatherState?.state === "running" || gatherState?.state === "paused" ?
-                    (!isError && <Button variant="outlined" startIcon={<StopCircleIcon />}>
+                    (!isError && <Button variant="outlined" onClick={stop} startIcon={<StopCircleIcon />}>
                         Остановить
                     </Button>)
                     :
-                    (!isError && <Button variant="outlined" startIcon={<PlayCircleOutlineIcon />}>
+                    (!isError && <Button variant="outlined" onClick={start} startIcon={<PlayCircleOutlineIcon />}>
                         Запустить
                     </Button>)
             }

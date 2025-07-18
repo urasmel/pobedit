@@ -8,4 +8,5 @@ export const gatherStateQueries = {
             queryFn: () => getGatherState(),
             placeholderData: keepPreviousData,
         }),
+
 };

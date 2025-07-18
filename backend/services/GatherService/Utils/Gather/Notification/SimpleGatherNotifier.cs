@@ -4,21 +4,21 @@ public class SimpleGatherNotifier : IGatherNotifier
 {
     public Task<bool> CheckIsNeedStopAsync()
     {
-        throw new NotImplementedException();
+        return Task.FromResult(false);
     }
 
     public Task NotifyFailureEndingAsync(string messsage)
     {
-        throw new NotImplementedException();
+        return Task.FromResult(false);
     }
 
     public Task NotifyProgressAsync(string message)
     {
-        throw new NotImplementedException();
+        return Task.FromResult(false);
     }
 
     public Task NotifySuccessEndingAsync(string message)
     {
-        throw new NotImplementedException();
+        return Task.FromResult(false);
     }
 }
