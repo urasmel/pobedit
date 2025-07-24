@@ -10,7 +10,7 @@ namespace Gather.Controllers
     [Produces("application/json")]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("1.0")]
-    public class AccountsController:ControllerBase
+    public class AccountsController : ControllerBase
     {
         private readonly IAccountService _accountService;
 
@@ -62,7 +62,7 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ServiceResponse<IEnumerable<CommentDto>>>> GetComments([FromRoute] long accountTlgId,[FromQuery] int offset = 0, [FromQuery] int limit = 20)
+        public async Task<ActionResult<ServiceResponse<IEnumerable<CommentDto>>>> GetComments([FromRoute] long accountTlgId, [FromQuery] int offset = 0, [FromQuery] int limit = 20)
         {
             var response = await _accountService.GetCommentsAsync(accountTlgId, offset, limit);
             if (response.Data == null)
@@ -84,6 +84,21 @@ namespace Gather.Controllers
         public async Task<ActionResult<ServiceResponse<int>>> GetCommentsCount([FromRoute] long accountTlgId)
         {
             var response = await _accountService.GetCommentsCountAsync(accountTlgId);
+            if (!response.Success)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+            return Ok(response);
+        }
+
+        [HttpPost("{accountTlgId}/change_tracking")]
+        [MapToApiVersion(1.0)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ServiceResponse<bool>>> ChangeTracking([FromRoute] long accountTlgId, [FromBody] ChangeTrackingDto trackingDto)
+        {
+            var response = await _accountService.ChangeTracking(accountTlgId, trackingDto.IsTracking);
             if (!response.Success)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, response);

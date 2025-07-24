@@ -94,10 +94,10 @@ public class GatherService : IGatherService
                             using (var scope = _scopeFactory.CreateScope())
                             {
                                 var context = scope.ServiceProvider.GetRequiredService<DataContext>();
-                                var channels = context.Channels;
-                                foreach (var channel in channels)
+                                var channelsIds = context.Channels.Select(c => c.TlgId).ToList();
+                                foreach (var channelId in channelsIds)
                                 {
-                                    await Gatherer.UpdateChannelPosts(channel.TlgId, _loadingHelper, _client, context, _mapper, _pobeditSettings, _logger);
+                                    await Gatherer.UpdateChannelPosts(channelId, _loadingHelper, _client, context, _mapper, _pobeditSettings, _logger);
                                     if (_needClose)
                                     {
                                         _gatherState.State = GatherProcessState.Stopped;
@@ -148,7 +148,7 @@ public class GatherService : IGatherService
 
                                     foreach (var post in posts)
                                     {
-                                        await Gatherer.UpdatePostComments(channel.TlgId, post.TlgId,_loadingHelper, _client, context, _mapper, _pobeditSettings, _logger);
+                                        await Gatherer.UpdatePostComments(channel.TlgId, post.TlgId, _loadingHelper, _client, context, _mapper, _pobeditSettings, _logger);
                                     }
 
                                     if (_needClose)

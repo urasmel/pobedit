@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Gather.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class DeletePostPrincipalKey : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,7 +19,7 @@ namespace Gather.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     TlgId = table.Column<long>(type: "bigint", nullable: true),
-                    MainUsername = table.Column<string>(type: "text", nullable: false),
+                    MainUsername = table.Column<string>(type: "text", nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: true),
                     IsBot = table.Column<bool>(type: "boolean", nullable: true),
                     Username = table.Column<string>(type: "text", nullable: true),
@@ -61,7 +61,8 @@ namespace Gather.Migrations
                     Title = table.Column<string>(type: "text", nullable: true),
                     Image = table.Column<string>(type: "text", nullable: true),
                     About = table.Column<string>(type: "text", nullable: true),
-                    ParticipantsCount = table.Column<int>(type: "integer", nullable: false)
+                    ParticipantsCount = table.Column<int>(type: "integer", nullable: false),
+                    HasCommnets = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -125,7 +126,7 @@ namespace Gather.Migrations
                 name: "Posts",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    PostId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     TlgId = table.Column<long>(type: "bigint", nullable: false),
                     AuthorId = table.Column<long>(type: "bigint", nullable: true),
@@ -133,12 +134,12 @@ namespace Gather.Migrations
                     ChannelId = table.Column<long>(type: "bigint", nullable: true),
                     Message = table.Column<string>(type: "text", nullable: false),
                     Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CommentsCount = table.Column<long>(type: "bigint", nullable: false)
+                    CommentsCount = table.Column<long>(type: "bigint", nullable: false),
+                    AreCommentsLoaded = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Posts", x => x.Id);
-                    table.UniqueConstraint("AK_Posts_TlgId", x => x.TlgId);
+                    table.PrimaryKey("PK_Posts", x => x.PostId);
                     table.ForeignKey(
                         name: "FK_Posts_Accounts_AuthorId",
                         column: x => x.AuthorId,
@@ -200,7 +201,7 @@ namespace Gather.Migrations
                         name: "FK_Comments_Posts_PostId",
                         column: x => x.PostId,
                         principalTable: "Posts",
-                        principalColumn: "TlgId",
+                        principalColumn: "PostId",
                         onDelete: ReferentialAction.Cascade);
                 });
 

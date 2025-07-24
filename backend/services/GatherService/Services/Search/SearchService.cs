@@ -62,7 +62,7 @@ public class SearchService : ISearchService
                 var ids = await dbQuery
                     .Skip(query.Offset)
                     .Take(query.Limit)
-                    .Select(p => p.Id)
+                    .Select(p => p.PostId)
                     .ToListAsync();
                 var postsDtos = ids.Select(id => GetPostById(id));
                 response.Data = new SearchResultPostsDto()
@@ -114,7 +114,7 @@ public class SearchService : ISearchService
 
     private PostDto GetPostById(long postId)
     {
-        var post = _context.Posts.FirstOrDefault(p => p.Id == postId);
+        var post = _context.Posts.FirstOrDefault(p => p.PostId == postId);
         if (post == null)
         {
             return null;

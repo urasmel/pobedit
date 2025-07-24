@@ -14,7 +14,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
     private readonly DataContext _context = context;
     private readonly ILogger<AccountService> _logger = logger;
     readonly GatherClient _client = client;
-    TL.User? user;
+    private static Messages_Chats? allChannels;
 
     public async Task<ServiceResponse<AccountDto>> GetAccountAsync(long accountTlgId)
     {
@@ -129,7 +129,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
 
         try
         {
-            user ??= await _client.LoginUserIfNeeded();
+            await _client.LoginUserIfNeeded();
         }
         catch (Exception exception)
         {
@@ -171,12 +171,15 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             }
 
             // Получаем нужный канал.
-            var allChannels = await _client.Messages_GetAllChats();
+            if (allChannels == null)
+            {
+                allChannels = await _client.Messages_GetAllChats();
+            }
+
             var channelNeeded = allChannels
                 .chats
                 .Where(c => c.Value.ID == commentFromDb.PeerId)
                 .FirstOrDefault().Value;
-
             if (channelNeeded == null)
             {
                 _logger.LogError("Channel of comment not found");
@@ -207,7 +210,9 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             Messages_MessagesBase? comments;
             while (true)
             {
-                comments = await _client.Messages_GetReplies(channelNeeded, postNeeded.ID, offset);
+
+                var post = await _context.Posts.FirstAsync(p => p.PostId == postNeeded.ID);
+                comments = await _client.Messages_GetReplies(channelNeeded, (int)post.TlgId, offset);
                 var replies = comments.Messages;
                 if (replies.Count() == 0)
                 {
@@ -268,6 +273,51 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
             _logger.LogError(ex.Message);
+            return response;
+        }
+        finally
+        {
+            //_client.Dispose(); // Dispose the client when done
+        }
+    }
+
+    public async Task<ServiceResponse<bool>> ChangeTracking(long accountTlgId, bool tracking)
+    {
+        var response = new ServiceResponse<bool>();
+
+        try
+        {
+            await _client.LoginUserIfNeeded();
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception,
+                "ChangeTracking" +
+                Environment.NewLine +
+                "The error while logging telegram user.");
+
+            response.Success = false;
+            response.Message = "Unable to login to Telegram";
+            response.ErrorType = ErrorType.ServerError;
+            response.Data = false;
+            return response;
+        }
+
+        try
+        {
+            var account = await _context.Accounts.Where(a => a.TlgId == accountTlgId).FirstAsync();
+            account.IsTracking = tracking;
+            await _context.SaveChangesAsync();
+            response.Data = true;
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            response.Success = false;
+            response.Message = "Server error";
+            response.ErrorType = ErrorType.ServerError;
+            response.Data = false;
             return response;
         }
         finally

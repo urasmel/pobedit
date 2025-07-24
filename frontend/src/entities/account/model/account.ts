@@ -9,4 +9,5 @@ export interface Account {
     last_name: string;
     bio: string;
     photo: string;
+    is_tracking: boolean;
 }

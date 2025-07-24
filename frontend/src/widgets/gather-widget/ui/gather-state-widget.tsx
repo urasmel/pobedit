@@ -12,10 +12,11 @@ import { getLocalizedString } from "@/shared/locales/localizing";
 import { t } from "i18next";
 import { gatherStart } from "@/entities/gather-state/api";
 import { gatherStop } from "@/entities/gather-state/api";
+import { queryClient } from "@/shared/api/query-client";
 
 export const GatherStateWidget = () => {
 
-    const { data: gatherState, isLoading, isError, error } = useQuery(gatherStateApi.gatherStateQueries.all());
+    const { data: gatherState, isLoading, isError, error } = useQuery(gatherStateApi.gatherStateQueries.gather_state());
     const [startResult, setStartResult] = useState(false);
 
     const errorMsg = getLocalizedString(error, t);
@@ -42,10 +43,13 @@ export const GatherStateWidget = () => {
         setStartResult(result);
         if (result) {
             enqueueSnackbar("Скачивание успешно запущено", { variant: 'success' });
+            console.log('gather start success');
         }
         else {
             enqueueSnackbar("Запуск скачивания завершился неудачей", { variant: 'error' });
+            console.log('gather start failure');
         }
+        queryClient.invalidateQueries({ queryKey: gatherStateApi.gatherStateQueries.gather_state_key() });
     };
 
     const stop = async () => {

@@ -12,4 +12,6 @@ public interface IAccountService
     Task<ServiceResponse<int>> GetCommentsCountAsync(long accountTlgId);
 
     Task<ServiceResponse<AccountDto>> UpdateAccountAsync(long accountTlgId);
+
+    Task<ServiceResponse<bool>> ChangeTracking(long accountTlgId, bool tracking);
 }

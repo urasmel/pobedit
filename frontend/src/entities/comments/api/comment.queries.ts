@@ -7,7 +7,6 @@ export const commentsQueries = {
 
     // account: () => ["account"],
 
-    // lists: () => [...commentsQueries.all(), "list"],
 
     count: (channelId: string | undefined, postId: string | undefined) =>
         queryOptions({

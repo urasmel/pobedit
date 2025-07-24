@@ -41,7 +41,7 @@ namespace Gather.Data
                 .HasMany(e => e.Comments)
                 .WithOne(e => e.Post)
                 .HasForeignKey(e => e.PostId)
-                .HasPrincipalKey(e => e.TlgId)
+                //.HasPrincipalKey(e => e.TlgId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
 

@@ -38,7 +38,7 @@ public class ChannelsController(IChannelsService channelsService) : ControllerBa
     /// <summary>
     /// Возвращает каналы пользователя по его username, запрашивая API телеграмма, одновляет их в БД и возвращает в ответе запроса.
     /// </summary>
-    [HttpPost]
+    [HttpGet]
     [Route("update")]
     [MapToApiVersion(1.0)]
     [ProducesResponseType(StatusCodes.Status200OK)]

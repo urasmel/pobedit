@@ -31,6 +31,7 @@ import { ChannelInfoDialog } from "@/features/channel-info-dialog";
 import { useTranslation } from "react-i18next";
 import { getLocalizedString } from "@/shared/locales/localizing";
 import { useSnackbar } from 'notistack';
+import { queryClient } from "@/shared/api/query-client";
 
 export const Channels = () => {
 
@@ -40,6 +41,7 @@ export const Channels = () => {
     const [channelId, setChannelId] = useState<string | undefined>(undefined);
 
     const { data, isFetching, isLoading, isError, error } = useQuery(channelsApi.channelQueries.list());
+    const [updating, setUpdating] = useState(false);
     const { data: channelInfo } = useQuery(channelsApi.channelQueries.details(channelId));
 
     const navigate = useNavigate();
@@ -81,6 +83,21 @@ export const Channels = () => {
 
     const handleChannelRowClick = (params: GridRowParams<Channel>) => {
         navigate(`/channels/${params.row.tlgId}/posts`);
+    };
+
+    const updateChannelsClick = async () => {
+        try {
+            setUpdating(true);
+            await updateChannels();
+            enqueueSnackbar("Каналы успешно обновлены.", { variant: 'success' });
+        }
+        catch (error) {
+            enqueueSnackbar(getLocalizedString(error as Error, t), { variant: 'error' });
+        }
+        finally {
+            queryClient.invalidateQueries({ queryKey: channelsApi.channelQueries.channels() });
+            setUpdating(false);
+        }
     };
 
 
@@ -133,10 +150,12 @@ export const Channels = () => {
 
                 <Button
                     sx={{
-                        width: "100px",
+                        minWidth: "100px"
                     }}
                     variant="contained"
-                    onClick={() => updateChannels()}
+                    onClick={updateChannelsClick}
+                    loading={updating}
+                    loadingPosition="start"
                 >
                     Обновить
                 </Button>
@@ -159,8 +178,9 @@ export const Channels = () => {
                             Закрыть
                         </Button>
                     </DialogActions>
-                </Dialog>}
+                </Dialog>
+            }
 
-        </Box>
+        </Box >
     );
 };

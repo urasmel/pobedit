@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Gather.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250519091921_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20250723120323_DeletePostPrincipalKey")]
+    partial class DeletePostPrincipalKey
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -85,7 +85,6 @@ namespace Gather.Migrations
                         .HasAnnotation("Relational:JsonPropertyName", "last_name");
 
                     b.Property<string>("MainUsername")
-                        .IsRequired()
                         .HasColumnType("text")
                         .HasAnnotation("Relational:JsonPropertyName", "main_username");
 
@@ -120,6 +119,9 @@ namespace Gather.Migrations
 
                     b.Property<string>("About")
                         .HasColumnType("text");
+
+                    b.Property<bool>("HasCommnets")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Image")
                         .HasColumnType("text");
@@ -220,11 +222,14 @@ namespace Gather.Migrations
 
             modelBuilder.Entity("Gather.Models.Post", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<long>("PostId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("PostId"));
+
+                    b.Property<bool>("AreCommentsLoaded")
+                        .HasColumnType("boolean");
 
                     b.Property<long?>("AuthorId")
                         .HasColumnType("bigint");
@@ -248,7 +253,7 @@ namespace Gather.Migrations
                     b.Property<long>("TlgId")
                         .HasColumnType("bigint");
 
-                    b.HasKey("Id");
+                    b.HasKey("PostId");
 
                     b.HasIndex("AuthorId");
 
@@ -337,7 +342,6 @@ namespace Gather.Migrations
                     b.HasOne("Gather.Models.Post", "Post")
                         .WithMany("Comments")
                         .HasForeignKey("PostId")
-                        .HasPrincipalKey("TlgId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

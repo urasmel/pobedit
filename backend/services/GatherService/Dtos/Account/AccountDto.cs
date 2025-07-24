@@ -50,4 +50,7 @@ public class AccountDto
 
     [JsonPropertyName("photo")]
     public string? Photo { get; set; }
+
+    [JsonPropertyName("is_tracking")]
+    public bool IsTracking { get; set; } = false;
 }

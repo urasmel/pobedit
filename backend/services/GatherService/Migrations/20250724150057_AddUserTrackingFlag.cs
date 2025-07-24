@@ -5,14 +5,14 @@
 namespace Gather.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class AddUserTrackingFlag : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<bool>(
-                name: "AreCommentsLoaded",
-                table: "Posts",
+                name: "IsTracking",
+                table: "Accounts",
                 type: "boolean",
                 nullable: false,
                 defaultValue: false);
@@ -22,8 +22,8 @@ namespace Gather.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "AreCommentsLoaded",
-                table: "Posts");
+                name: "IsTracking",
+                table: "Accounts");
         }
     }
 }

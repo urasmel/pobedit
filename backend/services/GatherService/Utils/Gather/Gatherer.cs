@@ -6,12 +6,13 @@ using Gather.Models;
 using Gather.Utils.Gather.Notification;
 using Microsoft.EntityFrameworkCore;
 using TL;
-using WTelegram;
 
 namespace Gather.Utils.Gather;
 
 public static class Gatherer
 {
+    private static Messages_Chats? message_chats;
+
     public static async Task UpdateChannelPosts(
         long chatId,
         IGatherNotifier loadingHelper,
@@ -35,8 +36,11 @@ public static class Gatherer
 
         try
         {
-            var chats = await _client.Messages_GetAllChats();
-            var peersWithKey = chats.chats.Where(chat => chat.Key == chatId);
+            if (message_chats == null)
+            {
+                message_chats = await _client.Messages_GetAllChats();
+            }
+            var peersWithKey = message_chats.chats.Where(chat => chat.Key == chatId);
 
             if (!peersWithKey.Any())
             {
@@ -52,11 +56,11 @@ public static class Gatherer
                 .LastOrDefault();
             int startOffsetId = 0;
 
-            // Если пусто, запрашиваем у телеграмма последний пост и
-            // используем его как начала для скачивания постов в прошлом.
             InputPeer peer = peersWithKey.First().Value;
             if (postFromDb == null)
             {
+                // Если пусто, запрашиваем у телеграмма последний пост и
+                // используем его как начала для скачивания постов в прошлом.
                 var lastMessagesBase = await _client.Messages_GetHistory(peer, offset_date: pobeditSettings.StartGatherDate, limit: 1);
 
                 if (lastMessagesBase is not Messages_ChannelMessages channelMessages)
@@ -76,9 +80,9 @@ public static class Gatherer
                 var msgBase = channelMessages.messages[0];
                 startOffsetId = msgBase.ID;
             }
-            // Если не пусто, то его id используем для запроса новых постов канала как смещение.
             else
             {
+                // Если не пусто, то его id используем для запроса новых постов канала как смещение.
                 startOffsetId = (int)postFromDb.TlgId;
             }
 
@@ -98,7 +102,7 @@ public static class Gatherer
                     break;
                 }
 
-                for (int index = 0; index < channelMessages.messages.Length; index++)
+                for (int index = channelMessages.messages.Length - 1; index >= 0; index--)
                 {
 
                     // TODO Тестируем этот код.
@@ -135,11 +139,7 @@ public static class Gatherer
                         }
                     }
 
-                    if (index == channelMessages.messages.Length - 1)
-                    {
-                        startOffsetId = channelMessages.messages[0].ID + 1;
-                    }
-
+                    startOffsetId = channelMessages.messages.Select(m => m.ID).Max();
                     Thread.Sleep(100);
                 }
 
@@ -148,7 +148,7 @@ public static class Gatherer
                     break;
                 }
             }
-            await loadingHelper.NotifySuccessEndingAsync("The request was completed successfully");
+            await loadingHelper.NotifySuccessEndingAsync("Updating post for one channel was completed successfully");
         }
         catch (InvalidOperationException ex)
         {
@@ -238,7 +238,10 @@ public static class Gatherer
         }
 
 
-        var message_chats = await _client.Messages_GetAllChats();
+        if (message_chats == null)
+        {
+            message_chats = await _client.Messages_GetAllChats();
+        }
 
         if (!message_chats.chats.ContainsKey(chatId))
         {
@@ -295,18 +298,21 @@ public static class Gatherer
 
             // Для того, чтобы не добавлять комментарии, которые уже есть в базе.
             var lastCommentId = 0;
+
+            var pId = await _context.Posts.Where(p => p.TlgId == postId && p.PeerId == chatId).FirstOrDefaultAsync();
             bool commentsExist = _context.Comments
-                .Any(c => c.PostId == post.TlgId && c.PeerId == channel.ID);
+                .Any(c => c.PostId == pId.PostId);
 
             var dbCommentsIds = _context.Comments
-                    .Where(c => c.PostId == post.TlgId && c.PeerId == channel.ID)
+                    //.Where(c => c.PostId == post.TlgId && c.PeerId == channel.ID)
+                    .Where(c => c.PostId == pId.PostId)
                     .Select(c => c.TlgId).ToHashSet();
 
             if (commentsExist)
             {
                 lastCommentId = (int)_context.Comments
-                    .Where(c => c.PostId == post.TlgId && c.PeerId == channel.ID)
-                    .Select(c => c.TlgId).Min();
+                    .Where(c => c.PostId == pId.PostId)
+                    .Select(c => c.TlgId).Max();
             }
 
             Messages_MessagesBase replies;
@@ -315,7 +321,7 @@ public static class Gatherer
             {
                 if (lastCommentId != 0)
                 {
-                    replies = await _client.Messages_GetReplies(channel, msg.ID, max_id: lastCommentId);
+                    replies = await _client.Messages_GetReplies(channel, msg.ID, min_id: lastCommentId);
                 }
                 else
                 {
@@ -328,15 +334,18 @@ public static class Gatherer
                 }
                 var client_comments = replies.Messages;
 
-                foreach (var comment in client_comments)
+                //foreach (var comment in client_comments)
+                for (int i = client_comments.Length - 1; i >= 0; i--)
                 {
                     // Пропускаем комментарии, которые уже есть в базе.
-                    if (dbCommentsIds.Contains(comment.ID))
+                    //if (dbCommentsIds.Contains(comment.ID))
+                    if (dbCommentsIds.Contains(client_comments[i].ID))
                     {
                         continue;
                     }
 
-                    var newComment = mapper.Map<Comment>(comment);
+                    //var newComment = mapper.Map<Comment>(comment);
+                    var newComment = mapper.Map<Comment>(client_comments[i]);
                     try
                     {
                         if (newComment == null)
@@ -346,7 +355,8 @@ public static class Gatherer
 
                         newComment.PeerId = channel.ID;
                         newComment.From = new Account();
-                        newComment.From.TlgId = comment.From.ID;
+                        //newComment.From.TlgId = comment.From.ID;
+                        newComment.From.TlgId = client_comments[i].From.ID;
 
                         newComment.PostId = msg.ID;
 
@@ -372,7 +382,8 @@ public static class Gatherer
                             var inputUserFromMessage = new InputUserFromMessage()
                             {
                                 peer = inputPeer,
-                                msg_id = comment.ID,
+                                //msg_id = comment.ID,
+                                msg_id = client_comments[i].ID,
                                 user_id = (long)newComment.From.TlgId
                             };
 
@@ -401,10 +412,12 @@ public static class Gatherer
                         post.Comments.Add(newComment);
                         post.AreCommentsLoaded = true;
                         await _context.SaveChangesAsync();
+                        dbCommentsIds.Add(client_comments[i].ID);
+
                         Thread.Sleep(Random.Shared.Next(50, 150));
                         await loadingHelper.NotifyProgressAsync(newComment.Date.ToString("yyyy:MM:dd HH:mm:ss"));
-
                         bool isNeedStop = await loadingHelper.CheckIsNeedStopAsync();
+
                         if (isNeedStop)
                         {
                             await loadingHelper.NotifySuccessEndingAsync("Closed by client");
@@ -419,7 +432,7 @@ public static class Gatherer
                     }
                 }
 
-                lastCommentId = client_comments.Last().ID;
+                lastCommentId = client_comments.Select(c => c.ID).Max();
             }
             while (true);
 

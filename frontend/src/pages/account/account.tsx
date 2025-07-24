@@ -1,4 +1,5 @@
 import { accountApi } from '@/entities/account';
+import { changeTracking } from '@/entities/account/api';
 import { updateAccountInfo } from '@/entities/account/api/get-accounts';
 import { LoadingWidget } from '@/shared/components/loading/loading-widget';
 import { Box, Typography, Button, Avatar, Dialog, DialogContent } from '@mui/material';
@@ -14,7 +15,6 @@ export const AccountPage = () => {
     const navigate = useNavigate();
     const [isInfoUpdating, setIsInfoUpdating] = useState(false);
     const [avaOpen, setAvaOpen] = useState(false);
-
 
     const {
         data: account,
@@ -43,6 +43,28 @@ export const AccountPage = () => {
 
     const handleClose = () => {
         setAvaOpen(false);
+    };
+
+    const handleStartTracking = async () => {
+        try {
+            await changeTracking(account?.tlg_id.toString(), true);
+            enqueueSnackbar('Пользователь помечен как отслеживаемый', { variant: 'success' });
+            queryClient.invalidateQueries(accountApi.accountsQueries.one(accountId));
+        }
+        catch (error) {
+            enqueueSnackbar('Не удалось пометить пользователя как отслеживаемого', { variant: 'error' });
+        }
+    };
+
+    const handleStopTracking = async () => {
+        try {
+            await changeTracking(account?.tlg_id.toString(), false);
+            enqueueSnackbar('Пользователь помечен как неотслеживаемый', { variant: 'success' });
+            queryClient.invalidateQueries(accountApi.accountsQueries.one(accountId));
+        }
+        catch (error) {
+            enqueueSnackbar('Не удалось пометить пользователя как неотслеживаемого', { variant: 'error' });
+        }
     };
 
     if (isLoading) {
@@ -136,6 +158,24 @@ export const AccountPage = () => {
                         >
                             Обновить информцию
                         </Button>
+
+                        {
+                            account?.is_tracking
+                                ?
+                                <Button
+                                    variant="contained"
+                                    onClick={handleStopTracking}
+                                >
+                                    Перестать отслеживать
+                                </Button>
+                                :
+                                <Button
+                                    variant="contained"
+                                    onClick={handleStartTracking}
+                                >
+                                    Начать отслеживать
+                                </Button>
+                        }
                     </Box>
             }
 
