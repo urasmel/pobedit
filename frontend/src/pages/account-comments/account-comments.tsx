@@ -1,12 +1,13 @@
 import { accountApi } from '@/entities/account';
 import { commentsApi } from '@/entities/comments';
 import { ScrollToTopButton } from '@/shared/components/scroll-top-button';
-import { Box, Typography, Avatar, List, ListItem, Pagination } from '@mui/material';
+import { Box, Typography, List, ListItem, Pagination } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import { PAGE_SIZE } from '@/shared/config';
 import { CommentInfo } from '@/shared/components/Comments/comment-info';
+import { AccountAvatar } from '@/shared/components/account-avatar';
 
 export const AccountComments = () => {
 
@@ -68,29 +69,7 @@ export const AccountComments = () => {
                 <NavLink
                     to={`/accounts/${accountId}`}
                 >
-                    {
-                        account?.photo
-                            ?
-                            <Avatar
-                                sx={{
-                                    width: 56,
-                                    height: 56,
-                                    cursor: "pointer",
-                                }}
-                                alt="User Avatar"
-                                src={`data:image/jpeg;base64,${account?.photo}`}
-                            />
-                            :
-                            <Avatar
-                                sx={{
-                                    width: 56,
-                                    height: 56,
-                                    cursor: "pointer",
-                                }}
-                                alt="User avatar not collected yet or not found"
-                                src={`/images/ava.png`}
-                            />
-                    }
+                    <AccountAvatar account={account} handleClick={() => { }} />
                 </NavLink>
 
                 <Typography variant="h5">{account?.username}</Typography>

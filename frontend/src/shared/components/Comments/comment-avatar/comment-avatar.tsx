@@ -1,5 +1,6 @@
-import { Box, Avatar } from "@mui/material"; import { Comment } from '@/entities/comments/model/comment';
+import { Box } from "@mui/material"; import { Comment } from '@/entities/comments/model/comment';
 import { NavLink } from "react-router-dom";
+import { AccountAvatar } from "../../account-avatar";
 
 
 export const CommentAva = (props: { comment: Comment; }) => {
@@ -14,20 +15,7 @@ export const CommentAva = (props: { comment: Comment; }) => {
             <NavLink
                 to={`/accounts/${props.comment.from.tlg_id}`}
             >
-                {
-                    props.comment.from.photo !== null ?
-                        <Avatar
-                            sx={{ width: 56, height: 56 }}
-                            alt="User Avatar"
-                            src={`data:image/jpeg;base64,${props.comment.from.photo}`}
-                        />
-                        :
-                        <Avatar
-                            sx={{ width: 56, height: 56 }}
-                            alt="User Avatar"
-                            src={`/images/ava.png`}
-                        />
-                }
+                <AccountAvatar account={props.comment.from} handleClick={() => { }} />
             </NavLink>
         </Box>
     );

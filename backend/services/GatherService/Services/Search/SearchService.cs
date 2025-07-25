@@ -90,6 +90,7 @@ public class SearchService : ISearchService
                 var comments = await dbQuery                        
                     .Skip(query.Offset)
                     .Take(query.Limit)
+                    .Include(c=>c.Post)
                     .Include(comment => comment.From)
                     .ToListAsync();
                 var commentsDtos = _mapper.Map<List<CommentDto>>(comments);
