@@ -31,14 +31,22 @@ export function CustomizedSlider(props: NumberInputProps) {
                 <Typography
                     variant="body2"
                     onClick={() => props.onChange(props.min)}
-                    sx={{ cursor: 'pointer' }}
+                    sx={{
+                        cursor: 'pointer',
+                        color: "#344767",
+                        fontSize: "1rem"
+                    }}
                 >
                     {props.min} min
                 </Typography>
                 <Typography
                     variant="body2"
                     onClick={() => props.onChange(props.max)}
-                    sx={{ cursor: 'pointer' }}
+                    sx={{
+                        cursor: 'pointer',
+                        color: "#344767",
+                        fontSize: "1rem"
+                    }}
                 >
                     {props.max} max
                 </Typography>

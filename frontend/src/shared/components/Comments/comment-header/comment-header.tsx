@@ -49,7 +49,7 @@ export const CommentHeader = ({ comment, showUsername = true, showChannel = true
             {
                 showPostLink &&
                 <>
-                    <NavLink to={`/channels/${comment.peerId}/posts/${comment.postId}`}
+                    <NavLink to={`/channels/${comment.peerId}/posts/${comment.postTlgId}`}
                         style={({ isActive }) => {
                             return {
                                 color: theme.palette.primary.dark,
@@ -57,7 +57,7 @@ export const CommentHeader = ({ comment, showUsername = true, showChannel = true
                             };
                         }}
                     >
-                        пост: {comment.postId}
+                        пост: {comment.postTlgId}
                     </NavLink>
                     &nbsp;|&nbsp;
                 </>

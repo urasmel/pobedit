@@ -139,23 +139,26 @@ export const PostsUpdatingWidget = (props: { channelId: string | undefined; }) =
             rowGap: "1rem",
             fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
             boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px",
-            padding: "1rem",
+            padding: "0.5rem",
             width: "100%",
+            minWidth: "300px",
             boxSizing: "border-box",
             borderRadius: "var(--radius-md)",
+            color: "#344767",
+            fontWeight: "500"
         }}>
 
             <Box sx={{ fontSize: "1rem" }}>
                 {
                     postsCount == undefined
                         ?
-                        `Не удалось загрузить информацию о количестве записей канала с идентификатором ${props.channelId}`
+                        `Не удалось загрузить информацию о количестве записей канала`
                         :
                         postsCount == 0
                             ?
-                            `Пока в базе данных нет записей канала с идентификатором ${props.channelId}`
+                            `Пока в базе данных нет записей канала`
                             :
-                            `В базе данных ${postsCount} ${pluralRecords(postsCount)} канала с ид. ${props.channelId}`
+                            `В базе данных ${postsCount} ${pluralRecords(postsCount)}`
 
 
                 }

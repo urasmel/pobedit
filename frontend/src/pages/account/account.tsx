@@ -2,7 +2,7 @@ import { accountApi } from '@/entities/account';
 import { changeTracking } from '@/entities/account/api';
 import { updateAccountInfo } from '@/entities/account/api/get-accounts';
 import { LoadingWidget } from '@/shared/components/loading/loading-widget';
-import { Box, Typography, Button, Avatar, Dialog, DialogContent } from '@mui/material';
+import { Box, Typography, Button, Avatar, Dialog, DialogContent, Checkbox } from '@mui/material';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { enqueueSnackbar } from 'notistack';
 import { useState } from 'react';
@@ -131,6 +131,12 @@ export const AccountPage = () => {
                 </Typography>
                 <Typography variant="body1">
                     <strong>Bio:</strong> {account?.bio}
+                </Typography>
+                <Typography variant="body1">
+                    <strong>Отслеживается:</strong>
+                    <Checkbox
+                        checked={account?.is_tracking}
+                    />
                 </Typography>
             </Box>
 

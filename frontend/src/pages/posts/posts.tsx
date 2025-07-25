@@ -23,7 +23,6 @@ export const PostsPage = () => {
             <Box
                 sx={{
                     display: "flex",
-                    flexDirection: "column",
                     alignItems: "start",
                     gap: 2,
                 }}

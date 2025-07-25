@@ -3,6 +3,7 @@ import { Box, CircularProgress } from '@mui/material';
 import { NavLink } from 'react-router-dom';
 import { useEffect } from 'react';
 import { enqueueSnackbar } from 'notistack';
+import { ChannelMainInfoBox } from './channel-main-info-box';
 
 export const ChannelMainInfo = (props: { channelId: string; }) => {
 
@@ -21,23 +22,7 @@ export const ChannelMainInfo = (props: { channelId: string; }) => {
 
     if (channelInfoIsLoading) {
         return (
-            <Box sx={{
-                fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
-                fontSize: "medium",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: 'start',
-                gap: '.5rem',
-                borderRadius: "var(--radius-md)",
-                overflow: "hidden",
-                boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;",
-                padding: ".5rem 1rem",
-                fontWeight: "500",
-                minHeight: "3rem",
-                width: "100%",
-                height: "100%",
-                boxSizing: "border-box"
-            }}>
+            <ChannelMainInfoBox>
                 <CircularProgress
                     size={24}
                     sx={{
@@ -45,53 +30,19 @@ export const ChannelMainInfo = (props: { channelId: string; }) => {
                         marginRight: "1rem"
                     }} />
                 Загрузка информации о канале...
-            </Box>
+            </ChannelMainInfoBox>
         );
     }
 
     if (channelInfoIsError) {
         return (
-            <>
-                <Box sx={{
-                    fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
-                    fontSize: "medium",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: 'start',
-                    gap: '.5rem',
-                    borderRadius: "var(--radius-md)",
-                    overflow: "hidden",
-                    boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;",
-                    padding: ".5rem 1rem",
-                    fontWeight: "500",
-                    minHeight: "3rem",
-                    width: "100%",
-                    height: "100%",
-                    boxSizing: "border-box"
-                }}>
-                    Не удалось загрузить информацию о канале {props.channelId}
-                </Box>
-            </>);
+            <ChannelMainInfoBox>
+                Не удалось загрузить информацию о канале {props.channelId}
+            </ChannelMainInfoBox>);
     }
 
     return (
-        <Box sx={{
-            fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
-            fontSize: "medium",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: 'start',
-            gap: '.5rem',
-            borderRadius: "var(--radius-md)",
-            overflow: "hidden",
-            boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;",
-            padding: ".5rem 1rem",
-            fontWeight: "500",
-            minHeight: "3rem",
-            width: "100%",
-            height: "100%",
-            boxSizing: "border-box"
-        }}>
+        <ChannelMainInfoBox>
             <Box sx={{
                 whiteSpace: "pre-wrap",
                 wordWrap: "break-word",
@@ -105,6 +56,6 @@ export const ChannelMainInfo = (props: { channelId: string; }) => {
             <Box sx={{ whiteSpace: "pre-wrap", wordWrap: "break-word", color: "rgb(52, 71, 103)" }}>
                 id: {channelInfo.tlgId}
             </Box>
-        </Box>
+        </ChannelMainInfoBox>
     );
 };

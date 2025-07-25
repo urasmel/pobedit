@@ -78,7 +78,9 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             }
             else
             {
-                var comments = await _context.Comments.Where(c => c.From.TlgId == accountTlgId)
+                var comments = await _context.Comments
+                    .Include(c => c.Post)
+                    .Where(c => c.From.TlgId == accountTlgId)
                     .OrderByDescending(item => item.TlgId)
                     .Skip(offset).Take(count)
                     .ToListAsync();

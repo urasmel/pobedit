@@ -14,6 +14,8 @@ public class Post
 
     public long PeerId { get; set; }
 
+
+    // TODO Удалить, не нужен. Протестировать.
     public Channel? Channel { get; set; }
 
     public string Message { get; set; } = string.Empty;

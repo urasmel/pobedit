@@ -18,7 +18,12 @@ export const CommentInfo = (
                 boxShadow: 5,
                 fontFamily: "Roboto, Helvetica Neue, Helvetica, Arial, sans-serif",
             }}>
-            <CommentHeader comment={comment} showUsername={showUsername} showChannel={showChannel} showPostLink={showPostLink} />
+            <CommentHeader
+                comment={comment}
+                showUsername={showUsername}
+                showChannel={showChannel}
+                showPostLink={showPostLink}
+            />
 
             <CommentMessage message={comment.message} />
         </Box>);

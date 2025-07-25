@@ -98,9 +98,11 @@ export const SettingsPage = () => {
                 >
                     Стартовая дата загрузки
                 </Typography>
-                {/* <DemoContainer components={['DatePicker',]}> */}
 
                 <DatePicker
+                    sx={{
+                        color: "#344767",
+                    }}
                     value={dayjs(data.startGatherDate)}
                     onChange={(value) => {
                         if (!value) return;
@@ -110,14 +112,12 @@ export const SettingsPage = () => {
                     }}
                     disabled={settingsMutation.isPending}
                 />
-                {/* </DemoContainer> */}
             </LocalizationProvider>
 
             <CustomizedSlider
                 caption="Частота опроса каналов (ч.)"
                 min={1}
                 max={24}
-                // value={data?.channelPollingFrequency ? data?.channelPollingFrequency : 1}
                 id="channel-polling-frequency"
 
                 value={data?.channelPollingFrequency ?? 1}
@@ -130,7 +130,6 @@ export const SettingsPage = () => {
                 caption="Задержка опроса комментариев (ч.)"
                 min={1}
                 max={24}
-                // value={data?.commentsPollingDelay ? data?.commentsPollingDelay : 1}
                 id="comments-polling-delay"
                 value={data?.commentsPollingDelay ?? 1}
                 onChange={(value) => {
