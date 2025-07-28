@@ -18,6 +18,8 @@ export const GatherStateWidget = () => {
 
     const { data: gatherState, isLoading, isError, error } = useQuery(gatherStateApi.gatherStateQueries.gather_state());
     const [startResult, setStartResult] = useState(false);
+    const [timerId, setTimerId] = useState<number | null>(null);
+    const [isStopping, setIsStopping] = useState(false);
 
     const errorMsg = getLocalizedString(error, t);
 
@@ -38,6 +40,10 @@ export const GatherStateWidget = () => {
 
     }, [isError]);
 
+    const updateControlState = async () => {
+        await queryClient.invalidateQueries({ queryKey: gatherStateApi.gatherStateQueries.gather_state_key() });
+    };
+
     const start = async () => {
         const result = await gatherStart();
         setStartResult(result);
@@ -50,16 +56,33 @@ export const GatherStateWidget = () => {
             console.log('gather start failure');
         }
         queryClient.invalidateQueries({ queryKey: gatherStateApi.gatherStateQueries.gather_state_key() });
+        const id = setInterval(updateControlState, 10000);
+        setTimerId(id);
     };
 
     const stop = async () => {
-        const result = await gatherStop();
-        setStartResult(result);
-        if (result) {
-            enqueueSnackbar("Скачивание успешно сотановлено", { variant: 'success' });
+        try {
+            setIsStopping(_ => true);
+            const result = await gatherStop();
+            setStartResult(result);
+            if (result) {
+                enqueueSnackbar("Скачивание успешно остановлено", { variant: 'success' });
+            }
+            else {
+                enqueueSnackbar("Остановка скачивания завершилось неудачей", { variant: 'error' });
+            }
         }
-        else {
+        catch (error) {
             enqueueSnackbar("Остановка скачивания завершилось неудачей", { variant: 'error' });
+        }
+        finally {
+            if (timerId !== null) {
+                clearInterval(timerId);
+                setTimerId(null);
+            }
+
+            setIsStopping(_ => false);
+            queryClient.invalidateQueries({ queryKey: gatherStateApi.gatherStateQueries.gather_state_key() });
         }
     };
 
@@ -113,13 +136,25 @@ export const GatherStateWidget = () => {
 
             {
                 gatherState?.state === "running" || gatherState?.state === "paused" ?
-                    (!isError && <Button variant="outlined" onClick={stop} startIcon={<StopCircleIcon />}>
-                        Остановить
-                    </Button>)
+                    (!isError &&
+                        <Button
+                            variant="outlined"
+                            onClick={stop}
+                            startIcon={<StopCircleIcon />}
+                            disabled={isStopping}
+                            loading={isStopping}
+                        >
+                            Остановить
+                        </Button>)
                     :
-                    (!isError && <Button variant="outlined" onClick={start} startIcon={<PlayCircleOutlineIcon />}>
-                        Запустить
-                    </Button>)
+                    (!isError &&
+                        <Button
+                            variant="outlined"
+                            onClick={start}
+                            startIcon={<PlayCircleOutlineIcon />}
+                        >
+                            Запустить
+                        </Button>)
             }
 
         </Box >

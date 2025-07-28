@@ -57,9 +57,10 @@ public class CommentsService(
 
         try
         {
+            var pId = await _context.Posts.Where(p => p.TlgId == postId && p.PeerId == chatId).FirstOrDefaultAsync(); 
             var count = await _context
                 .Comments
-                .Where(comment => comment.PeerId == chatId && comment.PostId == postId)
+                .Where(comment => comment.PeerId == chatId && comment.PostId == pId.PostId)
                 .CountAsync();
             response.Data = count;
             response.Success = true;

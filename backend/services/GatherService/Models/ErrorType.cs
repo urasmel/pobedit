@@ -6,5 +6,6 @@ public enum ErrorType
     NotFound,
     ServerError,
     MalFormedData,
-    AlreadyExists
+    AlreadyExists,
+    TooManyRequests
 }

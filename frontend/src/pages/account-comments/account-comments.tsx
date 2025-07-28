@@ -72,7 +72,7 @@ export const AccountComments = () => {
                     <AccountAvatar account={account} handleClick={() => { }} />
                 </NavLink>
 
-                <Typography variant="h5">{account?.username}</Typography>
+                <Typography variant="h5">{account?.first_name}</Typography>
 
             </Box>
 

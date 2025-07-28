@@ -87,10 +87,10 @@ public class SearchService : ISearchService
                 dbQuery = dbQuery.Where(c => c.Message.Contains(query.Query));
                 int totalCount = dbQuery.Count();
 
-                var comments = await dbQuery                        
+                var comments = await dbQuery
                     .Skip(query.Offset)
                     .Take(query.Limit)
-                    .Include(c=>c.Post)
+                    .Include(c => c.Post)
                     .Include(comment => comment.From)
                     .ToListAsync();
                 var commentsDtos = _mapper.Map<List<CommentDto>>(comments);
@@ -98,7 +98,7 @@ public class SearchService : ISearchService
                 {
                     TotalCount = totalCount,
                     Data = commentsDtos
-                }; 
+                };
             }
             response.Success = true;
             return response;

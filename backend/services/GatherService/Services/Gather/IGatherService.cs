@@ -10,5 +10,5 @@ public interface IGatherService
 
     ServiceResponse<GatherStateDto> GetGatherState();
 
-    Task<bool> StartGatherAsync(BackgroundTask task);
+    Task<ServiceResponse<bool>> StartGatherAsync(BackgroundTask task);
 }

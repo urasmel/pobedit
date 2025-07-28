@@ -22,6 +22,9 @@ public static class Gatherer
         PobeditSettings pobeditSettings,
         ILogger logger)
     {
+        await Task.Delay(1000);
+        return;
+
         try
         {
             await _client.LoginUserIfNeeded();
@@ -175,6 +178,10 @@ public static class Gatherer
         PobeditSettings pobeditSettings,
         ILogger logger)
     {
+
+        await Task.Delay(1000);
+        return;
+
         try
         {
             await _client.LoginUserIfNeeded();

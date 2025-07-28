@@ -35,17 +35,24 @@ public class GatherController : ControllerBase
 
         try
         {
-            bool success = await _gatherService.StartGatherAsync(task);
+            var response = await _gatherService.StartGatherAsync(task);
 
-            if (success)
+            if (response.Success)
             {
                 _logger.LogInformation("Task {TaskId} enqueued.", task.Id);
-                return Accepted();
+                return Accepted(response);
             }
             else
             {
                 _logger.LogInformation("Task {TaskId} not enqueued.", task.Id);
-                return StatusCode(StatusCodes.Status429TooManyRequests);
+                if (response.ErrorType == ErrorType.TooManyRequests)
+                {
+                    return StatusCode(StatusCodes.Status429TooManyRequests);
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError);
+                }
             }
         }
         catch (Exception exception)

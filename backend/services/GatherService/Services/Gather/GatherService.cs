@@ -100,8 +100,6 @@ public class GatherService : IGatherService
                                     await Gatherer.UpdateChannelPosts(channelId, _loadingHelper, _client, context, _mapper, _pobeditSettings, _logger);
                                     if (_needClose)
                                     {
-                                        _gatherState.State = GatherProcessState.Stopped;
-
                                         // Останавливаем foreach. Потом проверим еще раз и выйдем из вложенного while.
                                         break;
                                     }
@@ -111,6 +109,8 @@ public class GatherService : IGatherService
                             if (_needClose)
                             {
                                 _gatherState.State = GatherProcessState.Stopped;
+                                _gatherState.ToPollingChannelsSecs = 0;
+                                _gatherState.ToPollingCommentsSecs = 0;
                                 break;
                             }
 
@@ -149,24 +149,25 @@ public class GatherService : IGatherService
                                     foreach (var post in posts)
                                     {
                                         await Gatherer.UpdatePostComments(channel.TlgId, post.TlgId, _loadingHelper, _client, context, _mapper, _pobeditSettings, _logger);
+                                        //Thread.Sleep(5000);
                                     }
 
                                     if (_needClose)
                                     {
-                                        _gatherState.State = GatherProcessState.Stopped;
-
                                         // Останавливаем foreach. Потом проверим еще раз и выйдем из вложенного while.
                                         break;
                                     }
 
                                     // Нежно качаем.
-                                    Thread.Sleep(10000);
+                                    //Thread.Sleep(10000);
                                 }
                             }
 
                             if (_needClose)
                             {
                                 _gatherState.State = GatherProcessState.Stopped;
+                                _gatherState.ToPollingChannelsSecs = 0;
+                                _gatherState.ToPollingCommentsSecs = 0;
                                 break;
                             }
 
@@ -188,6 +189,8 @@ public class GatherService : IGatherService
                         {
                             _logger.LogInformation("LongRunningTaskService is stopped.");
                             _gatherState.State = GatherProcessState.Stopped;
+                            _gatherState.ToPollingChannelsSecs = 0;
+                            _gatherState.ToPollingCommentsSecs = 0;
                             break;
                         }
                     }
@@ -238,20 +241,32 @@ public class GatherService : IGatherService
         return response;
     }
 
-    public async Task<bool> StartGatherAsync(BackgroundTask task)
+    public async Task<ServiceResponse<bool>> StartGatherAsync(BackgroundTask task)
     {
+        var response = new ServiceResponse<bool>();
+
         if (task == null)
-            throw new ArgumentNullException(nameof(task));
+        {
+            response.Success = false;
+            response.Data = false;
+            response.ErrorType = ErrorType.ServerError;
+            return response;
+        }
 
         Init();
 
         if (_gatherState.State == GatherProcessState.Running || _gatherState.State == GatherProcessState.Paused)
         {
-            return false;
+            response.Success = false;
+            response.Data = false;
+            response.ErrorType = ErrorType.TooManyRequests;
+            return response;
         }
 
         await _queue.Writer.WriteAsync(task);
-        return true;
+        response.Success = true;
+        response.Data = true;
+        return response;
     }
 
     private async void Init()
