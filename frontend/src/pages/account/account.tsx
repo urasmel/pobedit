@@ -3,7 +3,7 @@ import { changeTracking } from '@/entities/account/api';
 import { updateAccountInfo } from '@/entities/account/api/get-accounts';
 import { AccountAvatar } from '@/shared/components/account-avatar';
 import { LoadingWidget } from '@/shared/components/loading/loading-widget';
-import { Box, Typography, Button, Avatar, Dialog, DialogContent, Checkbox, styled, keyframes } from '@mui/material';
+import { Box, Typography, Button, Dialog, DialogContent, Checkbox } from '@mui/material';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { enqueueSnackbar } from 'notistack';
 import { useState } from 'react';

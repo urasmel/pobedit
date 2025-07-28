@@ -15,6 +15,7 @@ import { enqueueSnackbar } from "notistack";
 import { getLocalizedString } from "@/shared/locales/localizing";
 import { useTranslation } from "react-i18next";
 import { commentsKeys } from "@/entities/comments/api/comments.keys";
+import { useFetchChannelDetail } from "@/entities/channels/api/hooks";
 
 export const PostPage = () => {
 
@@ -34,6 +35,8 @@ export const PostPage = () => {
     } = useQuery(commentsApi.commentsQueries.list(channelId, postId, offset, limit));
 
     const { data: count } = useQuery(commentsApi.commentsQueries.count(channelId, postId));
+
+    const { channelInfo } = useFetchChannelDetail(channelId);
 
     if (channelId === undefined || postId === undefined) {
         return <ErrorBoundary>Произошла ошибка</ErrorBoundary>;
@@ -112,7 +115,7 @@ export const PostPage = () => {
                 post != undefined &&
                 <PostWidget
                     post={post?.post}
-                    showPostLink={false}
+                    showCommentsLink={false}
                     showTitle={true} />
             }
 
@@ -121,7 +124,7 @@ export const PostPage = () => {
             }
 
             {
-                (!isLoading && !isError) &&
+                (channelInfo?.hasComments && !isLoading && !isError) &&
                 <CommentsUpdatingWidget
                     channelId={channelId ? +channelId : undefined}
                     postId={postId ? +postId : 0}

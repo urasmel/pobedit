@@ -13,6 +13,7 @@ import { ErrorBoundary } from "@/shared/components/errors/error-boundary";
 import { ChannelPage } from "@/pages/channel";
 import { SettingsPage } from "@/pages/settings";
 import { ControlPage } from "@/pages/control";
+import { AccountsPage } from "@/pages/accounts";
 
 // const Home = lazy(() => import("@/pages/Home"));
 // const Posts = lazy(() => import("@/pages/Posts"));
@@ -56,6 +57,16 @@ export const AppRouter = () => {
                     <ErrorBoundary>
                         <Suspense fallback={<LoadingWidget />}>
                             <PostsPage />
+                        </Suspense>
+                    </ErrorBoundary>
+                }
+            />
+            <Route
+                path="/accounts"
+                element={
+                    <ErrorBoundary>
+                        <Suspense fallback={<LoadingWidget />}>
+                            <AccountsPage />
                         </Suspense>
                     </ErrorBoundary>
                 }

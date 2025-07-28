@@ -171,7 +171,7 @@ public class ChannelsService(
 
                             addedChat.About = channelFullInfo.full_chat.About;
                             addedChat.ParticipantsCount = channelFullInfo.full_chat.ParticipantsCount;
-                            addedChat.HasCommnets = HasComments(chatsFromTG[i]);
+                            addedChat.HasComments = HasComments(chatsFromTG[i]);
 
 
                             if (chatsFromTG[i].Photo != null)
@@ -367,7 +367,7 @@ public class ChannelsService(
             channelDB.About = channelFullInfoDto.About;
             channelDB.Image = channelFullInfoDto.Image;
             channelDB.ParticipantsCount = channelFullInfoDto.ParticipantsCount;
-            channelDB.HasCommnets = HasComments(chat);
+            channelDB.HasComments = HasComments(chat);
             await _context.SaveChangesAsync();
 
             response.Data = channelFullInfoDto;

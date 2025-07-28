@@ -7,4 +7,5 @@ export interface Channel {
     about: string;
     participantsCount: number;
     ownerId: number;
+    hasComments: boolean;
 }

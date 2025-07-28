@@ -38,6 +38,36 @@ namespace Gather.Controllers
             return Ok(response);
         }
 
+        [HttpGet()]
+        [MapToApiVersion(1.0)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ServiceResponse<AccountDto>>> GetAll([FromQuery] int offset = 0, [FromQuery] int limit = 20, [FromQuery] bool is_tracking = false)
+        {
+            var response = await _accountService.GetAccountsAsync(offset, limit, is_tracking);
+            if (!response.Success)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+            return Ok(response);
+        }
+
+        [HttpGet("count")]
+        [MapToApiVersion(1.0)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ServiceResponse<int>>> GetCount([FromQuery] bool is_tracking)
+        {
+            var response = await _accountService.GetCountAsync(is_tracking);
+            if (!response.Success)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+            return Ok(response);
+        }
+
         [HttpGet("{accountTlgId}/update")]
         [MapToApiVersion(1.0)]
         [ProducesResponseType(StatusCodes.Status200OK)]

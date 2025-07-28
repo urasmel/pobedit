@@ -22,8 +22,8 @@ public static class Gatherer
         PobeditSettings pobeditSettings,
         ILogger logger)
     {
-        await Task.Delay(1000);
-        return;
+        //await Task.Delay(1000);
+        //return;
 
         try
         {
@@ -178,9 +178,8 @@ public static class Gatherer
         PobeditSettings pobeditSettings,
         ILogger logger)
     {
-
-        await Task.Delay(1000);
-        return;
+        //await Task.Delay(1000);
+        //return;
 
         try
         {
@@ -211,7 +210,7 @@ public static class Gatherer
             return;
         }
 
-        if (!chan.HasCommnets)
+        if (!chan.HasComments)
         {
             var errorMessage = "The channel has no comments.";
             logger.LogError(errorMessage);

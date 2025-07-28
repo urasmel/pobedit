@@ -10,4 +10,5 @@ export const mapChannel = (dto: ChannelDto): Channel => ({
     about: dto.about,
     participantsCount: dto.participantsCount,
     ownerId: dto.ownerId,
+    hasComments: dto.hasComments
 });

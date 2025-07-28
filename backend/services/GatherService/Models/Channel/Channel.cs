@@ -22,5 +22,5 @@ public class Channel
 
     public int ParticipantsCount { get; set; } = 0;
 
-    public bool HasCommnets { get; set; } = false;
+    public bool HasComments { get; set; } = false;
 }

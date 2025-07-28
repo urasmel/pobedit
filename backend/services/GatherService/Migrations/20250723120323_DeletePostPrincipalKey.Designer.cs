@@ -120,7 +120,7 @@ namespace Gather.Migrations
                     b.Property<string>("About")
                         .HasColumnType("text");
 
-                    b.Property<bool>("HasCommnets")
+                    b.Property<bool>("HasComments")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Image")

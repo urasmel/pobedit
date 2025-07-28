@@ -62,7 +62,7 @@ namespace Gather.Migrations
                     Image = table.Column<string>(type: "text", nullable: true),
                     About = table.Column<string>(type: "text", nullable: true),
                     ParticipantsCount = table.Column<int>(type: "integer", nullable: false),
-                    HasCommnets = table.Column<bool>(type: "boolean", nullable: false)
+                    HasComments = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {

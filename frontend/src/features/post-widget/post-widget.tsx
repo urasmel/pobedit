@@ -9,7 +9,7 @@ import { useContext } from "react";
 import { ThemeContext } from "@/app/theme";
 
 
-export const PostWidget = ({ post, showPostLink = true, showTitle = true }: { post: Post; showPostLink: boolean; showTitle: boolean; }) => {
+export const PostWidget = ({ post, showCommentsLink = true, showTitle = true }: { post: Post; showCommentsLink: boolean; showTitle: boolean; }) => {
 
     const navigate = useNavigate();
     const { data: channelInfo,
@@ -77,7 +77,7 @@ export const PostWidget = ({ post, showPostLink = true, showTitle = true }: { po
                 </Typography>
 
                 {
-                    showPostLink &&
+                    showCommentsLink &&
                     <>
                         <Divider sx={{ marginTop: 2, width: "100%" }} />
                         <Typography variant="body1"

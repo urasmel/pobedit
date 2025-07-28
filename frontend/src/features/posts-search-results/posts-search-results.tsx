@@ -5,7 +5,7 @@ export const PostsSearchResults = (props: { results: Post[]; }) => {
     return (props.results.map((post: Post) => (
         <PostWidget
             post={post}
-            showPostLink={true}
+            showCommentsLink={true}
             showTitle={true}
             key={post.tlgId}
         />

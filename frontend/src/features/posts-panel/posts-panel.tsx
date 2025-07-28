@@ -7,6 +7,7 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { useFetchPostsCount } from '@/entities/posts/hooks/useFetchPostsCount';
 import { useFetchPosts } from '@/entities/posts/hooks/useFetchPosts';
 import { enqueueSnackbar } from 'notistack';
+import { useFetchChannelDetail } from '@/entities/channels/api/hooks';
 
 export const PostsPanel = (props: { channelId: string; }) => {
 
@@ -15,6 +16,8 @@ export const PostsPanel = (props: { channelId: string; }) => {
     const [pagesCount, setPagesCount] = useState(0);
 
     const { postsCount, postsCountError, postsCountErrorMsg } = useFetchPostsCount(props.channelId);
+    const { channelInfo } = useFetchChannelDetail(props.channelId);
+
     const {
         posts,
         postsError,
@@ -76,7 +79,7 @@ export const PostsPanel = (props: { channelId: string; }) => {
                             return <PostWidget
                                 key={post.tlgId}
                                 post={post}
-                                showPostLink={true}
+                                showCommentsLink={channelInfo?.hasComments ?? true}
                                 showTitle={false}
                             />;
                         })

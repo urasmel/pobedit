@@ -4,6 +4,7 @@ using Gather.Data;
 using Gather.Dtos;
 using Gather.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using TL;
 
 namespace Gather.Services.Accounts;
@@ -326,5 +327,98 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         {
             //_client.Dispose(); // Dispose the client when done
         }
+    }
+
+    public async Task<ServiceResponse<IEnumerable<AccountDto>>> GetAccountsAsync(int offset, int limit, bool isTracking)
+    {
+        await Task.Delay(0);
+        var response = new ServiceResponse<IEnumerable<AccountDto>>();
+
+        if (_context.Accounts == null)
+        {
+            response.Message = "Internal server error";
+            response.ErrorType = ErrorType.ServerError;
+            response.Success = false;
+            response.Data = null;
+            return response;
+        }
+
+        try
+        {
+            IEnumerable<Account> accounts;
+
+            if (isTracking)
+            {
+                accounts = _context.Accounts.Where(acc=>acc.IsTracking).Skip(offset).Take(limit);
+            }
+            else
+            {
+                accounts = _context.Accounts.Skip(offset).Take(limit);
+            }
+
+            if (accounts == null)
+            {
+                response.Data = Enumerable.Empty<AccountDto>();
+                response.Message = "Account not found";
+                response.ErrorType = ErrorType.NotFound;
+                response.Success = false;
+            }
+            else
+            {
+                response.Data = _mapper.Map<IEnumerable<AccountDto>>(accounts);
+            }
+        }
+        catch (Exception ex)
+        {
+            response.Data = Enumerable.Empty<AccountDto>();
+            response.Message = "Server error";
+            response.ErrorType = ErrorType.ServerError;
+            response.Success = false;
+            _logger.LogError(ex.Message);
+        }
+
+
+        return response;
+    }
+
+    public async Task<ServiceResponse<int>> GetCountAsync(bool isTracking)
+    {
+        await Task.Delay(0);
+        var response = new ServiceResponse<int>();
+
+        if (_context.Accounts == null)
+        {
+            response.Message = "Internal server error";
+            response.ErrorType = ErrorType.ServerError;
+            response.Success = false;
+            response.Data = 0;
+            return response;
+        }
+
+        try
+        {
+            var count = 0;
+            if (isTracking)
+            {
+                count = _context.Accounts.Where(x => x.IsTracking).Count();
+            }
+            else
+            {
+                count = await _context.Accounts.CountAsync();
+            }
+
+            response.Data = count;
+        }
+        catch (Exception ex)
+        {
+            response.Data = 0;
+            response.Message = "Server error";
+            response.ErrorType = ErrorType.ServerError;
+            response.Success = false;
+            _logger.LogError(ex.Message);
+        }
+
+
+        return response;
     }
 }
