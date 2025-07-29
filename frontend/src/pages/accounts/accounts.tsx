@@ -6,10 +6,11 @@ import { AccountAvatar } from '@/shared/components/account-avatar';
 import { LoadingWidget } from '@/shared/components/loading/loading-widget';
 import { ScrollToTopButton } from '@/shared/components/scroll-top-button';
 import { PAGE_SIZE } from '@/shared/config';
-import { Box, Typography, Button, Dialog, DialogContent, Checkbox, Pagination, FormControlLabel } from '@mui/material';
+import { Box, Typography, Button, Dialog, DialogContent, Checkbox, Pagination, FormControlLabel, Input, TextField } from '@mui/material';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { debounce } from 'lodash';
 import { enqueueSnackbar } from 'notistack';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 
 export const AccountsPage = () => {
@@ -20,24 +21,47 @@ export const AccountsPage = () => {
     const [limit, setLimit] = useState(PAGE_SIZE);
     const [isTracking, setIsTracking] = useState(false);
     const [pagesCount, setPagesCount] = useState(0);
+    const [login, setLogin] = useState("");
+    const [debouncedLogin, setDebouncedLogin] = useState("");
+
+    const debouncedSearchRef = useRef<ReturnType<typeof debounce> | null>(null);
 
     const {
         data: accounts,
         isLoading,
         isError,
-    } = useQuery(accountApi.accountsQueries.all(offset, limit, isTracking));
+    } = useQuery(accountApi.accountsQueries.all(offset, limit, isTracking, debouncedLogin));
 
 
     const {
         accountsCount,
         accountsCountError,
         accountsCountErrorMsg
-    } = useFetchAccountsCount(isTracking);
+    } = useFetchAccountsCount(isTracking, debouncedLogin);
 
     const onPageChange = (_event: ChangeEvent<unknown>, page: number) => {
         setOffset(PAGE_SIZE * (page - 1));
     };
 
+    const onLoginChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        setLogin(_ => value);
+        if (debouncedSearchRef.current !== null) {
+            debouncedSearchRef.current?.(value);
+        }
+    };
+
+    const fetchResults = (query: string) => {
+        setDebouncedLogin(query);
+    };
+
+    useEffect(() => {
+        debouncedSearchRef.current = debounce(fetchResults, 500);
+
+        return () => {
+            debouncedSearchRef.current?.cancel();
+        };
+    }, []);
 
     useEffect(
         () => {
@@ -95,6 +119,15 @@ export const AccountsPage = () => {
                 }
                 label="Отслеживаемые"
             />
+
+
+            <TextField
+                id="outlined-controlled"
+                label="Логин"
+                value={login}
+                onChange={onLoginChange}
+            />
+
 
             {
                 accounts?.map(account =>

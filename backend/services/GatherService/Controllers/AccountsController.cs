@@ -43,9 +43,13 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ServiceResponse<AccountDto>>> GetAll([FromQuery] int offset = 0, [FromQuery] int limit = 20, [FromQuery] bool is_tracking = false)
+        public async Task<ActionResult<ServiceResponse<AccountDto>>> GetAll(
+            [FromQuery] int offset = 0,
+            [FromQuery] int limit = 20,
+            [FromQuery] bool is_tracking = false,
+            [FromQuery] string login = "")
         {
-            var response = await _accountService.GetAccountsAsync(offset, limit, is_tracking);
+            var response = await _accountService.GetAccountsAsync(offset, limit, is_tracking, login);
             if (!response.Success)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, response);
@@ -58,9 +62,9 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ServiceResponse<int>>> GetCount([FromQuery] bool is_tracking)
+        public async Task<ActionResult<ServiceResponse<int>>> GetCount([FromQuery] bool is_tracking = false, [FromQuery] string login = "")
         {
-            var response = await _accountService.GetCountAsync(is_tracking);
+            var response = await _accountService.GetCountAsync(is_tracking, login);
             if (!response.Success)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, response);

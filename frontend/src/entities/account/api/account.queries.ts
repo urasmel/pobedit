@@ -4,10 +4,10 @@ import { getAccount, getAccounts, getAccountsCount, updateAccountInfo } from "./
 export const accountsQueries = {
     all_accounts_key: () => ["accounts"],
 
-    all: (offset: number = 0, limit: number = 20, is_tracking: boolean = false) =>
+    all: (offset: number = 0, limit: number = 20, is_tracking: boolean = false, login: string) =>
         queryOptions({
-            queryKey: [...accountsQueries.all_accounts_key(), offset, limit, is_tracking],
-            queryFn: () => getAccounts(offset, limit, is_tracking),
+            queryKey: [...accountsQueries.all_accounts_key(), offset, limit, is_tracking, login],
+            queryFn: () => getAccounts(offset, limit, is_tracking, login),
             placeholderData: keepPreviousData,
         }),
 
@@ -18,10 +18,10 @@ export const accountsQueries = {
             placeholderData: keepPreviousData,
         }),
 
-    count: (is_tracking: boolean) =>
+    count: (is_tracking: boolean = false, login: string = "") =>
         queryOptions({
-            queryKey: [...accountsQueries.all_accounts_key(), 'count', is_tracking],
-            queryFn: () => getAccountsCount(is_tracking),
+            queryKey: [...accountsQueries.all_accounts_key(), 'count', is_tracking, login],
+            queryFn: () => getAccountsCount(is_tracking, login),
             placeholderData: keepPreviousData,
         }),
 

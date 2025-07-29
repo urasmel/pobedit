@@ -4,13 +4,13 @@ import { t } from "i18next";
 import { useEffect, useState } from "react";
 import { accountApi } from "../../";
 
-export const useFetchAccountsCount = (isTracking: boolean) => {
+export const useFetchAccountsCount = (isTracking: boolean, login: string) => {
 
     const { data,
         isError,
         isLoading,
         error
-    } = useQuery(accountApi.accountsQueries.count(isTracking));
+    } = useQuery(accountApi.accountsQueries.count(isTracking, login));
 
     const [accountsCountError, setAccountsCountError] = useState(false);
     const accountsCountErrorMsg = getLocalizedString(error, t);

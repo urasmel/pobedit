@@ -7,11 +7,11 @@ public interface IAccountService
 {
     Task<ServiceResponse<AccountDto>> GetAccountAsync(long accountTlgId);
 
-    Task<ServiceResponse<IEnumerable<AccountDto>>> GetAccountsAsync(int offset, int limit, bool isTracking);
+    Task<ServiceResponse<IEnumerable<AccountDto>>> GetAccountsAsync(int offset, int limit, bool isTracking, string login);
 
     Task<ServiceResponse<IEnumerable<CommentDto>>> GetCommentsAsync(long accountTlgId, int offset, int limit);
 
-    Task<ServiceResponse<int>> GetCountAsync(bool isTracking);
+    Task<ServiceResponse<int>> GetCountAsync(bool isTracking, string login);
 
     Task<ServiceResponse<int>> GetCommentsCountAsync(long accountTlgId);
 

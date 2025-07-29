@@ -329,9 +329,10 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<AccountDto>>> GetAccountsAsync(int offset, int limit, bool isTracking)
+    public async Task<ServiceResponse<IEnumerable<AccountDto>>> GetAccountsAsync(int offset, int limit, bool isTracking, string login)
     {
         await Task.Delay(0);
+        login = login.ToLower();
         var response = new ServiceResponse<IEnumerable<AccountDto>>();
 
         if (_context.Accounts == null)
@@ -349,11 +350,30 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
 
             if (isTracking)
             {
-                accounts = _context.Accounts.Where(acc=>acc.IsTracking).Skip(offset).Take(limit);
+                accounts = _context
+                    .Accounts
+                    .Where(acc => acc.IsTracking)
+                    .Where(acc =>
+                    (acc.FirstName != null && acc.FirstName.ToLower().Contains(login)) ||
+                    (acc.LastName != null && acc.LastName.ToLower().Contains(login)) ||
+                    (acc.Username != null && acc.Username.ToLower().Contains(login)) ||
+                    (acc.MainUsername != null && acc.MainUsername.ToLower().Contains(login))
+                    )
+                    .Skip(offset)
+                    .Take(limit);
             }
             else
             {
-                accounts = _context.Accounts.Skip(offset).Take(limit);
+                accounts = _context
+                    .Accounts
+                    .Where(acc =>
+                    (acc.FirstName != null && acc.FirstName.ToLower().Contains(login)) ||
+                    (acc.LastName != null && acc.LastName.ToLower().Contains(login)) ||
+                    (acc.Username != null && acc.Username.ToLower().Contains(login)) ||
+                    (acc.MainUsername != null && acc.MainUsername.ToLower().Contains(login))
+                    )
+                    .Skip(offset)
+                    .Take(limit);
             }
 
             if (accounts == null)
@@ -381,9 +401,10 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         return response;
     }
 
-    public async Task<ServiceResponse<int>> GetCountAsync(bool isTracking)
+    public async Task<ServiceResponse<int>> GetCountAsync(bool isTracking, string login)
     {
         await Task.Delay(0);
+        login = login.ToLower();
         var response = new ServiceResponse<int>();
 
         if (_context.Accounts == null)
@@ -400,11 +421,28 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             var count = 0;
             if (isTracking)
             {
-                count = _context.Accounts.Where(x => x.IsTracking).Count();
+                count = _context
+                    .Accounts
+                    .Where(x => x.IsTracking)
+                    .Where(acc =>
+                    (acc.FirstName != null && acc.FirstName.ToLower().Contains(login)) ||
+                    (acc.LastName != null && acc.LastName.ToLower().Contains(login)) ||
+                    (acc.Username != null && acc.Username.ToLower().Contains(login)) ||
+                    (acc.MainUsername != null && acc.MainUsername.ToLower().Contains(login))
+                    )
+                    .Count();
             }
             else
             {
-                count = await _context.Accounts.CountAsync();
+                count = await _context
+                    .Accounts
+                    .Where(acc =>
+                    (acc.FirstName != null && acc.FirstName.ToLower().Contains(login)) ||
+                    (acc.LastName != null && acc.LastName.ToLower().Contains(login)) ||
+                    (acc.Username != null && acc.Username.ToLower().Contains(login)) ||
+                    (acc.MainUsername != null && acc.MainUsername.ToLower().Contains(login))
+                    )
+                    .CountAsync();
             }
 
             response.Data = count;
@@ -417,7 +455,6 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             response.Success = false;
             _logger.LogError(ex.Message);
         }
-
 
         return response;
     }
