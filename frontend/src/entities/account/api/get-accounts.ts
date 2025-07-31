@@ -2,6 +2,7 @@ import { Account, ServiceResponse } from "@/entities";
 import { apiClient } from "@/shared/api/base";
 import { mapAccount } from "./mapper/map-account";
 import { AccountDto } from "./dto/account.dto";
+import { TrackingOptions } from "@/features/accounts/accounts-filter/accounts-filter-props";
 
 
 export const getAccount = async (accountId: string | undefined): Promise<Account | null> => {
@@ -14,14 +15,14 @@ export const getAccount = async (accountId: string | undefined): Promise<Account
     return (mapAccount(result.data));
 };
 
-export const getAccounts = async (offset: number, limit: number, is_tracking: boolean, login: string): Promise<Account[]> => {
+export const getAccounts = async (offset: number, limit: number, is_tracking: TrackingOptions, login: string): Promise<Account[]> => {
 
     const result = await apiClient.get<ServiceResponse<AccountDto[]>>(`accounts?offset=${offset}&limit=${limit}&is_tracking=${is_tracking}&login=${login}`);
 
     return (result.data.map(acc => mapAccount(acc)));
 };
 
-export const getAccountsCount = async (is_tracking: boolean, login: string): Promise<number> => {
+export const getAccountsCount = async (is_tracking: TrackingOptions, login: string): Promise<number> => {
 
     const result = await apiClient.get<ServiceResponse<number>>(`accounts/count?is_tracking=${is_tracking}&login=${login}`);
 

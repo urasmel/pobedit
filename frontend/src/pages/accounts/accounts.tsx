@@ -1,25 +1,21 @@
 import { accountApi } from '@/entities/account';
-import { changeTracking } from '@/entities/account/api';
-import { updateAccountInfo } from '@/entities/account/api/get-accounts';
 import { useFetchAccountsCount } from '@/entities/account/api/hooks/useFetchAccountsCount';
-import { AccountAvatar } from '@/shared/components/account-avatar';
+import { AccountsFilter } from '@/features/accounts/accounts-filter';
+import { TrackingOptions } from '@/features/accounts/accounts-filter/accounts-filter-props';
+import { AccountsPanel } from '@/features/accounts/accounts-panel';
 import { LoadingWidget } from '@/shared/components/loading/loading-widget';
 import { ScrollToTopButton } from '@/shared/components/scroll-top-button';
 import { PAGE_SIZE } from '@/shared/config';
-import { Box, Typography, Button, Dialog, DialogContent, Checkbox, Pagination, FormControlLabel, Input, TextField } from '@mui/material';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Box, Typography, Pagination } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
 import { debounce } from 'lodash';
-import { enqueueSnackbar } from 'notistack';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
 
 export const AccountsPage = () => {
 
-    const queryClient = useQueryClient();
-    const navigate = useNavigate();
     const [offset, setOffset] = useState(0);
     const [limit, setLimit] = useState(PAGE_SIZE);
-    const [isTracking, setIsTracking] = useState(false);
+    const [isTracking, setIsTracking] = useState<TrackingOptions>(TrackingOptions.All);
     const [pagesCount, setPagesCount] = useState(0);
     const [login, setLogin] = useState("");
     const [debouncedLogin, setDebouncedLogin] = useState("");
@@ -49,6 +45,10 @@ export const AccountsPage = () => {
         if (debouncedSearchRef.current !== null) {
             debouncedSearchRef.current?.(value);
         }
+    };
+
+    const onIsTrackingChange = (value: TrackingOptions) => {
+        setIsTracking(value);
     };
 
     const fetchResults = (query: string) => {
@@ -109,66 +109,14 @@ export const AccountsPage = () => {
             height: "100%"
         }}>
 
-            <FormControlLabel
-                control=
-                {
-                    <Checkbox
-                        checked={isTracking}
-                        onChange={_ => setIsTracking(!isTracking)}
-                    />
-                }
-                label="Отслеживаемые"
+            <AccountsFilter
+                isTracking={isTracking}
+                loginFilter={login}
+                onIsTrackingChange={onIsTrackingChange}
+                onLoginFilterChange={onLoginChange}
             />
 
-
-            <TextField
-                id="outlined-controlled"
-                label="Логин"
-                value={login}
-                onChange={onLoginChange}
-            />
-
-
-            {
-                accounts?.map(account =>
-                    <Box sx={{ marginBottom: 2, display: 'flex' }} key={account.tlg_id}>
-
-                        <NavLink
-                            to={`/accounts/${account.tlg_id}`}
-                        >
-                            <AccountAvatar
-                                account={account}
-                                handleClick={() => { }}
-                            />
-                        </NavLink>
-
-                        <Box sx={{ marginLeft: 2 }}>
-                            <Typography variant="body1">
-                                <strong>Логин:</strong> {account?.username}
-                            </Typography>
-                            <Typography variant="body1">
-                                <strong>Имя:</strong> {account?.first_name}
-                            </Typography>
-                            <Typography variant="body1">
-                                <strong>Фамилия:</strong> {account?.last_name}
-                            </Typography>
-                            <Typography variant="body1">
-                                <strong>Телефон:</strong> {account?.phone}
-                            </Typography>
-                            <Typography variant="body1">
-                                <strong>Bio:</strong> {account?.bio}
-                            </Typography>
-                            <Typography variant="body1">
-                                <strong>Отслеживается:</strong>
-                                <Checkbox
-                                    checked={account?.is_tracking}
-                                />
-                            </Typography>
-                        </Box>
-
-                    </Box>
-                )
-            }
+            <AccountsPanel accounts={accounts} />
 
             {
                 !isError &&

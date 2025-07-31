@@ -1,10 +1,11 @@
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { getAccount, getAccounts, getAccountsCount, updateAccountInfo } from "./get-accounts";
+import { TrackingOptions } from "@/features/accounts/accounts-filter/accounts-filter-props";
 
 export const accountsQueries = {
     all_accounts_key: () => ["accounts"],
 
-    all: (offset: number = 0, limit: number = 20, is_tracking: boolean = false, login: string) =>
+    all: (offset: number = 0, limit: number = 20, is_tracking: TrackingOptions = TrackingOptions.All, login: string) =>
         queryOptions({
             queryKey: [...accountsQueries.all_accounts_key(), offset, limit, is_tracking, login],
             queryFn: () => getAccounts(offset, limit, is_tracking, login),
@@ -18,7 +19,7 @@ export const accountsQueries = {
             placeholderData: keepPreviousData,
         }),
 
-    count: (is_tracking: boolean = false, login: string = "") =>
+    count: (is_tracking: TrackingOptions = TrackingOptions.All, login: string = "") =>
         queryOptions({
             queryKey: [...accountsQueries.all_accounts_key(), 'count', is_tracking, login],
             queryFn: () => getAccountsCount(is_tracking, login),

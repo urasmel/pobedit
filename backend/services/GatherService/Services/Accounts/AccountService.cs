@@ -329,7 +329,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         }
     }
 
-    public async Task<ServiceResponse<IEnumerable<AccountDto>>> GetAccountsAsync(int offset, int limit, bool isTracking, string login)
+    public async Task<ServiceResponse<IEnumerable<AccountDto>>> GetAccountsAsync(int offset, int limit, TrackingOptionsDto isTracking, string login)
     {
         await Task.Delay(0);
         login = login.ToLower();
@@ -346,14 +346,13 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
 
         try
         {
-            IEnumerable<Account> accounts;
+            IQueryable<Account> request = _context.Accounts;
+            if (isTracking != TrackingOptionsDto.All)
+            {
+                request = request.Where(x => x.IsTracking == (isTracking == TrackingOptionsDto.Tracking));
+            }
 
-            if (isTracking)
-            {
-                accounts = _context
-                    .Accounts
-                    .Where(acc => acc.IsTracking)
-                    .Where(acc =>
+            var accounts = request.Where(acc =>
                     (acc.FirstName != null && acc.FirstName.ToLower().Contains(login)) ||
                     (acc.LastName != null && acc.LastName.ToLower().Contains(login)) ||
                     (acc.Username != null && acc.Username.ToLower().Contains(login)) ||
@@ -361,20 +360,6 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
                     )
                     .Skip(offset)
                     .Take(limit);
-            }
-            else
-            {
-                accounts = _context
-                    .Accounts
-                    .Where(acc =>
-                    (acc.FirstName != null && acc.FirstName.ToLower().Contains(login)) ||
-                    (acc.LastName != null && acc.LastName.ToLower().Contains(login)) ||
-                    (acc.Username != null && acc.Username.ToLower().Contains(login)) ||
-                    (acc.MainUsername != null && acc.MainUsername.ToLower().Contains(login))
-                    )
-                    .Skip(offset)
-                    .Take(limit);
-            }
 
             if (accounts == null)
             {
@@ -401,7 +386,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         return response;
     }
 
-    public async Task<ServiceResponse<int>> GetCountAsync(bool isTracking, string login)
+    public async Task<ServiceResponse<int>> GetCountAsync(TrackingOptionsDto isTracking, string login)
     {
         await Task.Delay(0);
         login = login.ToLower();
@@ -418,32 +403,18 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
 
         try
         {
-            var count = 0;
-            if (isTracking)
+            IQueryable<Account> accounts = _context.Accounts;
+            if (isTracking != TrackingOptionsDto.All)
             {
-                count = _context
-                    .Accounts
-                    .Where(x => x.IsTracking)
-                    .Where(acc =>
+                accounts = accounts.Where(x => x.IsTracking == (isTracking == TrackingOptionsDto.Tracking));
+            }
+
+            int count = accounts.Where(acc =>
                     (acc.FirstName != null && acc.FirstName.ToLower().Contains(login)) ||
                     (acc.LastName != null && acc.LastName.ToLower().Contains(login)) ||
                     (acc.Username != null && acc.Username.ToLower().Contains(login)) ||
-                    (acc.MainUsername != null && acc.MainUsername.ToLower().Contains(login))
-                    )
+                    (acc.MainUsername != null && acc.MainUsername.ToLower().Contains(login)))
                     .Count();
-            }
-            else
-            {
-                count = await _context
-                    .Accounts
-                    .Where(acc =>
-                    (acc.FirstName != null && acc.FirstName.ToLower().Contains(login)) ||
-                    (acc.LastName != null && acc.LastName.ToLower().Contains(login)) ||
-                    (acc.Username != null && acc.Username.ToLower().Contains(login)) ||
-                    (acc.MainUsername != null && acc.MainUsername.ToLower().Contains(login))
-                    )
-                    .CountAsync();
-            }
 
             response.Data = count;
         }
