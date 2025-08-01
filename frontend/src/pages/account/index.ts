@@ -1,1 +1,1 @@
-export { AccountPage } from './account';
+export { AccountPage as default } from './account';

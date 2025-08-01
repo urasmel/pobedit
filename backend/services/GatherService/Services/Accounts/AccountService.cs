@@ -358,6 +358,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
                     (acc.Username != null && acc.Username.ToLower().Contains(login)) ||
                     (acc.MainUsername != null && acc.MainUsername.ToLower().Contains(login))
                     )
+                    .OrderBy(acc => acc.Username)
                     .Skip(offset)
                     .Take(limit);
 

@@ -1,1 +1,1 @@
-export { ChannelPage } from './channel';
+export { ChannelPage as default } from './channel';

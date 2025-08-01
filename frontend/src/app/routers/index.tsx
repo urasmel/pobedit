@@ -1,137 +1,72 @@
-import { Suspense } from "react";
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
-import { NotFoundPage } from "@/pages/not-found";
-import { LoadingWidget } from "@/shared/components/loading/loading-widget";
-import { PostPage } from "@/pages/post";
-import { HomePage } from "@/pages/home";
-import { PostsPage } from "@/pages/posts";
-import { AccountPage } from "@/pages/account";
-import { AccountComments } from "@/pages/account-comments";
-import { SearchPage } from "@/pages/search";
-import { SearchResultPage } from "@/pages/search-result";
 import { ErrorBoundary } from "@/shared/components/errors/error-boundary";
-import { ChannelPage } from "@/pages/channel";
-import { SettingsPage } from "@/pages/settings";
-import { ControlPage } from "@/pages/control";
-import { AccountsPage } from "@/pages/accounts";
-
-// const Home = lazy(() => import("@/pages/Home"));
-// const Posts = lazy(() => import("@/pages/Posts"));
+import { LoadingWidget } from "@/shared/components/loading/loading-widget";
+const NotFoundPage = lazy(() => import("../../pages/not-found"));
+const PostPage = lazy(() => import("../../pages/post"));
+const HomePage = lazy(() => import("../../pages/home"));
+const PostsPage = lazy(() => import("../../pages/posts"));
+const AccountPage = lazy(() => import("../../pages/account"));
+const AccountComments = lazy(() => import("../../pages/account-comments"));
+const SearchPage = lazy(() => import("../../pages/search"));
+const SearchResultPage = lazy(() => import("../../pages/search-result"));
+const ChannelPage = lazy(() => import("../../pages/channel"));
+const SettingsPage = lazy(() => import("../../pages/settings"));
+const ControlPage = lazy(() => import("../../pages/control"));
+const AccountsPage = lazy(() => import("../../pages/accounts"));
 
 export const AppRouter = () => {
     return (
-        <Routes>
-            <Route
-                path="/"
-                element={
-                    <ErrorBoundary>
-                        <Suspense fallback={<LoadingWidget />}>
-                            <HomePage />
-                        </Suspense>
-                    </ErrorBoundary>
-                }
-            />
-            <Route
-                path="/channels/:channelId"
-                element={
-                    <ErrorBoundary>
-                        <Suspense fallback={<LoadingWidget />}>
-                            <ChannelPage />
-                        </Suspense>
-                    </ErrorBoundary>
-                }
-            />
-            <Route
-                path="/channels/:channelId/posts/:postId"
-                element={
-                    <ErrorBoundary>
-                        <Suspense fallback={<LoadingWidget />}>
-                            <PostPage />
-                        </Suspense>
-                    </ErrorBoundary>
-                }
-            />
-            <Route
-                path="/channels/:channelId/posts"
-                element={
-                    <ErrorBoundary>
-                        <Suspense fallback={<LoadingWidget />}>
-                            <PostsPage />
-                        </Suspense>
-                    </ErrorBoundary>
-                }
-            />
-            <Route
-                path="/accounts"
-                element={
-                    <ErrorBoundary>
-                        <Suspense fallback={<LoadingWidget />}>
-                            <AccountsPage />
-                        </Suspense>
-                    </ErrorBoundary>
-                }
-            />
-            <Route
-                path="/accounts/:accountId"
-                element={
-                    <ErrorBoundary>
-                        <Suspense fallback={<LoadingWidget />}>
-                            <AccountPage />
-                        </Suspense>
-                    </ErrorBoundary>
-                }
-            />
-            <Route
-                path="/accounts/:accountId/comments"
-                element={
-                    <ErrorBoundary>
-                        <Suspense fallback={<LoadingWidget />}>
-                            <AccountComments />
-                        </Suspense>
-                    </ErrorBoundary>
-                }
-            />
-            <Route
-                path="/search"
-                element={
-                    <ErrorBoundary>
-                        <Suspense fallback={<LoadingWidget />}>
-                            <SearchPage />
-                        </Suspense>
-                    </ErrorBoundary>
-                }
-            />
-            <Route
-                path="/settings"
-                element={
-                    <ErrorBoundary>
-                        <Suspense fallback={<LoadingWidget />}>
-                            <SettingsPage />
-                        </Suspense>
-                    </ErrorBoundary>
-                }
-            />
-            <Route
-                path="/control"
-                element={
-                    <ErrorBoundary>
-                        <Suspense fallback={<LoadingWidget />}>
-                            <ControlPage />
-                        </Suspense>
-                    </ErrorBoundary>
-                }
-            />
-            <Route
-                path="/result"
-                element={
-                    <ErrorBoundary>
-                        <Suspense fallback={<LoadingWidget />}>
-                            <SearchResultPage />
-                        </Suspense>
-                    </ErrorBoundary>
-                }
-            />
-            < Route path='*' element={< NotFoundPage />} />
-        </Routes >
+        <ErrorBoundary>
+            <Suspense fallback={<LoadingWidget />}>
+                <Routes>
+                    <Route
+                        path="/"
+                        element={<HomePage />}
+                    />
+                    <Route
+                        path="/channels/:channelId"
+                        element={<ChannelPage />}
+                    />
+                    <Route
+                        path="/channels/:channelId/posts/:postId"
+                        element={<PostPage />}
+                    />
+                    <Route
+                        path="/channels/:channelId/posts"
+                        element={<PostsPage />}
+                    />
+                    <Route
+                        path="/accounts"
+                        element={<AccountsPage />}
+                    />
+                    <Route
+                        path="/accounts/:accountId"
+                        element={<AccountPage />}
+                    />
+                    <Route
+                        path="/accounts/:accountId/comments"
+                        element={<AccountComments />}
+                    />
+                    <Route
+                        path="/search"
+                        element={<SearchPage />}
+                    />
+                    <Route
+                        path="/settings"
+                        element={<SettingsPage />}
+                    />
+                    <Route
+                        path="/control"
+                        element={<ControlPage />}
+                    />
+                    <Route
+                        path="/result"
+                        element={<SearchResultPage />}
+                    />
+                    < Route path='*' element={< NotFoundPage />} />
+                </Routes >
+            </Suspense>
+        </ErrorBoundary >
     );
 };

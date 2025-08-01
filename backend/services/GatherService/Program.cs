@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Serilog.Core;
+using Serilog.Sinks.Loki;
 using SharedCore.Filtering;
 using System.Reflection;
 using System.Text.Json;
@@ -55,10 +57,28 @@ builder.Services.Configure<RouteOptions>(options =>
     options.LowercaseUrls = true;
 });
 
+
+Logger log = new LoggerConfiguration()
+            .MinimumLevel.Verbose()
+            .Enrich.FromLogContext()
+            .Enrich.WithProperty("MyLabelPropertyName", "MyPropertyValue")
+            .WriteTo.LokiHttp(() => new LokiSinkConfiguration
+            {
+                LokiUrl = "http://localhost:3100"
+            })
+            .CreateLogger();
+
+Log.Error("MessageProcessingHandler");
+var position = new { Latitude = 25, Longitude = 134 };
+var elapsedMs = 34;
+Log.Information("Message processed {@Position} in {Elapsed:000} ms.", position, elapsedMs);
+Log.CloseAndFlush();
+
+
 builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
+//builder.Logging.AddConsole();
 builder.Logging.AddFile(@".\logs\{Date}_log.txt").SetMinimumLevel(LogLevel.None);
-builder.Logging.AddSimpleConsole();
+builder.Logging.AddSimpleConsole().SetMinimumLevel(LogLevel.None);
 
 builder.Services.AddScoped<IdFilter>();
 builder.Services.AddScoped<UserFilter>();

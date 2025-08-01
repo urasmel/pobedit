@@ -135,7 +135,6 @@ public class GatherService : IGatherService
                             _logger.LogInformation($"Comments processing started at {DateTime.Now}.");
                             _gatherState.State = GatherProcessState.Running;
 
-
                             #region Comments loading.
 
                             using (var scope = _scopeFactory.CreateScope())
@@ -148,8 +147,16 @@ public class GatherService : IGatherService
 
                                     foreach (var post in posts)
                                     {
-                                        await Gatherer.UpdatePostComments(channel.TlgId, post.TlgId, _loadingHelper, _client, context, _mapper, _pobeditSettings, _logger);
-                                        //Thread.Sleep(5000);
+                                        await Gatherer.UpdatePostComments(
+                                            channel.TlgId, 
+                                            post.TlgId, 
+                                            _loadingHelper, 
+                                            _client, 
+                                            context, 
+                                            _mapper, 
+                                            _pobeditSettings, 
+                                            _logger);
+                                        Thread.Sleep(new Random().Next(10000,20000));
                                     }
 
                                     if (_needClose)
@@ -159,7 +166,7 @@ public class GatherService : IGatherService
                                     }
 
                                     // Нежно качаем.
-                                    //Thread.Sleep(10000);
+                                    Thread.Sleep(new Random().Next(10000, 20000));
                                 }
                             }
 
