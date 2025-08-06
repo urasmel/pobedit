@@ -6,9 +6,8 @@ using Gather.Models;
 using Gather.Utils.Gather;
 using Gather.Utils.Gather.Notification;
 using Microsoft.EntityFrameworkCore;
-using System;
+using Serilog;
 using System.Net.WebSockets;
-using TL;
 
 namespace Gather.Services.Comments;
 
@@ -16,15 +15,10 @@ public class CommentsService(
     GatherClient client,
     DataContext context,
     IMapper mapper,
-    ILogger<CommentsService> logger,
     ISettingsService _settingsService,
     IGatherNotifierFabric loadingHelperFabric) : ICommentsService
 {
-    // Дата, с которой начинаем загружать данные.
-    //private readonly DateTime startLoadingDate = DateTime.Parse("May 15, 2025");
-    readonly ILogger _logger = logger;
     readonly GatherClient _client = client;
-    TL.User? user;
     private readonly IMapper _mapper = mapper;
     private readonly DataContext _context = context;
     readonly Object lockObject = new();
@@ -38,7 +32,12 @@ public class CommentsService(
 
         if (_context.Comments == null)
         {
-            _logger.LogError("DB context with comments is null.");
+            Log.Error("DB context with comments is null.",
+                new
+                {
+                    method = "GetCommentsCount"
+                }
+            );
             response.Success = false;
             response.Message = "Error fetching data from DB.";
             response.ErrorType = ErrorType.ServerError;
@@ -82,7 +81,12 @@ public class CommentsService(
 
         if (_context.Comments == null)
         {
-            _logger.LogError("GetComments, _context.Comments is null");
+            Log.Error("_context.Comments is null.",
+                new
+                {
+                    method = "GetComments"
+                }
+            );
             response.Success = false;
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
@@ -96,7 +100,12 @@ public class CommentsService(
 
             if (pId == null)
             {
-                _logger.LogError($"Post not found. chatId: {chatId}, postId: {postId}");
+                Log.Error($"Post not found. chatId: {chatId}, postId: {postId}.",
+                    new
+                    {
+                        method = "GetComments"
+                    }
+                );
                 response.Success = false;
                 response.Message = "Post not found";
                 response.ErrorType = ErrorType.ServerError;
@@ -114,13 +123,18 @@ public class CommentsService(
             var results = _mapper.Map<List<CommentDto>>(comments);
             response.Data = results;
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            _logger.LogError(exception, "GetComments");
+            Log.Error(ex, "Error fetching comments.",
+                new
+                {
+                    method = "GetComments"
+                }
+            );
             response.Success = false;
             response.Message = "An error has occurred while getting comments." +
                 Environment.NewLine +
-                exception.Message;
+                ex.Message;
             response.ErrorType = ErrorType.ServerError;
             response.Data = [];
         }
@@ -131,6 +145,6 @@ public class CommentsService(
     public async Task UpdatePostComments(long chatId, long postId, WebSocket webSocket)
     {
         IGatherNotifier loadingHelper = _loadingHelperFabric.Create(webSocket);
-        await Gatherer.UpdatePostComments(chatId, postId, loadingHelper, _client, _context, _mapper, pobeditSettings, _logger);
+        await Gatherer.UpdatePostComments(chatId, postId, loadingHelper, _client, _context, _mapper, pobeditSettings);
     }
 }

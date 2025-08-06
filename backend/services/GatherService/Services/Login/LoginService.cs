@@ -5,13 +5,11 @@ namespace Gather.Services.Login;
 
 public class LoginService : ILoginService
 {
-    ILogger _logger;
     WTelegram.Client? _client;
     TL.User? user;
 
-    public LoginService(ILogger<LoginService> logger)
+    public LoginService()
     {
-        _logger = logger;
     }
 
     public async Task<ServiceResponse<long>> Login(LoginDto loginDto)

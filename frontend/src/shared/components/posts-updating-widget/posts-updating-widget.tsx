@@ -83,23 +83,24 @@ export const PostsUpdatingWidget = (props: { channelId: string | undefined; }) =
         SyncChannelPosts();
     };
 
+    useEffect(() => {
+        if (postsCountError) {
+            enqueueSnackbar(postsCountErrorMsg, { variant: 'error' });
+        }
+    }, [postsCountError]);
+
     if (props.channelId == undefined) {
         return (
             <Box sx={{
                 fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
                 fontSize: "medium",
                 fontWeight: "500",
-                color: "rgb(52, 71, 103)"
+                color: "rgb(52, 71, 103)",
+                minHeight: "85px",
             }}>
                 Ошибка. Не определен идентификатор канала.
             </Box>);
     }
-
-    useEffect(() => {
-        if (postsCountError) {
-            enqueueSnackbar(postsCountErrorMsg, { variant: 'error' });
-        }
-    }, [postsCountError]);
 
     if (isPostsCountLoading) {
         return (
@@ -113,8 +114,12 @@ export const PostsUpdatingWidget = (props: { channelId: string | undefined; }) =
                     borderRadius: "var(--radius-md)",
                     boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px",
                     padding: 1,
+                    minHeight: "85px",
                 }}>
-                <CircularProgress />
+                <CircularProgress
+                    sx={{
+                        color: "rgb(52, 71, 103)",
+                    }} />
             </Box>
         );
     }

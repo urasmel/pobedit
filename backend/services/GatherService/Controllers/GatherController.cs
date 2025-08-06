@@ -4,6 +4,7 @@ using Gather.Models;
 using Gather.Services;
 using Gather.Services.Gather;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace Gather.Controllers;
 
@@ -13,15 +14,12 @@ namespace Gather.Controllers;
 [Route("api/v{v:apiVersion}/[controller]")]
 public class GatherController : ControllerBase
 {
-    private readonly ILogger<GatherController> _logger;
     IGatherService _gatherService;
 
     public GatherController(
-        IGatherService gatherService,
-        ILogger<GatherController> logger)
+        IGatherService gatherService)
     {
         _gatherService = gatherService;
-        _logger = logger;
     }
 
     /// <summary>
@@ -39,12 +37,22 @@ public class GatherController : ControllerBase
 
             if (response.Success)
             {
-                _logger.LogInformation("Task {TaskId} enqueued.", task.Id);
+                Log.Information($"Task {task.Id} enqueued successfully.",
+                    new
+                    {
+                        method = "StartGather"
+                    }
+                );
                 return Accepted(response);
             }
             else
             {
-                _logger.LogInformation("Task {TaskId} not enqueued.", task.Id);
+                Log.Information($"Task {task.Id} enqueued with error.",
+                    new
+                    {
+                        method = "StartGather"
+                    }
+                );
                 if (response.ErrorType == ErrorType.TooManyRequests)
                 {
                     return StatusCode(StatusCodes.Status429TooManyRequests);
@@ -55,9 +63,14 @@ public class GatherController : ControllerBase
                 }
             }
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            _logger.LogError(exception.Message, exception);
+            Log.Error(ex, "Error starting gather.",
+                new
+                {
+                    method = "StartGather"
+                }
+            );
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
@@ -74,9 +87,14 @@ public class GatherController : ControllerBase
             var result = _gatherService.StopGatherAsync();
             return result;
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            _logger.LogError(exception.Message, exception);
+            Log.Error(ex, "Error stopping gather",
+                new
+                {
+                    method = "StopGather"
+                }
+            );
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }

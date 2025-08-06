@@ -60,6 +60,16 @@ export const PostsPanel = (props: { channelId: string; }) => {
         setOffset(PAGE_SIZE * (page - 1));
     };
 
+
+    (isFetching || isLoading) &&
+        <Box sx={{
+            width: "100%",
+            height: "100%",
+            alignItems: "center"
+        }}>
+            <LoadingWidget />
+        </Box>;
+
     return (
         <Box
             sx={{
@@ -85,13 +95,6 @@ export const PostsPanel = (props: { channelId: string; }) => {
                         })
                     }
                 </>
-            }
-
-            {
-                (isFetching || isLoading) &&
-                <Box sx={{ alignSelf: "center" }}>
-                    <LoadingWidget />
-                </Box>
             }
 
             {

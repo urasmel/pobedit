@@ -22,39 +22,60 @@ export const ChannelMainInfo = (props: { channelId: string; }) => {
 
     if (channelInfoIsLoading) {
         return (
-            <ChannelMainInfoBox>
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "100%",
+                    boxSizing: "border-box",
+                    borderRadius: "var(--radius-md)",
+                    boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px",
+                    padding: 1,
+                    minHeight: "85px",
+                }}>
                 <CircularProgress
-                    size={24}
                     sx={{
                         color: "rgb(52, 71, 103)",
-                        marginRight: "1rem"
                     }} />
-                Загрузка информации о канале...
-            </ChannelMainInfoBox>
+            </Box>
         );
     }
 
     if (channelInfoIsError) {
         return (
             <ChannelMainInfoBox>
-                Не удалось загрузить информацию о канале {props.channelId}
+                <Box
+                    sx={{
+                        whiteSpace: "pre-wrap",
+                        wordWrap: "break-word",
+                        color: "rgb(52, 71, 103)"
+                    }} >
+                    Не удалось загрузить информацию о канале {props.channelId}
+                </Box>
             </ChannelMainInfoBox>);
     }
 
     return (
         <ChannelMainInfoBox>
-            <Box sx={{
-                whiteSpace: "pre-wrap",
-                wordWrap: "break-word",
-                color: "rgb(52, 71, 103)"
-            }} >
+            <Box
+                sx={{
+                    whiteSpace: "nowrap",
+                    // wordWrap: "break-word",
+                    color: "rgb(52, 71, 103)"
+                }} >
                 Канал:&nbsp;
                 <NavLink to={`/channels/${channelInfo?.tlgId}`}>
-                    {channelInfo.title}
+                    {channelInfo?.title}
                 </NavLink>
             </Box>
-            <Box sx={{ whiteSpace: "pre-wrap", wordWrap: "break-word", color: "rgb(52, 71, 103)" }}>
-                id: {channelInfo.tlgId}
+            <Box
+                sx={{
+                    whiteSpace: "nowrap",
+                    // wordWrap: "break-word",
+                    color: "rgb(52, 71, 103)"
+                }}>
+                id: {channelInfo?.tlgId}
             </Box>
         </ChannelMainInfoBox>
     );

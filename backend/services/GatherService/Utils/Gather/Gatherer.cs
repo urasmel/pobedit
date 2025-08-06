@@ -5,6 +5,7 @@ using Gather.Dtos;
 using Gather.Models;
 using Gather.Utils.Gather.Notification;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using TL;
 
 namespace Gather.Utils.Gather;
@@ -19,8 +20,7 @@ public static class Gatherer
         GatherClient _client,
         DataContext _context,
         IMapper mapper,
-        PobeditSettings pobeditSettings,
-        ILogger logger)
+        PobeditSettings pobeditSettings)
     {
         //await Task.Delay(1000);
         //return;
@@ -29,10 +29,15 @@ public static class Gatherer
         {
             await _client.LoginUserIfNeeded();
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
             var errorMessage = "The error while logging telegram user.";
-            logger.LogError(exception, errorMessage);
+            Log.Error(ex, errorMessage,
+                new
+                {
+                    method = "GetAccountsAsync"
+                }
+            );
             await loadingHelper.NotifyFailureEndingAsync(errorMessage);
             return;
         }
@@ -69,14 +74,24 @@ public static class Gatherer
                 if (lastMessagesBase is not Messages_ChannelMessages channelMessages)
                 {
                     await loadingHelper.NotifySuccessEndingAsync("Channel peer is not ChannelMessages");
-                    logger.LogInformation("Channel peer is not ChannelMessages");
+                    Log.Error("Channel peer is not ChannelMessages.",
+                        new
+                        {
+                            method = "UpdateChannelPosts"
+                        }
+                    );
                     return;
                 }
 
                 if (channelMessages.count == 0)
                 {
                     await loadingHelper.NotifySuccessEndingAsync($"No data in the channel {peer.ID}.");
-                    logger.LogInformation($"No data in the channel {peer.ID}.");
+                    Log.Error($"No data in the channel {peer.ID}.",
+                        new
+                        {
+                            method = "UpdateChannelPosts"
+                        }
+                    );
                     return;
                 }
 
@@ -124,10 +139,14 @@ public static class Gatherer
                             await _context.Posts.AddAsync(postToDb);
                             await _context.SaveChangesAsync();
                         }
-                        catch (Exception exception)
+                        catch (Exception ex)
                         {
-                            var errorMessage = "UpdateChannelPosts";
-                            logger.LogError(exception, errorMessage);
+                            Log.Error(ex, "Error updating channel's posts",
+                                new
+                                {
+                                    method = "UpdateChannelPosts"
+                                }
+                            );
                         }
 
                         if (index % 20 == 0 || index == channelMessages.messages.Length - 1)
@@ -157,13 +176,23 @@ public static class Gatherer
         {
             var errorMessage = "An error ocurred while updating channel's posts." +
                 " You may no longer subscribe to this channel.";
-            logger.LogError(ex.Message, errorMessage);
+            Log.Error(ex, errorMessage,
+                new
+                {
+                    method = "UpdateChannelPosts"
+                }
+            );
             await loadingHelper.NotifyFailureEndingAsync(errorMessage);
         }
         catch (Exception ex)
         {
             var errorMessage = "An error ocurred while updating channel's posts.";
-            logger.LogError(ex.Message, errorMessage);
+            Log.Error(ex, errorMessage,
+                new
+                {
+                    method = "UpdateChannelPosts"
+                }
+            );
             await loadingHelper.NotifyFailureEndingAsync(errorMessage);
         }
     }
@@ -175,8 +204,7 @@ public static class Gatherer
         GatherClient _client,
         DataContext _context,
         IMapper mapper,
-        PobeditSettings pobeditSettings,
-        ILogger logger)
+        PobeditSettings pobeditSettings)
     {
         //await Task.Delay(1000);
         //return;
@@ -185,10 +213,15 @@ public static class Gatherer
         {
             await _client.LoginUserIfNeeded();
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
             var errorMessage = "The error while logging telegram user.";
-            logger.LogError(exception, errorMessage);
+            Log.Error(ex, errorMessage,
+                new
+                {
+                    method = "UpdatePostComments"
+                }
+            );
             await loadingHelper.NotifyFailureEndingAsync(errorMessage);
             return;
         }
@@ -196,7 +229,12 @@ public static class Gatherer
         if (_context.Channels == null)
         {
             var errorMessage = "An error ocurred while updating post's comments. DB error.";
-            logger.LogError(errorMessage);
+            Log.Error(errorMessage,
+                new
+                {
+                    method = "UpdatePostComments"
+                }
+            );
             await loadingHelper.NotifyFailureEndingAsync(errorMessage);
             return;
         }
@@ -205,7 +243,12 @@ public static class Gatherer
         if (chan == null)
         {
             var errorMessage = "The channel is not found.";
-            logger.LogError(errorMessage);
+            Log.Error(errorMessage,
+                new
+                {
+                    method = "UpdatePostComments"
+                }
+            );
             await loadingHelper.NotifyFailureEndingAsync(errorMessage);
             return;
         }
@@ -213,7 +256,12 @@ public static class Gatherer
         if (!chan.HasComments)
         {
             var errorMessage = "The channel has no comments.";
-            logger.LogError(errorMessage);
+            Log.Error(errorMessage,
+                new
+                {
+                    method = "UpdatePostComments"
+                }
+            );
             await loadingHelper.NotifyFailureEndingAsync(errorMessage);
             return;
         }
@@ -221,7 +269,12 @@ public static class Gatherer
         if (_context.Comments == null)
         {
             var errorMessage = "An error ocurred while updating post's comments. DB error.";
-            logger.LogError(errorMessage);
+            Log.Error(errorMessage,
+                new
+                {
+                    method = "UpdatePostComments"
+                }
+            );
             await loadingHelper.NotifyFailureEndingAsync(errorMessage);
             return;
         }
@@ -229,7 +282,12 @@ public static class Gatherer
         if (_context.Posts == null)
         {
             var errorMessage = "An error ocurred while updating post's comments. DB error.";
-            logger.LogError(errorMessage);
+            Log.Error(errorMessage,
+                new
+                {
+                    method = "UpdatePostComments"
+                }
+            );
             await loadingHelper.NotifyFailureEndingAsync(errorMessage);
             return;
         }
@@ -238,7 +296,12 @@ public static class Gatherer
         if (post == null)
         {
             var errorMessage = "An error ocurred while updating post's comments. Post not found in DB.";
-            logger.LogError(errorMessage);
+            Log.Error(errorMessage,
+                new
+                {
+                    method = "UpdatePostComments"
+                }
+            );
             await loadingHelper.NotifyFailureEndingAsync(errorMessage);
             return;
         }
@@ -253,7 +316,12 @@ public static class Gatherer
         {
             var errorMessage = "An error ocurred while updating post's comments." +
                 "Cannot find channel in telegram. You may have unsubscribed from the channel.";
-            logger.LogError(errorMessage);
+            Log.Error(errorMessage,
+                new
+                {
+                    method = "UpdatePostComments"
+                }
+            );
             await loadingHelper.NotifyFailureEndingAsync(errorMessage);
             return;
         }
@@ -288,7 +356,12 @@ public static class Gatherer
                 || messages.Messages.Length == 0)
             {
                 var errorMessage = "Post not found.";
-                logger.LogError(errorMessage);
+                Log.Error(errorMessage,
+                    new
+                    {
+                        method = "UpdatePostComments"
+                    }
+                );
                 await loadingHelper.NotifyFailureEndingAsync(errorMessage);
                 return;
             }
@@ -297,7 +370,12 @@ public static class Gatherer
             if (msg == null)
             {
                 var errorMessage = "An error ocurred while updating post's comments. Post is not a message.";
-                logger.LogError(errorMessage);
+                Log.Error(errorMessage,
+                    new
+                    {
+                        method = "UpdatePostComments"
+                    }
+                );
                 await loadingHelper.NotifyFailureEndingAsync(errorMessage);
                 return;
             }
@@ -407,9 +485,14 @@ public static class Gatherer
                     {
                         Console.WriteLine($"Flood wait: {ex.X} minutes");
                     }
-                    catch (Exception exception)
+                    catch (Exception ex)
                     {
-                        logger.LogError(exception.Message);
+                        Log.Error(ex, "Error uupdating post's comments.",
+                            new
+                            {
+                                method = "UpdatePostComments"
+                            }
+                        );
                         continue;
                     }
 
@@ -432,9 +515,14 @@ public static class Gatherer
                             return;
                         }
                     }
-                    catch (Exception exception)
+                    catch (Exception ex)
                     {
-                        logger.LogError("Ошибка добавления комментария: {1}", exception.Message);
+                        Log.Error(ex, "Error updating post's comments.",
+                            new
+                            {
+                                method = "UpdatePostComments"
+                            }
+                        );
                     }
                 }
 
@@ -445,10 +533,15 @@ public static class Gatherer
             post.CommentsCount = replies.Count;
             await _context.SaveChangesAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             var errorMessage = "An error ocurred while updating post's comments.";
-            logger.LogError(errorMessage);
+            Log.Error(ex, errorMessage,
+                new
+                {
+                    method = "UpdatePostComments"
+                }
+            );
             await loadingHelper.NotifyFailureEndingAsync(errorMessage);
             return;
         }

@@ -4,16 +4,17 @@ using Gather.Data;
 using Gather.Dtos;
 using Gather.Models;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Context;
 using System.Collections.Generic;
 using TL;
 
 namespace Gather.Services.Accounts;
 
-public class AccountService(GatherClient client, IMapper mapper, DataContext context, ILogger<AccountService> logger) : IAccountService
+public class AccountService(GatherClient client, IMapper mapper, DataContext context) : IAccountService
 {
     private readonly IMapper _mapper = mapper;
     private readonly DataContext _context = context;
-    private readonly ILogger<AccountService> _logger = logger;
     readonly GatherClient _client = client;
     private static Messages_Chats? allChannels;
 
@@ -48,7 +49,12 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
             response.Success = false;
-            _logger.LogError(ex.Message);
+            Log.Error(ex, "Error fetching account.",
+                new
+                {
+                    method = "GetAccountAsync"
+                }
+            );
         }
 
 
@@ -93,7 +99,12 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
             response.Success = false;
-            _logger.LogError(ex.Message);
+            Log.Error(ex, "Error fetching comments.",
+                new
+                {
+                    method = "GetCommentsAsync"
+                }
+            );
         }
         return response;
     }
@@ -121,7 +132,12 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
             response.Success = false;
-            _logger.LogError(ex.Message);
+            Log.Error(ex, "Error fetching comments count.",
+                new
+                {
+                    method = "GetCommentsCountAsync"
+                }
+            );
         }
         return response;
     }
@@ -136,10 +152,12 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception,
-                "UpdateAccountAsync" +
-                Environment.NewLine +
-                "The error while logging telegram user.");
+            Log.Error(exception, "Error updating acccount.",
+                new
+                {
+                    method = "UpdateAccountAsync"
+                }
+            );
 
             response.Success = false;
             response.Message = "Unable to login to Telegram";
@@ -150,7 +168,12 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
 
         if (_context.Comments == null)
         {
-            _logger.LogError("Comments in db context is null");
+            Log.Error("Comments in db context is null",
+                new
+                {
+                    method = "GetAccountsAsync"
+                }
+            );
             response.Success = false;
             response.ErrorType = ErrorType.ServerError;
             response.Message = "Server error";
@@ -166,7 +189,12 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
 
             if (commentFromDb == null)
             {
-                _logger.LogError("User's comments not found");
+                Log.Error("User's comments not found",
+                    new
+                    {
+                        method = "GetAccountAsync"
+                    }
+                );
                 response.Success = false;
                 response.ErrorType = ErrorType.NotFound;
                 response.Message = "Data for retrieving user info not found";
@@ -185,7 +213,12 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
                 .FirstOrDefault().Value;
             if (channelNeeded == null)
             {
-                _logger.LogError("Channel of comment not found");
+                Log.Error("Channel of comment not found",
+                    new
+                    {
+                        method = "UpdateAccountAsync"
+                    }
+                );
                 response.Success = false;
                 response.ErrorType = ErrorType.NotFound;
                 response.Message = "Channel of comment not found";
@@ -200,7 +233,12 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
 
             if (postNeeded == null)
             {
-                _logger.LogError("Chat of comment not found");
+                Log.Error("Chat of comment not found",
+                    new
+                    {
+                        method = "UpdateAccountAsync"
+                    }
+                );
                 response.Success = false;
                 response.ErrorType = ErrorType.NotFound;
                 response.Message = "Chat of comment not found";
@@ -219,7 +257,12 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
                 var replies = comments.Messages;
                 if (replies.Count() == 0)
                 {
-                    _logger.LogError("User's comment not found");
+                    Log.Error("User's comment not found",
+                        new
+                        {
+                            method = "UpdateAccountAsync"
+                        }
+                    );
                     response.Success = false;
                     response.ErrorType = ErrorType.NotFound;
                     response.Message = "User's comment not found";
@@ -272,10 +315,15 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         }
         catch (Exception ex)
         {
+            Log.Error(ex, "Error updating account.",
+                new
+                {
+                    method = "UpdateAccountAsync"
+                }
+            );
             response.Success = false;
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
-            _logger.LogError(ex.Message);
             return response;
         }
         finally
@@ -292,12 +340,14 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         {
             await _client.LoginUserIfNeeded();
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            _logger.LogError(exception,
-                "ChangeTracking" +
-                Environment.NewLine +
-                "The error while logging telegram user.");
+            Log.Error(ex, "The error while logging telegram user.",
+                new
+                {
+                    method = "ChangeTracking"
+                }
+            );
 
             response.Success = false;
             response.Message = "Unable to login to Telegram";
@@ -316,7 +366,12 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            Log.Error(ex, "Error change tracking of the account.",
+                new
+                {
+                    method = "ChangeTracking"
+                }
+            );
             response.Success = false;
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
@@ -331,6 +386,13 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
 
     public async Task<ServiceResponse<IEnumerable<AccountDto>>> GetAccountsAsync(int offset, int limit, TrackingOptionsDto isTracking, string login)
     {
+        Log.Information("Start fetching accounts. Extra info is {info}",
+            new
+            {
+                mathod = "GetAccountsAsync"
+            }
+        );
+
         await Task.Delay(0);
         login = login.ToLower();
         var response = new ServiceResponse<IEnumerable<AccountDto>>();
@@ -380,7 +442,12 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
             response.Success = false;
-            _logger.LogError(ex.Message);
+            Log.Error(ex, "Error fetching accounts.",
+                new
+                {
+                    method = "GetAccountsAsync"
+                }
+            );
         }
 
 
@@ -425,7 +492,12 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
             response.Success = false;
-            _logger.LogError(ex.Message);
+            Log.Error(ex, "Error fetching accounts count.",
+                new
+                {
+                    method = "GetCountAsync"
+                }
+            );
         }
 
         return response;

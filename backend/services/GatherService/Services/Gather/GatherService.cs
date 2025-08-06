@@ -7,7 +7,9 @@ using Gather.Models.Gather;
 using Gather.Services.Gather;
 using Gather.Utils.Gather;
 using Gather.Utils.Gather.Notification;
+using Serilog;
 using System.Threading.Channels;
+using System.Threading.Tasks;
 
 namespace Gather.Services;
 
@@ -18,7 +20,6 @@ public class GatherService : IGatherService
 
     GatherClient _client;
     IMapper _mapper;
-    ILogger _logger;
     PobeditSettings _pobeditSettings;
     readonly IGatherNotifierFabric _loadingHelperFabric;
     TL.User? user;
@@ -32,14 +33,12 @@ public class GatherService : IGatherService
     public GatherService(
         GatherClient client,
         IMapper mapper,
-        ILogger<GatherService> logger,
         ISettingsService settingsService,
         IGatherNotifierFabric loadingHelperFabric,
         IServiceScopeFactory scopeFactory)
     {
         _client = client;
         _mapper = mapper;
-        _logger = logger;
 
         _pobeditSettings = settingsService.PobeditSettings;
         _loadingHelperFabric = loadingHelperFabric;
@@ -56,8 +55,6 @@ public class GatherService : IGatherService
 
     private async void StartGatherAsync()
     {
-        _logger.LogInformation("LongRunningTaskService is starting.");
-
         try
         {
             while (true)
@@ -71,7 +68,12 @@ public class GatherService : IGatherService
                     // При первом запуске сбора по команде пользователя не смотрим на время последней обработки.
                     int cicleCounter = 0;
 
-                    _logger.LogInformation("Processing task {TaskId}: {Description}", task.Id, task.Description);
+                    Log.Information($"Processing task {task.Id}: {task.Description}",
+                        new
+                        {
+                            method = "StartGatherAsync"
+                        }
+                    );
                     while (!_needClose)
                     {
                         _gatherState.State = GatherProcessState.Paused;
@@ -86,7 +88,7 @@ public class GatherService : IGatherService
                         if (cicleCounter == 0 || _postLastUpdateTime.AddHours(_pobeditSettings.ChannelPollingFrequency) <= DateTime.UtcNow)
                         {
                             cicleCounter++;
-                            _logger.LogInformation($"Channels processing started at {DateTime.Now}.");
+                            Log.Information($"Channels processing started at {DateTime.Now}.");
                             _gatherState.State = GatherProcessState.Running;
 
                             #region Posts loading.
@@ -97,7 +99,7 @@ public class GatherService : IGatherService
                                 var channelsIds = context.Channels.Select(c => c.TlgId).ToList();
                                 foreach (var channelId in channelsIds)
                                 {
-                                    await Gatherer.UpdateChannelPosts(channelId, _loadingHelper, _client, context, _mapper, _pobeditSettings, _logger);
+                                    await Gatherer.UpdateChannelPosts(channelId, _loadingHelper, _client, context, _mapper, _pobeditSettings);
                                     if (_needClose)
                                     {
                                         // Останавливаем foreach. Потом проверим еще раз и выйдем из вложенного while.
@@ -132,7 +134,12 @@ public class GatherService : IGatherService
                         // Загружаем очень нежно комментарии. Пока грузим - внутри проверяем флаг прекращения загрузки.
                         if (_commentsLastUpdateTime.AddHours(_pobeditSettings.CommentsPollingDelay) <= DateTime.UtcNow)
                         {
-                            _logger.LogInformation($"Comments processing started at {DateTime.Now}.");
+                            Log.Information($"Comments processing started at {DateTime.Now}.",
+                                new
+                                {
+                                    method = "StartGatherAsync"
+                                }
+                            );
                             _gatherState.State = GatherProcessState.Running;
 
                             #region Comments loading.
@@ -154,8 +161,7 @@ public class GatherService : IGatherService
                                             _client, 
                                             context, 
                                             _mapper, 
-                                            _pobeditSettings, 
-                                            _logger);
+                                            _pobeditSettings);
                                         Thread.Sleep(new Random().Next(10000,20000));
                                     }
 
@@ -194,7 +200,13 @@ public class GatherService : IGatherService
                         await Task.Delay(TimeSpan.FromSeconds(10));
                         if (_needClose)
                         {
-                            _logger.LogInformation("LongRunningTaskService is stopped.");
+                            Log.Information($"Gathering is stopping at {DateTime.Now}.",
+                                new
+                                {
+                                    method = "StartGatherAsync"
+                                }
+                            );
+
                             _gatherState.State = GatherProcessState.Stopped;
                             _gatherState.ToPollingChannelsSecs = 0;
                             _gatherState.ToPollingCommentsSecs = 0;
@@ -211,11 +223,20 @@ public class GatherService : IGatherService
         }
         catch (OperationCanceledException)
         {
-            _logger.LogWarning("Task processing was canceled.");
+            Log.Warning("Task processing was canceled.",
+                new
+                {
+                    method = "StartGatherAsync"
+                }
+            );
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while processing task.");
+            Log.Error(ex, "Error occurred while gathering.",
+                new
+                {
+                    method = "StartGatherAsync"
+                });
         }
     }
 
@@ -280,7 +301,12 @@ public class GatherService : IGatherService
     {
         if (_client == null)
         {
-            _logger.LogError("Error to init telegram client. Client is not initialized.");
+            Log.Error("Error to init telegram client. Client is not initialized.",
+                new
+                {
+                    method = "Init"
+                }
+            );
             return;
         }
 
@@ -290,7 +316,12 @@ public class GatherService : IGatherService
         }
         catch (Exception)
         {
-            _logger.LogError("Error to login user.");
+            Log.Error("Error to login user.",
+                new
+                {
+                    method = "Init"
+                }
+            );
             System.Environment.Exit(1);
         }
     }

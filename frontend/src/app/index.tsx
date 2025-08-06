@@ -43,7 +43,6 @@ root.render(
                     sx={{
                         display: 'grid',
                         gridTemplateColumns: '180px 1fr',
-                        height: '100%',
                         overflow: 'visible',
                         gap: ".5rem",
                         flex: "1",
@@ -62,7 +61,7 @@ root.render(
                         sx={{
                             boxShadow: "var(--strong-shadow)",
                             borderRadius: "var(--radius-md)",
-                            padding: 2
+                            padding: 2,
                         }}
                     >
                         <Providers client={queryClient} >

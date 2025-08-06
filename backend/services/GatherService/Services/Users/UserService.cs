@@ -3,20 +3,19 @@ using Gather.Data;
 using Microsoft.EntityFrameworkCore;
 using Gather.Models;
 using Gather.Dtos;
+using Serilog;
 
 namespace Gather.Services.Users;
 
 public class UserService : IUserService
 {
-    ILogger _logger;
     private readonly IMapper _mapper;
     private readonly DataContext _context;
 
-    public UserService(IMapper mapper, DataContext context, ILogger<UserService> logger)
+    public UserService(IMapper mapper, DataContext context)
     {
         _mapper = mapper;
         _context = context;
-        _logger = logger;
     }
 
     public async Task<ServiceResponse<GetUserDto>> GetUserIdAsync(int id)
@@ -47,7 +46,12 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            Log.Error(ex, "Error to login user.",
+                new
+                {
+                    method = "GetUserIdAsync"
+                }
+            );
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
             response.Success = false;
@@ -76,7 +80,12 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            Log.Error(ex, "Error fetching all users.",
+                new
+                {
+                    method = "GetAllUsersAsync"
+                }
+            );
             response.Success = false;
             response.Data = Enumerable.Empty<GetUserDto>();
             response.Message = "Server error";
@@ -122,7 +131,12 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            Log.Error(ex, "Error adding user.",
+                new
+                {
+                    method = "AddUserAsync"
+                }
+            );
             response.Success = false;
             response.Message = "An error occurred while creating the user";
             response.ErrorType = ErrorType.ServerError;
@@ -162,7 +176,12 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            Log.Error(ex, "Error deleting user.",
+                new
+                {
+                    method = "DeleteUserAsync"
+                }
+            );
             response.Success = false;
             response.Message = "An error occurred while deleting the user";
             response.ErrorType = ErrorType.ServerError;
@@ -226,7 +245,12 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            Log.Error(ex, "Error editing user.",
+                new
+                {
+                    method = "EditUserAsync"
+                }
+            );
             response.Success = false;
             response.Message = "An error occurred while editing the user";
             response.ErrorType = ErrorType.ServerError;

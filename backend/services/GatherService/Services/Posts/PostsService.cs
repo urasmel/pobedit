@@ -6,6 +6,7 @@ using Gather.Models;
 using Gather.Utils.Gather;
 using Gather.Utils.Gather.Notification;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System.Net.WebSockets;
 using TL;
 
@@ -15,14 +16,11 @@ public class PostsService(
     GatherClient client,
     DataContext context,
     IMapper mapper,
-    ILogger<PostsService> logger,
     ISettingsService _settingsService,
     IGatherNotifierFabric loadingHelperFabric) : IPostsService
 {
     // Дата, с которой начинаем загружать данные.
-    readonly ILogger _logger = logger;
     readonly GatherClient _client = client;
-    //TL.User? user;
     private readonly IMapper _mapper = mapper;
     private readonly DataContext _context = context;
     PobeditSettings pobeditSettings = _settingsService.PobeditSettings;
@@ -36,7 +34,12 @@ public class PostsService(
         {
             if (_context.Posts == null)
             {
-                _logger.LogError("DB context with posts is null.");
+                Log.Error("DB context with posts is null.",
+                    new
+                    {
+                        method = "GetChannelPosts"
+                    }
+                );
                 response.Success = false;
                 response.Message = "Error fetching data from DB.";
                 response.ErrorType = ErrorType.ServerError;
@@ -55,7 +58,12 @@ public class PostsService(
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error ocurred while getting channel posts");
+            Log.Error(ex, "An error ocurred while getting channel posts",
+                new
+                {
+                    method = "GetChannelPosts"
+                }
+            );
             response.Success = false;
             response.Data = [];
             return response;
@@ -68,7 +76,7 @@ public class PostsService(
 
         if (_context.Posts == null)
         {
-            _logger.LogError("DB context with posts is null.");
+            Log.Error("DB context with posts is null.");
             response.Success = false;
             response.Message = "Error fetching data from DB.";
             response.ErrorType = ErrorType.ServerError;
@@ -92,10 +100,17 @@ public class PostsService(
             response.Success = true;
             return response;
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
+            Log.Error(ex, "An error ocurred while getting channel's posts",
+                new
+                {
+                    method = "GetChannelPosts"
+                }
+            );
+
             response.Success = false;
-            response.Message = exception.Message;
+            response.Message = ex.Message;
             response.ErrorType = ErrorType.ServerError;
             response.Data = [];
             return response;
@@ -108,7 +123,12 @@ public class PostsService(
 
         if (_context.Posts == null)
         {
-            _logger.LogError("DB context with posts is null.");
+            Log.Error("DB context with posts is null.",
+                new
+                {
+                    method = "GetChannelPosts"
+                }
+            );
             response.Success = false;
             response.Message = "Error fetching data from DB.";
             response.ErrorType = ErrorType.ServerError;
@@ -157,7 +177,7 @@ public class PostsService(
     {
         IGatherNotifier loadingHelper = _loadingHelperFabric.Create(webSocket);
         //await UpdateChannelPosts(chatId, loadingHelper);
-        await Gatherer.UpdateChannelPosts(chatId, loadingHelper, _client, _context, mapper, pobeditSettings, _logger);
+        await Gatherer.UpdateChannelPosts(chatId, loadingHelper, _client, _context, mapper, pobeditSettings);
     }
 
     public async Task<ServiceResponse<long>> GetChannelPostsCount(long chatId)
@@ -166,7 +186,12 @@ public class PostsService(
 
         if (_context.Posts == null)
         {
-            _logger.LogError("DB context with posts is null.");
+            Log.Error("DB context with posts is null.",
+                new
+                {
+                    method = "GetChannelPostsCount"
+                }
+            );
             response.Success = false;
             response.Message = "Error fetching data from DB.";
             response.ErrorType = ErrorType.ServerError;
@@ -183,7 +208,9 @@ public class PostsService(
             return response;
         }
 
-        var channel = await _context.Channels.Where(c => c.TlgId == chatId).FirstOrDefaultAsync();
+        var channel = await _context.Channels
+            .Where(c => c.TlgId == chatId)
+            .FirstOrDefaultAsync();
         if (channel == null)
         {
             response.Success = false;
@@ -194,7 +221,10 @@ public class PostsService(
 
         try
         {
-            var count = await _context.Posts.Where(post => post.PeerId == chatId).CountAsync();
+            var count = await _context
+                .Posts
+                .Where(post => post.PeerId == chatId)
+                .CountAsync();
             response.Data = count;
             response.Success = true;
             return response;
@@ -217,14 +247,20 @@ public class PostsService(
         {
             if (_context.Posts == null)
             {
-                _logger.LogError("DB context with posts is null.");
+                Log.Error("DB context with posts is null.",
+                    new
+                    {
+                        method = "GetChannelPost"
+                    }
+                );
                 response.Success = false;
                 response.Message = "Error fetching data from DB.";
                 response.ErrorType = ErrorType.ServerError;
                 return response;
             }
 
-            var post = await _context.Posts
+            var post = await _context
+                .Posts
                 .Where(post => post.PeerId == chatId && post.TlgId == postId)
                 .FirstOrDefaultAsync();
             response.Data = _mapper.Map<PostDto>(post);
@@ -233,7 +269,12 @@ public class PostsService(
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error ocurred while getting one channel post");
+            Log.Error(ex, "An error ocurred while getting one channel post",
+                new
+                {
+                    method = "GetChannelPost"
+                }
+            );
             response.Success = false;
             return response;
         }

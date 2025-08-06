@@ -1,23 +1,21 @@
 ﻿using AutoMapper;
 using Gather.Dtos;
 using Gather.Models;
+using Serilog;
 using System.Text.Json;
 
 namespace Gather.Services;
 
 internal class SettingsService : ISettingsService
 {
-    private readonly ILogger<SettingsService> _logger;
     private readonly IMapper _mapper;
     private readonly string _settingsFileName = "pobedit_settings.json";
     private PobeditSettings? _pobeditSettings;
     JsonSerializerOptions serializeOptions;
 
-    public SettingsService(ILogger<SettingsService> logger, IMapper mapper)
+    public SettingsService(IMapper mapper)
     {
-        _logger = logger;
         _mapper = mapper;
-        //_settingsConfig = settingsConfig;
         serializeOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -50,7 +48,13 @@ internal class SettingsService : ISettingsService
         {
             if (!File.Exists("pobedit_settings.json"))
             {
-                _logger.LogError($"Отсутствует файл настроек приложения '{_settingsFileName}'");
+                Log.Error($"Отсутствует файл настроек приложения '{_settingsFileName}'.",
+                    new
+                    {
+                        method = "InitializeAsync"
+                    }
+                );
+
                 File.Create(_settingsFileName);
                 _pobeditSettings = new PobeditSettings();
                 var json = JsonSerializer.Serialize<PobeditSettings>(_pobeditSettings, serializeOptions);
@@ -66,9 +70,14 @@ internal class SettingsService : ISettingsService
                 }
             }
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            _logger.LogError($"Ошибка чтения настроек: ${exception.Message}");
+            Log.Error($"Ошибка чтения настроек: ${ex.Message}.",
+                new
+                {
+                    method = "InitializeAsync"
+                }
+            );
             PobeditSettings = new PobeditSettings();
         }
     }
@@ -89,13 +98,18 @@ internal class SettingsService : ISettingsService
             PobeditSettings = pobeditSettings;
             response.Data = true;
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            _logger.LogError(exception, "SaveSettings");
+            Log.Error(ex, "Error saving settings.",
+                new
+                {
+                    method = "SaveSettings"
+                }
+            );
             response.Success = false;
             response.Message = "An error has occurred while applying new settings." +
                 Environment.NewLine +
-                exception.Message;
+                ex.Message;
             response.ErrorType = ErrorType.ServerError;
             response.Data = false;
         }

@@ -16,13 +16,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using Serilog.Core;
-using Serilog.Sinks.Loki;
+using Serilog.Sinks.Grafana.Loki;
 using SharedCore.Filtering;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+string OutputTemplate = "{Timestamp:dd-MM-yyyy HH:mm:ss} [{Level:u3}] [{ThreadId}] {Message}{NewLine}{Exception}";
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApiVersioning(options =>
@@ -58,32 +58,29 @@ builder.Services.Configure<RouteOptions>(options =>
 });
 
 
-Logger log = new LoggerConfiguration()
-            .MinimumLevel.Verbose()
-            .Enrich.FromLogContext()
-            .Enrich.WithProperty("MyLabelPropertyName", "MyPropertyValue")
-            .WriteTo.LokiHttp(() => new LokiSinkConfiguration
-            {
-                LokiUrl = "http://localhost:3100"
-            })
-            .CreateLogger();
-
-Log.Error("MessageProcessingHandler");
-var position = new { Latitude = 25, Longitude = 134 };
-var elapsedMs = 34;
-Log.Information("Message processed {@Position} in {Elapsed:000} ms.", position, elapsedMs);
-Log.CloseAndFlush();
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .WriteTo.Console(outputTemplate: OutputTemplate)
+    .WriteTo.GrafanaLoki(
+        uri: "http://localhost:3100",
+        labels: new List<LokiLabel>
+        {
+            new() { Key = "app", Value = "gather" },
+            //new() {Key = "env", Value = builder.Environment.EnvironmentName },
+            //new() {Key="version", Value = "1.0" }
+        },
+        propertiesAsLabels: new[] { "severity", "module" }, // Promoted to labels
+        credentials: null)
+    .CreateLogger();
 
 
 builder.Logging.ClearProviders();
-//builder.Logging.AddConsole();
 builder.Logging.AddFile(@".\logs\{Date}_log.txt").SetMinimumLevel(LogLevel.None);
-builder.Logging.AddSimpleConsole().SetMinimumLevel(LogLevel.None);
+builder.Logging.AddConsole();
 
 builder.Services.AddScoped<IdFilter>();
 builder.Services.AddScoped<UserFilter>();
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped);
-//builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Singleton);
 builder.Services.AddControllers().AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));

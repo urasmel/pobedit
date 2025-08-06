@@ -5,7 +5,7 @@ using Gather.Dtos;
 using Gather.Models;
 using Gather.Utils.Gather.Notification;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Channels;
+using Serilog;
 using TL;
 
 namespace Gather.Services.Channels;
@@ -14,13 +14,10 @@ public class ChannelsService(
     GatherClient client,
     DataContext context,
     IMapper mapper,
-    ILogger<ChannelsService> logger,
     ISettingsService _settingsService,
     IGatherNotifierFabric loadingHelperFabric) : IChannelsService
 {
     // Дата, с которой начинаем загружать данные.
-    //private readonly DateTime startLoadingDate = DateTime.Parse("May 15, 2025");
-    readonly ILogger _logger = logger;
     readonly GatherClient _client = client;
     private readonly IMapper _mapper = mapper;
     private readonly DataContext _context = context;
@@ -35,7 +32,12 @@ public class ChannelsService(
 
         if (_context.Channels == null)
         {
-            _logger.LogError("GetAllChannels, _context.Channels is null");
+            Log.Error("_context.Channels is null",
+                new
+                {
+                    method = "GetAllChannels"
+                }
+            );
             response.Success = false;
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
@@ -70,7 +72,12 @@ public class ChannelsService(
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "GetAllChannels");
+            Log.Error(exception, "Error fetching all channels.",
+                new
+                {
+                    method = "GetAccountsAsync"
+                }
+            );
             response.Success = false;
             response.Message = "An error has occurred while getting all channels." +
                 Environment.NewLine +
@@ -102,9 +109,12 @@ public class ChannelsService(
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception,
-                "UpdateChannels" + Environment.NewLine +
-                "The error while logging telegram user.");
+            Log.Error(exception, "The error while logging telegram user.",
+                new
+                {
+                    method = "UpdateChannels"
+                }
+            );
 
             response.Success = false;
             response.Message = "Unable to login to Telegram";
@@ -202,7 +212,13 @@ public class ChannelsService(
                             await _context.SaveChangesAsync();
 
                             channelCount++;
-                            _logger.LogInformation($"Channel {channelCount} added to collection: {addedChat.Title}");
+                            Log.Information($"Channel {channelCount} added to collection: {addedChat.Title}",
+                                new
+                                {
+                                    method = "UpdateChannels"
+                                }
+                            );
+
                             // TODO Delete in Production
                             if (channelCount > 10)
                             {
@@ -215,16 +231,23 @@ public class ChannelsService(
                     { }
                     else
                     {
-                        _logger.LogWarning("Chat neither char not channel");
+                        Log.Warning("Chat neither char not channel.",
+                            new
+                            {
+                                method = "UpdateChannels"
+                            }
+                        );
                     }
 
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError(
-                        exception.Message + Environment.NewLine +
-                        exception.StackTrace + Environment.NewLine +
-                        $"channel is: {chatsFromTG[i].Title}", "UpdateChannels");
+                    Log.Error(exception, "Error updating channels.",
+                        new
+                        {
+                            method = "UpdateChannels"
+                        }
+                    );
                 }
                 Thread.Sleep(random.Next(500, 2000));
             }
@@ -234,7 +257,12 @@ public class ChannelsService(
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "UpdateChannels");
+            Log.Error(exception, "Error updating channels.",
+                new
+                {
+                    method = "UpdateChannels"
+                }
+            );
             response.Success = false;
             response.Message =
                 "The error while getting all updated channels occurred."
@@ -259,7 +287,12 @@ public class ChannelsService(
         {
             if (_context.Channels == null)
             {
-                _logger.LogError("DB context with channels is null.");
+                Log.Error("DB context with channels is null.",
+                    new
+                    {
+                        method = "GetChannelInfo"
+                    }
+                );
                 response.Success = false;
                 response.Message = "Error fetching data from DB.";
                 response.ErrorType = ErrorType.ServerError;
@@ -286,7 +319,12 @@ public class ChannelsService(
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception.Message, exception);
+            Log.Error(exception, "Error fetching channel's info.",
+                new
+                {
+                    method = "GetChannelInfo"
+                }
+            );
             response.Success = false;
             response.Data = null;
             response.Message = exception.Message;
@@ -305,9 +343,12 @@ public class ChannelsService(
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "UpdateChannels"
-                + Environment.NewLine
-                + "The error while logging telegram user.");
+            Log.Error(exception, "The error while logging telegram user.",
+                new
+                {
+                    method = "UpdateChannelInfo"
+                }
+            );
             response.Success = false;
             response.Message = "Unable to login to Telegram";
             response.ErrorType = ErrorType.ServerError;
@@ -316,7 +357,12 @@ public class ChannelsService(
 
         if (_context.Channels == null)
         {
-            _logger.LogError("DB context with channels is null.");
+            Log.Error("DB context with channels is null.",
+                new
+                {
+                    method = "UpdateChannelInfo"
+                }
+            );
             response.Success = false;
             response.Message = "Error fetching data from DB.";
             response.ErrorType = ErrorType.ServerError;
@@ -375,7 +421,12 @@ public class ChannelsService(
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception.Message, exception);
+            Log.Error(exception, "Error updating channel's info.",
+                new
+                {
+                    method = "UpdateChannelInfo"
+                }
+            );
             response.Success = false;
             response.Data = null;
             response.Message = exception.Message;

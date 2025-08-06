@@ -26,7 +26,8 @@ export const PostWidget = ({ post, showCommentsLink = true, showTitle = true }: 
             sx={{
                 width: "100%",
                 padding: 1,
-                boxSizing: "border-box"
+                boxSizing: "border-box",
+                boxShadow: "rgba(0, 0, 0, 0.35) 1px 1px 5px"
             }}
         >
             <CardContent

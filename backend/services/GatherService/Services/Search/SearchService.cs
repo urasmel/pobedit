@@ -5,6 +5,7 @@ using Gather.Dtos.Comments;
 using Gather.Dtos.Posts;
 using Gather.Models;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace Gather.Services.Search;
 
@@ -12,13 +13,11 @@ public class SearchService : ISearchService
 {
     private readonly IMapper _mapper;
     private readonly DataContext _context;
-    private readonly ILogger<SearchService> _logger;
 
-    public SearchService(IMapper mapper, DataContext context, ILogger<SearchService> logger)
+    public SearchService(IMapper mapper, DataContext context)
     {
         _mapper = mapper;
         _context = context;
-        _logger = logger;
     }
 
     public async Task<ServiceResponse<object>> Search(SearchQuery query)
@@ -27,7 +26,12 @@ public class SearchService : ISearchService
 
         if (query.SearchType == SearchType.Posts && _context.Posts == null)
         {
-            _logger.LogError("Posts table is null");
+            Log.Error("Posts table is null",
+                new
+                {
+                    method = "Search"
+                }
+            );
             response.Success = false;
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
@@ -35,7 +39,12 @@ public class SearchService : ISearchService
         }
         else if (query.SearchType == SearchType.Comments && _context.Comments == null)
         {
-            _logger.LogError("Comments table is null");
+            Log.Error("Comments table is null",
+                new
+                {
+                    method = "Search"
+                }
+            );
             response.Success = false;
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
@@ -105,7 +114,13 @@ public class SearchService : ISearchService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            Log.Error(ex.Message);
+            Log.Error(ex, "Error searching",
+                new
+                {
+                    method = "Search"
+                }
+            );
             response.Success = false;
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;

@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import { ErrorBoundary } from "@/shared/components/errors/error-boundary";
-import { LoadingWidget } from "@/shared/components/loading/loading-widget";
+import { PageFallback } from "@/shared/components/loading";
 const NotFoundPage = lazy(() => import("../../pages/not-found"));
 const PostPage = lazy(() => import("../../pages/post"));
 const HomePage = lazy(() => import("../../pages/home"));
@@ -18,7 +18,7 @@ const AccountsPage = lazy(() => import("../../pages/accounts"));
 export const AppRouter = () => {
     return (
         <ErrorBoundary>
-            <Suspense fallback={<LoadingWidget />}>
+            <Suspense fallback={<PageFallback />}>
                 <Routes>
                     <Route
                         path="/"
