@@ -3,6 +3,7 @@ using Gather.Dtos;
 using Gather.Models;
 using Gather.Services.Users;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using SharedCore.Filtering;
 
 namespace Gather.Controllers
@@ -24,9 +25,18 @@ namespace Gather.Controllers
         [MapToApiVersion(1.0)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ServiceResponse<List<GetUserDto>>>> Get()
+        public async Task<ActionResult<ServiceResponse<IEnumerable<GetUserDto>>>> Get()
         {
-            return Ok(await _userService.GetAllUsersAsync());
+            Log.Information("All users requested at {Time}",
+                DateTime.Now,
+                new
+                {
+                    method = "Get"
+                }
+            );
+
+            var users = await _userService.GetAllUsersAsync();
+            return Ok(users);
         }
 
         [HttpGet("{id}")]
@@ -37,6 +47,14 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ServiceResponse<GetUserDto>>> GetSingle([FromRoute] int id)
         {
+            Log.Information("User requested at {Time}",
+                DateTime.Now,
+                new
+                {
+                    method = "GetSingle"
+                }
+            );
+
             var response = await _userService.GetUserIdAsync(id);
             if (response.Data == null)
             {
@@ -46,6 +64,7 @@ namespace Gather.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, response);
             }
+
             return Ok(response);
         }
 
@@ -57,6 +76,14 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult<ServiceResponse<GetUserDto>>> Add(AddUserDto user)
         {
+            Log.Information("User adding requested at {Time}",
+                DateTime.Now,
+                new
+                {
+                    method = "Add"
+                }
+            );
+
             var response = await _userService.AddUserAsync(user);
             if (response.Data == 0)
             {
@@ -70,6 +97,7 @@ namespace Gather.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, response);
             }
+
             return Ok(response);
         }
 
@@ -80,6 +108,14 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ServiceResponse<GetUserDto>>> Delete(int id)
         {
+            Log.Information("User deleting requested at {Time}",
+                DateTime.Now,
+                new
+                {
+                    method = "Delete"
+                }
+            );
+
             var response = await _userService.DeleteUserAsync(id);
 
             if (response.Success == false)
@@ -101,6 +137,14 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ServiceResponse<GetUserDto>>> Edit(User user)
         {
+            Log.Information("User editing requested at {Time}", 
+                DateTime.Now,
+                new
+                {
+                    method = "Edit"
+                }
+            );
+
             var response = await _userService.EditUserAsync(user);
 
             if (response.Success == false)

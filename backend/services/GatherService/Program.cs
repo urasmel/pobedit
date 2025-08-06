@@ -1,6 +1,8 @@
 using Asp.Versioning;
 using Gather.Client;
 using Gather.Data;
+using Gather.Filters;
+using Gather.Middlewares;
 using Gather.ServiceFactories;
 using Gather.Services;
 using Gather.Services.Accounts;
@@ -47,8 +49,8 @@ var phoneNumber = builder.Configuration["Pobedit:PhoneNumber"];
 
 if (apiId == null || apiHash == null || phoneNumber == null)
 {
-    Console.WriteLine("Configuration data for the telegram account is missing.");
-    Log.Error("Configuration data for the telegram account is missing.");
+    Console.WriteLine("Configuration data for the telegram account is missing");
+    Log.Error("Configuration data for the telegram account is missing");
     return;
 }
 
@@ -73,7 +75,6 @@ Log.Logger = new LoggerConfiguration()
         credentials: null)
     .CreateLogger();
 
-
 builder.Logging.ClearProviders();
 builder.Logging.AddFile(@".\logs\{Date}_log.txt").SetMinimumLevel(LogLevel.None);
 builder.Logging.AddConsole();
@@ -81,7 +82,11 @@ builder.Logging.AddConsole();
 builder.Services.AddScoped<IdFilter>();
 builder.Services.AddScoped<UserFilter>();
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped);
-builder.Services.AddControllers().AddJsonOptions(options =>
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ApiExceptionFilter>();
+})
+    .AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
         });
@@ -124,11 +129,6 @@ ConfigUtilsFactory.Create(
     apiId,
     apiHash,
     phoneNumber));
-//builder.Services.AddScoped<IConfigUtils>(sp =>
-//ConfigUtilsFactory.Create(
-//    apiId,
-//    apiHash,
-//    phoneNumber));
 builder.Services.AddSingleton<IGatherService, GatherService>();
 builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddSingleton<GatherClient>();
@@ -153,6 +153,7 @@ var webSocketOptions = new WebSocketOptions
 {
     KeepAliveInterval = TimeSpan.FromMinutes(2)
 };
+app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseWebSockets(webSocketOptions);
 app.UseCors(allowedOriginsForCors);
 app.UseAuthorization();

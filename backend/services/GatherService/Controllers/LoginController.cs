@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Gather.Dtos;
 using Gather.Models;
-using Gather.Dtos;
 using Gather.Services.Login;
+using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace Gather.Controllers
 {
@@ -19,6 +20,14 @@ namespace Gather.Controllers
         [HttpPost("/login")]
         public async Task<ActionResult<ServiceResponse<int>>> Login(LoginDto loginDto)
         {
+            Log.Information("Login requested at {Time}",
+                DateTime.Now,
+                new
+                {
+                    method = "Login"
+                }
+            );
+
             var response = await _loginService.Login(loginDto);
             if (!response.Success)
             {

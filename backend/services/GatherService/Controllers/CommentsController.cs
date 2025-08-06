@@ -3,6 +3,7 @@ using Gather.Dtos;
 using Gather.Services.Channels;
 using Gather.Services.Comments;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace Gather.Controllers
 {
@@ -23,6 +24,13 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<CommentDto>>> GetAllPostComments(long channelId, long postId, int offset = 0, int count = 20)
         {
+            Log.Information("All post's comments requested at {Time}",
+                DateTime.Now,
+                new
+                {
+                    method = "GetAllPostComments"
+                }
+            );
             var response = await _commentsService.GetComments(channelId, postId, offset, count);
 
             if (response.Message == "Channel not found")
@@ -42,6 +50,14 @@ namespace Gather.Controllers
         [Route("{channelId}/{postId}/update")]
         public async Task UpdatePostComments(long channelId, long postId)
         {
+            Log.Information("Updating post's comments requested at {Time}",
+                DateTime.Now,
+                new
+                {
+                    method = "UpdatePostComments"
+                }
+            );
+
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
                 using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
@@ -61,6 +77,14 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<long>> GetPostCommentsCount(long channelId, long postId)
         {
+            Log.Information("Post's comments count requested at {Time}",
+                DateTime.Now,
+                new
+                {
+                    method = "GetPostCommentsCount"
+                }
+            );
+
             var response = await _commentsService.GetCommentsCount(channelId, postId);
 
             if (response.Message == "Channel not found")

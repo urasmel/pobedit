@@ -72,14 +72,14 @@ public class ChannelsService(
         }
         catch (Exception exception)
         {
-            Log.Error(exception, "Error fetching all channels.",
+            Log.Error(exception, "Error fetching all channels",
                 new
                 {
                     method = "GetAccountsAsync"
                 }
             );
             response.Success = false;
-            response.Message = "An error has occurred while getting all channels." +
+            response.Message = "An error has occurred while getting all channels" +
                 Environment.NewLine +
                 exception.Message;
             response.ErrorType = ErrorType.ServerError;
@@ -109,7 +109,7 @@ public class ChannelsService(
         }
         catch (Exception exception)
         {
-            Log.Error(exception, "The error while logging telegram user.",
+            Log.Error(exception, "The error while logging telegram user",
                 new
                 {
                     method = "UpdateChannels"
@@ -212,7 +212,9 @@ public class ChannelsService(
                             await _context.SaveChangesAsync();
 
                             channelCount++;
-                            Log.Information($"Channel {channelCount} added to collection: {addedChat.Title}",
+                            Log.Information("Channel {channelCount} added to collection: {addedChat.Title}", 
+                                channelCount, 
+                                addedChat.Title,
                                 new
                                 {
                                     method = "UpdateChannels"
@@ -231,7 +233,7 @@ public class ChannelsService(
                     { }
                     else
                     {
-                        Log.Warning("Chat neither char not channel.",
+                        Log.Warning("Chat neither char not channel",
                             new
                             {
                                 method = "UpdateChannels"
@@ -242,7 +244,7 @@ public class ChannelsService(
                 }
                 catch (Exception exception)
                 {
-                    Log.Error(exception, "Error updating channels.",
+                    Log.Error(exception, "Error updating channels",
                         new
                         {
                             method = "UpdateChannels"
@@ -257,7 +259,7 @@ public class ChannelsService(
         }
         catch (Exception exception)
         {
-            Log.Error(exception, "Error updating channels.",
+            Log.Error(exception, "Error updating channels",
                 new
                 {
                     method = "UpdateChannels"
@@ -265,7 +267,7 @@ public class ChannelsService(
             );
             response.Success = false;
             response.Message =
-                "The error while getting all updated channels occurred."
+                "The error while getting all updated channels occurred"
                 + Environment.NewLine + exception.Message;
             response.ErrorType = ErrorType.ServerError;
             response.Data = [];
@@ -287,14 +289,14 @@ public class ChannelsService(
         {
             if (_context.Channels == null)
             {
-                Log.Error("DB context with channels is null.",
+                Log.Error("DB context with channels is null",
                     new
                     {
                         method = "GetChannelInfo"
                     }
                 );
                 response.Success = false;
-                response.Message = "Error fetching data from DB.";
+                response.Message = "Error fetching data from DB";
                 response.ErrorType = ErrorType.ServerError;
                 response.Data = null;
                 return response;
@@ -306,7 +308,7 @@ public class ChannelsService(
             if (channel == null)
             {
                 response.Success = false;
-                response.Message = "Channel not found.";
+                response.Message = "Channel not found";
                 response.ErrorType = ErrorType.NotFound;
                 response.Data = null;
                 return response;
@@ -319,7 +321,7 @@ public class ChannelsService(
         }
         catch (Exception exception)
         {
-            Log.Error(exception, "Error fetching channel's info.",
+            Log.Error(exception, "Error fetching channel's info",
                 new
                 {
                     method = "GetChannelInfo"
@@ -343,7 +345,7 @@ public class ChannelsService(
         }
         catch (Exception exception)
         {
-            Log.Error(exception, "The error while logging telegram user.",
+            Log.Error(exception, "The error while logging telegram user",
                 new
                 {
                     method = "UpdateChannelInfo"
@@ -357,14 +359,14 @@ public class ChannelsService(
 
         if (_context.Channels == null)
         {
-            Log.Error("DB context with channels is null.",
+            Log.Error("DB context with channels is null",
                 new
                 {
                     method = "UpdateChannelInfo"
                 }
             );
             response.Success = false;
-            response.Message = "Error fetching data from DB.";
+            response.Message = "Error fetching data from DB";
             response.ErrorType = ErrorType.ServerError;
             response.Data = null;
             return response;
@@ -421,7 +423,7 @@ public class ChannelsService(
         }
         catch (Exception exception)
         {
-            Log.Error(exception, "Error updating channel's info.",
+            Log.Error(exception, "Error updating channel's info",
                 new
                 {
                     method = "UpdateChannelInfo"

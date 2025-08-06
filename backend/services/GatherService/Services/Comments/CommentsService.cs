@@ -32,14 +32,15 @@ public class CommentsService(
 
         if (_context.Comments == null)
         {
-            Log.Error("DB context with comments is null.",
+            Log.Error("DB context with comments is null",
                 new
                 {
                     method = "GetCommentsCount"
                 }
             );
+
             response.Success = false;
-            response.Message = "Error fetching data from DB.";
+            response.Message = "Error fetching data from DB";
             response.ErrorType = ErrorType.ServerError;
             response.Data = 0;
             return response;
@@ -81,12 +82,13 @@ public class CommentsService(
 
         if (_context.Comments == null)
         {
-            Log.Error("_context.Comments is null.",
+            Log.Error("_context.Comments is null",
                 new
                 {
                     method = "GetComments"
                 }
             );
+
             response.Success = false;
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
@@ -100,12 +102,15 @@ public class CommentsService(
 
             if (pId == null)
             {
-                Log.Error($"Post not found. chatId: {chatId}, postId: {postId}.",
+                Log.Error("Post not found. chatId: {chatId}, postId: {postId}",
+                    chatId, 
+                    postId,
                     new
                     {
                         method = "GetComments"
                     }
                 );
+
                 response.Success = false;
                 response.Message = "Post not found";
                 response.ErrorType = ErrorType.ServerError;
@@ -125,14 +130,15 @@ public class CommentsService(
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error fetching comments.",
+            Log.Error(ex, "Error fetching comments",
                 new
                 {
                     method = "GetComments"
                 }
             );
+
             response.Success = false;
-            response.Message = "An error has occurred while getting comments." +
+            response.Message = "An error has occurred while getting comments" +
                 Environment.NewLine +
                 ex.Message;
             response.ErrorType = ErrorType.ServerError;

@@ -48,7 +48,8 @@ internal class SettingsService : ISettingsService
         {
             if (!File.Exists("pobedit_settings.json"))
             {
-                Log.Error($"Отсутствует файл настроек приложения '{_settingsFileName}'.",
+                Log.Error("Отсутствует файл настроек приложения: {file}",
+                    _settingsFileName,
                     new
                     {
                         method = "InitializeAsync"
@@ -72,7 +73,7 @@ internal class SettingsService : ISettingsService
         }
         catch (Exception ex)
         {
-            Log.Error($"Ошибка чтения настроек: ${ex.Message}.",
+            Log.Error(ex, "Ошибка чтения настроек",
                 new
                 {
                     method = "InitializeAsync"
@@ -100,14 +101,14 @@ internal class SettingsService : ISettingsService
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error saving settings.",
+            Log.Error(ex, "Error saving settings",
                 new
                 {
                     method = "SaveSettings"
                 }
             );
             response.Success = false;
-            response.Message = "An error has occurred while applying new settings." +
+            response.Message = "An error has occurred while applying new settings" +
                 Environment.NewLine +
                 ex.Message;
             response.ErrorType = ErrorType.ServerError;

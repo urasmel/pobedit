@@ -34,14 +34,14 @@ public class PostsService(
         {
             if (_context.Posts == null)
             {
-                Log.Error("DB context with posts is null.",
+                Log.Error("DB context with posts is null",
                     new
                     {
                         method = "GetChannelPosts"
                     }
                 );
                 response.Success = false;
-                response.Message = "Error fetching data from DB.";
+                response.Message = "Error fetching data from DB";
                 response.ErrorType = ErrorType.ServerError;
                 response.Data = [];
                 return response;
@@ -76,9 +76,9 @@ public class PostsService(
 
         if (_context.Posts == null)
         {
-            Log.Error("DB context with posts is null.");
+            Log.Error("DB context with posts is null");
             response.Success = false;
-            response.Message = "Error fetching data from DB.";
+            response.Message = "Error fetching data from DB";
             response.ErrorType = ErrorType.ServerError;
             response.Data = [];
             return response;
@@ -123,14 +123,14 @@ public class PostsService(
 
         if (_context.Posts == null)
         {
-            Log.Error("DB context with posts is null.",
+            Log.Error("DB context with posts is null",
                 new
                 {
                     method = "GetChannelPosts"
                 }
             );
             response.Success = false;
-            response.Message = "Error fetching data from DB.";
+            response.Message = "Error fetching data from DB";
             response.ErrorType = ErrorType.ServerError;
             response.Data = [];
             return response;
@@ -148,7 +148,7 @@ public class PostsService(
         if (startPostTlgId <= 0)
         {
             response.Success = false;
-            response.Message = "Malformed parameter: the identifier of the start post.";
+            response.Message = "Malformed parameter: the identifier of the start post";
             response.ErrorType = ErrorType.MalFormedData;
             response.Data = [];
             return response;
@@ -186,14 +186,14 @@ public class PostsService(
 
         if (_context.Posts == null)
         {
-            Log.Error("DB context with posts is null.",
+            Log.Error("DB context with posts is null",
                 new
                 {
                     method = "GetChannelPostsCount"
                 }
             );
             response.Success = false;
-            response.Message = "Error fetching data from DB.";
+            response.Message = "Error fetching data from DB";
             response.ErrorType = ErrorType.ServerError;
             response.Data = 0;
             return response;
@@ -214,7 +214,7 @@ public class PostsService(
         if (channel == null)
         {
             response.Success = false;
-            response.Message = "Channel not found.";
+            response.Message = "Channel not found";
             response.ErrorType = ErrorType.NotFound;
             return response;
         }
@@ -247,14 +247,14 @@ public class PostsService(
         {
             if (_context.Posts == null)
             {
-                Log.Error("DB context with posts is null.",
+                Log.Error("DB context with posts is null",
                     new
                     {
                         method = "GetChannelPost"
                     }
                 );
                 response.Success = false;
-                response.Message = "Error fetching data from DB.";
+                response.Message = "Error fetching data from DB";
                 response.ErrorType = ErrorType.ServerError;
                 return response;
             }

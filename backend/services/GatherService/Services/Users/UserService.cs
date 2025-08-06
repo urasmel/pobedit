@@ -46,7 +46,7 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error to login user.",
+            Log.Error(ex, "Error to login user",
                 new
                 {
                     method = "GetUserIdAsync"
@@ -80,7 +80,7 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error fetching all users.",
+            Log.Error(ex, "Error fetching all users",
                 new
                 {
                     method = "GetAllUsersAsync"
@@ -131,7 +131,7 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error adding user.",
+            Log.Error(ex, "Error adding user",
                 new
                 {
                     method = "AddUserAsync"
@@ -176,7 +176,7 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error deleting user.",
+            Log.Error(ex, "Error deleting user",
                 new
                 {
                     method = "DeleteUserAsync"
@@ -245,7 +245,7 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error editing user.",
+            Log.Error(ex, "Error editing user",
                 new
                 {
                     method = "EditUserAsync"

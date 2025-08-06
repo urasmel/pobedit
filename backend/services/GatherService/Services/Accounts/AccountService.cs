@@ -49,7 +49,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
             response.Success = false;
-            Log.Error(ex, "Error fetching account.",
+            Log.Error(ex, "Error fetching account",
                 new
                 {
                     method = "GetAccountAsync"
@@ -99,7 +99,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
             response.Success = false;
-            Log.Error(ex, "Error fetching comments.",
+            Log.Error(ex, "Error fetching comments",
                 new
                 {
                     method = "GetCommentsAsync"
@@ -132,7 +132,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
             response.Success = false;
-            Log.Error(ex, "Error fetching comments count.",
+            Log.Error(ex, "Error fetching comments count",
                 new
                 {
                     method = "GetCommentsCountAsync"
@@ -152,7 +152,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         }
         catch (Exception exception)
         {
-            Log.Error(exception, "Error updating acccount.",
+            Log.Error(exception, "Error updating acccount",
                 new
                 {
                     method = "UpdateAccountAsync"
@@ -315,7 +315,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error updating account.",
+            Log.Error(ex, "Error updating account",
                 new
                 {
                     method = "UpdateAccountAsync"
@@ -342,7 +342,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "The error while logging telegram user.",
+            Log.Error(ex, "The error while logging telegram user",
                 new
                 {
                     method = "ChangeTracking"
@@ -366,7 +366,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error change tracking of the account.",
+            Log.Error(ex, "Error change tracking of the account",
                 new
                 {
                     method = "ChangeTracking"
@@ -389,7 +389,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
         Log.Information("Start fetching accounts. Extra info is {info}",
             new
             {
-                mathod = "GetAccountsAsync"
+                method = "GetAccountsAsync"
             }
         );
 
@@ -442,7 +442,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
             response.Success = false;
-            Log.Error(ex, "Error fetching accounts.",
+            Log.Error(ex, "Error fetching accounts",
                 new
                 {
                     method = "GetAccountsAsync"
@@ -492,7 +492,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
             response.Success = false;
-            Log.Error(ex, "Error fetching accounts count.",
+            Log.Error(ex, "Error fetching accounts count",
                 new
                 {
                     method = "GetCountAsync"

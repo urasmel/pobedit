@@ -29,6 +29,15 @@ public class GatherController : ControllerBase
     [HttpGet("start")]
     public async Task<ActionResult<ServiceResponse<bool>>> StartGather()
     {
+        Log.Information("Start gathering requested at {Time}", 
+            DateTime.Now,
+            new
+            {
+                method = "StartGather"
+            }
+
+        );
+
         var task = new BackgroundTask();
 
         try
@@ -37,22 +46,26 @@ public class GatherController : ControllerBase
 
             if (response.Success)
             {
-                Log.Information($"Task {task.Id} enqueued successfully.",
+                Log.Information("Task {taskId} enqueued successfully",
+                    task.Id,
                     new
                     {
                         method = "StartGather"
                     }
                 );
+
                 return Accepted(response);
             }
             else
             {
-                Log.Information($"Task {task.Id} enqueued with error.",
+                Log.Information("Task {taskId} enqueued with error",
+                    task.Id,
                     new
                     {
                         method = "StartGather"
                     }
                 );
+
                 if (response.ErrorType == ErrorType.TooManyRequests)
                 {
                     return StatusCode(StatusCodes.Status429TooManyRequests);
@@ -65,12 +78,13 @@ public class GatherController : ControllerBase
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error starting gather.",
+            Log.Error(ex, "Error starting gather",
                 new
                 {
                     method = "StartGather"
                 }
             );
+
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
@@ -84,7 +98,16 @@ public class GatherController : ControllerBase
     {
         try
         {
+            Log.Information("Stop gathering requested at {Time}",
+                DateTime.Now,
+                new
+                {
+                    method = "StopGather"
+                }
+            );
+
             var result = _gatherService.StopGatherAsync();
+
             return result;
         }
         catch (Exception ex)
@@ -95,6 +118,7 @@ public class GatherController : ControllerBase
                     method = "StopGather"
                 }
             );
+
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
@@ -107,6 +131,14 @@ public class GatherController : ControllerBase
     [HttpGet("state")]
     public ActionResult<ServiceResponse<GatherStateDto>> GetGatherStatus()
     {
+        Log.Information("Gathering result requested at {Time}",
+            DateTime.Now,
+            new
+            {
+                method = "GetGatherStatus"
+            }
+        );
+
         var response = _gatherService.GetGatherState();
         if (!response.Success)
         {

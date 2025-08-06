@@ -3,6 +3,7 @@ using Gather.Dtos;
 using Gather.Models;
 using Gather.Services.Channels;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using TL;
 
 namespace Gather.Controllers;
@@ -26,6 +27,14 @@ public class ChannelsController(IChannelsService channelsService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ServiceResponse<IEnumerable<ChannelDto>>>> GetAllChannels()
     {
+        Log.Information("All channels requested at {Time}",
+                DateTime.Now,
+            new
+            {
+                method = "GetAllChannels"
+            }
+        );
+
         var response = await _channelsService.GetAllChannels();
         if (!response.Success)
         {
@@ -44,8 +53,16 @@ public class ChannelsController(IChannelsService channelsService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ServiceResponse<List<ChatBase>>>> GetAllUpdatedChannels()
+    public async Task<ActionResult<ServiceResponse<IEnumerable<ChatBase>>>> GetAllUpdatedChannels()
     {
+        Log.Information("Updating channels requested at {Time}",
+                DateTime.Now,
+            new
+            {
+                method = "GetAllUpdatedChannels"
+            }
+        );
+
         var response = await _channelsService.UpdateChannels();
         if (!response.Success)
         {
@@ -67,8 +84,16 @@ public class ChannelsController(IChannelsService channelsService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ChannelDto>> GetChannelInfo(long channelId)
     {
+        Log.Information("Channel info requested at {Time}",
+                DateTime.Now,
+            new
+            {
+                method = "GetChannelInfo"
+            }
+        );
+
         var response = await _channelsService.GetChannelInfo(channelId);
-        if (response.Message == "Channel not found.")
+        if (response.Message == "Channel not found")
         {
             return NotFound(response);
         }
@@ -89,6 +114,14 @@ public class ChannelsController(IChannelsService channelsService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ChannelDto>> UpdateChannelInfo(long channelId)
     {
+        Log.Information("Updating channel info requested at {Time}",
+                DateTime.Now,
+            new
+            {
+                method = "UpdateChannelInfo"
+            }
+        );
+
         var response = await _channelsService.UpdateChannelInfo(channelId);
         if (response.Message == "Channel not found")
         {
@@ -102,5 +135,4 @@ public class ChannelsController(IChannelsService channelsService) : ControllerBa
 
         return Ok(response);
     }
-
 }

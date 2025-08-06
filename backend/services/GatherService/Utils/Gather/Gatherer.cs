@@ -25,19 +25,28 @@ public static class Gatherer
         //await Task.Delay(1000);
         //return;
 
+        Log.Information("Starting update posts of channel {channel} and info {info}",
+            chatId,
+            new
+            {
+                method = "GetAccountsAsync"
+            }
+        );
+
         try
         {
             await _client.LoginUserIfNeeded();
         }
         catch (Exception ex)
         {
-            var errorMessage = "The error while logging telegram user.";
+            var errorMessage = "The error while logging telegram user";
             Log.Error(ex, errorMessage,
                 new
                 {
                     method = "GetAccountsAsync"
                 }
             );
+
             await loadingHelper.NotifyFailureEndingAsync(errorMessage);
             return;
         }
@@ -52,7 +61,7 @@ public static class Gatherer
 
             if (!peersWithKey.Any())
             {
-                var errorMessage = "Channel not found in subscriptions. You may have unsubscribed from the channel.";
+                var errorMessage = "Channel not found in subscriptions. You may have unsubscribed from the channel";
                 await loadingHelper.NotifyFailureEndingAsync(errorMessage);
                 return;
             }
@@ -74,7 +83,7 @@ public static class Gatherer
                 if (lastMessagesBase is not Messages_ChannelMessages channelMessages)
                 {
                     await loadingHelper.NotifySuccessEndingAsync("Channel peer is not ChannelMessages");
-                    Log.Error("Channel peer is not ChannelMessages.",
+                    Log.Error("Channel peer is not ChannelMessages",
                         new
                         {
                             method = "UpdateChannelPosts"
@@ -85,13 +94,14 @@ public static class Gatherer
 
                 if (channelMessages.count == 0)
                 {
-                    await loadingHelper.NotifySuccessEndingAsync($"No data in the channel {peer.ID}.");
-                    Log.Error($"No data in the channel {peer.ID}.",
+                    await loadingHelper.NotifySuccessEndingAsync($"No data in the channel {peer.ID}");
+                    Log.Error("No data in the channel {peerID}",
+                        peer.ID,
                         new
                         {
                             method = "UpdateChannelPosts"
                         }
-                    );
+                    ); 
                     return;
                 }
 
@@ -122,7 +132,6 @@ public static class Gatherer
 
                 for (int index = channelMessages.messages.Length - 1; index >= 0; index--)
                 {
-
                     // TODO Тестируем этот код.
                     // TODO Если текста нет, то отбрасываем. Исправить потом, чтобы все ел.
                     if (channelMessages.messages[index] is TL.Message msg && !string.IsNullOrEmpty(msg.message))
@@ -175,24 +184,26 @@ public static class Gatherer
         catch (InvalidOperationException ex)
         {
             var errorMessage = "An error ocurred while updating channel's posts." +
-                " You may no longer subscribe to this channel.";
+                " You may no longer subscribe to this channel";
             Log.Error(ex, errorMessage,
                 new
                 {
                     method = "UpdateChannelPosts"
                 }
             );
+
             await loadingHelper.NotifyFailureEndingAsync(errorMessage);
         }
         catch (Exception ex)
         {
-            var errorMessage = "An error ocurred while updating channel's posts.";
+            var errorMessage = "An error ocurred while updating channel's posts";
             Log.Error(ex, errorMessage,
                 new
                 {
                     method = "UpdateChannelPosts"
                 }
             );
+
             await loadingHelper.NotifyFailureEndingAsync(errorMessage);
         }
     }
@@ -209,13 +220,22 @@ public static class Gatherer
         //await Task.Delay(1000);
         //return;
 
+        Log.Information("Starting update post's comments of channel = {channel}, post = {post} and info {info}",
+            chatId,
+            postId,
+            new
+            {
+                method = "UpdatePostComments"
+            }
+        );
+
         try
         {
             await _client.LoginUserIfNeeded();
         }
         catch (Exception ex)
         {
-            var errorMessage = "The error while logging telegram user.";
+            var errorMessage = "The error while logging telegram user";
             Log.Error(ex, errorMessage,
                 new
                 {
@@ -228,7 +248,7 @@ public static class Gatherer
 
         if (_context.Channels == null)
         {
-            var errorMessage = "An error ocurred while updating post's comments. DB error.";
+            var errorMessage = "An error ocurred while updating post's comments. DB error";
             Log.Error(errorMessage,
                 new
                 {
@@ -242,7 +262,7 @@ public static class Gatherer
         var chan = await _context.Channels.Where(c => c.TlgId == chatId).FirstOrDefaultAsync();
         if (chan == null)
         {
-            var errorMessage = "The channel is not found.";
+            var errorMessage = "The channel is not found";
             Log.Error(errorMessage,
                 new
                 {
@@ -255,20 +275,20 @@ public static class Gatherer
 
         if (!chan.HasComments)
         {
-            var errorMessage = "The channel has no comments.";
-            Log.Error(errorMessage,
+            var message = "The channel has no comments";
+            Log.Information(message,
                 new
                 {
                     method = "UpdatePostComments"
                 }
             );
-            await loadingHelper.NotifyFailureEndingAsync(errorMessage);
+            await loadingHelper.NotifyFailureEndingAsync(message);
             return;
         }
 
         if (_context.Comments == null)
         {
-            var errorMessage = "An error ocurred while updating post's comments. DB error.";
+            var errorMessage = "An error ocurred while updating post's comments. DB error";
             Log.Error(errorMessage,
                 new
                 {
@@ -281,7 +301,7 @@ public static class Gatherer
 
         if (_context.Posts == null)
         {
-            var errorMessage = "An error ocurred while updating post's comments. DB error.";
+            var errorMessage = "An error ocurred while updating post's comments. DB error";
             Log.Error(errorMessage,
                 new
                 {
@@ -295,7 +315,7 @@ public static class Gatherer
         var post = await _context.Posts.FirstAsync(p => p.TlgId == postId && p.PeerId == chatId);
         if (post == null)
         {
-            var errorMessage = "An error ocurred while updating post's comments. Post not found in DB.";
+            var errorMessage = "An error ocurred while updating post's comments. Post not found in DB";
             Log.Error(errorMessage,
                 new
                 {
@@ -306,7 +326,6 @@ public static class Gatherer
             return;
         }
 
-
         if (message_chats == null)
         {
             message_chats = await _client.Messages_GetAllChats();
@@ -314,14 +333,15 @@ public static class Gatherer
 
         if (!message_chats.chats.ContainsKey(chatId))
         {
-            var errorMessage = "An error ocurred while updating post's comments." +
-                "Cannot find channel in telegram. You may have unsubscribed from the channel.";
+            var errorMessage = "An error ocurred while updating post's comments. " +
+                "Cannot find channel in telegram. You may have unsubscribed from the channel";
             Log.Error(errorMessage,
                 new
                 {
                     method = "UpdatePostComments"
                 }
             );
+
             await loadingHelper.NotifyFailureEndingAsync(errorMessage);
             return;
         }
@@ -355,7 +375,7 @@ public static class Gatherer
                 || messages.Messages == null
                 || messages.Messages.Length == 0)
             {
-                var errorMessage = "Post not found.";
+                var errorMessage = "Post not found";
                 Log.Error(errorMessage,
                     new
                     {
@@ -369,7 +389,7 @@ public static class Gatherer
             var msg = messages.Messages[0] as TL.Message;
             if (msg == null)
             {
-                var errorMessage = "An error ocurred while updating post's comments. Post is not a message.";
+                var errorMessage = "An error ocurred while updating post's comments. Post is not a message. Info is {info}";
                 Log.Error(errorMessage,
                     new
                     {
@@ -483,11 +503,17 @@ public static class Gatherer
                     }
                     catch (RpcException ex)
                     {
-                        Console.WriteLine($"Flood wait: {ex.X} minutes");
+                        Log.Error(ex, "Flood wait: {exX} minutes",
+                            ex.X,
+                            new
+                            {
+                                method = "UpdatePostComments"
+                            }
+                        );
                     }
                     catch (Exception ex)
                     {
-                        Log.Error(ex, "Error uupdating post's comments.",
+                        Log.Error(ex, "Error uupdating post's comments",
                             new
                             {
                                 method = "UpdatePostComments"
@@ -517,7 +543,7 @@ public static class Gatherer
                     }
                     catch (Exception ex)
                     {
-                        Log.Error(ex, "Error updating post's comments.",
+                        Log.Error(ex, "Error updating post's comments",
                             new
                             {
                                 method = "UpdatePostComments"
@@ -535,7 +561,7 @@ public static class Gatherer
         }
         catch (Exception ex)
         {
-            var errorMessage = "An error ocurred while updating post's comments.";
+            var errorMessage = "An error ocurred while updating post's comments";
             Log.Error(ex, errorMessage,
                 new
                 {

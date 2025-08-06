@@ -2,6 +2,7 @@
 using Gather.Models;
 using Gather.Services.Search;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace Gather.Controllers;
 
@@ -24,6 +25,14 @@ public class SearchController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ServiceResponse<IEnumerable<object>>>> Get([FromBody] SearchQuery query)
     {
+        Log.Information("Search requested at {Time}", 
+            DateTime.Now,
+            new
+            {
+                method = "Get"
+            }
+        );
+
         var response = await _searchService.Search(query);
 
         if (response.Success == false)
