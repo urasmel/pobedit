@@ -7,10 +7,12 @@ using Gather.Models.Gather;
 using Gather.Services.Gather;
 using Gather.Utils.Gather;
 using Gather.Utils.Gather.Notification;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using TL;
 
 namespace Gather.Services;
 
@@ -23,13 +25,17 @@ public class GatherService : IGatherService
     IMapper _mapper;
     PobeditSettings _pobeditSettings;
     readonly IGatherNotifierFabric _loadingHelperFabric;
-    TL.User? user;
+    TL.User? _user;
     GatherState _gatherState;
     private readonly Channel<BackgroundTask> _queue;
+    private bool _disposed;
     bool _needClose = false;
     DateTime _postLastUpdateTime = DateTime.MinValue;
     DateTime _commentsLastUpdateTime = DateTime.MinValue;
     IGatherNotifier _loadingHelper;
+    private readonly Random _random = new();
+    private readonly CancellationTokenSource _processingCts = new();
+    private readonly object _stateLock = new(); // Блокировка для состояния
 
     public GatherService(
         GatherClient client,
@@ -43,18 +49,20 @@ public class GatherService : IGatherService
 
         _pobeditSettings = settingsService.PobeditSettings;
         _loadingHelperFabric = loadingHelperFabric;
-        _gatherState = new GatherState();
+        _scopeFactory = scopeFactory;
+
+        _gatherState = new GatherState { State = GatherProcessState.Stopped };
         var options = new BoundedChannelOptions(1)
         {
             FullMode = BoundedChannelFullMode.Wait
         };
         _queue = System.Threading.Channels.Channel.CreateBounded<BackgroundTask>(options);
-        ThreadPool.QueueUserWorkItem(_ => StartGatherAsync());
         _loadingHelper = loadingHelperFabric.Create();
-        _scopeFactory = scopeFactory;
+        //ThreadPool.QueueUserWorkItem(_ => StartGatherAsync());
+        _ = Task.Run(StartProcessingAsync, _processingCts.Token);
     }
 
-    private async void StartGatherAsync()
+    private async Task StartProcessingAsync_old()
     {
         try
         {
@@ -252,90 +260,257 @@ public class GatherService : IGatherService
         }
     }
 
-    public ServiceResponse<bool> StopGatherAsync()
+
+
+
+
+
+
+    private async Task StartProcessingAsync()
     {
-        _needClose = true;
-        var response = new ServiceResponse<bool>();
-        int counter = 0;
-        while (_gatherState.State != GatherProcessState.Stopped)
+        try
         {
-            if (counter == 10)
+            await foreach (var task in _queue.Reader.ReadAllAsync(_processingCts.Token))
             {
-                response.Data = false;
-                response.Success = false;
-                response.Message = "The service did not stop in the expected time";
-                return response;
+                await ProcessTaskAsync(task, _processingCts.Token);
             }
-            Thread.Sleep(1000);
-            counter++;
         }
-        response.Data = true;
-        response.Success = true;
-        return response;
+        catch (OperationCanceledException)
+        {
+            Log.Warning("Processing was canceled");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error in processing loop");
+        }
+    }
+
+    private async Task ProcessTaskAsync(BackgroundTask task, CancellationToken ct)
+    {
+        Log.Information("Processing task {TaskId}: {Description}", task.Id, task.Description);
+
+        int cycleCounter = 0;
+        while (!ct.IsCancellationRequested)
+        {
+            try
+            {
+                // Обработка постов
+                if (cycleCounter == 0 || ShouldUpdatePosts())
+                {
+                    await ProcessPostsAsync(ct);
+                    if (ct.IsCancellationRequested) break;
+
+                    _postLastUpdateTime = DateTime.UtcNow;
+                    cycleCounter++;
+                }
+
+                // Обработка комментариев
+                if (ShouldUpdateComments())
+                {
+                    await ProcessCommentsAsync(ct);
+                    if (ct.IsCancellationRequested) break;
+
+                    _commentsLastUpdateTime = DateTime.UtcNow;
+                }
+
+                UpdateStateTimers();
+                await Task.Delay(TimeSpan.FromSeconds(10), ct);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error in processing cycle");
+                await Task.Delay(TimeSpan.FromSeconds(30), ct); // Задержка при ошибке
+            }
+        }
+
+        UpdateState(GatherProcessState.Stopped, 0, 0);
+    }
+
+
+    private async Task ProcessPostsAsync(CancellationToken ct)
+    {
+        UpdateState(GatherProcessState.Running, null, null);
+
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+        var channelIds = await context.Channels
+            .Select(c => c.TlgId)
+            .ToListAsync(ct);
+
+        foreach (var channelId in channelIds)
+        {
+            ct.ThrowIfCancellationRequested();
+            await Gatherer.UpdateChannelPosts(
+                channelId,
+                _loadingHelper,
+                _client,
+                context,
+                _mapper,
+                _pobeditSettings
+            );
+        }
+    }
+
+    private async Task ProcessCommentsAsync(CancellationToken ct)
+    {
+        UpdateState(GatherProcessState.Running, null, null);
+
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+        var channels = await context.Channels
+            .Include(c => c.Posts)
+            .ToListAsync(ct);
+
+        foreach (var channel in channels)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            foreach (var post in channel.Posts.Where(p => !p.AreCommentsLoaded))
+            {
+                ct.ThrowIfCancellationRequested();
+
+                await Gatherer.UpdatePostComments(
+                    channel.TlgId,
+                    post.TlgId,
+                    _loadingHelper,
+                    _client,
+                    context,
+                    _mapper,
+                    _pobeditSettings
+                );
+
+                await Task.Delay(TimeSpan.FromMilliseconds(_random.Next(10000, 20000)), ct);
+            }
+        }
+    }
+
+    private bool ShouldUpdatePosts() =>
+    _postLastUpdateTime.AddHours(_pobeditSettings.ChannelPollingFrequency) <= DateTime.UtcNow;
+
+    private bool ShouldUpdateComments() =>
+        _commentsLastUpdateTime.AddHours(_pobeditSettings.CommentsPollingDelay) <= DateTime.UtcNow;
+
+    private void UpdateStateTimers()
+    {
+        lock (_stateLock)
+        {
+            _gatherState.ToPollingChannelsSecs = ShouldUpdatePosts() ? 0 :
+                (int)_postLastUpdateTime.AddHours(_pobeditSettings.ChannelPollingFrequency)
+                    .Subtract(DateTime.UtcNow).TotalSeconds;
+
+            _gatherState.ToPollingCommentsSecs = ShouldUpdateComments() ? 0 :
+                (int)_commentsLastUpdateTime.AddHours(_pobeditSettings.CommentsPollingDelay)
+                    .Subtract(DateTime.UtcNow).TotalSeconds;
+
+            _gatherState.State = GatherProcessState.Paused;
+        }
+    }
+
+    private void UpdateState(GatherProcessState state, int? channelsSecs, int? commentsSecs)
+    {
+        lock (_stateLock)
+        {
+            _gatherState.State = state;
+            if (channelsSecs.HasValue) _gatherState.ToPollingChannelsSecs = channelsSecs.Value;
+            if (commentsSecs.HasValue) _gatherState.ToPollingCommentsSecs = commentsSecs.Value;
+        }
+    }
+
+    public async Task<ServiceResponse<bool>> StopGatherAsync()
+    {
+        await Task.Delay(1);
+        _processingCts.Cancel();
+        UpdateState(GatherProcessState.Stopped, 0, 0);
+
+        return new ServiceResponse<bool>
+        {
+            Data = true,
+            Success = true
+        };
     }
 
     public ServiceResponse<GatherStateDto> GetGatherState()
     {
-        var response = new ServiceResponse<GatherStateDto>();
-        response.Data = _mapper.Map<GatherStateDto>(_gatherState);
-        return response;
+        lock (_stateLock)
+        {
+            return new ServiceResponse<GatherStateDto>
+            {
+                Data = _mapper.Map<GatherStateDto>(_gatherState),
+                Success = true
+            };
+        }
     }
 
     public async Task<ServiceResponse<bool>> StartGatherAsync(BackgroundTask task)
     {
-        var response = new ServiceResponse<bool>();
-
         if (task == null)
         {
-            response.Success = false;
-            response.Data = false;
-            response.ErrorType = ErrorType.ServerError;
-            return response;
+            return new ServiceResponse<bool>
+            {
+                Success = false,
+                Data = false,
+                ErrorType = ErrorType.ServerError
+            };
         }
 
-        Init();
-
-        if (_gatherState.State == GatherProcessState.Running || _gatherState.State == GatherProcessState.Paused)
+        if (!await InitializeClientAsync())
         {
-            response.Success = false;
-            response.Data = false;
-            response.ErrorType = ErrorType.TooManyRequests;
-            return response;
+            return new ServiceResponse<bool>
+            {
+                Success = false,
+                Data = false,
+                ErrorType = ErrorType.ServerError
+            };
+        }
+
+        var state = GetGatherState().Data;
+        if (state?.State == GatherProcessState.Running || state?.State == GatherProcessState.Paused)
+        {
+            return new ServiceResponse<bool>
+            {
+                Success = false,
+                Data = false,
+                ErrorType = ErrorType.TooManyRequests
+            };
         }
 
         await _queue.Writer.WriteAsync(task);
-        response.Success = true;
-        response.Data = true;
-        return response;
+        return new ServiceResponse<bool>
+        {
+            Success = true,
+            Data = true
+        };
     }
 
-    private async void Init()
+    private async Task<bool> InitializeClientAsync()
     {
-        if (_client == null)
-        {
-            Log.Error("Error to init telegram client. Client is not initialized",
-                new
-                {
-                    method = "Init"
-                }
-            );
-            return;
-        }
-
         try
         {
-            user = await _client.LoginUserIfNeeded();
+            if (_client == null) return false;
+            _user ??= await _client.LoginUserIfNeeded();
+            return true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            Log.Error("Error to login user",
-                new
-                {
-                    method = "Init"
-                }
-            );
-            System.Environment.Exit(1);
+            Log.Error(ex, "Failed to initialize client");
+            return false;
         }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposed) return;
+
+        _disposed = true;
+        _processingCts.Cancel();
+        _processingCts.Dispose();
+
+        if (_client is IAsyncDisposable asyncDisposable)
+            await asyncDisposable.DisposeAsync();
+        else
+            _client?.Dispose();
     }
 
 }

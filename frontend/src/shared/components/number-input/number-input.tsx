@@ -10,7 +10,9 @@ export function CustomizedSlider(props: NumberInputProps) {
     };
 
     return (
-        <Box sx={{ width: 250 }}>
+        <Box sx={{
+            width: '100%'
+        }}>
             <Typography id={props.id}
                 fontSize={"1.1rem"}
                 color="#717275"
@@ -26,6 +28,7 @@ export function CustomizedSlider(props: NumberInputProps) {
                 onChange={handleChange}
                 valueLabelDisplay="auto"
                 aria-labelledby={props.id}
+                disabled={props.disabled}
             />
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography

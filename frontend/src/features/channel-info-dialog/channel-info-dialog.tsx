@@ -1,36 +1,70 @@
 import { Channel } from "@/entities";
-import { Box } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 
 export const ChannelInfoDialog = (props: { channel: Channel; }) => {
+    const theme = useTheme();
 
 
     return (
         <Box sx={{
             display: "flex",
             flexDirection: "column",
-            fontFamily: "'Roboto', sans-serif",
+            fontFamily: theme.typography.fontFamily,
             padding: "1rem",
         }}>
-            <Box sx={{ display: "flex", columnGap: "1rem" }}>
-                <Box sx={{ width: "10rem", height: "10rem" }}>
-                    {
-                        props.channel.image
-                            ?
-                            <img
-                                src={`data:image/jpeg;base64,${props.channel.image}`}
-                            />
-                            :
-                            <img src="./images/no_image.svg" alt="Нет изображения" width={"100%"} />
-                    }
+            <Box sx={{ display: "flex", columnGap: "1rem", alignItems: "center" }}>
+                <Box
+                    sx={{
+                        width: 100,
+                        height: 100,
+                        flexShrink: 0,
+                        position: "relative",
+                        backgroundColor: theme.palette.grey[200],
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }}>
+
+                    {props.channel.image ? (
+                        <img
+                            src={`data:image/jpeg;base64,${props.channel.image}`}
+                            alt={`Изображение канала ${props.channel.title}`}
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                            }}
+                        />
+                    ) : (
+                        <img
+                            src="./images/no_image.svg"
+                            alt="Нет изображения"
+                            style={{ width: "60%", opacity: 0.6 }}
+                        />
+                    )}
                 </Box>
-                <Box sx={{ alignSelf: "center", whiteSpace: "pre-wrap" }}>
-                    {props.channel.about}
-                </Box>
+
+                {/* Описание канала */}
+                <Typography
+                    variant="body2"
+                    sx={{
+                        alignSelf: "center",
+                        whiteSpace: "pre-wrap",
+                        color: theme.palette.text.secondary,
+                        lineHeight: 1.4,
+                    }}
+                >
+                    {props.channel.about || "Описание отсутствует"}
+                </Typography>
             </Box>
 
-            <Box sx={{ marginTop: "2rem" }}>
-                Подписчиков: {props.channel.participantsCount}
-            </Box>
+            {/* Счетчик подписчиков */}
+            <Typography
+                variant="subtitle2"
+                sx={{ marginTop: 3, color: theme.palette.text.primary }}
+            >
+                Подписчиков: {props.channel.participantsCount.toLocaleString()}
+            </Typography>
         </Box>
     );
 };

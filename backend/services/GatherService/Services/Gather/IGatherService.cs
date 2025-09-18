@@ -5,8 +5,8 @@ using Gather.Services.Gather;
 namespace Gather.Services;
 
 public interface IGatherService
-{        
-    ServiceResponse<bool> StopGatherAsync();
+{
+    Task<ServiceResponse<bool>> StopGatherAsync();
 
     ServiceResponse<GatherStateDto> GetGatherState();
 

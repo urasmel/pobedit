@@ -21,7 +21,23 @@ const StyledCard = styled(Card)(({ theme }) => ({
     },
 }));
 
+const ContentContainer = styled(CardContent)({
+    marginBottom: 0,
+    '&:last-child': {
+        marginBottom: 0,
+    },
+});
+
 export const AccountCard = (props: { account: Account; }) => {
+
+    const {
+        tlg_id,
+        main_username,
+        first_name,
+        last_name,
+        phone,
+    } = props.account;
+
     return (
         <StyledCard>
             <CardHeader
@@ -30,7 +46,8 @@ export const AccountCard = (props: { account: Account; }) => {
                 }}
                 avatar={
                     <NavLink
-                        to={`/accounts/${props.account.tlg_id}`}
+                        to={`/accounts/${tlg_id}`}
+                        aria-label="View account details"
                     >
                         <AccountAvatar
                             account={props.account}
@@ -45,7 +62,7 @@ export const AccountCard = (props: { account: Account; }) => {
                         maxWidth={"190px"}
                         noWrap
                     >
-                        {props.account.main_username}
+                        {main_username}
                     </Typography>
                 }
                 subheader={
@@ -59,35 +76,28 @@ export const AccountCard = (props: { account: Account; }) => {
 
             <Divider variant="middle" />
 
-            <CardContent
-                sx={{
-                    marginBottom: "0px",
-                    '&:last-child': {
-                        marginBottom: "0px"
-                    }
-                }}
-            >
+            <ContentContainer>
                 <Box mb={1}>
                     {
-                        props.account.first_name &&
+                        first_name &&
                         <>
                             <Typography variant="body2" color="textSecondary">
                                 Имя
                             </Typography>
                             <Typography variant="h6" noWrap >
-                                {props.account.first_name}
+                                {first_name}
                             </Typography>
                         </>
                     }
 
                     {
-                        props.account.last_name &&
+                        last_name &&
                         <>
                             <Typography variant="body2" color="textSecondary">
                                 Фамилия
                             </Typography>
                             <Typography variant="h6" noWrap >
-                                {props.account.last_name}
+                                {last_name}
                             </Typography>
                         </>
                     }
@@ -95,18 +105,18 @@ export const AccountCard = (props: { account: Account; }) => {
                 </Box>
 
                 {
-                    props.account.phone &&
+                    phone &&
                     <>
                         <Box display="flex" alignItems="center">
                             <PhoneIcon color="primary" sx={{ mr: 1.5 }} />
                             <Typography variant="body1">
-                                {props.account.phone}
+                                {phone}
                             </Typography>
                         </Box>
                     </>
                 }
 
-            </CardContent>
+            </ContentContainer>
         </StyledCard>
     );
 };

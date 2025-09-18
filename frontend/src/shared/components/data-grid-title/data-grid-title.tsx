@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 
-export function DataGridTitle(title: string) {
+export function DataGridTitle(props: { title: string; }) {
     return (
         <Box
             style={{
@@ -10,7 +10,7 @@ export function DataGridTitle(title: string) {
                 alignItems: "center",
             }}
         >
-            <Typography variant="h5">{title}</Typography>
+            <Typography variant="h5">{props.title}</Typography>
         </Box>
     );
 }

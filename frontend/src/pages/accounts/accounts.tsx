@@ -110,7 +110,7 @@ export const AccountsPage = () => {
         }}>
 
             <AccountsFilter
-                isTracking={isTracking}
+                trackingFilter={isTracking}
                 loginFilter={login}
                 onIsTrackingChange={onIsTrackingChange}
                 onLoginFilterChange={onLoginChange}

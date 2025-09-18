@@ -1,5 +1,5 @@
 {
-  "startGatherDate": "2025-07-31T00:00:00.001Z",
-  "channelPollingFrequency": 7,
-  "commentsPollingDelay": 10
+  "startGatherDate": "2025-09-15T00:00:00.001Z",
+  "channelPollingFrequency": 3,
+  "commentsPollingDelay": 3
 }

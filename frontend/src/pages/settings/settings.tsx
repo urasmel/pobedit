@@ -1,13 +1,12 @@
 import { settingsApi } from "@/entities/settings";
-import { Box, Typography } from "@mui/material";
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { Box, Skeleton, Typography } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
 import { saveSettings } from "@/entities/settings/api";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { queryClient } from "@/shared/api/query-client";
 import { Settings } from "@/entities/settings/model/settings";
 import { LoadingWidget } from "@/shared/components/loading/loading-widget";
@@ -21,11 +20,26 @@ export const SettingsPage = () => {
     const { t } = useTranslation();
     const { data, isLoading, isError, error } = useQuery(settingsApi.settingsQueries.all());
 
+    const debouncedUpdate = useMemo(
+        () => debounce((partialSettings: Partial<Settings>) => {
+            if (!data) return;
+            settingsMutation.mutate({ ...data, ...partialSettings });
+        }, 300),
+        [data]
+    );
+
     useEffect(() => {
         if (isError) {
             enqueueSnackbar(getLocalizedString(error, t), { variant: 'error' });
         }
     }, [isError]);
+
+    useEffect(() => {
+        // Очистка debounce при размонтировании
+        return () => {
+            debouncedUpdate.cancel();
+        };
+    }, [debouncedUpdate]);
 
     const settingsMutation = useMutation({
         mutationFn: saveSettings,
@@ -38,26 +52,21 @@ export const SettingsPage = () => {
         },
     });
 
-    const handleUpdate = (partialSettings: Partial<Settings>) => {
-        if (!data) return;
-        settingsMutation.mutate({ ...data, ...partialSettings });
-    };
-
-    const debouncedUpdate = debounce(handleUpdate, 300);
-
     if (isLoading) {
-        return (<Box
-            sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "100%",
-                height: "100%",
-            }}
-        >
-            <LoadingWidget />
+        return (
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "100%",
+                    height: "100%",
+                }}
+            >
+                <LoadingWidget />
 
-        </Box>);
+            </Box>
+        );
     }
 
     if (!data) {
@@ -72,7 +81,6 @@ export const SettingsPage = () => {
                 fontFamily: "'Roboto', sans-serif",
             }}
         >
-            Не удалось получить настройки
             {getLocalizedString(new Error('error.fetchSettings'), t)}
         </Box>;
     }
@@ -84,7 +92,8 @@ export const SettingsPage = () => {
                 flexDirection: "column",
                 alignItems: "start",
                 gap: 2,
-                height: "100%",
+                height: "350px",
+                width: "350px",
                 boxSizing: "border-box",
                 fontFamily: "'Roboto', sans-serif",
                 fontSize: "16px"
@@ -102,6 +111,7 @@ export const SettingsPage = () => {
                 <DatePicker
                     sx={{
                         color: "#344767",
+                        width: "100%",
                     }}
                     value={dayjs(data.startGatherDate)}
                     onChange={(value) => {
@@ -124,6 +134,7 @@ export const SettingsPage = () => {
                 onChange={(value) => {
                     debouncedUpdate({ channelPollingFrequency: value });
                 }}
+                disabled={settingsMutation.isPending}
             />
 
             <CustomizedSlider
@@ -135,6 +146,7 @@ export const SettingsPage = () => {
                 onChange={(value) => {
                     debouncedUpdate({ commentsPollingDelay: value });
                 }}
+                disabled={settingsMutation.isPending}
             />
 
         </Box>

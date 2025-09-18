@@ -29,7 +29,7 @@ public class GatherController : ControllerBase
     [HttpGet("start")]
     public async Task<ActionResult<ServiceResponse<bool>>> StartGather()
     {
-        Log.Information("Start gathering requested at {Time}", 
+        Log.Information("Start gathering requested at {Time}",
             DateTime.Now,
             new
             {
@@ -94,32 +94,39 @@ public class GatherController : ControllerBase
     /// </summary>
     [MapToApiVersion(1.0)]
     [HttpGet("stop")]
-    public ActionResult<ServiceResponse<bool>> StopGather()
+    public async Task<ActionResult<ServiceResponse<bool>>> StopGather()
     {
         try
         {
             Log.Information("Stop gathering requested at {Time}",
                 DateTime.Now,
                 new
-                {
-                    method = "StopGather"
-                }
+                { method = "StopGather" }
             );
 
-            var result = _gatherService.StopGatherAsync();
+            var result = await _gatherService.StopGatherAsync();
 
-            return result;
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
         }
         catch (Exception ex)
         {
             Log.Error(ex, "Error stopping gather",
-                new
-                {
-                    method = "StopGather"
-                }
+                new { method = "StopGather" }
             );
 
-            return StatusCode(StatusCodes.Status500InternalServerError);
+            var errorResponse = new ServiceResponse<bool>
+            {
+                Success = false,
+                Message = "An error occurred while stopping the gather process",
+                Data = false
+            };
+
+            return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
         }
     }
 

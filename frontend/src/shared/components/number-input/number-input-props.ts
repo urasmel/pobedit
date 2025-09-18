@@ -5,4 +5,5 @@ export interface NumberInputProps {
     max: number;
     id: string;
     onChange: (value: number) => void;
+    disabled: boolean;
 }

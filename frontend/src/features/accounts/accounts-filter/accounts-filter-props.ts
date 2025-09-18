@@ -1,5 +1,5 @@
 export type AccountsFilterProps = {
-    isTracking: TrackingOptions;
+    trackingFilter: TrackingOptions;
     loginFilter: string;
     onIsTrackingChange: (value: TrackingOptions) => void;
     onLoginFilterChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
