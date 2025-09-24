@@ -8,17 +8,22 @@ export const SearchPage = () => {
     return (
         <Box
             sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                display: "grid",
+                gridTemplateRows: "250px 1fr",
                 height: "100%",
                 boxSizing: "border-box",
                 fontFamily: "'Roboto', sans-serif",
-                fontSize: "16px"
+                fontSize: "16px",
+                width: "100%",
             }}
         >
+            <div style={{
+                display: "flex",
+                justifyContent: "end",
+            }}>
+                <SearchSettingsForm />
+            </div>
             <SearchForm />
-            <SearchSettingsForm />
 
         </Box>
     );
