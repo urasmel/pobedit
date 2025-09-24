@@ -13,9 +13,7 @@ import {
     GridActionsCellItem,
 } from "@mui/x-data-grid";
 import {
-    Suspense,
     useCallback,
-    useEffect,
     useMemo,
     useState,
 } from "react";
@@ -41,7 +39,6 @@ export const Channels = () => {
     const updateChannels = useMainStore((action: Action) => action.fetchUpdatedChannels);
     const [selectedChannelId, setSelectedChannelId] = useState<string | undefined>();
     const navigate = useNavigate();
-    // const queryClient = useQueryClient();
 
     const {
         data,
@@ -55,20 +52,7 @@ export const Channels = () => {
         ...channelsApi.channelQueries.details(selectedChannelId), enabled: !!selectedChannelId
     });
 
-    // const [updating, setUpdating] = useState(false);
-
     const [isChannelInfoOpen, setIsChannelInfoOpen] = useState(false);
-    // const errorMsg = getLocalizedString(error, t);
-
-    // useEffect(() => {
-    //     if (isError) {
-    //         enqueueSnackbar(errorMsg, { variant: 'error' });
-    //     }
-    // }, [isError]);
-
-    // function getRowId(row: Channel) {
-    //     return row.tlgId;
-    // }
 
     const columns = useMemo<GridColDef<Channel>[]>(() => [
         {
@@ -93,15 +77,10 @@ export const Channels = () => {
             headerName: t("channels.operations") || "Операции",
             getActions: (params: GridRowParams<Channel>) => [
                 <GridActionsCellItem
-                    // key={0}
                     key="info"
                     icon={<InfoIcon />}
                     label={t("channels.showInfo") || "Показать информацию"}
                     onClick={() => handleShowChannelInfo(params.row.tlgId.toString())
-                        // {
-                        // setSelectedChannelId(params.row.tlgId.toString());
-                        // setIsChannelInfoOpen(true);
-                        // }
                     }
                 />,
             ],
@@ -118,28 +97,9 @@ export const Channels = () => {
         setSelectedChannelId(undefined);
     }, []);
 
-    // const handleChannelRowClick = (params: GridRowParams<Channel>) => {
-    //     navigate(`/channels/${params.row.tlgId}/posts`);
-    // };
-
     const handleChannelRowClick = useCallback((params: GridRowParams<Channel>) => {
         navigate(`/channels/${params.row.tlgId}/posts`);
     }, [navigate]);
-
-    // const updateChannelsClick = async () => {
-    //     try {
-    //         setUpdating(true);
-    //         await updateChannels();
-    //         enqueueSnackbar("Каналы успешно обновлены.", { variant: 'success' });
-    //     }
-    //     catch (error) {
-    //         enqueueSnackbar(getLocalizedString(error as Error, t), { variant: 'error' });
-    //     }
-    //     finally {
-    //         queryClient.invalidateQueries({ queryKey: channelsApi.channelQueries.channels() });
-    //         setUpdating(false);
-    //     }
-    // };
 
     const handleUpdateChannels = useCallback(async () => {
         try {
@@ -169,41 +129,48 @@ export const Channels = () => {
 
     return (
         <Box sx={{
-            minWidth: "12rem",
+            display: "flex",
+            flexDirection: "column",
             width: "100%",
-            '@media (min-width: 1078px)': {
-                width: '49%',
-            },
+            height: "100%",
+            minHeight: "400px", // Разумный минимум вместо 50%
+            boxSizing: "border-box",
+            minWidth: 0, // ⚠️ Разрешает сжатие
+            overflow: 'hidden', // Контролируем переполнение
         }}>
-            <div style={{ height: 400, width: "100%" }}>
-                <Suspense fallback={<LoadingWidget />}>
-                    <DataGrid
-                        // getRowId={getRowId}                        
-                        getRowId={(row: Channel) => row.tlgId}
-                        sx={{
-                            "--DataGrid-overlayHeight": "300px",
-                            "& .MuiDataGrid-row:hover": {
-                                cursor: "pointer",
-                            },
-                        }}
-                        onRowClick={handleChannelRowClick}
-                        columnVisibilityModel={{
-                            id: false,
-                        }}
-                        slots={{
-                            toolbar: () => (
-                                <DataGridTitle
-                                    title={t("channels.title") || "Каналы"}
-                                />
-                            ),
-                            noRowsOverlay: CustomNoRowsOverlay,
-                        }}
-                        rows={data ? data.channels : []}
-                        columns={columns}
-                        loading={isLoading || isFetching}
-                    />
-                </Suspense>
-            </div>
+            <DataGrid
+                getRowId={(row: Channel) => row.tlgId}
+                sx={{
+                    "--DataGrid-overlayHeight": "300px",
+                    "& .MuiDataGrid-row:hover": {
+                        cursor: "pointer",
+                    },
+                    flex: 1, // Занимает доступное пространство
+                    minWidth: 0, // Разрешает сжатие
+                    overflow: 'auto', // Скролл внутри таблицы
+                }}
+                onRowClick={handleChannelRowClick}
+                columnVisibilityModel={{
+                    id: false,
+                }}
+                slots={{
+                    toolbar: () => (
+                        <DataGridTitle
+                            title={t("channels.title") || "Каналы"}
+                        />
+                    ),
+                    noRowsOverlay: CustomNoRowsOverlay,
+                }}
+                slotProps={{
+                    loadingOverlay: {
+                        variant: 'skeleton',
+                        noRowsVariant: 'skeleton',
+                    },
+                }}
+                rows={data ? data.channels : []}
+                columns={columns}
+                loading={isLoading || isFetching}
+            />
 
             <Box sx={{
                 marginTop: "1rem",
@@ -229,37 +196,30 @@ export const Channels = () => {
                 </Button>
             </Box>
 
-            {
-                // channelInfo != null &&
-                <Dialog
-                    sx={{
-                        "& .MuiPaper-root": {
-                            // maxWidth: "none",
-                            width: "90%",
-                            maxWidth: "600px"
-                        }
-                    }}
-                    open={isChannelInfoOpen}
-                    // onClose={() => { setIsChannelInfoOpen(false); }}
-                    onClose={handleCloseChannelInfo}
-                >
-                    <DialogTitle>
-                        {t("channels.channelInfo") || "Информация о канале"}
-                    </DialogTitle>
+            <Dialog
+                sx={{
+                    "& .MuiPaper-root": {
+                        width: "90%",
+                        maxWidth: "600px"
+                    }
+                }}
+                open={isChannelInfoOpen}
+                onClose={handleCloseChannelInfo}
+            >
+                <DialogTitle>
+                    {t("channels.channelInfo") || "Информация о канале"}
+                </DialogTitle>
 
-                    <DialogContent>
-                        {/* <ChannelInfoDialog channel={channelInfo} /> */}
-                        {channelInfo && <ChannelInfoDialog channel={channelInfo} />}
-                    </DialogContent>
+                <DialogContent>
+                    {channelInfo && <ChannelInfoDialog channel={channelInfo} />}
+                </DialogContent>
 
-                    <DialogActions>
-                        <Button onClick={handleCloseChannelInfo}>
-                            {t("common.close") || "Закрыть"}
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            }
-
-        </Box >
+                <DialogActions>
+                    <Button onClick={handleCloseChannelInfo}>
+                        {t("common.close") || "Закрыть"}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </Box>
     );
 };

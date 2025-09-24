@@ -1,111 +1,171 @@
 import { Post } from "@/entities";
 import { channelsApi } from "@/entities/channels";
-import { Card, CardContent, Divider, Typography } from "@mui/material";
+import { Card, CardContent, Divider, Typography, useTheme } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import plural from 'plural-ru';
 import { NavLink, useNavigate } from "react-router-dom";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { useContext } from "react";
-import { ThemeContext } from "@/app/theme";
+import { useContext, useMemo } from "react";
+// import { ThemeContext } from "@/app/theme";
 
+interface PostWidgetProps {
+    post: Post;
+    showCommentsLink?: boolean;
+    showTitle?: boolean;
+}
 
-export const PostWidget = ({ post, showCommentsLink = true, showTitle = true }: { post: Post; showCommentsLink: boolean; showTitle: boolean; }) => {
+export const PostWidget = ({
+    post,
+    showCommentsLink = true,
+    showTitle = true }: PostWidgetProps) => {
 
     const navigate = useNavigate();
-    const { data: channelInfo,
-        isError: channelInfoIsError,
-        error: channelInfoError,
-        isFetched: infoIsFetched }
-        = useQuery(channelsApi.channelQueries.details(post.peerId.toString()));
+    const theme = useTheme();
 
-    const theme = useContext(ThemeContext);
+    const {
+        data: channelInfo,
+        isLoading: isChannelInfoLoading,
+        isError: isChannelInfoError
+    } = useQuery(
+        channelsApi.channelQueries.details(post.peerId.toString())
+    );
+
+    // const theme = useContext(ThemeContext);
+
+
+    // Мемоизированные значения для оптимизации
+    const formattedDate = useMemo(
+        () => new Date(post.date).toLocaleString(),
+        [post.date]
+    );
+
+    const commentsText = useMemo(
+        () => {
+            const count = post.commentsCount || 0;
+            return `${count} ${plural(count, 'комментарий', 'комментария', 'комментариев')}`;
+        },
+        [post.commentsCount]
+    );
+
+    // Обработчик клика по комментариям
+    const handleCommentsClick = () => {
+        navigate(`/channels/${post.peerId}/posts/${post.tlgId}`);
+    };
+
+    // Обработчик клика по каналу
+    const handleChannelClick = () => {
+        navigate(`/channels/${post.peerId}/posts`);
+    };
+
+    // Стили для ссылок
+    const linkStyle = {
+        color: theme.palette.primary.dark,
+        textDecoration: 'none',
+        '&:hover': {
+            textDecoration: 'underline',
+        },
+    };
+
+    const postLinkStyle = {
+        color: theme.palette.text.primary,
+        fontFamily: theme.typography.fontFamily,
+        fontSize: '0.875rem',
+        textDecoration: 'none',
+        '&:hover': {
+            textDecoration: 'underline',
+        },
+    };
+
+    const iconStyle = {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        cursor: "pointer",
+    };
 
     return (
         <Card
             key={post.tlgId}
             sx={{
                 width: "100%",
-                padding: 1,
+                p: 1,
                 boxSizing: "border-box",
-                boxShadow: "rgba(0, 0, 0, 0.35) 1px 1px 5px"
+                boxShadow: 1,
+                borderRadius: 2
             }}
         >
             <CardContent
                 sx={{
-                    padding: 1,
-                    color: "rgb(52, 71, 103);",
+                    p: 1,
+                    // color: "rgb(52, 71, 103);",
                     "&:last-child": {
-                        paddingBottom: 1,
+                        pb: 1,
                     },
                 }}
             >
-                {
-                    showTitle &&
-                    <Typography variant="body1">
-                        Канал:&nbsp;
+                {showTitle && (
+                    <Typography variant="body1" sx={{ mb: 1 }}>
+                        {/* Канал:&nbsp; */}
+                        Канал: {" "}
                         <NavLink
-                            style={_ => {
-                                return {
-                                    color: theme.palette.primary.dark,
-                                    textDecoration: 'none'
-                                };
-                            }}
-                            to={`/channels/${post.peerId}/posts`}>
-                            <strong>{channelInfo?.title || post.peerId}</strong>
+                            style={linkStyle}
+                            to={`/channels/${post.peerId}/posts`}
+                            onClick={handleChannelClick}
+                        >
+                            <strong>
+                                {isChannelInfoLoading
+                                    ? "Загрузка..."
+                                    : channelInfo?.title || post.peerId
+                                }
+                            </strong>
                         </NavLink>
                     </Typography>
-                }
+                )}
 
-                <Typography variant="body2" color="text.secondary">
-                    {new Date(post.date).toLocaleString()}
+                {/* Дата публикации */}
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    {formattedDate}
                 </Typography>
 
+                {/* Ссылка на пост */}
                 <NavLink
-                    style={_ => {
-                        return {
-                            color: "rgb(52, 71, 103)",
-                            fontFamily: "Roboto",
-                            fontSize: "14px"
-                        };
-                    }}
+                    style={postLinkStyle}
                     to={`/channels/${post.peerId}/posts/${post.tlgId}`}
                 >
                     id: {post.tlgId}
                 </NavLink>
 
-                <Typography variant="body2" sx={{ marginTop: 1, lineHeight: 2 }}>
+                <Typography variant="body2" sx={{
+                    mt: 1,
+                    lineHeight: 2,
+                    textAlign: 'justify',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word'
+                }}>
                     {post.message}
                 </Typography>
 
                 {
-                    showCommentsLink &&
-                    <>
-                        <Divider sx={{ marginTop: 2, width: "100%" }} />
-                        <Typography variant="body1"
-                            sx={{
-                                display: "flex",
-                                justifyContent: "start",
-                                alignItems: "center",
-                                marginTop: 1
-                            }}>
-                            {
-                                (post.commentsCount ? post.commentsCount : 0) +
-                                plural((post.commentsCount ? post.commentsCount : 0),
-                                    ' комментарий', ' комментария', ' комментариев')
-                            }
-
-                            <ChevronRightIcon
+                    showCommentsLink && (
+                        <>
+                            <Divider sx={{ marginTop: 2 }} />
+                            <Typography variant="body1"
                                 sx={{
                                     display: "flex",
-                                    justifyContent: "center",
                                     alignItems: "center",
+                                    marginTop: 2,
                                     cursor: "pointer",
-                                }}
-                                onClick={() => { navigate(`/channels/${post.peerId}/posts/${post.tlgId}`); }}
-                            />
-                        </Typography>
-                    </>
-                }
+                                }}>
+
+                                {commentsText}
+
+                                <ChevronRightIcon
+                                    sx={iconStyle}
+                                    onClick={() => { navigate(`/channels/${post.peerId}/posts/${post.tlgId}`); }}
+                                />
+                            </Typography>
+                        </>
+                    )}
 
             </CardContent>
         </Card>);

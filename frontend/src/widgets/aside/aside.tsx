@@ -10,7 +10,7 @@ export const Aside = () => {
         <Box
             sx={{
                 display: 'flex',
-                flexDirection: 'column',
+                flexDirection: { xs: 'row', lg: 'column' },
                 borderRadius: "var(--radius-md)",
                 padding: 1,
                 gap: 1.5,

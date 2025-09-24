@@ -28,7 +28,7 @@ import { enqueueSnackbar } from "notistack";
 
 
 export const Users = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { data, isFetching, isLoading, isError, error } = useQuery(userApi.userQueries.list());
     const errorMsg = getLocalizedString(error, t);
 
@@ -88,34 +88,48 @@ export const Users = () => {
 
     return (
         <Box sx={{
-            minWidth: "12rem",
+            display: "flex",
+            flexDirection: "column",
             width: "100%",
-            '@media (min-width: 1078px)': {
-                width: '49%',
-            },
+            height: "100%",
+            minHeight: "400px", // Разумный минимум вместо 50%
+            boxSizing: "border-box",
+            minWidth: 0, // ⚠️ Разрешает сжатие
+            overflow: 'hidden', // Контролируем переполнение
         }}>
-            <div style={{ height: 400 }}>
-                <DataGrid
-                    sx={{
-                        "--DataGrid-overlayHeight": "300px",
-                        ".MuiDataGrid-cell:focus": {
-                            outline: "none",
-                        },
-                        "& .MuiDataGrid-row:hover": {
-                            cursor: "pointer",
-                        },
-                    }}
-                    onRowClick={handleRowClick}
-                    slots={{
-                        toolbar: () => DataGridTitle("Пользователи"),
-                        noRowsOverlay: CustomNoRowsOverlay,
-                    }}
-                    rows={data ? data.users : []}
-                    columns={columns}
-                    getRowId={(row: User) => row.userId}
-                    loading={isLoading || isFetching}
-                />
-            </div>
+            <DataGrid
+                sx={{
+                    "--DataGrid-overlayHeight": "300px",
+                    ".MuiDataGrid-cell:focus": {
+                        outline: "none",
+                    },
+                    "& .MuiDataGrid-row:hover": {
+                        cursor: "pointer",
+                    },
+                    flex: 1,
+                    minWidth: 0,
+                    overflow: 'auto'
+                }}
+                onRowClick={handleRowClick}
+                slots={{
+                    toolbar: () => (
+                        <DataGridTitle
+                            title={t("users.title") || "Пользователи"}
+                        />
+                    ),
+                    noRowsOverlay: CustomNoRowsOverlay,
+                }}
+                slotProps={{
+                    loadingOverlay: {
+                        variant: 'skeleton',
+                        noRowsVariant: 'skeleton',
+                    },
+                }}
+                rows={data ? data.users : []}
+                columns={columns}
+                getRowId={(row: User) => row.userId}
+                loading={isLoading || isFetching}
+            />
 
             <Box sx={{
                 marginTop: "1rem",

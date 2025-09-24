@@ -1,4 +1,4 @@
-import { Main } from "@/widgets/main/main";
+import { Main } from "@/widgets/main";
 
 export const HomePage = () => {
     return (

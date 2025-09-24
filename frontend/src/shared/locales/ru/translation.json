@@ -61,6 +61,16 @@
         "updateSuccess": "Каналы успешно обновлены.",
         "channelInfo": "Информация о канале"
     },
+    "users": {
+        "title": "Пользователи",
+        "id": "ID",
+        "name": "Имя",
+        "email": "Email",
+        "role": "Роль",
+        "operations": "Операции",
+        "add": "Добавить",
+        "update": "Обновить"
+    },
     "common": {
         "close": "Закрыть",
         "save": "Сохранить",
