@@ -20,10 +20,9 @@ import {
 import { CustomNoRowsOverlay } from "@/shared/components/custom-no-rows-overlay";
 import { Action, useMainStore } from "@/app/stores";
 import { DataGridTitle } from "@/shared/components/data-grid-title";
-import { LoadingWidget } from "@/shared/components/loading/loading-widget";
 import InfoIcon from "@mui/icons-material/Info";
 import { useNavigate } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { channelsApi } from "@/entities/channels";
 import { Channel } from "@/entities/channels/model/channel";
 import { ChannelInfoDialog } from "@/features/channel-info-dialog";
@@ -190,7 +189,7 @@ export const Channels = () => {
                     onClick={handleUpdateChannels}
                     disabled={isFetching}
                     loadingPosition="start"
-                    startIcon={isFetching ? <LoadingWidget /> : null}
+                    loading={isFetching}
                 >
                     {t("channels.update") || "Обновить"}
                 </Button>
@@ -220,6 +219,6 @@ export const Channels = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Box>
+        </Box >
     );
 };

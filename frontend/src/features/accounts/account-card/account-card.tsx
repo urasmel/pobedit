@@ -51,7 +51,7 @@ export const AccountCard = (props: { account: Account; }) => {
                     >
                         <AccountAvatar
                             account={props.account}
-                            handleClick={() => { }}
+                            onClick={() => { }}
                         />
                     </NavLink>
                 }

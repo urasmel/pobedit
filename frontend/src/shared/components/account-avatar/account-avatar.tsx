@@ -13,36 +13,36 @@ const pulse = keyframes`
   }
 `;
 
-export const AccountAvatar = (props: AccountAvatarProps) => {
+export const AccountAvatar = ({ account, onClick }: AccountAvatarProps) => {
 
-    if (props.account == null || props.account == undefined) {
-        return (
-            <img
-                src="/images/human_error.png"
-                height={56}
-                width={56}
-                alt="Программная ошибка передачи пользовательских данных. Обратитесь к разработчикам."
-            />);
-    }
-
+  if (account == null || account == undefined) {
     return (
-        <Avatar
-            sx={{
-                width: 56,
-                height: 56,
-                cursor: "pointer",
-                animation: props.account.is_tracking ? `${pulse} 1s infinite ease` : undefined
-            }}
-            alt={props.account?.main_username}
-            src={`data:image/jpeg;base64,${props.account?.photo}`}
-            onClick={props.handleClick}
-        >
-            <img
-                src="/images/ava.png"
-                height={56}
-                width={56}
-                alt={props.account?.main_username}
-            />
-        </Avatar>
-    );
+      <img
+        src="/images/human_error.png"
+        height={56}
+        width={56}
+        alt="Программная ошибка передачи пользовательских данных. Обратитесь к разработчикам."
+      />);
+  }
+
+  return (
+    <Avatar
+      sx={{
+        width: 56,
+        height: 56,
+        cursor: "pointer",
+        animation: account.is_tracking ? `${pulse} 1s infinite ease` : undefined
+      }}
+      alt={account?.main_username}
+      src={`data:image/jpeg;base64,${account?.photo}`}
+      onClick={onClick}
+    >
+      <img
+        src="/images/ava.png"
+        height={56}
+        width={56}
+        alt={account?.main_username}
+      />
+    </Avatar>
+  );
 };

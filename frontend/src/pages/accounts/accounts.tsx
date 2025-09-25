@@ -80,9 +80,11 @@ export const AccountsPage = () => {
     );
 
     if (isLoading) {
-        <Box sx={{ padding: 4 }}>
-            return <LoadingWidget />
-        </Box>;
+        return (
+            <Box sx={{ padding: 4, width: "100%", height: "100%" }}>
+                <LoadingWidget />
+            </Box>
+        );
     }
 
     if (isError) {

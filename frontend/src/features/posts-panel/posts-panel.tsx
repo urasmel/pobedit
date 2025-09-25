@@ -92,7 +92,7 @@ export const PostsPanel = ({ channelId }: PostsPanelProps) => {
     if (isLoading) {
         return (
             <Box sx={containerStyles}>
-                <LoadingWidget />
+                <LoadingWidget size={100} />
             </Box>
         );
     }

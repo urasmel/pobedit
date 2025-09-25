@@ -15,7 +15,7 @@ export const CommentAva = (props: { comment: Comment; }) => {
             <NavLink
                 to={`/accounts/${props.comment.from.tlg_id}`}
             >
-                <AccountAvatar account={props.comment.from} handleClick={() => { }} />
+                <AccountAvatar account={props.comment.from} onClick={() => { }} />
             </NavLink>
         </Box>
     );
