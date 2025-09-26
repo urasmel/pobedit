@@ -5,6 +5,8 @@ export const ChannelInfoDialog = (props: { channel: Channel; }) => {
     const theme = useTheme();
 
 
+    console.log(props);
+
     return (
         <Box sx={{
             display: "flex",

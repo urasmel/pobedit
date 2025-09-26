@@ -1,20 +1,40 @@
-import { Box } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
+import { memo } from 'react';
 
-export const Footer = () => {
+interface FooterProps {
+    appName?: string;
+    showYear?: boolean;
+}
+
+export const Footer = memo(({
+    appName = 'Pobedit',
+    showYear = true
+}: FooterProps) => {
+    const theme = useTheme();
+
     return (
-        <Box sx={{
-            fontFamily: "Roboto",
-            height: "1rem",
-            boxShadow: "var(--strong-shadow)",
-            color: "#555",
-            borderRadius: "var(--radius-md)",
-            border: "0 solid rgba(0, 0, 0, 0.125)",
-            padding: "1rem",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-        }}>
-            Pobedit ©
+        <Box
+            component="footer"
+            sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: 64,
+                padding: 2,
+                boxShadow: theme.shadows[2],
+                backgroundColor: theme.palette.background.paper,
+                borderTop: `1px solid ${theme.palette.divider}`,
+            }}
+        >
+            <Typography
+                variant="caption"
+                color="text.secondary"
+                fontWeight="medium"
+            >
+                {appName} {showYear && `© ${new Date().getFullYear()}`}
+            </Typography>
         </Box>
     );
-};
+});
+
+Footer.displayName = 'Footer';

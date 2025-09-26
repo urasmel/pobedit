@@ -79,6 +79,7 @@ export const SettingsPage = () => {
                 height: "100%",
                 fontSize: "1.2rem",
                 fontFamily: "'Roboto', sans-serif",
+                padding: "1rem",
             }}
         >
             {getLocalizedString(new Error('error.fetchSettings'), t)}
@@ -92,11 +93,12 @@ export const SettingsPage = () => {
                 flexDirection: "column",
                 alignItems: "start",
                 gap: 2,
-                height: "350px",
                 width: "350px",
-                boxSizing: "border-box",
+                boxSizing: "content-box",
                 fontFamily: "'Roboto', sans-serif",
-                fontSize: "16px"
+                fontSize: "16px",
+                p: 2,
+                boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
             }}
         >
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">

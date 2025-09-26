@@ -1,19 +1,8 @@
 import {
-    GridActionsCellItem,
-    GridColDef,
     GridRowParams,
 } from "@mui/x-data-grid";
-import {
-    useEffect,
-    useMemo,
-} from "react";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import LoginIcon from "@mui/icons-material/Login";
-import {
-    Box,
-} from "@mui/material";
-import { Button } from "@mui/material";
+import { useCallback } from "react";
+import { Box, Button, useTheme } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { User } from "@/entities/users/model/user";
 import { CustomNoRowsOverlay } from "@/shared/components/custom-no-rows-overlay";
@@ -23,68 +12,53 @@ import { Action, MainState, useMainStore } from "@/app/stores";
 import { useQuery } from "@tanstack/react-query";
 import { userApi } from "@/entities/users";
 import { useTranslation } from "react-i18next";
-import { getLocalizedString } from "@/shared/locales/localizing";
-import { enqueueSnackbar } from "notistack";
+import { useSnackbar } from "notistack";
 
+import RefreshIcon from '@mui/icons-material/Refresh';
+import AddIcon from '@mui/icons-material/Add';
+import { useUsersColumns } from "./hooks";
 
-export const Users = () => {
+interface UsersTableProps {
+    onAddUser?: () => void;
+    onRefresh?: () => void;
+}
+
+export const Users = ({ onAddUser, onRefresh }: UsersTableProps) => {
+    const theme = useTheme();
     const { t, i18n } = useTranslation();
-    const { data, isFetching, isLoading, isError, error } = useQuery(userApi.userQueries.list());
-    const errorMsg = getLocalizedString(error, t);
+    const { enqueueSnackbar } = useSnackbar();
+
+    const {
+        data,
+        isFetching,
+        isLoading,
+        isError,
+        error,
+        refetch
+    } = useQuery({
+        ...userApi.userQueries.list(),
+        // onError: (error) => {
+        //     const errorMsg = getLocalizedString(error, t);
+        //     enqueueSnackbar(errorMsg, { variant: 'error' });
+        // }
+    });
 
     const setSelectedUser = useMainStore(
         (state: MainState & Action) => state.updateSelectedUser
     );
 
-    useEffect(() => {
-        if (isError) {
-            enqueueSnackbar(errorMsg, { variant: 'error' });
-        }
-    }, [isError]);
 
-    const columns = useMemo<GridColDef<User>[]>(
-        () => [
-            { field: "userId", headerName: "ID", width: 50 },
-            { field: "username", headerName: "Пользователь", width: 100 },
-            { field: "password", headerName: "Пароль", flex: 1 },
-            { field: "phoneNumber", headerName: "Тел. номер", width: 150 },
-            {
-                field: "actions",
-                type: "actions",
-                flex: 1,
-                headerName: "Операции",
-                getActions: () => [
-                    <GridActionsCellItem
-                        key={0}
-                        icon={<DeleteIcon />}
-                        label="Удалить"
-                    />,
-                    <GridActionsCellItem
-                        key={1}
-                        icon={<EditIcon />}
-                        label="Редактировать"
-                        showInMenu
-                    />,
-                    <GridActionsCellItem
-                        key={1}
-                        icon={<LoginIcon />}
-                        label="Логин"
-                        showInMenu
-                    />,
-                ],
-            },
-        ],
-        []
-    );
+    const columns = useUsersColumns();
 
-    const handleRowClick = (params: GridRowParams<UserRow>) => {
+    const handleRowClick = useCallback((params: GridRowParams<UserRow>) => {
         setSelectedUser(params.row.username);
-        // TODO
-        // Пользователи ничего не должны знать о таблице с каналами
-        // Загрузка и перерисовка каналов там должна происходить сама собой
-        // после выбора другого пользователя.
-        // fetchChannels(params.row["username"]);
-    };
+    }, [setSelectedUser]);
+
+    const handleRefresh = useCallback(() => {
+        refetch();
+    }, [refetch]);
+
+    const users = data?.users || [];
 
     return (
         <Box sx={{
@@ -92,66 +66,88 @@ export const Users = () => {
             flexDirection: "column",
             width: "100%",
             height: "100%",
-            minHeight: "400px", // Разумный минимум вместо 50%
-            boxSizing: "border-box",
-            minWidth: 0, // ⚠️ Разрешает сжатие
-            overflow: 'hidden', // Контролируем переполнение
+            minHeight: 400,
+            gap: 2,
         }}>
-            <DataGrid
-                sx={{
-                    "--DataGrid-overlayHeight": "300px",
-                    ".MuiDataGrid-cell:focus": {
-                        outline: "none",
-                    },
-                    "& .MuiDataGrid-row:hover": {
-                        cursor: "pointer",
-                    },
-                    flex: 1,
-                    minWidth: 0,
-                    overflow: 'auto'
-                }}
-                onRowClick={handleRowClick}
-                slots={{
-                    toolbar: () => (
-                        <DataGridTitle
-                            title={t("users.title") || "Пользователи"}
-                        />
-                    ),
-                    noRowsOverlay: CustomNoRowsOverlay,
-                }}
-                slotProps={{
-                    loadingOverlay: {
-                        variant: 'skeleton',
-                        noRowsVariant: 'skeleton',
-                    },
-                }}
-                rows={data ? data.users : []}
-                columns={columns}
-                getRowId={(row: User) => row.userId}
-                loading={isLoading || isFetching}
-            />
+            <Box sx={{
+                flex: 1,
+                minHeight: 0,
+                display: 'flex',
+                flexDirection: 'column'
+            }}>
+                <DataGrid
+                    sx={{
+                        flex: 1,
+                        border: `1px solid ${theme.palette.divider}`,
+                        borderRadius: theme.shape.borderRadius,
+                        color: "#344767",
+                        '& .MuiDataGrid-cell': {
+                            borderColor: theme.palette.divider,
+                        },
+                        '& .MuiDataGrid-columnHeaders': {
+                            backgroundColor: theme.palette.background.default,
+                            borderColor: theme.palette.divider,
+                        },
+                        '& .MuiDataGrid-row:hover': {
+                            backgroundColor: theme.palette.action.hover,
+                            cursor: "pointer",
+                        },
+                        '& .MuiDataGrid-cell:focus': {
+                            outline: "none",
+                        },
+                    }}
+                    onRowClick={handleRowClick}
+                    rows={users}
+                    columns={columns}
+                    getRowId={(row: User) => row.userId}
+                    loading={isLoading || isFetching}
+                    disableColumnMenu
+                    disableRowSelectionOnClick
+                    slots={{
+                        toolbar: DataGridTitle,
+                        noRowsOverlay: CustomNoRowsOverlay,
+                    }}
+                    slotProps={{
+                        toolbar: {
+                            title: t("users.title") || "Пользователи",
+                        },
+                        loadingOverlay: {
+                            variant: 'skeleton',
+                            noRowsVariant: 'skeleton',
+                        },
+                    }}
+                    initialState={{
+                        pagination: {
+                            paginationModel: { pageSize: 25, page: 0 },
+                        },
+                    }}
+                    pageSizeOptions={[10, 25, 50]}
+                />
+            </Box>
 
             <Box sx={{
-                marginTop: "1rem",
                 display: "flex",
-                columnGap: "1rem"
+                gap: 1,
+                justifyContent: "flex-end",
+                flexWrap: 'wrap'
             }}>
                 <Button
-                    sx={{
-                        width: "100px",
-                    }}
-                    variant="contained"
+                    variant="outlined"
+                    onClick={handleRefresh}
+                    disabled={isFetching}
+                    startIcon={<RefreshIcon />}
+                    sx={{ minWidth: 120 }}
                 >
-                    Обновить
+                    {t('common.refresh')}
                 </Button>
 
                 <Button
-                    sx={{
-                        width: "100px",
-                    }}
                     variant="contained"
+                    onClick={onAddUser}
+                    startIcon={<AddIcon />}
+                    sx={{ minWidth: 120 }}
                 >
-                    Добавить
+                    {t('common.add')}
                 </Button>
             </Box>
         </Box>

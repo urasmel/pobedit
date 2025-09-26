@@ -11,75 +11,58 @@ internal class SettingsService : ISettingsService
     private readonly IMapper _mapper;
     private readonly string _settingsFileName = "pobedit_settings.json";
     private PobeditSettings? _pobeditSettings;
-    JsonSerializerOptions serializeOptions;
+    private readonly JsonSerializerOptions _serializeOptions;
+    private readonly object _lockObject = new object();
+    private bool _isInitialized = false;
 
     public SettingsService(IMapper mapper)
     {
         _mapper = mapper;
-        serializeOptions = new JsonSerializerOptions
+        _serializeOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             WriteIndented = true
         };
-        InitializeAsync();
+        Initialize();
     }
 
     public PobeditSettings PobeditSettings
     {
         get
         {
-            if (_pobeditSettings == null)
-            {
-                _pobeditSettings = new PobeditSettings();
-            }
+            if (!_isInitialized)
+                throw new InvalidOperationException("Settings not initialized");
+
             return _pobeditSettings;
-        }
-        set
-        {
-            _pobeditSettings = value;
-            var json = JsonSerializer.Serialize<PobeditSettings>(_pobeditSettings, serializeOptions);
-            File.WriteAllText(_settingsFileName, json);
         }
     }
 
-    private void InitializeAsync()
+    private void Initialize()
     {
-        try
+        lock (_lockObject)
         {
-            if (!File.Exists("pobedit_settings.json"))
+            try
             {
-                Log.Error("Отсутствует файл настроек приложения: {file}",
-                    _settingsFileName,
-                    new
-                    {
-                        method = "InitializeAsync"
-                    }
-                );
-
-                File.Create(_settingsFileName);
+                if (!File.Exists(_settingsFileName))
+                {
+                    Log.Warning("Settings file not found, creating default: {File}", _settingsFileName);
+                    _pobeditSettings = new PobeditSettings();
+                    SaveToFile();
+                }
+                else
+                {
+                    var fileText = File.ReadAllText(_settingsFileName);
+                    _pobeditSettings = JsonSerializer.Deserialize<PobeditSettings>(fileText, _serializeOptions)
+                                     ?? new PobeditSettings();
+                }
+                _isInitialized = true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error reading settings");
                 _pobeditSettings = new PobeditSettings();
-                var json = JsonSerializer.Serialize<PobeditSettings>(_pobeditSettings, serializeOptions);
-                File.WriteAllTextAsync(_settingsFileName, json);
+                _isInitialized = true;
             }
-            else
-            {
-                var fileText = File.ReadAllText(_settingsFileName);
-                _pobeditSettings = JsonSerializer.Deserialize<PobeditSettings>(fileText, serializeOptions);
-                if (_pobeditSettings == null)
-                {
-                    PobeditSettings = new PobeditSettings();
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Ошибка чтения настроек",
-                new
-                {
-                    method = "InitializeAsync"
-                }
-            );
-            PobeditSettings = new PobeditSettings();
         }
     }
 
@@ -92,28 +75,31 @@ internal class SettingsService : ISettingsService
 
     public ServiceResponse<bool> SaveSettings(PobeditSettingsDto pobeditSettingsDto)
     {
-        var response = new ServiceResponse<bool>();
-        try
+        lock (_lockObject)
         {
-            var pobeditSettings = _mapper.Map<PobeditSettings>(pobeditSettingsDto);
-            PobeditSettings = pobeditSettings;
-            response.Data = true;
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Error saving settings",
-                new
+            var response = new ServiceResponse<bool>();
+            try
+            {
+                _mapper.Map(pobeditSettingsDto, _pobeditSettings);
+                SaveToFile();
+                return new ServiceResponse<bool> { Data = true };
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error saving settings");
+                return new ServiceResponse<bool>
                 {
-                    method = "SaveSettings"
-                }
-            );
-            response.Success = false;
-            response.Message = "An error has occurred while applying new settings" +
-                Environment.NewLine +
-                ex.Message;
-            response.ErrorType = ErrorType.ServerError;
-            response.Data = false;
+                    Success = false,
+                    Message = ex.Message,
+                    Data = false
+                };
+            }
         }
-        return response;
+    }
+
+    private void SaveToFile()
+    {
+        var json = JsonSerializer.Serialize(_pobeditSettings, _serializeOptions);
+        File.WriteAllText(_settingsFileName, json);
     }
 }

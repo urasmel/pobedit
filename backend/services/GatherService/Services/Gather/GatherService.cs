@@ -60,6 +60,19 @@ public class GatherService : IGatherService
         _loadingHelper = loadingHelperFabric.Create();
         //ThreadPool.QueueUserWorkItem(_ => StartGatherAsync());
         _ = Task.Run(StartProcessingAsync, _processingCts.Token);
+
+
+
+
+        // Добавьте отладочную информацию
+        var settingsFromService = settingsService.PobeditSettings;
+        Console.WriteLine($"Settings hash: {settingsFromService.GetHashCode()}");
+
+        _pobeditSettings = settingsFromService;
+        Console.WriteLine($"Stored settings hash: {_pobeditSettings.GetHashCode()}");
+
+        // Проверьте, тот же ли это объект
+        Console.WriteLine($"Same object: {ReferenceEquals(settingsFromService, _pobeditSettings)}");
     }
 
     private async Task StartProcessingAsync_old()
@@ -259,12 +272,6 @@ public class GatherService : IGatherService
                 });
         }
     }
-
-
-
-
-
-
 
     private async Task StartProcessingAsync()
     {

@@ -69,15 +69,43 @@
         "role": "Роль",
         "operations": "Операции",
         "add": "Добавить",
-        "update": "Обновить"
+        "update": "Обновить",
+        "fields": {
+            "id": "ID",
+            "username": "Пользователь",
+            "password": "Пароль",
+            "phoneNumber": "Тел. номер",
+            "actions": "Операции"
+        },
+        "actions": {
+            "delete": "Удалить",
+            "edit": "Редактировать",
+            "login": "Логин"
+        },
+        "deleteSuccess": "Пользователь удален",
+        "loginSuccess": "Вход выполнен"
     },
     "common": {
         "close": "Закрыть",
         "save": "Сохранить",
-        "cancel": "Отмена"
+        "cancel": "Отмена",
+        "refresh": "Обновить",
+        "add": "Добавить"
     },
     "errors": {
         "networkError": "Ошибка сети",
         "unknownError": "Неизвестная ошибка"
+    },
+    "gather": {
+        "state": "Состояние",
+        "toPollingChannels": "До опроса каналов",
+        "toPollingComments": "До опроса комментариев",
+        "stateStopped": "Остановлено",
+        "stateRunning": "Выполняется",
+        "statePaused": "Пауза",
+        "startSuccess": "Сбор успешно запущен.",
+        "stopSuccess": "Сбор успешно остановлен.",
+        "pauseSuccess": "Сбор успешно приостановлен.",
+        "resumeSuccess": "Сбор успешно возобновлен."
     }
 }

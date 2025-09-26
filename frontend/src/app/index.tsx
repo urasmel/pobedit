@@ -36,7 +36,7 @@ const appStyles = {
             lg: '1fr'
         },
         overflow: 'visible',
-        gap: ".5rem",
+        gap: "1rem",
         flex: "1",
         transition: 'grid-template-columns 0.3s ease-in-out', // Плавные переходы
     },

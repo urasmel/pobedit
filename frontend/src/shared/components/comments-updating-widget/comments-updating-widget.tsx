@@ -142,38 +142,13 @@ export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
     }
 
     return (
-        <Box
-            sx={{
-                display: "flex",
-                flexDirection: "column",
-                rowGap: "1rem",
-                borderRadius: "var(--radius-md)",
-                padding: "1rem",
-                boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;",
-                fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
-            }}
-        >
-
-            {
-                commentsCount == 0
-                    ?
-                    <Typography>
-                        Пока в базе данных нет комментариев к посту с идентификатором <b>{postId}</b>
-                    </Typography>
-                    :
-                    <Typography>
-                        В базе данных {commentsCount}&nbsp;
-                        {plural((commentsCount ? commentsCount : 0), 'комментарий', 'комментария', 'комментариев')}&nbsp;
-                        к посту с ид. {postId}
-                    </Typography>
-            }
-
+        <>
             <Button
                 variant="contained"
                 onClick={btnSendRequest_handler}
                 disabled={isWSLoading}
             >
-                Обновить комментарии поста
+                Обновить комментарии
             </Button>
 
             <LoadingProgressDialog
@@ -182,6 +157,6 @@ export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
                 open={isWSLoading}
                 type='comment'
             />
-        </Box>
+        </>
     );
 };

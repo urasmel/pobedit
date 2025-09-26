@@ -1,4 +1,5 @@
 import { Badge } from '@/shared/components/badge';
+import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import ControlIcon from "@mui/icons-material/Settings";
 import PeopleIcon from '@mui/icons-material/People';
@@ -20,6 +21,31 @@ export const Aside = () => {
                 boxShadow: "var(--strong-shadow)",
             }}
         >
+
+            <Badge link='/'>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1
+                    }}
+                >
+                    <HomeIcon
+                        sx={{
+                            color: "#344767",
+                            fontSize: 24,
+                        }}
+                    />
+                    <Typography
+                        variant="body1"
+                        sx={{
+                            color: "#344767",
+                        }}
+                    >
+                        Главная
+                    </Typography>
+                </Box>
+            </Badge>
 
             <Badge link='/search'>
                 <Box
