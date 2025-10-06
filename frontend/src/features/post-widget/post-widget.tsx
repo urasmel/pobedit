@@ -105,7 +105,6 @@ export const PostWidget = ({
             >
                 {showTitle && (
                     <Typography variant="body1" sx={{ mb: 1 }}>
-                        {/* Канал:&nbsp; */}
                         Канал: {" "}
                         <NavLink
                             style={linkStyle}

@@ -109,12 +109,12 @@ export const PostsUpdatingWidget = (props: { channelId: string | undefined; }) =
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    width: "100%",
                     boxSizing: "border-box",
                     borderRadius: "var(--radius-md)",
                     boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px",
                     padding: 1,
                     minHeight: "85px",
+                    minWidth: "200px",
                 }}>
                 <CircularProgress
                     sx={{
@@ -145,8 +145,7 @@ export const PostsUpdatingWidget = (props: { channelId: string | undefined; }) =
             fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
             boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px",
             padding: "0.5rem",
-            width: "100%",
-            minWidth: "300px",
+            minWidth: "200px",
             boxSizing: "border-box",
             borderRadius: "var(--radius-md)",
             color: "#344767",

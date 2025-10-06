@@ -1,7 +1,12 @@
 import { Box } from '@mui/material';
 import { ReactNode } from 'react';
 
-export const ChannelMainInfoBox = ({ children }: { children: ReactNode; }) => {
+
+interface ChannelMainInfoBoxProps {
+    children: ReactNode;
+}
+
+export const ChannelMainInfoBox = ({ children }: ChannelMainInfoBoxProps) => {
 
     return (
 
@@ -10,20 +15,20 @@ export const ChannelMainInfoBox = ({ children }: { children: ReactNode; }) => {
             fontSize: "medium",
             display: "flex",
             flexDirection: "column",
-            borderRadius: "var(--radius-md)",
             overflow: "hidden",
-            boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;",
-            padding: ".5rem",
             rowGap: "1rem",
             fontWeight: "500",
-            minHeight: "85px",
             maxHeight: "87.5px",
-            width: "100%",
-            minWidth: "fitContent",
             height: "100%",
-            boxSizing: "border-box",
             color: "#344767",
-            lineHeight: "1.5rem"
+            lineHeight: "1.5rem",
+            minHeight: '85px',
+            minWidth: "200px",
+            width: "fit-content",
+            boxSizing: "border-box" as const,
+            borderRadius: "var(--radius-md)",
+            boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px",
+            padding: 1,
         }}>
             {children}
         </Box>

@@ -9,9 +9,7 @@ using Gather.Utils.Gather;
 using Gather.Utils.Gather.Notification;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using System;
 using System.Threading.Channels;
-using System.Threading.Tasks;
 using TL;
 
 namespace Gather.Services;
