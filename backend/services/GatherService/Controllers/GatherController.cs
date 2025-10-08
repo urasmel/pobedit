@@ -12,15 +12,10 @@ namespace Gather.Controllers;
 [ApiController]
 [Produces("application/json")]
 [Route("api/v{v:apiVersion}/[controller]")]
-public class GatherController : ControllerBase
+public class GatherController(IGatherService gatherService, RequestMetrics metrics) : ControllerBase
 {
-    IGatherService _gatherService;
-
-    public GatherController(
-        IGatherService gatherService)
-    {
-        _gatherService = gatherService;
-    }
+    IGatherService _gatherService = gatherService;
+    private readonly RequestMetrics _metrics = metrics;
 
     /// <summary>
     /// Запускает процесс сбора информации в БД.
@@ -29,6 +24,7 @@ public class GatherController : ControllerBase
     [HttpGet("start")]
     public async Task<ActionResult<ServiceResponse<bool>>> StartGather()
     {
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         Log.Information("Start gathering requested at {Time}",
             DateTime.Now,
             new
@@ -87,6 +83,11 @@ public class GatherController : ControllerBase
 
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
+        finally
+        {
+            stopwatch.Stop();
+            _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
+        }
     }
 
     /// <summary>
@@ -96,6 +97,8 @@ public class GatherController : ControllerBase
     [HttpGet("stop")]
     public async Task<ActionResult<ServiceResponse<bool>>> StopGather()
     {
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
         try
         {
             Log.Information("Stop gathering requested at {Time}",
@@ -128,6 +131,11 @@ public class GatherController : ControllerBase
 
             return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
         }
+        finally
+        {
+            stopwatch.Stop();
+            _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
+        }
     }
 
 
@@ -138,21 +146,31 @@ public class GatherController : ControllerBase
     [HttpGet("state")]
     public ActionResult<ServiceResponse<GatherStateDto>> GetGatherStatus()
     {
-        Log.Information("Gathering result requested at {Time}",
-            DateTime.Now,
-            new
-            {
-                method = "GetGatherStatus"
-            }
-        );
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-        var response = _gatherService.GetGatherState();
-        if (!response.Success)
+        try
         {
-            return BadRequest(response);
-        }
+            Log.Information("Gathering result requested at {Time}",
+                DateTime.Now,
+                new
+                {
+                    method = "GetGatherStatus"
+                }
+            );
 
-        return Ok(response);
+            var response = _gatherService.GetGatherState();
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+        finally
+        {
+            stopwatch.Stop();
+            _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
+        }
     }
 }
 // TODO общие модели и дтошки в проект библиотеки классов

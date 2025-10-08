@@ -15,10 +15,14 @@ namespace Gather.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly RequestMetrics _metrics;
+        private readonly ILogger<UsersController> _logger;
 
-        public UsersController(IUserService userService)
+        public UsersController(IUserService userService, RequestMetrics metrics, ILogger<UsersController> logger)
         {
             _userService = userService;
+            _metrics = metrics;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -27,16 +31,26 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ServiceResponse<IEnumerable<GetUserDto>>>> Get()
         {
-            Log.Information("All users requested at {Time}",
-                DateTime.Now,
-                new
-                {
-                    method = "Get"
-                }
-            );
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            var users = await _userService.GetAllUsersAsync();
-            return Ok(users);
+            try
+            {
+                Log.Information("All users requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "Get"
+                    }
+                );
+
+                var users = await _userService.GetAllUsersAsync();
+                return Ok(users);
+            }
+            finally
+            {
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
+            }
         }
 
         [HttpGet("{id}")]
@@ -47,25 +61,35 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ServiceResponse<GetUserDto>>> GetSingle([FromRoute] int id)
         {
-            Log.Information("User requested at {Time}",
-                DateTime.Now,
-                new
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            try
+            {
+                Log.Information("User requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "GetSingle"
+                    }
+                );
+
+                var response = await _userService.GetUserIdAsync(id);
+                if (response.Data == null)
                 {
-                    method = "GetSingle"
+                    return NotFound(response);
                 }
-            );
+                else if (response.Success == false)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
+                }
 
-            var response = await _userService.GetUserIdAsync(id);
-            if (response.Data == null)
-            {
-                return NotFound(response);
+                return Ok(response);
             }
-            else if (response.Success == false)
+            finally
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
             }
-
-            return Ok(response);
         }
 
         [HttpPost]
@@ -76,29 +100,39 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult<ServiceResponse<GetUserDto>>> Add(AddUserDto user)
         {
-            Log.Information("User adding requested at {Time}",
-                DateTime.Now,
-                new
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            try
+            {
+                Log.Information("User adding requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "Add"
+                    }
+                );
+
+                var response = await _userService.AddUserAsync(user);
+                if (response.Data == 0)
                 {
-                    method = "Add"
+                    return NotFound(response);
                 }
-            );
+                else if (response.Message == "User already exists")
+                {
+                    return Conflict(response);
+                }
+                else if (response.Success == false)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
+                }
 
-            var response = await _userService.AddUserAsync(user);
-            if (response.Data == 0)
-            {
-                return NotFound(response);
+                return Ok(response);
             }
-            else if (response.Message == "User already exists")
+            finally
             {
-                return Conflict(response);
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
             }
-            else if (response.Success == false)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
-            }
-
-            return Ok(response);
         }
 
         [HttpDelete("{id}")]
@@ -108,26 +142,36 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ServiceResponse<GetUserDto>>> Delete(int id)
         {
-            Log.Information("User deleting requested at {Time}",
-                DateTime.Now,
-                new
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            try
+            {
+                Log.Information("User deleting requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "Delete"
+                    }
+                );
+
+                var response = await _userService.DeleteUserAsync(id);
+
+                if (response.Success == false)
                 {
-                    method = "Delete"
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
                 }
-            );
+                if (response.Data == null)
+                {
+                    return NotFound(response);
+                }
 
-            var response = await _userService.DeleteUserAsync(id);
-
-            if (response.Success == false)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
+                return Ok(response);
             }
-            if (response.Data == null)
+            finally
             {
-                return NotFound(response);
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
             }
-
-            return Ok(response);
         }
 
         [HttpPatch]
@@ -137,26 +181,36 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ServiceResponse<GetUserDto>>> Edit(User user)
         {
-            Log.Information("User editing requested at {Time}", 
-                DateTime.Now,
-                new
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            try
+            {
+                Log.Information("User editing requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "Edit"
+                    }
+                );
+
+                var response = await _userService.EditUserAsync(user);
+
+                if (response.Success == false)
                 {
-                    method = "Edit"
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
                 }
-            );
+                if (response.Data == null)
+                {
+                    return NotFound(response);
+                }
 
-            var response = await _userService.EditUserAsync(user);
-
-            if (response.Success == false)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
+                return Ok(response);
             }
-            if (response.Data == null)
+            finally
             {
-                return NotFound(response);
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
             }
-
-            return Ok(response);
         }
     }
 }

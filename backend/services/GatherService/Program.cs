@@ -17,6 +17,9 @@ using Gather.Utils.Gather.Notification;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Sinks.Grafana.Loki;
 using SharedCore.Filtering;
@@ -24,8 +27,34 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-string OutputTemplate = "{Timestamp:dd-MM-yyyy HH:mm:ss} [{Level:u3}] [{ThreadId}] {Message}{NewLine}{Exception}";
 var builder = WebApplication.CreateBuilder(args);
+
+var apiId = builder.Configuration["Pobedit:ApiId"];
+var apiHash = builder.Configuration["Pobedit:ApiHash"];
+var phoneNumber = builder.Configuration["Pobedit:PhoneNumber"];
+if (apiId == null || apiHash == null || phoneNumber == null)
+{
+    Console.WriteLine("Configuration data for the telegram account is missing");
+    Log.Error("Configuration data for the telegram account is missing");
+    return;
+}
+
+string OutputTemplate = "{Timestamp:dd-MM-yyyy HH:mm:ss} [{Level:u3}] [{ThreadId}] {Message}{NewLine}{Exception}";
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .WriteTo.Console(outputTemplate: OutputTemplate)
+    .WriteTo.GrafanaLoki(
+        uri: "http://localhost:3100",
+        labels: new List<LokiLabel>
+        {
+            new() { Key = "service_name", Value = "GaherService" },
+        },
+        credentials: null)
+    .Enrich.WithProperty("Application", "GaherService")
+    .Enrich.WithProperty("Environment", builder.Environment.EnvironmentName)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.AddApiVersioning(options =>
 {
@@ -42,42 +71,10 @@ builder.Services.AddApiVersioning(options =>
     options.SubstituteApiVersionInUrl = true;
 });
 
-
-var apiId = builder.Configuration["Pobedit:ApiId"];
-var apiHash = builder.Configuration["Pobedit:ApiHash"];
-var phoneNumber = builder.Configuration["Pobedit:PhoneNumber"];
-
-if (apiId == null || apiHash == null || phoneNumber == null)
-{
-    Console.WriteLine("Configuration data for the telegram account is missing");
-    Log.Error("Configuration data for the telegram account is missing");
-    return;
-}
-
 builder.Services.Configure<RouteOptions>(options =>
 {
     options.LowercaseUrls = true;
 });
-
-
-Log.Logger = new LoggerConfiguration()
-    .Enrich.FromLogContext()
-    .WriteTo.Console(outputTemplate: OutputTemplate)
-    .WriteTo.GrafanaLoki(
-        uri: "http://localhost:3100",
-        labels: new List<LokiLabel>
-        {
-            new() { Key = "app", Value = "gather" },
-            //new() {Key = "env", Value = builder.Environment.EnvironmentName },
-            //new() {Key="version", Value = "1.0" }
-        },
-        propertiesAsLabels: new[] { "severity", "module" }, // Promoted to labels
-        credentials: null)
-    .CreateLogger();
-
-builder.Logging.ClearProviders();
-builder.Logging.AddFile(@".\logs\{Date}_log.txt").SetMinimumLevel(LogLevel.None);
-builder.Logging.AddConsole();
 
 builder.Services.AddScoped<IdFilter>();
 builder.Services.AddScoped<UserFilter>();
@@ -105,9 +102,36 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resourceBuilder =>
+        resourceBuilder.AddService(
+            serviceName: "gather-service",
+            serviceVersion: "1.0.0")
+            .AddTelemetrySdk()
+            .AddEnvironmentVariableDetector())
+    .WithMetrics(builder =>
+    {
+        builder
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddRuntimeInstrumentation()
+            // Кастомные метрики
+            .AddMeter("Request.Metrics")
+            .AddPrometheusExporter();
+        builder.AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel");
+    })
+    .WithTracing(tracing =>
+    {
+        tracing
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddConsoleExporter()
+            .AddSource("MyApp.Tracing");
+    });
+
 var allowedOriginsForCors = "_myAllowSpecificOrigins";
-var alloedHosts = builder.Configuration["AppSettings:AllowedHosts"];
-if (alloedHosts == null)
+var allowedHosts = builder.Configuration["AppSettings:AllowedHosts"];
+if (allowedHosts == null)
 {
     Console.WriteLine("There are no 'AllowedHosts' configuration in app settings");
     return;
@@ -117,7 +141,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: allowedOriginsForCors,
         policy =>
         {
-            policy.WithOrigins(alloedHosts)
+            policy.WithOrigins(allowedHosts)
             .AllowAnyMethod()
             .AllowAnyHeader();
         });
@@ -129,6 +153,9 @@ ConfigUtilsFactory.Create(
     apiId,
     apiHash,
     phoneNumber));
+
+builder.Services.AddSingleton<RequestMetrics>();
+
 builder.Services.AddSingleton<IGatherService, GatherService>();
 builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddSingleton<GatherClient>();
@@ -142,6 +169,9 @@ builder.Services.AddScoped<ISearchService, SearchService>();
 
 var app = builder.Build();
 
+// Добавляем endpoint для метрик Prometheus
+app.MapPrometheusScrapingEndpoint();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -149,6 +179,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseOpenTelemetryPrometheusScrapingEndpoint(); // Endpoint для Prometheus /metrics
 var webSocketOptions = new WebSocketOptions
 {
     KeepAliveInterval = TimeSpan.FromMinutes(2)

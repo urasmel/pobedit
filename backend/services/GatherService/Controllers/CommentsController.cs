@@ -11,10 +11,10 @@ namespace Gather.Controllers
     [ApiController]
     [Produces("application/json")]
     [Route("api/v{v:apiVersion}/[controller]")]
-    public class CommentsController(ICommentsService commentsService) : ControllerBase
+    public class CommentsController(ICommentsService commentsService, RequestMetrics metrics) : ControllerBase
     {
         private readonly ICommentsService _commentsService = commentsService;
-
+        private readonly RequestMetrics _metrics = metrics;
 
         [HttpGet]
         [Route("{channelId}/{postId}")]
@@ -24,48 +24,68 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<CommentDto>>> GetAllPostComments(long channelId, long postId, int offset = 0, int count = 20)
         {
-            Log.Information("All post's comments requested at {Time}",
-                DateTime.Now,
-                new
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            try
+            {
+                Log.Information("All post's comments requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "GetAllPostComments"
+                    }
+                );
+                var response = await _commentsService.GetComments(channelId, postId, offset, count);
+
+                if (response.Message == "Channel not found")
                 {
-                    method = "GetAllPostComments"
+                    return NotFound(response);
                 }
-            );
-            var response = await _commentsService.GetComments(channelId, postId, offset, count);
 
-            if (response.Message == "Channel not found")
-            {
-                return NotFound(response);
+                if (!response.Success)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
+                }
+
+                return Ok(response);
             }
-
-            if (!response.Success)
+            finally
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
             }
-
-            return Ok(response);
         }
 
         [HttpGet()]
         [Route("{channelId}/{postId}/update")]
         public async Task UpdatePostComments(long channelId, long postId)
         {
-            Log.Information("Updating post's comments requested at {Time}",
-                DateTime.Now,
-                new
-                {
-                    method = "UpdatePostComments"
-                }
-            );
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            if (HttpContext.WebSockets.IsWebSocketRequest)
+            try
             {
-                using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                await _commentsService.UpdatePostComments(channelId, postId, webSocket);
+                Log.Information("Updating post's comments requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "UpdatePostComments"
+                    }
+                );
+
+                if (HttpContext.WebSockets.IsWebSocketRequest)
+                {
+                    using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                    await _commentsService.UpdatePostComments(channelId, postId, webSocket);
+                }
+                else
+                {
+                    HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                }
             }
-            else
+            finally
             {
-                HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
             }
         }
 
@@ -77,27 +97,37 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<long>> GetPostCommentsCount(long channelId, long postId)
         {
-            Log.Information("Post's comments count requested at {Time}",
-                DateTime.Now,
-                new
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            try
+            {
+                Log.Information("Post's comments count requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "GetPostCommentsCount"
+                    }
+                );
+
+                var response = await _commentsService.GetCommentsCount(channelId, postId);
+
+                if (response.Message == "Channel not found")
                 {
-                    method = "GetPostCommentsCount"
+                    return NotFound(response);
                 }
-            );
 
-            var response = await _commentsService.GetCommentsCount(channelId, postId);
+                if (!response.Success)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
+                }
 
-            if (response.Message == "Channel not found")
-            {
-                return NotFound(response);
+                return Ok(response);
             }
-
-            if (!response.Success)
+            finally
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
             }
-
-            return Ok(response);
         }
     }
 }

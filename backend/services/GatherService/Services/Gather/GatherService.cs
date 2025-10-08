@@ -59,9 +59,6 @@ public class GatherService : IGatherService
         //ThreadPool.QueueUserWorkItem(_ => StartGatherAsync());
         _ = Task.Run(StartProcessingAsync, _processingCts.Token);
 
-
-
-
         // Добавьте отладочную информацию
         var settingsFromService = settingsService.PobeditSettings;
         Console.WriteLine($"Settings hash: {settingsFromService.GetHashCode()}");

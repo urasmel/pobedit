@@ -11,14 +11,10 @@ namespace Gather.Controllers;
 [ApiController]
 [Produces("application/json")]
 [Route("api/v{v:apiVersion}/[controller]")]
-public class SettingsController:ControllerBase
+public class SettingsController(ISettingsService settingsService, RequestMetrics metrics) : ControllerBase
 {
-    ISettingsService _settingsService;
-
-    public SettingsController(ISettingsService settingsService)
-    {
-        _settingsService = settingsService;
-    }
+    ISettingsService _settingsService = settingsService;
+    private readonly RequestMetrics _metrics = metrics;
 
     /// <summary>
     /// Возвращает настройки приложения.
@@ -29,21 +25,31 @@ public class SettingsController:ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public ActionResult<ServiceResponse<PobeditSettingsDto>> Get()
     {
-        Log.Information("Settings requested at {Time}",
-            DateTime.Now,
-            new
-            {
-                method = "Get"
-            }
-        );
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-        var response = _settingsService.GetSettings();
-        if (!response.Success)
+        try
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, response);
-        }
+            Log.Information("Settings requested at {Time}",
+                DateTime.Now,
+                new
+                {
+                    method = "Get"
+                }
+            );
 
-        return Ok(response);
+            var response = _settingsService.GetSettings();
+            if (!response.Success)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+
+            return Ok(response);
+        }
+        finally
+        {
+            stopwatch.Stop();
+            _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
+        }
     }
 
     /// <summary>
@@ -53,22 +59,32 @@ public class SettingsController:ControllerBase
     [MapToApiVersion(1.0)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public ActionResult<ServiceResponse<bool>> Save([FromBody]PobeditSettingsDto pobeditSettingsDto)
+    public ActionResult<ServiceResponse<bool>> Save([FromBody] PobeditSettingsDto pobeditSettingsDto)
     {
-        Log.Information("Saving settings requested at {Time}",
-            DateTime.Now,
-            new
-            {
-                method = "Save"
-            }
-        );
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-        var response = _settingsService.SaveSettings(pobeditSettingsDto);
-        if (!response.Success)
+        try
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, response);
-        }
+            Log.Information("Saving settings requested at {Time}",
+                DateTime.Now,
+                new
+                {
+                    method = "Save"
+                }
+            );
 
-        return Ok(response);
+            var response = _settingsService.SaveSettings(pobeditSettingsDto);
+            if (!response.Success)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+
+            return Ok(response);
+        }
+        finally
+        {
+            stopwatch.Stop();
+            _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
+        }
     }
 }

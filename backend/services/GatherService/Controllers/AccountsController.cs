@@ -11,14 +11,11 @@ namespace Gather.Controllers
     [Produces("application/json")]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("1.0")]
-    public class AccountsController : ControllerBase
+    public class AccountsController(IAccountService accountService, RequestMetrics metrics) : ControllerBase
     {
-        private readonly IAccountService _accountService;
+        private readonly IAccountService _accountService = accountService;
+        private readonly RequestMetrics _metrics = metrics;
 
-        public AccountsController(IAccountService accountService)
-        {
-            _accountService = accountService;
-        }
 
         [HttpGet("{accountTlgId}")]
         [MapToApiVersion(1.0)]
@@ -27,24 +24,34 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ServiceResponse<AccountDto>>> GetSingle([FromRoute] long accountTlgId)
         {
-            Log.Information("Single account requested at {Time}",
-                DateTime.Now,
-                new
-                {
-                    method = "GetSingle"
-                }
-            );
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            var response = await _accountService.GetAccountAsync(accountTlgId);
-            if (response.Data == null)
+            try
             {
-                return NotFound(response);
+                Log.Information("Single account requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "GetSingle"
+                    }
+                );
+
+                var response = await _accountService.GetAccountAsync(accountTlgId);
+                if (response.Data == null)
+                {
+                    return NotFound(response);
+                }
+                else if (!response.Success)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
+                }
+                return Ok(response);
             }
-            else if (!response.Success)
+            finally
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
             }
-            return Ok(response);
         }
 
         [HttpGet()]
@@ -58,21 +65,31 @@ namespace Gather.Controllers
             [FromQuery] TrackingOptionsDto is_tracking = TrackingOptionsDto.All,
             [FromQuery] string login = "")
         {
-            Log.Information("Accounts requested at {Time}",
-                DateTime.Now,
-                new
-                {
-                    method = "GetAll"
-                }
-            );
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            var response = await _accountService.GetAccountsAsync(offset, limit, is_tracking, login);
-            if (!response.Success)
+            try
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
-            }
+                Log.Information("Accounts requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "GetAll"
+                    }
+                );
 
-            return Ok(response);
+                var response = await _accountService.GetAccountsAsync(offset, limit, is_tracking, login);
+                if (!response.Success)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
+                }
+
+                return Ok(response);
+            }
+            finally
+            {
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
+            }
         }
 
         [HttpGet("count")]
@@ -81,23 +98,33 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ServiceResponse<int>>> GetCount(
-            [FromQuery] TrackingOptionsDto is_tracking = TrackingOptionsDto.All, 
+            [FromQuery] TrackingOptionsDto is_tracking = TrackingOptionsDto.All,
             [FromQuery] string login = "")
         {
-            Log.Information("Accounts count requested at {Time}",
-                DateTime.Now,
-                new
-                {
-                    method = "GetCount"
-                }
-            );
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            var response = await _accountService.GetCountAsync(is_tracking, login);
-            if (!response.Success)
+            try
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
+                Log.Information("Accounts count requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "GetCount"
+                    }
+                );
+
+                var response = await _accountService.GetCountAsync(is_tracking, login);
+                if (!response.Success)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
+                }
+                return Ok(response);
             }
-            return Ok(response);
+            finally
+            {
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
+            }
         }
 
         [HttpGet("{accountTlgId}/update")]
@@ -107,25 +134,35 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ServiceResponse<AccountDto>>> Update([FromRoute] long accountTlgId)
         {
-            Log.Information("Update account requested at {Time}",
-                DateTime.Now,
-                new
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            try
+            {
+                Log.Information("Update account requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "Update"
+                    }
+                );
+
+                var response = await _accountService.UpdateAccountAsync(accountTlgId);
+                if (response.Data == null)
                 {
-                    method = "Update"
+                    return NotFound(response);
                 }
-            );
+                else if (!response.Success)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
+                }
 
-            var response = await _accountService.UpdateAccountAsync(accountTlgId);
-            if (response.Data == null)
-            {
-                return NotFound(response);
+                return Ok(response);
             }
-            else if (!response.Success)
+            finally
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
             }
-
-            return Ok(response);
         }
 
         [HttpGet("{accountTlgId}/comments")]
@@ -134,29 +171,39 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ServiceResponse<IEnumerable<CommentDto>>>> GetComments(
-            [FromRoute] long accountTlgId, 
-            [FromQuery] int offset = 0, 
+            [FromRoute] long accountTlgId,
+            [FromQuery] int offset = 0,
             [FromQuery] int limit = 20)
         {
-            Log.Information("Account comments requested at {Time}",
-                DateTime.Now,
-                new
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            try
+            {
+                Log.Information("Account comments requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "GetComments"
+                    }
+                );
+
+                var response = await _accountService.GetCommentsAsync(accountTlgId, offset, limit);
+                if (response.Data == null)
                 {
-                    method = "GetComments"
+                    return NotFound(response);
                 }
-            );
+                else if (!response.Success)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
+                }
 
-            var response = await _accountService.GetCommentsAsync(accountTlgId, offset, limit);
-            if (response.Data == null)
-            {
-                return NotFound(response);
+                return Ok(response);
             }
-            else if (!response.Success)
+            finally
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
             }
-
-            return Ok(response);
         }
 
         [HttpGet("{accountTlgId}/comments_count")]
@@ -166,21 +213,31 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ServiceResponse<int>>> GetCommentsCount([FromRoute] long accountTlgId)
         {
-            Log.Information("Account comments count requested at {Time}",
-                DateTime.Now,
-                new
-                {
-                    method = "GetCommentsCount"
-                }
-            );
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            var response = await _accountService.GetCommentsCountAsync(accountTlgId);
-            if (!response.Success)
+            try
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
-            }
+                Log.Information("Account comments count requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "GetCommentsCount"
+                    }
+                );
 
-            return Ok(response);
+                var response = await _accountService.GetCommentsCountAsync(accountTlgId);
+                if (!response.Success)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
+                }
+
+                return Ok(response);
+            }
+            finally
+            {
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
+            }
         }
 
         [HttpPost("{accountTlgId}/change_tracking")]
@@ -190,21 +247,31 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ServiceResponse<bool>>> ChangeTracking([FromRoute] long accountTlgId, [FromBody] ChangeTrackingDto trackingDto)
         {
-            Log.Information("Changing account tracking requested at {Time}",
-                DateTime.Now,
-                new
-                {
-                    method = "ChangeTracking"
-                }
-            );
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            var response = await _accountService.ChangeTracking(accountTlgId, trackingDto.IsTracking);
-            if (!response.Success)
+            try
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
-            }
+                Log.Information("Changing account tracking requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "ChangeTracking"
+                    }
+                );
 
-            return Ok(response);
+                var response = await _accountService.ChangeTracking(accountTlgId, trackingDto.IsTracking);
+                if (!response.Success)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
+                }
+
+                return Ok(response);
+            }
+            finally
+            {
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
+            }
         }
     }
 }

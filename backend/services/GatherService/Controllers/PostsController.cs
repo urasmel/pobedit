@@ -11,9 +11,10 @@ namespace Gather.Controllers
     [ApiController]
     [Produces("application/json")]
     [Route("api/v{v:apiVersion}/[controller]")]
-    public class PostsController(IPostsService postsService) : ControllerBase
+    public class PostsController(IPostsService postsService, RequestMetrics metrics) : ControllerBase
     {
         private readonly IPostsService _postsService = postsService;
+        private readonly RequestMetrics _metrics = metrics;
 
         /// <summary>
         /// Возвращает посты канала, которые есть в БД, по его id.
@@ -29,27 +30,37 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<PostDto>>> GetAllChannelPosts(long channelId, int offset = 0, int count = 20)
         {
-            Log.Information("All channel's posts requested at {Time}",
-                DateTime.Now,
-                new
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            try
+            {
+                Log.Information("All channel's posts requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "GetAllChannelPosts"
+                    }
+                );
+
+                var response = await _postsService.GetChannelPosts(channelId, offset, count);
+
+                if (response.Message == "Channel not found")
                 {
-                    method = "GetAllChannelPosts"
+                    return NotFound(response);
                 }
-            );
 
-            var response = await _postsService.GetChannelPosts(channelId, offset, count);
+                if (!response.Success)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
+                }
 
-            if (response.Message == "Channel not found")
-            {
-                return NotFound(response);
+                return Ok(response);
             }
-
-            if (!response.Success)
+            finally
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
             }
-
-            return Ok(response);
         }
 
         [HttpGet]
@@ -60,27 +71,37 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<PostDto>> GetChannelPost(long channelId, long postId)
         {
-            Log.Information("Channel's post requested at {Time}",
-                DateTime.Now,
-                new
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            try
+            {
+                Log.Information("Channel's post requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "GetChannelPost"
+                    }
+                );
+
+                var response = await _postsService.GetChannelPost(channelId, postId);
+
+                if (response.Message == "Channel not found")
                 {
-                    method = "GetChannelPost"
+                    return NotFound(response);
                 }
-            );
 
-            var response = await _postsService.GetChannelPost(channelId, postId);
+                if (!response.Success)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
+                }
 
-            if (response.Message == "Channel not found")
-            {
-                return NotFound(response);
+                return Ok(response);
             }
-
-            if (!response.Success)
+            finally
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
             }
-
-            return Ok(response);
         }
 
 
@@ -92,47 +113,67 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<long>> GetChannelPostsCount(long channelId)
         {
-            Log.Information("Channel's posts count requested at {Time}",
-                DateTime.Now,
-                new
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            try
+            {
+                Log.Information("Channel's posts count requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "GetChannelPostsCount"
+                    }
+                );
+                var response = await _postsService.GetChannelPostsCount(channelId);
+
+                if (response.ErrorType == ErrorType.NotFound)
                 {
-                    method = "GetChannelPostsCount"
+                    return NotFound(response);
                 }
-            );
-            var response = await _postsService.GetChannelPostsCount(channelId);
+                else if (!response.Success)
+                {
+                    StatusCode(StatusCodes.Status500InternalServerError, response);
+                }
 
-            if (response.ErrorType == ErrorType.NotFound)
-            {
-                return NotFound(response);
+                return Ok(response);
             }
-            else if (!response.Success)
+            finally
             {
-                StatusCode(StatusCodes.Status500InternalServerError, response);
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
             }
-
-            return Ok(response);
         }
 
         [HttpGet]
         [Route("{channelId}/update")]
         public async Task UpdateChannelPosts(long channelId)
         {
-            Log.Information("Updating channel's posts requested at {Time}",
-                DateTime.Now,
-                new
-                {
-                    method = "UpdateChannelPosts"
-                }
-            );
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            if (HttpContext.WebSockets.IsWebSocketRequest)
+            try
             {
-                using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                await _postsService.UpdateChannelPosts(channelId, webSocket);
+                Log.Information("Updating channel's posts requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "UpdateChannelPosts"
+                    }
+                );
+
+                if (HttpContext.WebSockets.IsWebSocketRequest)
+                {
+                    using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                    await _postsService.UpdateChannelPosts(channelId, webSocket);
+                }
+                else
+                {
+                    HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                }
             }
-            else
+            finally
             {
-                HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
             }
         }
     }

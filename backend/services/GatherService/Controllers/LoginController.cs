@@ -8,33 +8,39 @@ namespace Gather.Controllers
 {
     [ApiController]
     [Route("login")]
-    public class LoginController : ControllerBase
+    public class LoginController(ILoginService loginService, RequestMetrics metrics) : ControllerBase
     {
-        private readonly ILoginService _loginService;
-
-        public LoginController(ILoginService loginService)
-        {
-            _loginService = loginService;
-        }
+        private readonly ILoginService _loginService = loginService;
+        private readonly RequestMetrics _metrics = metrics;
 
         [HttpPost("/login")]
         public async Task<ActionResult<ServiceResponse<int>>> Login(LoginDto loginDto)
         {
-            Log.Information("Login requested at {Time}",
-                DateTime.Now,
-                new
-                {
-                    method = "Login"
-                }
-            );
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            var response = await _loginService.Login(loginDto);
-            if (!response.Success)
+            try
             {
-                return BadRequest(response);
-            }
+                Log.Information("Login requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "Login"
+                    }
+                );
 
-            return Ok(response);
+                var response = await _loginService.Login(loginDto);
+                if (!response.Success)
+                {
+                    return BadRequest(response);
+                }
+
+                return Ok(response);
+            }
+            finally
+            {
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
+            }
         }
     }
 }
