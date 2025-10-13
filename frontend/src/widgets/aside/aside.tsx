@@ -175,3 +175,6 @@ export const Aside = () => {
         </Box >
     );
 };
+
+
+Aside.displayName = 'Aside';
