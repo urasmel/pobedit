@@ -2,21 +2,19 @@ import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { getChannel, getChannels } from "./get-channels";
 
 export const channelQueries = {
-    all: () => ["channels"],
-
-    lists: () => [...channelQueries.all(), "list"],
+    channels: () => ["channels"],
 
     // Аргумент user остается для дальнейшего разбиения запросов по микросервисам.
     list: () =>
         queryOptions({
-            queryKey: [...channelQueries.lists()],
+            queryKey: [...channelQueries.channels(), "list"],
             queryFn: () => getChannels(),
             placeholderData: keepPreviousData,
         }),
 
     details: (channelId: string | undefined) =>
         queryOptions({
-            queryKey: [...channelQueries.all(), channelId, "detail"],
+            queryKey: [...channelQueries.channels(), channelId, "detail"],
             queryFn: () => getChannel(channelId),
             placeholderData: keepPreviousData,
         }),

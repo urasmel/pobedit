@@ -1,1 +1,0 @@
-export { SearchResultPage } from './SearchResultPage';

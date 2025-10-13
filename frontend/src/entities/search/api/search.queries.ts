@@ -1,6 +1,6 @@
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { postSearch } from "./post-search";
-import { SearchQuery } from "../model/SearchQuery";
+import { SearchQuery } from "../model/search-query";
 
 export const searchQueries = {
     all: () => ["search"],

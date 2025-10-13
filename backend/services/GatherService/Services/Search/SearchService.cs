@@ -5,6 +5,7 @@ using Gather.Dtos.Comments;
 using Gather.Dtos.Posts;
 using Gather.Models;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace Gather.Services.Search;
 
@@ -12,13 +13,11 @@ public class SearchService : ISearchService
 {
     private readonly IMapper _mapper;
     private readonly DataContext _context;
-    private readonly ILogger<SearchService> _logger;
 
-    public SearchService(IMapper mapper, DataContext context, ILogger<SearchService> logger)
+    public SearchService(IMapper mapper, DataContext context)
     {
         _mapper = mapper;
         _context = context;
-        _logger = logger;
     }
 
     public async Task<ServiceResponse<object>> Search(SearchQuery query)
@@ -27,7 +26,12 @@ public class SearchService : ISearchService
 
         if (query.SearchType == SearchType.Posts && _context.Posts == null)
         {
-            _logger.LogError("Posts table is null");
+            Log.Error("Posts table is null",
+                new
+                {
+                    method = "Search"
+                }
+            );
             response.Success = false;
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
@@ -35,7 +39,12 @@ public class SearchService : ISearchService
         }
         else if (query.SearchType == SearchType.Comments && _context.Comments == null)
         {
-            _logger.LogError("Comments table is null");
+            Log.Error("Comments table is null",
+                new
+                {
+                    method = "Search"
+                }
+            );
             response.Success = false;
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
@@ -46,7 +55,7 @@ public class SearchService : ISearchService
         {
             if (query.SearchType == SearchType.Posts)
             {
-                IQueryable<Post> dbQuery = _context.Posts;
+                IQueryable<Post> dbQuery = _context.Posts.AsNoTracking();
                 if (query.StartDate != null)
                 {
                     dbQuery = dbQuery.Where(p => p.Date >= query.StartDate);
@@ -62,7 +71,7 @@ public class SearchService : ISearchService
                 var ids = await dbQuery
                     .Skip(query.Offset)
                     .Take(query.Limit)
-                    .Select(p => p.Id)
+                    .Select(p => p.PostId)
                     .ToListAsync();
                 var postsDtos = ids.Select(id => GetPostById(id));
                 response.Data = new SearchResultPostsDto()
@@ -74,7 +83,7 @@ public class SearchService : ISearchService
             else if (query.SearchType == SearchType.Comments)
             {
 
-                IQueryable<Comment> dbQuery = _context.Comments;
+                IQueryable<Comment> dbQuery = _context.Comments.AsNoTracking();
                 if (query.StartDate != null)
                 {
                     dbQuery = dbQuery.Where(p => p.Date >= query.StartDate);
@@ -87,9 +96,10 @@ public class SearchService : ISearchService
                 dbQuery = dbQuery.Where(c => c.Message.Contains(query.Query));
                 int totalCount = dbQuery.Count();
 
-                var comments = await dbQuery                        
+                var comments = await dbQuery
                     .Skip(query.Offset)
                     .Take(query.Limit)
+                    .Include(c => c.Post)
                     .Include(comment => comment.From)
                     .ToListAsync();
                 var commentsDtos = _mapper.Map<List<CommentDto>>(comments);
@@ -97,14 +107,20 @@ public class SearchService : ISearchService
                 {
                     TotalCount = totalCount,
                     Data = commentsDtos
-                }; 
+                };
             }
             response.Success = true;
             return response;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            Log.Error(ex.Message);
+            Log.Error(ex, "Error searching",
+                new
+                {
+                    method = "Search"
+                }
+            );
             response.Success = false;
             response.Message = "Server error";
             response.ErrorType = ErrorType.ServerError;
@@ -114,7 +130,7 @@ public class SearchService : ISearchService
 
     private PostDto GetPostById(long postId)
     {
-        var post = _context.Posts.FirstOrDefault(p => p.Id == postId);
+        var post = _context.Posts.FirstOrDefault(p => p.PostId == postId);
         if (post == null)
         {
             return null;

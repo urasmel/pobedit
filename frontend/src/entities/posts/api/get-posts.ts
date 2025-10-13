@@ -2,24 +2,30 @@ import { ServiceResponse, Post } from "@/entities";
 import { apiClient } from "@/shared/api/base";
 import { PostDto } from "./dto/post.dto";
 import { mapPost } from "./mapper/map-post";
-import { ITEMS_PER_PAGE } from "@/shared/config";
+import { PAGE_SIZE } from "@/shared/config";
 
 export const getPosts = async (
     channelId: string | undefined,
     offset = 0,
-    limit = ITEMS_PER_PAGE)
+    limit = PAGE_SIZE)
     : Promise<{ posts: Post[]; }> => {
-    if (channelId == undefined) {
-        return Promise.resolve({ posts: [] });
+
+    try {
+        if (channelId == undefined) {
+            return Promise.resolve({ posts: [] });
+        }
+
+        const result = await apiClient
+            .get<ServiceResponse<PostDto[]>>
+            (`posts/${channelId}?offset=${offset}&limit=${limit}`);
+
+        return ({
+            posts: result.data.map((post: PostDto) => mapPost(post))
+        });
+    } catch (error) {
+        throw new Error("error.fetchPosts");
     }
 
-    const result = await apiClient
-        .get<ServiceResponse<PostDto[]>>
-        (`channels/${channelId}/posts?offset=${offset}&limit=${limit}`);
-
-    return ({
-        posts: result.data.map((post: PostDto) => mapPost(post))
-    });
 };
 
 export const getPost = async (
@@ -27,17 +33,21 @@ export const getPost = async (
     postId: number | undefined)
     : Promise<{ post: Post; } | null> => {
 
-    if (channelId == undefined) {
-        return Promise.resolve(null);
+    try {
+        if (channelId == undefined) {
+            return Promise.resolve(null);
+        }
+
+        const result = await apiClient
+            .get<ServiceResponse<PostDto>>
+            (`posts/${channelId}/${postId}`);
+
+        return ({
+            post: mapPost(result.data)
+        });
+    } catch (error) {
+        throw new Error("error.fetchPost");
     }
-
-    const result = await apiClient
-        .get<ServiceResponse<PostDto>>
-        (`channels/${channelId}/posts/${postId}`);
-
-    return ({
-        post: mapPost(result.data)
-    });
 };
 
 export const getPostsCount = async (channelId: string | undefined): Promise<{ posts_count: number; }> => {
@@ -45,9 +55,22 @@ export const getPostsCount = async (channelId: string | undefined): Promise<{ po
         return Promise.resolve({ posts_count: 0 });
     }
 
-    const result = await apiClient.get<ServiceResponse<number>>(`channels/${channelId}/posts_count`);
+    try {
+        const result = await apiClient.get<ServiceResponse<number>>(`posts/${channelId}/count`);
 
-    return ({
-        posts_count: result.data
-    });
+        return ({
+            posts_count: result.data
+        });
+    }
+    catch (error: Error | any) {
+        if (error.message.includes('404')) {
+            throw new Error('error.channelNotFound');
+        }
+        else if (error.message.includes('500')) {
+            throw new Error('error.server');
+        }
+        else {
+            throw new Error('error.fetchPostsCount');
+        }
+    }
 };

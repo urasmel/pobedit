@@ -1,0 +1,30 @@
+import { Box } from "@mui/material";
+import { CommentHeader } from "../comment-header";
+import { CommentMessage } from "../comment-message";
+import { Comment } from '@/entities/comments/model/comment';
+
+
+export const CommentInfo = (
+    { comment, showUsername = true, showChannel = true, showPostLink = false }: { comment: Comment; showUsername: boolean; showChannel: boolean; showPostLink: boolean; }) => {
+
+    return (
+        <Box
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "start",
+                borderRadius: "var(--radius-md)",
+                overflow: "hidden",
+                boxShadow: 5,
+                fontFamily: "Roboto, Helvetica Neue, Helvetica, Arial, sans-serif",
+            }}>
+            <CommentHeader
+                comment={comment}
+                showUsername={showUsername}
+                showChannel={showChannel}
+                showPostLink={showPostLink}
+            />
+
+            <CommentMessage message={comment.message} />
+        </Box>);
+};

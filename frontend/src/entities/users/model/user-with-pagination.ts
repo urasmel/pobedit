@@ -1,4 +1,4 @@
-import { User } from "./User";
+import { User } from "./user";
 
 export interface UserWithPagination {
     users: User[];

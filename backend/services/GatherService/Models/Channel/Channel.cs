@@ -21,4 +21,6 @@ public class Channel
     public string? About { get; set; } = string.Empty;
 
     public int ParticipantsCount { get; set; } = 0;
+
+    public bool HasComments { get; set; } = false;
 }

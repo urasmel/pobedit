@@ -1,0 +1,37 @@
+{
+    "dashboard": {
+        "id": null,
+        "title": "DotNet Application Metrics",
+        "tags": ["dotnet", "opentelemetry"],
+        "timezone": "browser",
+        "panels": [
+            {
+                "id": 1,
+                "title": "HTTP Requests Rate",
+                "type": "stat",
+                "targets": [
+                    {
+                        "expr": "rate(app_requests_total[5m])",
+                        "legendFormat": "{{method}} {{endpoint}}",
+                        "refId": "A"
+                    }
+                ],
+                "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 }
+            },
+            {
+                "id": 2,
+                "title": "Request Duration",
+                "type": "heatmap",
+                "targets": [
+                    {
+                        "expr": "histogram_quantile(0.95, rate(app_request_duration_seconds_bucket[5m]))",
+                        "refId": "A"
+                    }
+                ],
+                "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+            }
+        ],
+        "time": { "from": "now-6h", "to": "now" },
+        "refresh": "5s"
+    }
+}

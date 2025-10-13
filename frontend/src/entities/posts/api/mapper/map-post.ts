@@ -1,5 +1,5 @@
 import { PostDto } from "../dto/post.dto";
-import { Post } from "../../model/Post";
+import { Post } from "../../model/post";
 
 export const mapPost = (dto: PostDto): Post => ({
     tlgId: dto.tlgId,

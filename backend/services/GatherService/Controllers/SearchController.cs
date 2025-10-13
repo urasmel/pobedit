@@ -2,6 +2,7 @@
 using Gather.Models;
 using Gather.Services.Search;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace Gather.Controllers;
 
@@ -9,14 +10,10 @@ namespace Gather.Controllers;
 [Produces("application/json")]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-public class SearchController : ControllerBase
+public class SearchController(ISearchService searchService, RequestMetrics metrics) : ControllerBase
 {
-    private readonly ISearchService _searchService;
-
-    public SearchController(ISearchService searchService)
-    {
-        _searchService = searchService;
-    }
+    private readonly ISearchService _searchService = searchService;
+    private readonly RequestMetrics _metrics = metrics;
 
     [HttpPost]
     [MapToApiVersion(1.0)]
@@ -24,13 +21,31 @@ public class SearchController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ServiceResponse<IEnumerable<object>>>> Get([FromBody] SearchQuery query)
     {
-        var response = await _searchService.Search(query);
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-        if (response.Success == false)
+        try
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, response);
-        }
+            Log.Information("Search requested at {Time}",
+                DateTime.Now,
+                new
+                {
+                    method = "Get"
+                }
+            );
 
-        return Ok(response);
+            var response = await _searchService.Search(query);
+
+            if (response.Success == false)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+
+            return Ok(response);
+        }
+        finally
+        {
+            stopwatch.Stop();
+            _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
+        }
     }
 }

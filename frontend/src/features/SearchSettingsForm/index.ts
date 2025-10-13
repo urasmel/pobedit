@@ -1,1 +1,0 @@
-export { SearchSettingsForm } from './SearchSettingsForm';

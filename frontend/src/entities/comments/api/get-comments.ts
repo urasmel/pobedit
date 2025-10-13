@@ -1,75 +1,95 @@
 import { ServiceResponse } from "@/entities";
-import { Comment } from "../model/Comment";
+import { Comment } from "../model/comment";
 import { apiClient } from "@/shared/api/base";
 
 import { mapComment, mapComments } from "./mapper/map-comment";
 import { CommentDto } from "./dto/comment.dto";
-import { ITEMS_PER_PAGE } from "@/shared/config";
+import { PAGE_SIZE } from "@/shared/config";
 
 export const getComments = async (
     channelId: string | undefined,
     postId: string | undefined,
     offset = 0,
-    limit = ITEMS_PER_PAGE)
+    limit = PAGE_SIZE)
     : Promise<{ comments: Comment[]; }> => {
 
-    if (channelId == undefined || postId == undefined) {
-        return Promise.resolve({ comments: [] });
+    try {
+        if (channelId == undefined || postId == undefined) {
+            return Promise.resolve({ comments: [] });
+        }
+
+        const result = await apiClient
+            .get<ServiceResponse<CommentDto[]>>
+            (`comments/${channelId}/${postId}?offset=${offset}&limit=${limit}`);
+
+        return ({
+            comments: result.data.map((comment: CommentDto) => mapComment(comment))
+        });
+    } catch (error) {
+        throw new Error("error.fetchPostComments");
     }
-
-    const result = await apiClient
-        .get<ServiceResponse<CommentDto[]>>
-        (`channels/${channelId}/posts/${postId}/comments?offset=${offset}&limit=${limit}`);
-
-    return ({
-        comments: result.data.map((comment: CommentDto) => mapComment(comment))
-    });
 };
 
 export const getComment = async (channelId: string | undefined, postId: string | undefined, commentId: string | undefined): Promise<{ comment: Comment | null; }> => {
-    if (channelId == undefined || postId == undefined || commentId == undefined) {
-        return Promise.resolve({ comment: null });
+    try {
+        if (channelId == undefined || postId == undefined || commentId == undefined) {
+            return Promise.resolve({ comment: null });
+        }
+
+        const result = await apiClient.get<ServiceResponse<CommentDto>>(`comments/${channelId}/${postId}/${commentId}`);
+
+        return ({
+            comment: mapComment(result.data)
+        });
+    } catch (error) {
+        throw new Error("error.fetchComment");
     }
-
-    const result = await apiClient.get<ServiceResponse<CommentDto>>(`channels/${channelId}/posts/${postId}/comments/${commentId}`);
-
-    return ({
-        comment: mapComment(result.data)
-    });
 };
 
 export const getPostCommentsCount = async (channelId: string | undefined, postId: string | undefined): Promise<number> => {
-    if (channelId == undefined || postId == undefined) {
-        return Promise.resolve(0);
+    try {
+        if (channelId == undefined || postId == undefined) {
+            return Promise.resolve(0);
+        }
+
+        const result = await apiClient.get<ServiceResponse<number>>(`comments/${channelId}/${postId}/count`);
+
+        return (
+            result.data as number
+        );
+    } catch (error) {
+        throw new Error("error.fetchPostCommentsCount");
     }
-
-    const result = await apiClient.get<ServiceResponse<number>>(`channels/${channelId}/posts/${postId}/comments_count`);
-
-    return (
-        result.data as number
-    );
 };
 
-export const getAllAccountComments = async (accountId: string | undefined, offset = 0, limit = ITEMS_PER_PAGE): Promise<Comment[]> => {
-    if (accountId == undefined) {
-        return Promise.resolve([]);
+export const getAllAccountComments = async (accountId: string | undefined, offset = 0, limit = PAGE_SIZE): Promise<Comment[]> => {
+    try {
+        if (accountId == undefined) {
+            return Promise.resolve([]);
+        }
+
+        const result = await apiClient
+            .get<ServiceResponse<CommentDto[]>>
+            (`accounts/${accountId}/comments?offset=${offset}&limit=${limit}`);
+
+        return mapComments(result.data);
+    } catch (error) {
+        throw new Error("error.fetchAccountAllComments");
     }
-
-    const result = await apiClient
-        .get<ServiceResponse<CommentDto[]>>
-        (`accounts/${accountId}/comments?offset=${offset}&limit=${limit}`);
-
-    return mapComments(result.data);
 };
 
 export const getAllAccountCommentsCount = async (accountId: string | undefined): Promise<number> => {
-    if (accountId == undefined) {
-        return Promise.resolve(0);
+    try {
+        if (accountId == undefined) {
+            return Promise.resolve(0);
+        }
+
+        const result = await apiClient
+            .get<ServiceResponse<number>>
+            (`accounts/${accountId}/comments_count`);
+
+        return result.data;
+    } catch (error) {
+        throw new Error("error.fetchAccountCommentsCount");
     }
-
-    const result = await apiClient
-        .get<ServiceResponse<number>>
-        (`accounts/${accountId}/comments_count`);
-
-    return result.data;
 };

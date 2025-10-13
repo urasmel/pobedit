@@ -18,4 +18,6 @@ public class ChannelDto
     public int ParticipantsCount { get; set; } = 0;
 
     public string Image { get; set; } = string.Empty;
+
+    public bool HasComments { get; set; } = false;
 }

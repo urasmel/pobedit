@@ -1,4 +1,4 @@
-import { Account } from "../../model/Account";
+import { Account } from "../../model/account";
 import { AccountDto } from "../dto/account.dto";
 
 
@@ -13,4 +13,5 @@ export const mapAccount = (dto: AccountDto): Account => ({
     last_name: dto.last_name,
     bio: dto.bio,
     photo: dto.photo,
+    is_tracking: dto.is_tracking
 });

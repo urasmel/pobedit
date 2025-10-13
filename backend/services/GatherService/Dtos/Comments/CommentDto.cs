@@ -12,6 +12,8 @@ public class CommentDto
 
     public long PostId { get; set; }
 
+    public long PostTlgId { get; set; }
+
     public Account? From { get; set; }
 
     public string Message { get; set; } = string.Empty;

@@ -2,16 +2,14 @@ import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { getUsers } from "./get-users";
 
 export const userQueries = {
-    all: () => ["users"],
-
-    lists: () => [...userQueries.all(), "list"],
+    users: () => ["users"],
 
     list: () =>
         queryOptions({
-            queryKey: [...userQueries.lists()],
+            queryKey: [...userQueries.users()],
             queryFn: () => getUsers(),
             placeholderData: keepPreviousData,
         }),
 
-    details: () => [...userQueries.all(), "detail"],
+    details: () => [...userQueries.users(), "detail"],
 };

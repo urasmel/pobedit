@@ -4,11 +4,11 @@ namespace Gather.ServiceFactories;
 
 internal sealed class ConfigUtilsFactory
 {
-    public static ConfigUtils Create(
+    public static TelegramConfig Create(
     string apiId,
     string apiHash,
     string phoneNumber)
     {
-        return new ConfigUtils(apiId, apiHash, phoneNumber);
+        return new TelegramConfig(apiId, apiHash, phoneNumber);
     }
 }
