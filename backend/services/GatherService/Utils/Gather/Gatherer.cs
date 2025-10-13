@@ -448,6 +448,7 @@ public static class Gatherer
                         continue;
                     }
 
+                    // Скачиваем из телеги комментарий. Если пользователя еще не было в базе, то скачиаем и сохраняем.
                     //var newComment = mapper.Map<Comment>(comment);
                     var newComment = mapper.Map<Comment>(client_comments[i]);
                     try
@@ -461,7 +462,6 @@ public static class Gatherer
                         newComment.From = new Account();
                         //newComment.From.TlgId = comment.From.ID;
                         newComment.From.TlgId = client_comments[i].From.ID;
-
                         newComment.PostId = msg.ID;
 
                         var user = await _context.Accounts
@@ -522,6 +522,7 @@ public static class Gatherer
                         continue;
                     }
 
+                    // Сохраняем комментарий в базу.
                     try
                     {
                         post.Comments.Add(newComment);
@@ -529,7 +530,9 @@ public static class Gatherer
                         await _context.SaveChangesAsync();
                         dbCommentsIds.Add(client_comments[i].ID);
 
+                        // Микропауза из-за того, что добавляем возможный запрос на получение данных пользователя.
                         Thread.Sleep(Random.Shared.Next(50, 150));
+
                         await loadingHelper.NotifyProgressAsync(newComment.Date.ToString("yyyy:MM:dd HH:mm:ss"));
                         bool isNeedStop = await loadingHelper.CheckIsNeedStopAsync();
 
@@ -552,6 +555,8 @@ public static class Gatherer
                     }
                 }
 
+                // Пауза, эмулирующая прокрутку комментариев.
+                Thread.Sleep(Random.Shared.Next(1000, 3000));
                 lastCommentId = client_comments.Select(c => c.ID).Max();
             }
             while (true);

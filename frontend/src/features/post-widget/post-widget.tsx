@@ -5,8 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import plural from 'plural-ru';
 import { NavLink, useNavigate } from "react-router-dom";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { useContext, useMemo } from "react";
-// import { ThemeContext } from "@/app/theme";
+import { useMemo } from "react";
 
 interface PostWidgetProps {
     post: Post;
@@ -97,7 +96,6 @@ export const PostWidget = ({
             <CardContent
                 sx={{
                     p: 1,
-                    // color: "rgb(52, 71, 103);",
                     "&:last-child": {
                         pb: 1,
                     },

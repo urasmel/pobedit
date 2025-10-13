@@ -1,4 +1,5 @@
 import { Account } from "@/entities/account/model/account";
+import { SentimentAnalysis } from "@/shared/types";
 
 export interface Comment {
     tlgId: number;
@@ -8,5 +9,7 @@ export interface Comment {
     from: Account;
     message: string;
     date: Date;
+    sentiment: SentimentAnalysis;
     replyTo: number | null;
+    hasStopWord: boolean;
 }

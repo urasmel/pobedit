@@ -10,26 +10,23 @@ using Gather.Utils.Gather.Notification;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Threading.Channels;
-using TL;
 
 namespace Gather.Services;
 
 public class GatherService : IGatherService
 {
-
     private readonly IServiceScopeFactory _scopeFactory;
-
-    GatherClient _client;
-    IMapper _mapper;
-    PobeditSettings _pobeditSettings;
-    readonly IGatherNotifierFabric _loadingHelperFabric;
-    TL.User? _user;
-    GatherState _gatherState;
+    private GatherClient _client;
+    private IMapper _mapper;
+    private PobeditSettings _pobeditSettings;
+    private readonly IGatherNotifierFabric _loadingHelperFabric;
+    private TL.User? _user;
+    private GatherState _gatherState;
     private readonly Channel<BackgroundTask> _queue;
     private bool _disposed;
-    bool _needClose = false;
-    DateTime _postLastUpdateTime = DateTime.MinValue;
-    DateTime _commentsLastUpdateTime = DateTime.MinValue;
+    private bool _needClose = false;
+    private DateTime _postLastUpdateTime = DateTime.MinValue;
+    private DateTime _commentsLastUpdateTime = DateTime.MinValue;
     IGatherNotifier _loadingHelper;
     private readonly Random _random = new();
     private readonly CancellationTokenSource _processingCts = new();
@@ -328,7 +325,6 @@ public class GatherService : IGatherService
         UpdateState(GatherProcessState.Stopped, 0, 0);
     }
 
-
     private async Task ProcessPostsAsync(CancellationToken ct)
     {
         UpdateState(GatherProcessState.Running, null, null);
@@ -369,7 +365,7 @@ public class GatherService : IGatherService
         {
             ct.ThrowIfCancellationRequested();
 
-            foreach (var post in channel.Posts.Where(p => !p.AreCommentsLoaded))
+            foreach (var post in channel.Posts.Where(p => !p.AreCommentsLoaded && _pobeditSettings.StartGatherDate < p.Date))
             {
                 ct.ThrowIfCancellationRequested();
 
@@ -383,8 +379,11 @@ public class GatherService : IGatherService
                     _pobeditSettings
                 );
 
+                // Пауза, эмулирующая переключение на комментарии другого поста.
                 await Task.Delay(TimeSpan.FromMilliseconds(_random.Next(10000, 20000)), ct);
             }
+            // Пауза, эмулирующая переключение на другой пост.
+            await Task.Delay(TimeSpan.FromMilliseconds(_random.Next(20000, 30000)), ct);
         }
     }
 

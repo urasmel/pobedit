@@ -7,7 +7,7 @@ import { Providers } from './providers';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from "react-router-dom";
 import './styles/index.scss';
-import { Box } from '@mui/material';
+import { Box, CssBaseline } from '@mui/material';
 // import '@fontsource/roboto/300.css';
 // import '@fontsource/roboto/400.css';
 // import '@fontsource/roboto/500.css';
@@ -67,6 +67,7 @@ const App = () => {
                     error: StyledMaterialDesignContent,
                 }}
             >
+                <CssBaseline />
                 <Box sx={appStyles.root}>
                     <Header />
 

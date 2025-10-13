@@ -122,7 +122,6 @@ export const Aside = () => {
                 </Box>
             </Badge>
 
-
             <Badge link='/accounts'>
                 <Box
                     sx={{
@@ -144,6 +143,32 @@ export const Aside = () => {
                         }}
                     >
                         Аккаунты
+                    </Typography>
+                </Box>
+            </Badge>
+
+            {/* dashboard */}
+            <Badge link='/dashboard'>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1
+                    }}
+                >
+                    <PeopleIcon
+                        sx={{
+                            color: "#344767",
+                            fontSize: 24,
+                        }}
+                    />
+                    <Typography
+                        variant="body1"
+                        sx={{
+                            color: "#344767",
+                        }}
+                    >
+                        Dashboard
                     </Typography>
                 </Box>
             </Badge>
