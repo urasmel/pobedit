@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import {
     Box,
-    Paper,
     TextField,
     Button,
     List,
     ListItem,
     ListItemText,
-    ListItemSecondaryAction,
     IconButton,
     Typography,
     Dialog,
@@ -67,7 +65,12 @@ export const StopWordsManager: React.FC<StopWordsManagerProps> = ({
     };
 
     return (
-        <Paper sx={{ p: 3 }}>
+        <Box sx={{
+            minWidth: 400,
+            p: 2,
+            borderRadius: "var(--radius-md)",
+            boxShadow: "var(--weak-shadow)"
+        }}>
             <Typography variant="h6" gutterBottom>
                 Управление стоп-словами
             </Typography>
@@ -77,7 +80,7 @@ export const StopWordsManager: React.FC<StopWordsManagerProps> = ({
                     label="Новое стоп-слово"
                     value={newWord}
                     onChange={(e) => setNewWord(e.target.value)}
-                    onKeyPress={(e) => {
+                    onKeyUp={(e) => {
                         if (e.key === 'Enter') handleAddWord();
                     }}
                     sx={{ flexGrow: 1 }}
@@ -93,25 +96,30 @@ export const StopWordsManager: React.FC<StopWordsManagerProps> = ({
 
             <List>
                 {stopWords.map((stopWord) => (
-                    <ListItem key={stopWord.id} divider>
+                    <ListItem
+                        key={stopWord.id}
+                        divider
+                        secondaryAction={
+                            <>
+                                <IconButton
+                                    edge="end"
+                                    aria-label="edit"
+                                    onClick={() => handleEditClick(stopWord)}
+                                    sx={{ mr: 1 }}
+                                >
+                                    <EditIcon />
+                                </IconButton>
+                                <IconButton
+                                    edge="end"
+                                    aria-label="delete"
+                                    onClick={() => handleDeleteClick(stopWord.id)}
+                                >
+                                    <DeleteIcon />
+                                </IconButton>
+                            </>
+                        }
+                    >
                         <ListItemText primary={stopWord.word} />
-                        <ListItemSecondaryAction>
-                            <IconButton
-                                edge="end"
-                                aria-label="edit"
-                                onClick={() => handleEditClick(stopWord)}
-                                sx={{ mr: 1 }}
-                            >
-                                <EditIcon />
-                            </IconButton>
-                            <IconButton
-                                edge="end"
-                                aria-label="delete"
-                                onClick={() => handleDeleteClick(stopWord.id)}
-                            >
-                                <DeleteIcon />
-                            </IconButton>
-                        </ListItemSecondaryAction>
                     </ListItem>
                 ))}
             </List>
@@ -138,7 +146,7 @@ export const StopWordsManager: React.FC<StopWordsManagerProps> = ({
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Paper>
+        </Box>
     );
 };
 

@@ -127,7 +127,7 @@ export const SettingsPage = () => {
             </LocalizationProvider>
 
             <CustomizedSlider
-                caption="Частота опроса каналов (ч.)"
+                caption="Период начала сбора каналов (ч.)"
                 min={1}
                 max={24}
                 id="channel-polling-frequency"

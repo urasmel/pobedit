@@ -15,16 +15,17 @@ export const getAccount = async (accountId: string | undefined): Promise<Account
     return (mapAccount(result.data));
 };
 
-export const getAccounts = async (offset: number, limit: number, is_tracking: TrackingOptions, login: string): Promise<Account[]> => {
+export const getAccounts = async (offset: number, limit: number, is_tracking: TrackingOptions): Promise<Account[]> => {
 
-    const result = await apiClient.get<ServiceResponse<AccountDto[]>>(`accounts?offset=${offset}&limit=${limit}&is_tracking=${is_tracking}&login=${login}`);
+    const result = await apiClient.get<ServiceResponse<AccountDto[]>>(`accounts?offset=${offset}&limit=${limit}&is_tracking=${is_tracking}`);
 
     return (result.data.map(acc => mapAccount(acc)));
 };
 
-export const getAccountsCount = async (is_tracking: TrackingOptions, login: string): Promise<number> => {
+export const getAccountsCount = async (is_tracking: TrackingOptions): Promise<number> => {
 
-    const result = await apiClient.get<ServiceResponse<number>>(`accounts/count?is_tracking=${is_tracking}&login=${login}`);
+    // const result = await apiClient.get<ServiceResponse<number>>(`accounts/count?is_tracking=${is_tracking}&login=${login}`);
+    const result = await apiClient.get<ServiceResponse<number>>(`accounts/count?is_tracking=${is_tracking}`);
 
     return (result.data);
 };

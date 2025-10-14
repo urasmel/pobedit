@@ -40,7 +40,7 @@ export function CustomizedSlider(props: CustomizedSliderProps) {
                         fontSize: "1rem"
                     }}
                 >
-                    {props.min} min
+                    {props.min}
                 </Typography>
                 <Typography
                     variant="body2"
@@ -51,7 +51,7 @@ export function CustomizedSlider(props: CustomizedSliderProps) {
                         fontSize: "1rem"
                     }}
                 >
-                    {props.max} max
+                    {props.max}
                 </Typography>
             </Box>
         </Box>

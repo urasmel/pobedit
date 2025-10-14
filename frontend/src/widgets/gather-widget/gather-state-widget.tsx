@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { gatherStateApi } from "@/entities/gather-state";
 import { gatherStart, gatherStop } from "@/entities/gather-state/api";
@@ -108,10 +108,6 @@ export const GatherStateWidget = () => {
         };
     }, [stopPolling]);
 
-    // useEffect(() => {
-    //     startPolling();
-    // }, []);
-
     // Мемоизированные значения
     const friendlyState = useMemo(() => {
         const stateMap = {
@@ -148,6 +144,11 @@ export const GatherStateWidget = () => {
 
     return (
         <Box sx={containerStyles}>
+
+            <Typography variant="h6" gutterBottom>
+                Управление сбором данных
+            </Typography>
+
             <GatherStateItem
                 caption={t("gather.state")}
                 value={friendlyState}
@@ -194,5 +195,5 @@ const containerStyles = {
     display: "flex",
     flexDirection: "column",
     gap: 2,
-    minWidth: "280px"
+    minWidth: "400px"
 };

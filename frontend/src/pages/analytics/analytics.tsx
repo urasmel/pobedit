@@ -1,20 +1,16 @@
-// pages/Dashboard.tsx
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     Box,
-    Grid,
+    Grid2,
     Container,
-    Typography,
     Tabs,
     Tab,
     Snackbar,
     Alert,
 } from '@mui/material';
 import {
-    Dashboard as DashboardIcon,
     List as ListIcon,
     BarChart as ChartIcon,
-    Settings as SettingsIcon,
 } from '@mui/icons-material';
 
 import { PostList } from '@/features/post-list';
@@ -28,13 +24,8 @@ import {
 } from '@/shared/types';
 import { Post } from '@/entities';
 import { PostComment } from '@/entities';
-import { StopWordsManager, StopWordNotifications } from '@/features/stop-words';
 
 // Mock данные для демонстрации
-const mockStopWords: StopWord[] = [
-    { id: '1', word: 'спам', createdAt: new Date() },
-    { id: '2', word: 'реклама', createdAt: new Date() },
-];
 
 const mockPosts: Post[] = [
     {
@@ -121,9 +112,7 @@ const TabPanel: React.FC<TabPanelProps> = ({ children, value, index, ...other })
 
 export const Analytics: React.FC = () => {
     const [currentTab, setCurrentTab] = useState(0);
-    const [stopWords, setStopWords] = useState<StopWord[]>(mockStopWords);
     const [posts, setPosts] = useState<Post[]>(mockPosts);
-    const [comments, setComments] = useState<PostComment[]>(mockComments);
     const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error'; }>({
         open: false,
         message: '',
@@ -132,26 +121,6 @@ export const Analytics: React.FC = () => {
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
         setCurrentTab(newValue);
-    };
-
-    const handleAddStopWord = (word: string) => {
-        const newStopWord: StopWord = {
-            id: Date.now().toString(),
-            word,
-            createdAt: new Date(),
-        };
-        setStopWords(prev => [...prev, newStopWord]);
-        showSnackbar('Стоп-слово добавлено', 'success');
-    };
-
-    const handleEditStopWord = (id: string, newWord: string) => {
-        setStopWords(prev => prev.map(sw => sw.id === id ? { ...sw, word: newWord } : sw));
-        showSnackbar('Стоп-слово обновлено', 'success');
-    };
-
-    const handleDeleteStopWord = (id: string) => {
-        setStopWords(prev => prev.filter(sw => sw.id !== id));
-        showSnackbar('Стоп-слово удалено', 'success');
     };
 
     const handleSortChange = (field: keyof Post, order: SortOrder) => {
@@ -164,55 +133,20 @@ export const Analytics: React.FC = () => {
         console.log('Filters:', filters);
     };
 
-    const showSnackbar = (message: string, severity: 'success' | 'error') => {
-        setSnackbar({ open: true, message, severity });
-    };
-
     const handleCloseSnackbar = () => {
         setSnackbar(prev => ({ ...prev, open: false }));
     };
 
     return (
-        <Container maxWidth="xl" sx={{ py: 4 }}>
-            <Typography variant="h4" component="h1" gutterBottom>
-                Панель управления контентом
-            </Typography>
-
-            <StopWordNotifications posts={posts} comments={comments} />
-
+        <Container maxWidth={false} sx={{ py: 4 }}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs value={currentTab} onChange={handleTabChange} aria-label="dashboard tabs">
-                    <Tab icon={<DashboardIcon />} label="Обзор" />
                     <Tab icon={<ListIcon />} label="Посты" />
-                    <Tab icon={<ChartIcon />} label="Аналитика" />
-                    <Tab icon={<SettingsIcon />} label="Настройки" />
+                    <Tab icon={<ChartIcon />} label="Оценка" />
                 </Tabs>
             </Box>
 
             <TabPanel value={currentTab} index={0}>
-                <Grid container spacing={3}>
-                    <Grid item xs={12}>
-                        <SentimentChart data={mockChartData} height={300} />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <PostList
-                            posts={posts.slice(0, 5)}
-                            onSortChange={handleSortChange}
-                            onFilterChange={handleFilterChange}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <StopWordsManager
-                            stopWords={stopWords}
-                            onAddStopWord={handleAddStopWord}
-                            onEditStopWord={handleEditStopWord}
-                            onDeleteStopWord={handleDeleteStopWord}
-                        />
-                    </Grid>
-                </Grid>
-            </TabPanel>
-
-            <TabPanel value={currentTab} index={1}>
                 <PostList
                     posts={posts}
                     onSortChange={handleSortChange}
@@ -220,25 +154,12 @@ export const Analytics: React.FC = () => {
                 />
             </TabPanel>
 
-            <TabPanel value={currentTab} index={2}>
-                <Grid container spacing={3}>
-                    <Grid item xs={12}>
+            <TabPanel value={currentTab} index={1}>
+                <Grid2 container spacing={3}>
+                    <Grid2 size={12}>
                         <SentimentChart data={mockChartData} />
-                    </Grid>
-                </Grid>
-            </TabPanel>
-
-            <TabPanel value={currentTab} index={3}>
-                <Grid container spacing={3}>
-                    <Grid item xs={12} md={8}>
-                        <StopWordsManager
-                            stopWords={stopWords}
-                            onAddStopWord={handleAddStopWord}
-                            onEditStopWord={handleEditStopWord}
-                            onDeleteStopWord={handleDeleteStopWord}
-                        />
-                    </Grid>
-                </Grid>
+                    </Grid2>
+                </Grid2>
             </TabPanel>
 
             <Snackbar
@@ -251,7 +172,7 @@ export const Analytics: React.FC = () => {
                     {snackbar.message}
                 </Alert>
             </Snackbar>
-        </Container>
+        </Container >
     );
 };
 
