@@ -49,3 +49,5 @@ export const Main = () => {
         </Box>
     );
 };
+
+Main.displayName = 'Main';

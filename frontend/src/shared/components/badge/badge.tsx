@@ -35,3 +35,5 @@ export const Badge = ({ children, link }: BadgeProps) => {
         </Box>
     );
 };
+
+Badge.displayName = 'Badge';

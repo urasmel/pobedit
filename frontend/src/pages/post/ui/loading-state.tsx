@@ -7,6 +7,8 @@ export const LoadingState = () => (
     </Box>
 );
 
+LoadingState.displayName = 'LoadingState';
+
 const loadingContainerStyles = {
     display: "flex",
     alignItems: "center",

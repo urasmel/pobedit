@@ -28,3 +28,5 @@ export const AccountInfo = ({ account }: AccountInfoProps) => (
         </Typography>
     </>
 );
+
+AccountInfo.displayName = 'AccountInfo';

@@ -25,7 +25,6 @@ const StyledGridOverlay = styled('div')(({ theme }) => ({
     },
 }));
 
-
 export function CustomNoRowsOverlay() {
     return (
         <StyledGridOverlay>
@@ -72,3 +71,5 @@ export function CustomNoRowsOverlay() {
         </StyledGridOverlay>
     );
 }
+
+CustomNoRowsOverlay.displayName = 'CustomNoRowsOverlay';

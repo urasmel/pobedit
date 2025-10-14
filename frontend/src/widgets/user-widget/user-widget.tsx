@@ -47,3 +47,5 @@ export const UserWidget = () => {
         </Box>
     );
 };
+
+UserWidget.displayName = 'UserWidget';

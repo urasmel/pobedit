@@ -114,3 +114,5 @@ export const AccountPage = () => {
         </Box>
     );
 };
+
+AccountPage.displayName = 'AccountPage';

@@ -70,3 +70,5 @@ export const ChannelInfoDialog = (props: { channel: Channel; }) => {
         </Box>
     );
 };
+
+ChannelInfoDialog.displayName = 'ChannelInfoDialog';

@@ -2,7 +2,7 @@ import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import { ErrorBoundary } from "@/shared/components/errors/error-boundary";
 import { PageFallback } from "@/shared/components/loading";
-import { Dashboard } from "@/pages/dashboard";
+import { Analytics } from "@/pages/analytics";
 const NotFoundPage = lazy(() => import("../../pages/not-found"));
 const PostPage = lazy(() => import("../../pages/post"));
 const HomePage = lazy(() => import("../../pages/home"));
@@ -66,8 +66,8 @@ export const AppRouter = () => {
                         element={<SearchResultPage />}
                     />
                     <Route
-                        path="/dashboard"
-                        element={<Dashboard />}
+                        path="/analytics"
+                        element={<Analytics />}
                     />
                     < Route path='*' element={< NotFoundPage />} />
                 </Routes >

@@ -144,3 +144,5 @@ export const SearchSettingsForm = () => {
 
     );
 };
+
+SearchSettingsForm.displayName = 'SearchSettingsForm';

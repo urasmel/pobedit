@@ -153,3 +153,5 @@ export const Users = ({ onAddUser, onRefresh }: UsersTableProps) => {
         </Box>
     );
 };
+
+Users.displayName = 'Users';

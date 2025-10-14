@@ -1,7 +1,6 @@
-import { Box, Button, CircularProgress, Typography } from '@mui/material';
+import { Box, Button, CircularProgress } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import { CommentsUpdatingWidgetProps } from '@/entities/Props/comments-updating-widget-props';
-import plural from 'plural-ru';
 import { LoadingProgressDialog } from '../loading/loading-progress-dialog';
 import { WS_API_URL } from "@/shared/config";
 import { useFetchCommentsCount } from '@/entities/comments/hooks';
@@ -160,3 +159,5 @@ export const CommentsUpdatingWidget = (props: CommentsUpdatingWidgetProps) => {
         </>
     );
 };
+
+CommentsUpdatingWidget.displayName = 'CommentsUpdatingWidget';

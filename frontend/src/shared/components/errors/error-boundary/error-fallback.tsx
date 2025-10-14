@@ -28,3 +28,5 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; res
         </Box>
     );
 };
+
+ErrorFallback.displayName = 'ErrorFallback';

@@ -167,3 +167,5 @@ export const PostWidget = ({
             </CardContent>
         </Card>);
 };
+
+PostWidget.displayName = 'PostWidget';

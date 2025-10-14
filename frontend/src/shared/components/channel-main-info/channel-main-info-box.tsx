@@ -35,3 +35,5 @@ export const ChannelMainInfoBox = ({ children }: ChannelMainInfoBoxProps) => {
 
     );
 };
+
+ChannelMainInfoBox.displayName = 'ChannelMainInfoBox';

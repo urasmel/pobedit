@@ -95,3 +95,5 @@ export const LoadingWidget = ({
         </Box>
     );
 };
+
+LoadingWidget.displayName = 'LoadingWidget';

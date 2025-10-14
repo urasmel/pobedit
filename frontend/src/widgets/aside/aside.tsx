@@ -4,6 +4,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import ControlIcon from "@mui/icons-material/Settings";
 import PeopleIcon from '@mui/icons-material/People';
 import TuneIcon from "@mui/icons-material/Tune";
+import AnalyticsIcon from "@mui/icons-material/Analytics";
 import { Box, Typography } from '@mui/material';
 
 export const Aside = () => {
@@ -147,8 +148,7 @@ export const Aside = () => {
                 </Box>
             </Badge>
 
-            {/* dashboard */}
-            <Badge link='/dashboard'>
+            <Badge link='/analytics'>
                 <Box
                     sx={{
                         display: 'flex',
@@ -156,7 +156,7 @@ export const Aside = () => {
                         gap: 1
                     }}
                 >
-                    <PeopleIcon
+                    <AnalyticsIcon
                         sx={{
                             color: "#344767",
                             fontSize: 24,
@@ -168,7 +168,7 @@ export const Aside = () => {
                             color: "#344767",
                         }}
                     >
-                        Dashboard
+                        Аналитика
                     </Typography>
                 </Box>
             </Badge>

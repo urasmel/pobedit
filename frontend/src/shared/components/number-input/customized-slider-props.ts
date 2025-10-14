@@ -1,4 +1,4 @@
-export interface NumberInputProps {
+export interface CustomizedSliderProps {
     caption: string;
     value: number;
     min: number;

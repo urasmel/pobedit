@@ -23,3 +23,5 @@ export function InfoPapper({ message }: { message: string; }) {
         </ThemeProvider>
     );
 }
+
+InfoPapper.displayName = 'InfoPapper';

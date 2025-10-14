@@ -65,3 +65,5 @@ export const LoadingProgressDialog = (props: LoadingProgressDialogProps) => {
         </Modal>
     );
 };
+
+LoadingProgressDialog.displayName = 'LoadingProgressDialog';

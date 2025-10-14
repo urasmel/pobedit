@@ -1,9 +1,9 @@
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { NumberInputProps } from './number-input-props';
+import { CustomizedSliderProps } from './customized-slider-props';
 import { Slider } from '@mui/material';
 
-export function CustomizedSlider(props: NumberInputProps) {
+export function CustomizedSlider(props: CustomizedSliderProps) {
 
     const handleChange = (_: Event, newValue: number) => {
         props.onChange(newValue);
@@ -57,3 +57,5 @@ export function CustomizedSlider(props: NumberInputProps) {
         </Box>
     );
 }
+
+CustomizedSlider.displayName = 'CustomizedSlider';

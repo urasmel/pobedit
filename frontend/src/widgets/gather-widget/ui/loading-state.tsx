@@ -7,6 +7,7 @@ export const LoadingState = () => (
     </Box>
 );
 
+LoadingState.displayName = 'LoadingState';
 
 const loadingContainerStyles = {
     p: 2,

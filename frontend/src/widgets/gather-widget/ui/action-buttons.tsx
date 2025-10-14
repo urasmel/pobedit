@@ -51,3 +51,5 @@ export const ActionButtons = ({
 
     return null;
 };
+
+ActionButtons.displayName = 'ActionButtons';

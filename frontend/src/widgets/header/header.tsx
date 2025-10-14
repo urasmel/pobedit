@@ -102,3 +102,5 @@ export const Header = ({
         </Box>
     );
 };
+
+Header.displayName = 'Header';

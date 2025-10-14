@@ -72,3 +72,5 @@ export const CommentHeader = ({ comment, showUsername = true, showChannel = true
         </Box>
     );
 };
+
+CommentHeader.displayName = 'CommentHeader';

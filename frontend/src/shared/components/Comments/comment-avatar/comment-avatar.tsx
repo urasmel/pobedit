@@ -20,3 +20,5 @@ export const CommentAva = (props: { comment: Comment; }) => {
         </Box>
     );
 };
+
+CommentAva.displayName = 'CommentAva';

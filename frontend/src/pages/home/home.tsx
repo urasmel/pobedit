@@ -5,3 +5,5 @@ export const HomePage = () => {
         <Main />
     );
 };
+
+HomePage.displayName = 'HomePage';

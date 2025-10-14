@@ -46,3 +46,5 @@ export const AccountAvatar = ({ account, onClick }: AccountAvatarProps) => {
     </Avatar>
   );
 };
+
+AccountAvatar.displayName = 'AccountAvatar';

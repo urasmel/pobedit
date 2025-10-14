@@ -15,3 +15,5 @@ export const CommentMessage = (props: { message: string; }) => {
         </Box>
     );
 };
+
+CommentMessage.displayName = 'CommentMessage';

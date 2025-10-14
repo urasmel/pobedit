@@ -28,3 +28,5 @@ export const CommentInfo = (
             <CommentMessage message={comment.message} />
         </Box>);
 };
+
+CommentInfo.displayName = 'CommentInfo';

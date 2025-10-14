@@ -186,3 +186,5 @@ export const PostsUpdatingWidget = (props: { channelId: string | undefined; }) =
         </Box>
     );
 };
+
+PostsUpdatingWidget.displayName = 'PostsUpdatingWidget';

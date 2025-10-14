@@ -301,3 +301,5 @@ export const Channels = () => {
         </Box >
     );
 };
+
+Channels.displayName = 'Channels';

@@ -154,3 +154,5 @@ export const SettingsPage = () => {
         </Box>
     );
 };
+
+SettingsPage.displayName = 'SettingsPage';

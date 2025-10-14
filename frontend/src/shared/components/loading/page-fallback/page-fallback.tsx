@@ -15,3 +15,5 @@ export const PageFallback = () => {
         </Box>
     );
 };
+
+PageFallback.displayName = 'PageFallback';

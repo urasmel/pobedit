@@ -11,3 +11,5 @@ export const PostsSearchResults = (props: { results: Post[]; }) => {
         />
     )));
 };
+
+PostsSearchResults.displayName = 'PostsSearchResults';

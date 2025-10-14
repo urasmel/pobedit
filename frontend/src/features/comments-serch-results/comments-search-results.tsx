@@ -6,3 +6,5 @@ export const CommentsSearchResults = (props: { results: Comment[]; }) => {
         <CommentWidget key={comment.tlgId} comment={comment} showPostLink showChannel showUsername />
     )));
 };
+
+CommentsSearchResults.displayName = 'CommentsSearchResults';

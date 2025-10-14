@@ -43,8 +43,9 @@ export const CommentsList = ({ comments, isLoading, isEmpty }: CommentsListProps
     );
 };
 
-
 const commentItemStyles = {
     marginBottom: 2,
     padding: 0
 };
+
+CommentsList.displayName = 'CommentsList';

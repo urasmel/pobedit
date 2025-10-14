@@ -85,3 +85,5 @@ export const SentimentDisplay: React.FC<SentimentDisplayProps> = ({
         </Box>
     );
 };
+
+SentimentDisplay.displayName = 'SentimeSentimentDisplaytChart';

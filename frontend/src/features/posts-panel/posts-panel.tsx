@@ -175,3 +175,5 @@ const paginationStyles = {
 const loadingContainerStyles = {
     alignSelf: 'center'
 };
+
+PostsPanel.displayName = 'PostsPanel';

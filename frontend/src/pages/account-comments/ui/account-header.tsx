@@ -30,3 +30,5 @@ const headerStyles = {
     borderRadius: 'var(--radius-md)',
     gap: 2,
 };
+
+AccountHeader.displayName = 'AccountHeader';

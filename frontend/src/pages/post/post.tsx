@@ -96,6 +96,8 @@ export const PostPage = () => {
     );
 };
 
+PostPage.displayName = 'PostPage';
+
 // Стили
 const containerStyles = {
     display: "flex",

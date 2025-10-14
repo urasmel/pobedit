@@ -100,3 +100,5 @@ export const SentimentChart: React.FC<SentimentChartProps> = ({
         </Paper>
     );
 };
+
+SentimentChart.displayName = 'SentimentChart';

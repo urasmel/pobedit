@@ -8,6 +8,8 @@ export const EmptyState = () => (
     </Box>
 );
 
+EmptyState.displayName = 'EmptyState';
+
 const emptyStateStyles = {
     display: "flex",
     justifyContent: "center",

@@ -120,3 +120,6 @@ export const AccountCard = (props: { account: Account; }) => {
         </StyledCard>
     );
 };
+
+
+AccountCard.displayName = 'AccountCard';

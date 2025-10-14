@@ -49,3 +49,5 @@ export const ScrollToTopButton = () => {
         </div>
     );
 };
+
+ScrollToTopButton.displayName = 'ScrollToTopButton';

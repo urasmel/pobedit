@@ -27,3 +27,5 @@ export const NotFoundPage = () => {
         </Box>
     );
 };
+
+NotFoundPage.displayName = 'NotFoundPage';

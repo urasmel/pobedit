@@ -43,3 +43,5 @@ export const ActionButtons = ({
         {isUpdating && <LoadingWidget size={30} style={{ width: 'auto' }} />}
     </Stack>
 );
+
+ActionButtons.displayName = 'ActionButtons';

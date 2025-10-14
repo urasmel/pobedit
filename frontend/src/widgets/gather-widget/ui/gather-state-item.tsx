@@ -121,3 +121,5 @@ export const GatherStateItem = (props: GatherStateItemProps) => {
         </Box>
     );
 };
+
+GatherStateItem.displayName = 'GatherStateItem';

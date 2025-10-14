@@ -184,6 +184,8 @@ export const GatherStateWidget = () => {
     );
 };
 
+GatherStateWidget.displayName = 'GatherStateWidget';
+
 // Стили
 const containerStyles = {
     p: 2,

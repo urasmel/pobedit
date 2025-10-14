@@ -21,3 +21,5 @@ export const CommentWidget = ({ comment, showUsername = true, showChannel = true
         </Box >
     );
 };
+
+CommentWidget.displayName = 'CommentWidget';

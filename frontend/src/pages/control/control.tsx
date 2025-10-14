@@ -19,3 +19,5 @@ export const ControlPage = () => {
         </Box>
     );
 };
+
+ControlPage.displayName = 'ControlPage';

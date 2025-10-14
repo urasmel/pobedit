@@ -14,3 +14,5 @@ export function DataGridTitle(props: { title: string; }) {
         </Box>
     );
 }
+
+DataGridTitle.displayName = 'DataGridTitle';

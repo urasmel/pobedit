@@ -133,3 +133,5 @@ export const SearchResultPage = () => {
         </Box>
     );
 };
+
+SearchResultPage.displayName = 'SearchResultPage';

@@ -141,3 +141,5 @@ export const StopWordsManager: React.FC<StopWordsManagerProps> = ({
         </Paper>
     );
 };
+
+StopWordsManager.displayName = 'StopWordsManager';

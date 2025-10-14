@@ -127,3 +127,5 @@ export const SearchForm = () => {
         </Container>
     );
 };
+
+SearchForm.displayName = 'SearchForm';

@@ -1,1 +1,1 @@
-export { CustomizedSlider } from './number-input';
+export { CustomizedSlider } from './customized-slider';

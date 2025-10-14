@@ -193,6 +193,8 @@ export const ChannelPage = () => {
     );
 };
 
+ChannelPage.displayName = 'ChannelPage';
+
 // Стили вынесены в константы для лучшей читаемости
 const containerStyles = {
     display: "flex",

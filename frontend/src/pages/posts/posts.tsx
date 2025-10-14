@@ -41,3 +41,5 @@ export const PostsPage = () => {
         </Box>
     );
 };
+
+PostsPage.displayName = 'PostsPage';

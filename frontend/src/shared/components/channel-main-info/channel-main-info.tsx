@@ -14,8 +14,6 @@ const textStyles = {
     whiteSpace: "nowrap" as const,
 };
 
-
-
 export const ChannelMainInfo = ({ channelId }: ChannelMainInfoProps) => {
 
     const theme = useTheme();
@@ -84,3 +82,5 @@ export const ChannelMainInfo = ({ channelId }: ChannelMainInfoProps) => {
         </ChannelMainInfoBox>
     );
 };
+
+ChannelMainInfo.displayName = 'ChannelMainInfo';

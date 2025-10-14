@@ -18,3 +18,5 @@ export const AvatarDialog = ({ open, onClose, account }: AvatarDialogProps) => (
         </DialogContent>
     </Dialog>
 );
+
+AvatarDialog.displayName = 'AvatarDialog';

@@ -1,4 +1,3 @@
-// components/PostList.tsx
 import React, { useMemo, useState } from 'react';
 import {
     Box,
@@ -156,3 +155,5 @@ export const PostList: React.FC<PostListProps> = ({
         </Paper>
     );
 };
+
+PostList.displayName = 'PostList';

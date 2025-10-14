@@ -11,3 +11,5 @@ export const ErrorActionButton = (handleErrorClose: () => void) => (
         <CloseIcon fontSize="small" />
     </IconButton>
 );
+
+ErrorActionButton.displayName = 'ErrorActionButton';

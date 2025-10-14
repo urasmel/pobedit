@@ -4,7 +4,6 @@ import { SearchSettingsForm } from "@/features/search-settings-form";
 ;
 export const SearchPage = () => {
 
-
     return (
         <Box
             sx={{
@@ -24,9 +23,8 @@ export const SearchPage = () => {
                 <SearchSettingsForm />
             </div>
             <SearchForm />
-
         </Box>
     );
 };
 
-export default SearchPage;
+SearchPage.displayName = 'SearchPage';

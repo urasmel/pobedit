@@ -107,3 +107,5 @@ export const StopWordNotifications: React.FC<StopWordNotificationsProps> = ({
         </Alert>
     );
 };
+
+StopWordNotifications.displayName = 'StopWordNotifications';
