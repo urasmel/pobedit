@@ -18,7 +18,7 @@ export const ChannelMainInfoBox = ({ children }: ChannelMainInfoBoxProps) => {
             overflow: "hidden",
             rowGap: "1rem",
             fontWeight: "500",
-            maxHeight: "87.5px",
+            maxHeight: "92.5px",
             height: "100%",
             color: "#344767",
             lineHeight: "1.5rem",

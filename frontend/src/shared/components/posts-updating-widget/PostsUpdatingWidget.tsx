@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress } from '@mui/material';
+import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import { LoadingProgressDialog } from '@/shared/components/loading/loading-progress-dialog';
 import { pluralRecords } from '@/shared/utils/plural-records';
@@ -6,6 +6,24 @@ import { WS_API_URL } from "@/shared/config";
 import { queryClient } from '@/shared/api/query-client';
 import { useFetchPostsCount } from '@/entities/posts/hooks/useFetchPostsCount';
 import { enqueueSnackbar } from 'notistack';
+
+const conteinerStyles = {
+    display: "flex",
+    flexDirection: "column",
+    rowGap: "1rem",
+    boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px",
+    padding: "0.5rem",
+    minWidth: "200px",
+    boxSizing: "border-box",
+    borderRadius: "var(--radius-md)",
+};
+
+const textStyles = {
+    whiteSpace: "nowrap" as const,
+    fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+    color: "#344767",
+    fontWeight: "500"
+};
 
 export const PostsUpdatingWidget = (props: { channelId: string | undefined; }) => {
 
@@ -138,21 +156,9 @@ export const PostsUpdatingWidget = (props: { channelId: string | undefined; }) =
     }
 
     return (
-        <Box sx={{
-            display: "flex",
-            flexDirection: "column",
-            rowGap: "1rem",
-            fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
-            boxShadow: "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px",
-            padding: "0.5rem",
-            minWidth: "200px",
-            boxSizing: "border-box",
-            borderRadius: "var(--radius-md)",
-            color: "#344767",
-            fontWeight: "500"
-        }}>
+        <Box sx={conteinerStyles}>
 
-            <Box sx={{ fontSize: "1rem" }}>
+            <Typography sx={textStyles}>
                 {
                     postsCount == undefined
                         ?
@@ -163,10 +169,8 @@ export const PostsUpdatingWidget = (props: { channelId: string | undefined; }) =
                             `Пока в базе данных нет записей канала`
                             :
                             `В базе данных ${postsCount} ${pluralRecords(postsCount)}`
-
-
                 }
-            </Box>
+            </Typography>
 
             <Button
                 variant="contained"

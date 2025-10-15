@@ -10,8 +10,10 @@ interface ChannelMainInfoProps {
 }
 
 const textStyles = {
-    color: "rgb(52, 71, 103)",
     whiteSpace: "nowrap" as const,
+    fontFamily: "'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+    color: "#344767",
+    fontWeight: "500"
 };
 
 export const ChannelMainInfo = ({ channelId }: ChannelMainInfoProps) => {

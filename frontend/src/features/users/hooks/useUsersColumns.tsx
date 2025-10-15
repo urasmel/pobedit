@@ -36,7 +36,7 @@ export const useUsersColumns = () => {
             headerName: t('users.fields.password') || "Пароль",
             flex: 1,
             minWidth: 150,
-            renderCell: (params) => (
+            renderCell: () => (
                 <Box sx={{ fontFamily: 'monospace' }}>
                     ••••••••
                 </Box>
