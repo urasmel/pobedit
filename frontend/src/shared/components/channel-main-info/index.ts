@@ -1,1 +1,1 @@
-export { ChannelMainInfo } from './channel-main-info';
+export { ChannelMainInfo } from './ChannelMainInfo';

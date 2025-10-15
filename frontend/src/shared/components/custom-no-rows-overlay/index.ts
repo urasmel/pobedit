@@ -1,1 +1,1 @@
-export { CustomNoRowsOverlay } from './custom-no-rows-overlay';
+export { CustomNoRowsOverlay } from './CustomNoRowsOverlay';

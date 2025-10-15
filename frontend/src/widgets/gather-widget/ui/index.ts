@@ -1,3 +1,3 @@
-export { ActionButtons } from './action-buttons';
-export { LoadingState } from './loading-state';
-export { GatherStateItem } from './gather-state-item';
+export { ActionButtons } from './ActionButtons';
+export { LoadingState } from './LoadingState';
+export { GatherStateItem } from './GatherStateItem';

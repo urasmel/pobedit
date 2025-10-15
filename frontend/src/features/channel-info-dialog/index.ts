@@ -1,1 +1,1 @@
-export { ChannelInfoDialog } from './channel-info-dialog';
+export { ChannelInfoDialog } from './ChannelInfoDialog';

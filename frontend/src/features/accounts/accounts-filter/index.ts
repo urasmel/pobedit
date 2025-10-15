@@ -1,1 +1,1 @@
-export { AccountsFilter } from './accounts-filter';
+export { AccountsFilter } from './AccountsFilter';

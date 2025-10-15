@@ -1,0 +1,76 @@
+import { ServiceResponse, Post } from "@/entities";
+import { apiClient } from "@/shared/api/base";
+import { PostDto } from "./dto/Post.dto";
+import { mapPost } from "./mapper/mapPost";
+import { PAGE_SIZE } from "@/shared/config";
+
+export const getPosts = async (
+    channelId: string | undefined,
+    offset = 0,
+    limit = PAGE_SIZE)
+    : Promise<{ posts: Post[]; }> => {
+
+    try {
+        if (channelId == undefined) {
+            return Promise.resolve({ posts: [] });
+        }
+
+        const result = await apiClient
+            .get<ServiceResponse<PostDto[]>>
+            (`posts/${channelId}?offset=${offset}&limit=${limit}`);
+
+        return ({
+            posts: result.data.map((post: PostDto) => mapPost(post))
+        });
+    } catch (error) {
+        throw new Error("error.fetchPosts");
+    }
+
+};
+
+export const getPost = async (
+    channelId: number | undefined,
+    postId: number | undefined)
+    : Promise<{ post: Post; } | null> => {
+
+    try {
+        if (channelId == undefined) {
+            return Promise.resolve(null);
+        }
+
+        const result = await apiClient
+            .get<ServiceResponse<PostDto>>
+            (`posts/${channelId}/${postId}`);
+
+        return ({
+            post: mapPost(result.data)
+        });
+    } catch (error) {
+        throw new Error("error.fetchPost");
+    }
+};
+
+export const getPostsCount = async (channelId: string | undefined): Promise<{ posts_count: number; }> => {
+    if (channelId == undefined) {
+        return Promise.resolve({ posts_count: 0 });
+    }
+
+    try {
+        const result = await apiClient.get<ServiceResponse<number>>(`posts/${channelId}/count`);
+
+        return ({
+            posts_count: result.data
+        });
+    }
+    catch (error: Error | any) {
+        if (error.message.includes('404')) {
+            throw new Error('error.channelNotFound');
+        }
+        else if (error.message.includes('500')) {
+            throw new Error('error.server');
+        }
+        else {
+            throw new Error('error.fetchPostsCount');
+        }
+    }
+};

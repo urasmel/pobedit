@@ -1,1 +1,1 @@
-export { SentimentChart } from './sentiment-chart';
+export { SentimentChart } from './SentimentChart';

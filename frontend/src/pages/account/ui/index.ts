@@ -1,3 +1,3 @@
-export { AccountInfo } from './account-info';
-export { ActionButtons } from './action-buttons';
-export { AvatarDialog } from './avatar-dialog';
+export { AccountInfo } from './AccountInfo';
+export { ActionButtons } from './ActionButtons';
+export { AvatarDialog } from './AvatarDialog';

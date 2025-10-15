@@ -1,1 +1,1 @@
-export { PostsUpdatingWidget } from "./posts-updating-widget";
+export { PostsUpdatingWidget } from "./PostsUpdatingWidget";

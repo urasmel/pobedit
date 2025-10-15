@@ -1,1 +1,1 @@
-export { searchQueries } from './search.queries';
+export { searchQueries } from './Search.queries';

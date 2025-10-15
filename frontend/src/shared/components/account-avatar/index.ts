@@ -1,2 +1,2 @@
-export { AccountAvatar } from "./account-avatar";
-export type { AccountAvatarProps } from './account-avatar-props';
+export { AccountAvatar } from "./AccountAvatar";
+export type { AccountAvatarProps } from './AccountAvatarProps';

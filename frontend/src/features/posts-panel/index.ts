@@ -1,1 +1,1 @@
-export { PostsPanel } from './posts-panel';
+export { PostsPanel } from './PostsPanel';

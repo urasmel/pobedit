@@ -1,2 +1,2 @@
-export { AccountHeader } from './account-header';
-export { CommentsList } from './comments-list';
+export { AccountHeader } from './AccountHeader';
+export { CommentsList } from './CommentsList';

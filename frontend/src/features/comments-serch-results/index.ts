@@ -1,1 +1,1 @@
-export { CommentsSearchResults } from './comments-search-results';
+export { CommentsSearchResults } from './CommentsSearchResults';

@@ -1,1 +1,1 @@
-export { AccountComments as default } from './account-comments';
+export { AccountComments as default } from './AccountComments';

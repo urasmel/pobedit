@@ -1,1 +1,1 @@
-export { userQueries } from './user.queries';
+export { userQueries } from './User.queries';

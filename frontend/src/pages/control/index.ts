@@ -1,1 +1,1 @@
-export { ControlPage as default } from './control';
+export { ControlPage as default } from './Control';

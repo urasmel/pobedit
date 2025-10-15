@@ -1,1 +1,1 @@
-export { InfoPapper } from './info-paper';
+export { InfoPapper } from './InfoPaper';

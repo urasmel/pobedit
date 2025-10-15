@@ -1,2 +1,2 @@
-export { StopWordNotifications } from './stop-word-notifications';
-export { StopWordsManager } from './stop-words-manager';
+export { StopWordNotifications } from './StopWordNotifications';
+export { StopWordsManager } from './StopWordsManager';

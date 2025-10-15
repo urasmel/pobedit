@@ -1,1 +1,1 @@
-export { ErrorActionButton } from './error-action-button';
+export { ErrorActionButton } from './ErrorActionButton';

@@ -1,5 +1,5 @@
-import { SearchQuery } from '@/entities/search/model/search-query';
-import { SearchResult } from '@/entities/search/model/search-result';
+import { SearchQuery } from '@/entities/search/model/SearchQuery';
+import { SearchResult } from '@/entities/search/model/SearchResult';
 import { API_URL } from "@/shared/config";
 import axios from 'axios';
 

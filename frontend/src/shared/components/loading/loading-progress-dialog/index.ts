@@ -1,1 +1,1 @@
-export { LoadingProgressDialog } from "./loading-progress-dialog";
+export { LoadingProgressDialog } from "./LoadingProgressDialog";

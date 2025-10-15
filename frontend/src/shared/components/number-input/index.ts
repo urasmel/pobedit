@@ -1,1 +1,1 @@
-export { CustomizedSlider } from './customized-slider';
+export { CustomizedSlider } from './CustomizedSlider';

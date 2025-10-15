@@ -1,1 +1,1 @@
-export { type MainState, type Action, useMainStore } from './main-store';
+export { type MainState, type Action, useMainStore } from './MainStore';
