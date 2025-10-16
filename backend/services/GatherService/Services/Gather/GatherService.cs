@@ -67,204 +67,6 @@ public class GatherService : IGatherService
         Console.WriteLine($"Same object: {ReferenceEquals(settingsFromService, _pobeditSettings)}");
     }
 
-    private async Task StartProcessingAsync_old()
-    {
-        try
-        {
-            while (true)
-            {
-                // Ждем команды от пользователя.
-                if (_queue.Reader.TryRead(out var task))
-                {
-                    // Переключение обратно после предыдущего выключения задачи сбора.
-                    _needClose = false;
-
-                    // При первом запуске сбора по команде пользователя не смотрим на время последней обработки.
-                    int cicleCounter = 0;
-
-                    Log.Information("Processing task {taskId}: {taskDescription}",
-                        task.Id,
-                        task.Description,
-                        new
-                        {
-                            method = "StartGatherAsync"
-                        }
-                    );
-                    while (!_needClose)
-                    {
-                        _gatherState.State = GatherProcessState.Paused;
-
-                        // Загружаем все посты.
-                        // У постов, которые были загружены более, чем определенное время назад
-                        // и у которых не качались комментарии закачиваем комментарии.
-                        // Заходим в цикл, в котором ждем когда наступит момент нового опроса
-                        // каналов и закачки постов и комментариев или установки флага прекращения опроса.
-
-                        // Загружаем посты. Пока грузим - внутри проверяем флаг прекращения загрузки.
-                        if (cicleCounter == 0 || _postLastUpdateTime.AddHours(_pobeditSettings.ChannelPollingFrequency) <= DateTime.UtcNow)
-                        {
-                            Log.Information("Channels processing started at {Time}",
-                                DateTime.Now,
-                                new
-                                {
-                                    method = "StartGatherAsync"
-                                }
-                                );
-
-                            cicleCounter++;
-                            _gatherState.State = GatherProcessState.Running;
-
-                            #region Posts loading.
-
-                            using (var scope = _scopeFactory.CreateScope())
-                            {
-                                var context = scope.ServiceProvider.GetRequiredService<DataContext>();
-                                var channelsIds = context.Channels.Select(c => c.TlgId).ToList();
-                                foreach (var channelId in channelsIds)
-                                {
-                                    await Gatherer.UpdateChannelPosts(channelId, _loadingHelper, _client, context, _mapper, _pobeditSettings);
-                                    if (_needClose)
-                                    {
-                                        // Останавливаем foreach. Потом проверим еще раз и выйдем из вложенного while.
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if (_needClose)
-                            {
-                                _gatherState.State = GatherProcessState.Stopped;
-                                _gatherState.ToPollingChannelsSecs = 0;
-                                _gatherState.ToPollingCommentsSecs = 0;
-                                break;
-                            }
-
-                            #endregion
-
-
-                            _postLastUpdateTime = DateTime.UtcNow;
-                            _gatherState.State = GatherProcessState.Paused;
-                        }
-                        else
-                        {
-                            _gatherState.ToPollingChannelsSecs =
-                                (int)_postLastUpdateTime
-                                .AddHours(_pobeditSettings.ChannelPollingFrequency)
-                                .Subtract(DateTime.UtcNow).TotalSeconds;
-                        }
-
-
-                        // Загружаем очень нежно комментарии. Пока грузим - внутри проверяем флаг прекращения загрузки.
-                        if (_commentsLastUpdateTime.AddHours(_pobeditSettings.CommentsPollingDelay) <= DateTime.UtcNow)
-                        {
-                            Log.Information("Comments processing started at {Time}",
-                                DateTime.Now,
-                                new
-                                {
-                                    method = "StartGatherAsync"
-                                }
-                            );
-                            _gatherState.State = GatherProcessState.Running;
-
-                            #region Comments loading.
-
-                            using (var scope = _scopeFactory.CreateScope())
-                            {
-                                var context = scope.ServiceProvider.GetRequiredService<DataContext>();
-                                var channels = context.Channels;
-                                foreach (var channel in channels)
-                                {
-                                    var posts = channel.Posts.Where(p => !p.AreCommentsLoaded);
-
-                                    foreach (var post in posts)
-                                    {
-                                        await Gatherer.UpdatePostComments(
-                                            channel.TlgId,
-                                            post.TlgId,
-                                            _loadingHelper,
-                                            _client,
-                                            context,
-                                            _mapper,
-                                            _pobeditSettings);
-                                        Thread.Sleep(new Random().Next(10000, 20000));
-                                    }
-
-                                    if (_needClose)
-                                    {
-                                        // Останавливаем foreach. Потом проверим еще раз и выйдем из вложенного while.
-                                        break;
-                                    }
-
-                                    // Нежно качаем.
-                                    Thread.Sleep(new Random().Next(10000, 20000));
-                                }
-                            }
-
-                            if (_needClose)
-                            {
-                                _gatherState.State = GatherProcessState.Stopped;
-                                _gatherState.ToPollingChannelsSecs = 0;
-                                _gatherState.ToPollingCommentsSecs = 0;
-                                break;
-                            }
-
-                            #endregion
-
-                            _commentsLastUpdateTime = DateTime.UtcNow;
-                            _gatherState.State = GatherProcessState.Paused;
-                        }
-                        else
-                        {
-                            _gatherState.ToPollingCommentsSecs =
-                                (int)_commentsLastUpdateTime
-                                .AddHours(_pobeditSettings.CommentsPollingDelay)
-                                .Subtract(DateTime.UtcNow).TotalSeconds;
-                        }
-
-                        await Task.Delay(TimeSpan.FromSeconds(10));
-                        if (_needClose)
-                        {
-                            Log.Information("Gathering is stopping at {Time}",
-                                DateTime.Now,
-                                new
-                                {
-                                    method = "StartGatherAsync"
-                                }
-                            );
-
-                            _gatherState.State = GatherProcessState.Stopped;
-                            _gatherState.ToPollingChannelsSecs = 0;
-                            _gatherState.ToPollingCommentsSecs = 0;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    Thread.Sleep(1000);
-                }
-            }
-
-        }
-        catch (OperationCanceledException)
-        {
-            Log.Warning("Task processing was canceled",
-                new
-                {
-                    method = "StartGatherAsync"
-                }
-            );
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Error occurred while gathering",
-                new
-                {
-                    method = "StartGatherAsync"
-                });
-        }
-    }
-
     private async Task StartProcessingAsync()
     {
         try
@@ -332,7 +134,19 @@ public class GatherService : IGatherService
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<DataContext>();
 
-        var channelIds = await context.Channels
+        if (context == null || context.Channels == null)
+        {
+            Log.Error("DB context or one of it source is null",
+                new
+                {
+                    method = "ProcessPostsAsync"
+                }
+            );
+            throw new Exception("DB context or one of it source is null");
+        }
+
+        // Fix for CS8604: Ensure context.Channels is not null before using it
+        var channelIds = await (context.Channels ?? Enumerable.Empty<Models.Channel>().AsQueryable())
             .Select(c => c.TlgId)
             .ToListAsync(ct);
 
@@ -356,6 +170,11 @@ public class GatherService : IGatherService
 
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+        if (context == null || context.Channels == null)
+        {
+            throw new Exception("DB context or one of it source is null");
+        }
 
         var channels = await context.Channels
             .Include(c => c.Posts)

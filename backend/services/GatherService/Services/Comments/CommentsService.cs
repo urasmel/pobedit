@@ -7,6 +7,7 @@ using Gather.Utils.Gather;
 using Gather.Utils.Gather.Notification;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using System;
 using System.Net.WebSockets;
 
 namespace Gather.Services.Comments;
@@ -22,7 +23,7 @@ public class CommentsService(
     private readonly IMapper _mapper = mapper;
     private readonly DataContext _context = context;
     readonly Object lockObject = new();
-    static bool updateChannelsEnable = true;
+    //static bool updateChannelsEnable = true;
     PobeditSettings pobeditSettings = _settingsService.PobeditSettings;
     readonly IGatherNotifierFabric _loadingHelperFabric = loadingHelperFabric;
 
@@ -30,9 +31,9 @@ public class CommentsService(
     {
         var response = new ServiceResponse<long>();
 
-        if (_context.Comments == null)
+        if (_context == null || _context.Comments == null || _context.Posts == null)
         {
-            Log.Error("DB context with comments is null",
+            Log.Error("DB context or one of it source is null",
                 new
                 {
                     method = "GetCommentsCount"
@@ -57,10 +58,20 @@ public class CommentsService(
 
         try
         {
-            var pId = await _context.Posts.Where(p => p.TlgId == postId && p.PeerId == chatId).FirstOrDefaultAsync(); 
+            var post = await _context.Posts.Where(p => p.TlgId == postId && p.PeerId == chatId).FirstOrDefaultAsync();
+
+            if (post == null)
+            {
+                response.Success = false;
+                response.Message = $"Post {postId} not found for chatId {chatId}";
+                response.ErrorType = ErrorType.NotFound;
+                response.Data = 0;
+                return response;
+            }
+
             var count = await _context
                 .Comments
-                .Where(comment => comment.PeerId == chatId && comment.PostId == pId.PostId)
+                .Where(comment => comment.PeerId == chatId && comment.PostId == post.PostId)
                 .CountAsync();
             response.Data = count;
             response.Success = true;
@@ -80,7 +91,7 @@ public class CommentsService(
     {
         var response = new ServiceResponse<IEnumerable<CommentDto>>();
 
-        if (_context.Comments == null)
+        if (_context == null || _context.Comments == null || _context.Posts == null)
         {
             Log.Error("_context.Comments is null",
                 new
@@ -103,7 +114,7 @@ public class CommentsService(
             if (pId == null)
             {
                 Log.Error("Post not found. chatId: {chatId}, postId: {postId}",
-                    chatId, 
+                    chatId,
                     postId,
                     new
                     {
@@ -115,6 +126,7 @@ public class CommentsService(
                 response.Message = "Post not found";
                 response.ErrorType = ErrorType.ServerError;
                 response.Data = [];
+                return response;
             }
 
             var comments = await _context.Comments

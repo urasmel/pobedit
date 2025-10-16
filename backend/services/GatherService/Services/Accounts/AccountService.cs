@@ -87,7 +87,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             {
                 var comments = await _context.Comments
                     .Include(c => c.Post)
-                    .Where(c => c.From.TlgId == accountTlgId)
+                    .Where(c => c.From != null && c.From.TlgId == accountTlgId)
                     .OrderByDescending(item => item.TlgId)
                     .Skip(offset).Take(count)
                     .ToListAsync();
@@ -124,7 +124,7 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
 
         try
         {
-            var commentsCount = await _context.Comments.Where(c => c.From.TlgId == accountTlgId).CountAsync();
+            var commentsCount = await _context.Comments.Where(c => c.From != null && c.From.TlgId == accountTlgId).CountAsync();
             response.Data = commentsCount;
         }
         catch (Exception ex)
@@ -166,9 +166,9 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
             return response;
         }
 
-        if (_context.Comments == null)
+        if (_context == null || _context.Accounts == null || _context.Comments == null || _context.Posts == null)
         {
-            Log.Error("Comments in db context is null",
+            Log.Error("DB context of one of it source is null",
                 new
                 {
                     method = "GetAccountsAsync"
@@ -278,6 +278,21 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
 
             // Получаем чат, привязанный к каналу.
             var messages = comments as Messages_ChannelMessages;
+
+            if(messages == null)
+            {
+                Log.Error("Error getting chat of the channel",
+                    new
+                    {
+                        method = "UpdateAccountAsync"
+                    }
+                );
+                response.Success = false;
+                response.ErrorType = ErrorType.ServerError;
+                response.Message = "Error getting chat of the channel";
+                return response;
+            }
+
             var chats = messages.chats;
             var inputPeer = chats.First().Value;
 
@@ -335,6 +350,15 @@ public class AccountService(GatherClient client, IMapper mapper, DataContext con
     public async Task<ServiceResponse<bool>> ChangeTracking(long accountTlgId, bool tracking)
     {
         var response = new ServiceResponse<bool>();
+
+        if(_context == null || _context.Accounts == null)
+        {
+            response.Success = false;
+            response.Message = "DB context or one of it source is null";
+            response.ErrorType = ErrorType.ServerError;
+            response.Data = false;
+            return response;
+        }
 
         try
         {

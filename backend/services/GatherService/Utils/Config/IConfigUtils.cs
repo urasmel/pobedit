@@ -3,6 +3,6 @@
 
     public interface IConfigUtils
     {
-        Func<string, string> Config();
+        Func<string, string?> Config();
     }
 }

@@ -441,7 +441,7 @@ public class ChannelsService(
     {
         try
         {
-            return (channel as TL.Channel).flags.HasFlag(TL.Channel.Flags.has_link);
+            return ((TL.Channel)channel).flags.HasFlag(TL.Channel.Flags.has_link);
         }
         catch (Exception)
         {

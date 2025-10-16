@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import { CommentHeader } from "../comment-header";
-import { CommentMessage } from "../comment-message";
+import { CommentContent } from "../comment-content";
 import { Comment } from '@/entities/comments/model/Comment';
 
 
@@ -25,7 +25,7 @@ export const CommentInfo = (
                 showPostLink={showPostLink}
             />
 
-            <CommentMessage message={comment.message} />
+            <CommentContent message={comment.message} />
         </Box>);
 };
 

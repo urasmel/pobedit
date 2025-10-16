@@ -16,4 +16,4 @@ export const CommentContent = (props: { message: string; }) => {
     );
 };
 
-CommentContent.displayName = 'CommentMessage';
+CommentContent.displayName = 'CommentContent';
