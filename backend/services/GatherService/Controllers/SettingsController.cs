@@ -55,7 +55,7 @@ public class SettingsController(ISettingsService settingsService, RequestMetrics
     /// <summary>
     /// Устанавливает новые настройки приложения.
     /// </summary>
-    [HttpPost]
+    [HttpPut]
     [MapToApiVersion(1.0)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

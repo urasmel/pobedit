@@ -22,7 +22,7 @@ namespace Gather.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult<ServiceResponse<StopWordDto>>> Create([FromBody] string word)
+        public async Task<ActionResult<ServiceResponse<StopWordDto>>> Create([FromBody] CreateStopWordDto createStopWord)
         {
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
@@ -36,7 +36,7 @@ namespace Gather.Controllers
                     }
                 );
 
-                var response = await _stopWordService.CreateStopWord(word);
+                var response = await _stopWordService.CreateStopWord(createStopWord);
 
                 if (response.ErrorType == ErrorType.AlreadyExists)
                 {
@@ -114,12 +114,12 @@ namespace Gather.Controllers
             }
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         [MapToApiVersion(1.0)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ServiceResponse<bool>>> Delete([FromBody] long id)
+        public async Task<ActionResult<ServiceResponse<bool>>> Delete([FromRoute] long id)
         {
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 

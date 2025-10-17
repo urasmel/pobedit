@@ -7,7 +7,7 @@ export const saveSettings = async (settings: Settings): Promise<boolean> => {
 
     const settingsDto = mapSettingsDto(settings);
     try {
-        const result = await apiClient.post<ServiceResponse<boolean>>(`settings`, { body: settingsDto });
+        const result = await apiClient.put<ServiceResponse<boolean>>(`settings`, { body: settingsDto });
 
         const success = result.data;
         return success;

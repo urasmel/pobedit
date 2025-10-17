@@ -74,7 +74,6 @@ export const GatherStateWidget = () => {
         stopPolling(); // Останавливаем предыдущий таймер
 
         timerRef.current = setInterval(() => {
-            console.log("Polling... state");
             invalidateGatherState();
         }, POLLING_INTERVAL);
     }, []);

@@ -15,7 +15,7 @@ public class StopWordService(DataContext context, IMapper mapper) : IStopWordSer
 
     private DataContext _context { get; } = context;
 
-    public async Task<ServiceResponse<StopWordDto>> CreateStopWord(string word)
+    public async Task<ServiceResponse<StopWordDto>> CreateStopWord(CreateStopWordDto stopWordDto)
     {
         var response = new ServiceResponse<StopWordDto>();
 
@@ -36,7 +36,7 @@ public class StopWordService(DataContext context, IMapper mapper) : IStopWordSer
                 return response;
             }
 
-            if (_context.StopWords.Any(item => item.Word.ToLower() == word.ToLower()))
+            if (_context.StopWords.Any(item => item.Word.ToLower() == stopWordDto.Word.ToLower()))
             {
                 Log.Error("This stopword already exists",
                     new
@@ -53,8 +53,8 @@ public class StopWordService(DataContext context, IMapper mapper) : IStopWordSer
 
             var stopWord = new StopWord
             {
-                Word = word,
-                CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow)
+                Word = stopWordDto.Word,
+                CreatedAt = DateTime.UtcNow
             };
 
             // 4. Сохранение в БД
@@ -227,7 +227,7 @@ public class StopWordService(DataContext context, IMapper mapper) : IStopWordSer
 
             var stopWord = await _context.StopWords.FirstAsync(item => item.Id == stopWordDto.Id);
             stopWord.Word = stopWordDto.Word;
-            stopWord.CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow);
+            stopWord.CreatedAt = DateTime.UtcNow;
 
             // 4. Сохранение в БД
             await _context.SaveChangesAsync();

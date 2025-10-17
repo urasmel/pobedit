@@ -26,7 +26,7 @@ export const AccountsPage = () => {
         data: accounts,
         isLoading,
         isError,
-    } = useQuery(accountApi.accountsQueries.all(offset, limit, isTracking, debouncedLogin));
+    } = useQuery(accountApi.accountsQueries.all(offset, limit, isTracking));
 
 
     const {

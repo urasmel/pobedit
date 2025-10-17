@@ -10,5 +10,5 @@ public class StopWord
     public string Word { get; set; } = "";
 
     [Required]
-    public DateOnly CreatedAt { set; get; }
+    public DateTime CreatedAt { set; get; }
 }

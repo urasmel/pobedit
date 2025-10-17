@@ -59,8 +59,50 @@ export class ApiClient {
 
             return this.handleResponse<TResult>(response);
         } catch (error) {
-            throw new Error(`Failed to fetch: ${error instanceof Error ? error.message : String(error)}`);
+            throw new Error(`Failed to post: ${error instanceof Error ? error.message : String(error)}`);
         }
+    }
+
+    public async put<
+        TResult = unknown,
+        TData extends { body: unknown; } = { body: unknown; }
+    >
+        (endpoint: string, data: TData): Promise<TResult> {
+
+        const url = new URL(endpoint, this.baseUrl); // Ensure the URL is constructed properly
+
+        try {
+            const response = await fetch(url.toString(), {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data['body']),
+            });
+
+            return this.handleResponse<TResult>(response);
+        } catch (error) {
+            throw new Error(`Failed to put: ${error instanceof Error ? error.message : String(error)}`);
+        }
+    }
+
+    public async delete<TResult = unknown>(endpoint: string, queryParams?: Record<string, string | number>): Promise<TResult> {
+        const url = new URL(endpoint, this.baseUrl);
+
+        if (queryParams) {
+            Object.entries(queryParams).forEach(([key, value]) => {
+                url.searchParams.append(key, value.toString());
+            });
+        }
+
+        const response = await fetch(url.toString(), {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        return this.handleResponse<TResult>(response);
     }
 }
 

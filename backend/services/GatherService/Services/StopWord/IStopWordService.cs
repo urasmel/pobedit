@@ -9,7 +9,7 @@ public interface IStopWordService
 
     Task<ServiceResponse<StopWordDto>> GetStopWord(long id);
 
-    Task<ServiceResponse<StopWordDto>> CreateStopWord(string stopWord);
+    Task<ServiceResponse<StopWordDto>> CreateStopWord(CreateStopWordDto stopWordDto);
 
     Task<ServiceResponse<StopWordDto>> UpdateStopWord(StopWordDto stopWordDto);
 

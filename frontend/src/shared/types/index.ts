@@ -1,10 +1,4 @@
 // types/index.ts
-export interface StopWord {
-    id: string;
-    word: string;
-    createdAt: Date;
-}
-
 export interface SentimentAnalysis {
     score: number;
     magnitude: number;
