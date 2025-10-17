@@ -13,12 +13,17 @@ import {
     DialogContent,
     DialogActions,
     InputAdornment,
+    Skeleton,
+    Paper,
+    CircularProgress,
 } from '@mui/material';
 import {
     Add as AddIcon,
     Edit as EditIcon,
     Delete as DeleteIcon,
     Search as SearchIcon,
+    Refresh as RefreshIcon,
+    Warning as WarningIcon,
 } from '@mui/icons-material';
 import { StopWord } from '@/entities/stop-words/model/StopWord';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -37,6 +42,8 @@ export const StopWordsManager = () => {
         data: stopWords,
         isLoading,
         isError,
+        error,
+        refetch,
     } = useQuery(stopWordsApi.StopWordQueries.lists());
 
     // Фильтрация стоп-слов по поисковому запросу
@@ -138,12 +145,122 @@ export const StopWordsManager = () => {
         setSearchTerm('');
     };
 
+    const handleRetry = () => {
+        refetch();
+    };
+
     if (isLoading) {
-        return <Typography>Загрузка...</Typography>;
+        return (
+            <Paper sx={{
+                position: 'relative',
+                minWidth: 400,
+                maxWidth: 500,
+                p: 2,
+                borderRadius: "var(--radius-md)",
+                boxShadow: "var(--weak-shadow)",
+                display: 'flex',
+                flexDirection: 'column',
+                height: '600px',
+            }}>
+                {/* Заголовок с skeleton */}
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                    <Skeleton variant="text" width={200} height={32} />
+                    <Skeleton variant="text" width={60} height={20} sx={{ ml: 1 }} />
+                </Box>
+
+                {/* Поле поиска skeleton */}
+                <Skeleton variant="rounded" height={56} sx={{ mb: 2 }} />
+
+                {/* Форма добавления skeleton */}
+                <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                    <Skeleton variant="rounded" sx={{ flexGrow: 1 }} height={40} />
+                    <Skeleton variant="rounded" width={100} height={40} />
+                </Box>
+
+                {/* Список skeleton */}
+                <Box sx={{
+                    flexGrow: 1,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                    p: 1,
+                }}>
+                    {[...Array(8)].map((_, index) => (
+                        <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                            <Skeleton variant="text" sx={{ flexGrow: 1 }} height={40} />
+                            <Skeleton variant="circular" width={32} height={32} sx={{ mr: 1 }} />
+                            <Skeleton variant="circular" width={32} height={32} />
+                        </Box>
+                    ))}
+                </Box>
+
+                {/* Индикатор загрузки в центре */}
+                <Box sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 2,
+                }}>
+                    <CircularProgress size={48} />
+                    <Typography variant="body1" color="text.secondary">
+                        Загрузка стоп-слов...
+                    </Typography>
+                </Box>
+            </Paper>
+        );
     }
 
     if (isError) {
-        return <Typography color="error">Ошибка загрузки стоп-слов</Typography>;
+        return (
+            <Paper sx={{
+                minWidth: 400,
+                maxWidth: 500,
+                p: 2,
+                borderRadius: "var(--radius-md)",
+                boxShadow: "var(--weak-shadow)",
+                display: 'flex',
+                flexDirection: 'column',
+                height: '600px',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: 3,
+            }}>
+                <Box sx={{ textAlign: 'center' }}>
+                    <WarningIcon
+                        sx={{
+                            fontSize: 64,
+                            color: 'error.main',
+                            mb: 2
+                        }}
+                    />
+                    <Typography variant="h6" color="error" gutterBottom>
+                        Ошибка загрузки
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                        Не удалось загрузить список стоп-слов.
+                        {error instanceof Error && (
+                            <Box component="span" sx={{ display: 'block', mt: 1, fontSize: '0.75rem' }}>
+                                {error.message}
+                            </Box>
+                        )}
+                    </Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                    <Button
+                        variant="outlined"
+                        onClick={handleRetry}
+                        startIcon={<RefreshIcon />}
+                    >
+                        Попробовать снова
+                    </Button>
+                </Box>
+            </Paper>
+        );
     }
 
     return (
