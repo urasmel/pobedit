@@ -1,1 +1,1 @@
-export { GatherStateWidget } from './gather-state-widget';
+export { GatherStateWidget } from './GatherStateWidget';

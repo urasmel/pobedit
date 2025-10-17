@@ -1,1 +1,1 @@
-export { SearchSettingsForm } from './search-settings-form';
+export { SearchSettingsForm } from './SearchSettingsForm';

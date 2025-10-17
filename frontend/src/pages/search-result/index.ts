@@ -1,1 +1,1 @@
-export { SearchResultPage as default } from './search-result';
+export { SearchResultPage as default } from './SearchResult';

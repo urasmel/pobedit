@@ -30,15 +30,18 @@ public class AutoMapperProfile : Profile
         CreateMap<Models.Channel, ChannelDto>();
 
         CreateMap<Comment, CommentDto>();
-        CreateMap<MessageBase, Comment>().ConvertUsing(new TlgMessageBaseConverter());
+        CreateMap<MessageBase, Comment?>().ConvertUsing(new TlgMessageBaseConverter());
         CreateMap<Message, Comment>().ConvertUsing(new TlgMessageConverter());
-
 
         CreateMap<Models.Account, AccountDto>();
         CreateMap<UserFull, AccountDto>();
         CreateMap<PobeditSettings, PobeditSettingsDto>();
         CreateMap<PobeditSettingsDto, PobeditSettings>();
         CreateMap<GatherState, GatherStateDto>();
+
+
+        CreateMap<StopWord, StopWordDto>();
+        CreateMap<StopWordDto, StopWord>();
     }
 
     public class TlgChannelConverter : ITypeConverter<TL.Channel, Models.Channel>
@@ -67,9 +70,9 @@ public class AutoMapperProfile : Profile
         }
     }
 
-    public class TlgMessageBaseConverter : ITypeConverter<TL.MessageBase, Comment>
+    public class TlgMessageBaseConverter : ITypeConverter<TL.MessageBase, Comment?>
     {
-        public Comment Convert(TL.MessageBase source, Comment destination, ResolutionContext context)
+        public Comment? Convert(TL.MessageBase source, Comment? destination, ResolutionContext context)
         {
             if (source is TL.Message src)
             {

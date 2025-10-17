@@ -1,1 +1,1 @@
-export { UserWidget } from "./user-widget";
+export { UserWidget } from "./UserWidget";

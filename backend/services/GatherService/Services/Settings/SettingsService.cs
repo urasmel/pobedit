@@ -33,7 +33,8 @@ internal class SettingsService : ISettingsService
             if (!_isInitialized)
                 throw new InvalidOperationException("Settings not initialized");
 
-            return _pobeditSettings;
+            // Defensive: _pobeditSettings should never be null after initialization
+            return _pobeditSettings!;
         }
     }
 

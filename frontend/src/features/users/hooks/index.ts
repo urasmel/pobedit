@@ -1,2 +1,2 @@
-export { useUsersActions } from './users-actions';
-export { useUsersColumns } from './users-columns';
+export { useUsersActions } from './useUsersActions';
+export { useUsersColumns } from './useUsersColumns';

@@ -1,1 +1,1 @@
-export { AccountsPanel } from './accounts-panel';
+export { AccountsPanel } from './AccountsPanel';

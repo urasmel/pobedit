@@ -1,1 +1,1 @@
-export { postsQueries } from './posts.queries';
+export { postsQueries } from './Posts.queries';

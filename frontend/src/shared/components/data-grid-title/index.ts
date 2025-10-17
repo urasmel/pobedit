@@ -1,1 +1,1 @@
-export { DataGridTitle } from './data-grid-title';
+export { DataGridTitle } from './DataGridTitle';

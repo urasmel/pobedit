@@ -2,7 +2,7 @@
 
 public static class ReflectionHelper
 {
-    public static T GetPrivateFieldValue<T>(object obj, string fieldName)
+    public static T? GetPrivateFieldValue<T>(object obj, string fieldName)
     {
         var fieldInfo = obj.GetType().GetField(fieldName);
 
@@ -11,6 +11,11 @@ public static class ReflectionHelper
             throw new MissingFieldException($"Private field '{fieldName}' not found");
         }
 
-        return (T)fieldInfo.GetValue(obj);
+        var value = fieldInfo.GetValue(obj);
+        if (value is null && typeof(T).IsValueType && Nullable.GetUnderlyingType(typeof(T)) == null)
+        {
+            throw new InvalidCastException($"Cannot cast null to non-nullable value type '{typeof(T)}'.");
+        }
+        return (T?)value;
     }
 }

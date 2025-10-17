@@ -24,22 +24,9 @@ public class SearchService : ISearchService
     {
         var response = new ServiceResponse<object>();
 
-        if (query.SearchType == SearchType.Posts && _context.Posts == null)
+        if (_context == null || _context.Posts == null || _context.Comments == null)
         {
-            Log.Error("Posts table is null",
-                new
-                {
-                    method = "Search"
-                }
-            );
-            response.Success = false;
-            response.Message = "Server error";
-            response.ErrorType = ErrorType.ServerError;
-            return response;
-        }
-        else if (query.SearchType == SearchType.Comments && _context.Comments == null)
-        {
-            Log.Error("Comments table is null",
+            Log.Error("DB context or one of it source is null",
                 new
                 {
                     method = "Search"
@@ -71,13 +58,12 @@ public class SearchService : ISearchService
                 var ids = await dbQuery
                     .Skip(query.Offset)
                     .Take(query.Limit)
-                    .Select(p => p.PostId)
                     .ToListAsync();
-                var postsDtos = ids.Select(id => GetPostById(id));
+
                 response.Data = new SearchResultPostsDto()
                 {
                     TotalCount = totalCount,
-                    Data = postsDtos
+                    Data = _mapper.Map<List<PostDto>>(ids)
                 };
             }
             else if (query.SearchType == SearchType.Comments)
@@ -128,23 +114,34 @@ public class SearchService : ISearchService
         }
     }
 
-    private PostDto GetPostById(long postId)
-    {
-        var post = _context.Posts.FirstOrDefault(p => p.PostId == postId);
-        if (post == null)
-        {
-            return null;
-        }
-        return _mapper.Map<PostDto>(post);
-    }
+    //private async Task<PostDto?> GetPostByIdAsync(long postId)
+    //{
+    //    if (_context == null || _context.Posts == null)
+    //    {
+    //        Log.Error("DB context or one of it source is null",
+    //            new
+    //            {
+    //                method = "GetPostById"
+    //            }
+    //        );
+    //        throw new Exception("DB context or one of it source is null");
+    //    }
 
-    private CommentDto GetCommentById(long commentId)
-    {
-        var comment = _context.Comments.FirstOrDefault(c => c.Id == commentId);
-        if (comment == null)
-        {
-            return null;
-        }
-        return _mapper.Map<CommentDto>(comment);
-    }
+    //    var post = await _context.Posts.FirstOrDefaultAsync(p => p.PostId == postId);
+    //    if (post == null)
+    //    {
+    //        return null;
+    //    }
+    //    return _mapper.Map<PostDto>(post);
+    //}
+
+    //private CommentDto GetCommentById(long commentId)
+    //{
+    //    var comment = _context.Comments.FirstOrDefault(c => c.Id == commentId);
+    //    if (comment == null)
+    //    {
+    //        return null;
+    //    }
+    //    return _mapper.Map<CommentDto>(comment);
+    //}
 }

@@ -263,6 +263,26 @@ namespace Gather.Migrations
                     b.ToTable("Posts");
                 });
 
+            modelBuilder.Entity("Gather.Models.StopWord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Word")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StopWords");
+                });
+
             modelBuilder.Entity("Gather.Models.User", b =>
                 {
                     b.Property<long>("UserId")

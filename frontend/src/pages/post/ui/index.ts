@@ -1,3 +1,3 @@
-export { CommentsList } from './comments-list';
-export { EmptyState } from './empty-state';
-export { LoadingState } from './loading-state';
+export { CommentsList } from './CommentsList';
+export { EmptyState } from './EmptyState';
+export { LoadingState } from './LoadingState';

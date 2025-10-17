@@ -3,7 +3,7 @@ import { getLocalizedString } from "@/shared/locales/localizing";
 import { t } from "i18next";
 import { useEffect, useState } from "react";
 import { accountApi } from "../../";
-import { TrackingOptions } from "@/features/accounts/accounts-filter/accounts-filter-props";
+import { TrackingOptions } from "@/features/accounts/accounts-filter/AccountsFilterProps";
 
 export const useFetchAccountsCount = (isTracking: TrackingOptions, login: string) => {
 

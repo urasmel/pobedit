@@ -1,1 +1,1 @@
-export { PageFallback } from './page-fallback';
+export { PageFallback } from './PageFallback';

@@ -2,7 +2,7 @@
 
 public class TelegramConfig(string apiId, string apiHash, string phoneNumber) : IConfigUtils
 {
-    public Func<string, string> ConfigMethod = what =>
+    public Func<string, string?> ConfigMethod = what =>
     {
         if (what == "api_id") return apiId;
         if (what == "api_hash") return apiHash;
@@ -15,7 +15,7 @@ public class TelegramConfig(string apiId, string apiHash, string phoneNumber) : 
         return null;
     };
 
-    public Func<string, string> Config()
+    public Func<string, string?> Config()
     {
         return ConfigMethod;
     }

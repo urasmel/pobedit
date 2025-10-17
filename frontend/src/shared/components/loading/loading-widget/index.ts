@@ -1,1 +1,1 @@
-export { LoadingWidget } from './loading-widget';
+export { LoadingWidget } from './LoadingWidget';

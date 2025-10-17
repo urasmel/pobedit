@@ -22,9 +22,6 @@ public static class Gatherer
         IMapper mapper,
         PobeditSettings pobeditSettings)
     {
-        //await Task.Delay(1000);
-        //return;
-
         Log.Information("Starting update posts of channel {channel} and info {info}",
             chatId,
             new
@@ -32,6 +29,19 @@ public static class Gatherer
                 method = "GetAccountsAsync"
             }
         );
+
+        if(_context == null || _context.Channels == null || _context.Accounts == null || _context.Posts == null)
+        {
+            var errorMessage = "DB context or one of it source is null";
+            Log.Error(errorMessage,
+                new
+                {
+                    method = "UpdateChannelPosts"
+                }
+            );
+            await loadingHelper.NotifyFailureEndingAsync(errorMessage);
+            return;
+        }
 
         try
         {
@@ -43,7 +53,7 @@ public static class Gatherer
             Log.Error(ex, errorMessage,
                 new
                 {
-                    method = "GetAccountsAsync"
+                    method = "UpdateChannelPosts"
                 }
             );
 
@@ -101,7 +111,7 @@ public static class Gatherer
                         {
                             method = "UpdateChannelPosts"
                         }
-                    ); 
+                    );
                     return;
                 }
 
@@ -217,9 +227,6 @@ public static class Gatherer
         IMapper mapper,
         PobeditSettings pobeditSettings)
     {
-        //await Task.Delay(1000);
-        //return;
-
         Log.Information("Starting update post's comments of channel = {channel}, post = {post} and info {info}",
             chatId,
             postId,
@@ -246,9 +253,9 @@ public static class Gatherer
             return;
         }
 
-        if (_context.Channels == null)
+        if (_context == null || _context.Channels == null || _context.Accounts == null || _context.Comments == null || _context.Posts == null)
         {
-            var errorMessage = "An error ocurred while updating post's comments. DB error";
+            var errorMessage = "DB context or one of it source is null";
             Log.Error(errorMessage,
                 new
                 {
@@ -286,33 +293,8 @@ public static class Gatherer
             return;
         }
 
-        if (_context.Comments == null)
-        {
-            var errorMessage = "An error ocurred while updating post's comments. DB error";
-            Log.Error(errorMessage,
-                new
-                {
-                    method = "UpdatePostComments"
-                }
-            );
-            await loadingHelper.NotifyFailureEndingAsync(errorMessage);
-            return;
-        }
-
-        if (_context.Posts == null)
-        {
-            var errorMessage = "An error ocurred while updating post's comments. DB error";
-            Log.Error(errorMessage,
-                new
-                {
-                    method = "UpdatePostComments"
-                }
-            );
-            await loadingHelper.NotifyFailureEndingAsync(errorMessage);
-            return;
-        }
-
         var post = await _context.Posts.FirstAsync(p => p.TlgId == postId && p.PeerId == chatId);
+
         if (post == null)
         {
             var errorMessage = "An error ocurred while updating post's comments. Post not found in DB";
@@ -404,6 +386,20 @@ public static class Gatherer
             var lastCommentId = 0;
 
             var pId = await _context.Posts.Where(p => p.TlgId == postId && p.PeerId == chatId).FirstOrDefaultAsync();
+
+            if (pId == null)
+            {
+                var errorMessage = "An error ocurred while updating post's comments. Post not found.";
+                Log.Error(errorMessage,
+                    new
+                    {
+                        method = "UpdatePostComments"
+                    }
+                );
+                await loadingHelper.NotifyFailureEndingAsync(errorMessage);
+                return;
+            }
+
             bool commentsExist = _context.Comments
                 .Any(c => c.PostId == pId.PostId);
 

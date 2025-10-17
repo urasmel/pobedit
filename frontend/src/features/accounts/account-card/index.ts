@@ -1,1 +1,1 @@
-export { AccountCard } from './account-card';
+export { AccountCard } from './AccountCard';

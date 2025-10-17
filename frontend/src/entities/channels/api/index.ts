@@ -1,1 +1,1 @@
-export { channelQueries } from './channel.queries';
+export { channelQueries } from './Channel.queries';

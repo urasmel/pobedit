@@ -21,8 +21,8 @@ public class PostsService(
 {
     // Дата, с которой начинаем загружать данные.
     readonly GatherClient _client = client;
-    private readonly IMapper _mapper = mapper;
     private readonly DataContext _context = context;
+    private readonly IMapper _mapper = mapper;
     PobeditSettings pobeditSettings = _settingsService.PobeditSettings;
     readonly IGatherNotifierFabric _loadingHelperFabric = loadingHelperFabric;
 
@@ -177,14 +177,16 @@ public class PostsService(
     {
         IGatherNotifier loadingHelper = _loadingHelperFabric.Create(webSocket);
         //await UpdateChannelPosts(chatId, loadingHelper);
-        await Gatherer.UpdateChannelPosts(chatId, loadingHelper, _client, _context, mapper, pobeditSettings);
+        //await Gatherer.UpdateChannelPosts(chatId, loadingHelper, _client, _context, mapper, pobeditSettings);
+
+        await Gatherer.UpdateChannelPosts(chatId, loadingHelper, _client, _context, _mapper, pobeditSettings);
     }
 
     public async Task<ServiceResponse<long>> GetChannelPostsCount(long chatId)
     {
         var response = new ServiceResponse<long>();
 
-        if (_context.Posts == null)
+        if (_context==null || _context.Posts == null || _context.Channels==null)
         {
             Log.Error("DB context with posts is null",
                 new

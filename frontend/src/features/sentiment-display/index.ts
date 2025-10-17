@@ -1,1 +1,1 @@
-export { SentimentDisplay } from './sentiment-display';
+export { SentimentDisplay } from './SentimentDisplay';

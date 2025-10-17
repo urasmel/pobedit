@@ -1,1 +1,1 @@
-export { CommentsUpdatingWidget } from './comments-updating-widget';
+export { CommentsUpdatingWidget } from './CommentsUpdatingWidget';

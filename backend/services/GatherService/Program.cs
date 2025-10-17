@@ -163,6 +163,7 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IChannelsService, ChannelsService>();
+builder.Services.AddScoped<IStopWordService, StopWordService>();
 builder.Services.AddScoped<IPostsService, PostsService>();
 builder.Services.AddScoped<ICommentsService, CommentsService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
@@ -175,8 +176,14 @@ app.MapPrometheusScrapingEndpoint();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseStaticFiles(); // Make sure this is enabled
+    app.UseSwagger(); 
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        c.InjectStylesheet("/swagger-dark.css"); // Add this line
+        c.EnableTryItOutByDefault();
+    });
 }
 
 app.UseOpenTelemetryPrometheusScrapingEndpoint(); // Endpoint для Prometheus /metrics

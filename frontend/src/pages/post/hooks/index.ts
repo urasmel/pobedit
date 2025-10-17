@@ -1,2 +1,2 @@
-export { usePostPage } from './use-post-page';
-export { usePagination } from './use-pagination';
+export { usePostPage } from './usePostPage';
+export { usePagination } from './usePagination';
