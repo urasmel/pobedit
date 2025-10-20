@@ -13,5 +13,8 @@ public interface IStopWordService
 
     Task<ServiceResponse<StopWordDto>> UpdateStopWord(StopWordDto stopWordDto);
 
-    Task<ServiceResponse<bool>> DeleteStopWord(long id);
+    Task<ServiceResponse<bool>> DeleteStopWord(long id);   
+    
+    Task<ServiceResponse<IEnumerable<string>>> GetStopWordsInText(string text);
+
 }

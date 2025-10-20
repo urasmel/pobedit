@@ -232,5 +232,41 @@ namespace Gather.Controllers
                 _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
             }
         }
+
+        // New endpoint: returns the list of stop-words found in the provided text.
+        // Accepts raw text in the request body (text/plain or JSON string).
+        [HttpGet("find-in-text")]
+        [MapToApiVersion(1.0)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ServiceResponse<IEnumerable<string>>>> FindInText([FromBody] SearchStopWordsDto text)
+        {
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            try
+            {
+                Log.Information("FindInText requested at {Time}",
+                    DateTime.Now,
+                    new
+                    {
+                        method = "FindInText"
+                    }
+                );
+
+                var response = await _stopWordService.GetStopWordsInText(text.Content);
+
+                if (response.ErrorType == ErrorType.ServerError)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
+                }
+
+                return Ok(response);
+            }
+            finally
+            {
+                stopwatch.Stop();
+                _metrics.RecordRequest(Request.Path, stopwatch.Elapsed.TotalSeconds);
+            }
+        }
     }
 }
